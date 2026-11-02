@@ -37,7 +37,7 @@ I contratti sono in `src/engine/types.ts`, `src/net/types.ts`, `src/stato/types.
 - Heartbeat ogni 5 s; se mancano 3 battiti → stato `in-attesa` e tentativo di riconnessione.
 
 ## Stato condiviso (src/stato)
-- `StatoPartita`: puzzle, mappa celle `{v, note, da, ts}`, `iniziata`, `finita?`, `errori` contatore.
+- `StatoPartita`: puzzle, mappa celle `{v, note, da, ts}`, `iniziata`, `finita?` (gli errori si contano localmente nella UI, non nello stato condiviso).
 - Riduttore puro `applica(stato, azione)`; `unisci(a, b)` per il merge; serializzabile in JSON (localStorage e rete).
 
 ## UI (src/ui)
