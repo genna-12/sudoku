@@ -1,3 +1,4 @@
+import { specchiaInIndexedDB } from './persistenza';
 // Archivio locale: tutto ciò che persiste sul dispositivo, in UNA chiave localStorage versionata.
 // Aggiungere un campo = alzare VERSIONE_ARCHIVIO e aggiungere un passo in PASSI (storico e tappe
 // viste non si toccano mai). Puro TS: lo storage si passa come parametro (default localStorage).
@@ -191,7 +192,10 @@ export function carica(storage: Storage | undefined = storageDefault()): Archivi
 export function salva(a: Archivio, storage: Storage | undefined = storageDefault()): boolean {
   if (!storage) return false;
   try {
-    storage.setItem(CHIAVE_ARCHIVIO, JSON.stringify(a));
+    const testo = JSON.stringify(a);
+    storage.setItem(CHIAVE_ARCHIVIO, testo);
+    // copia di sicurezza in IndexedDB (solo nel browser, non nei test con storage finto)
+    if (typeof localStorage !== 'undefined' && storage === localStorage) void specchiaInIndexedDB(testo);
     return true;
   } catch {
     return false;

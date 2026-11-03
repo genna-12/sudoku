@@ -155,6 +155,9 @@ try {
 
   // ricarica B: la partita riprende e lo stato è allineato
   await b.reload();
+  // al riavvio si parte dalla Home: la partita è su "Continua"
+  await b.getByTestId('continua').waitFor({ timeout: 15000 });
+  await b.getByTestId('continua').click({ force: true });
   await b.getByTestId('griglia').waitFor({ timeout: 15000 });
   await attendi(2000);
   const dopo = await testo(b, `cella-${idx}`);

@@ -85,6 +85,19 @@ async function scriviArchivio(page, o) {
   }, o);
   const ultime = await page.evaluate(() => JSON.parse(sessionStorage.getItem('qa-ultime')));
   await page.goto(base);
+  // al riavvio si parte dalla Home: se c'è una partita in corso la si apre da "Continua"
+  await page.getByTestId('home').waitFor({ timeout: 10000 });
+  await attendi(300);
+  // un annuncio di sblocco in Home (es. sentiero a 3 fiori) si chiude, salvo nella fase T2 che lo verifica
+  if (!o.versioneT2 && !o.lasciaAnnuncio && (await page.getByTestId('annuncio-chiudi').count())) {
+    await page.getByTestId('annuncio-chiudi').click({ force: true });
+    await attendi(300);
+  }
+  const copertura = (await page.getByTestId('annuncio-sblocco').count()) || (await page.getByTestId('scena-sblocco').count());
+  if (!copertura && (await page.getByTestId('continua').count())) {
+    await page.getByTestId('continua').click({ force: true });
+    await page.getByTestId('griglia').waitFor({ timeout: 10000 });
+  }
   return ultime;
 }
 
@@ -103,10 +116,11 @@ try {
     const { ctx, page } = await contesto('T2', { width: 390, height: 844 });
     // 8 fiori visti in T2: la tappa 8 allora era di Semina (`semina-8`), ora è di Semino
     const viste = ['semino-0', 'semino-1', 'semino-2', 'semino-3', 'semino-4', 'semina-5', 'semino-6', 'semino-7', 'semina-8'];
-    await scriviArchivio(page, { nome: 'Semino', frase: 'qa t2 ' + Date.now(), fiori: 8, viste, seed: 4242, mancanti: 20 });
-    await page.getByTestId('griglia').waitFor({ timeout: 10000 });
-    console.log('OK T2: si apre sulla partita in corso');
-    await page.getByTestId('indietro').click();
+    await scriviArchivio(page, { nome: 'Semino', frase: 'qa t2 ' + Date.now(), fiori: 8, viste, seed: 4242, mancanti: 20, lasciaAnnuncio: true });
+    // al riavvio si parte dalla Home: la partita in corso c'è, su "Continua" (o dietro l'annuncio)
+    if (await page.getByTestId('griglia').count()) await page.getByTestId('indietro').click();
+    else if (!(await page.getByTestId('continua').count()) && !(await page.getByTestId('annuncio-sblocco').count())) fallisci('T2: partita in corso persa');
+    console.log('OK T2: si apre in Home con la partita in corso');
     await page.getByTestId('home').waitFor({ timeout: 5000 });
     if (await visibile(page, 'scena-sblocco')) fallisci('T2: la scena di Semina è ripartita');
     await page.getByTestId('annuncio-sblocco').waitFor({ timeout: 3000 });
@@ -126,8 +140,7 @@ try {
     const salvato = await page.evaluate(() => JSON.parse(localStorage.getItem('sudoku-coppia-archivio')));
     if (!Array.isArray(salvato.sbloccatiVisti) || salvato.regaliBonus !== 0) fallisci(`T2: campi nuovi non scritti ${JSON.stringify([salvato.sbloccatiVisti, salvato.regaliBonus])}`);
     await page.reload();
-    await page.getByTestId('griglia').waitFor({ timeout: 10000 });
-    await page.getByTestId('indietro').click();
+    await page.getByTestId('home').waitFor({ timeout: 10000 });
     await attendi(500);
     if (await visibile(page, 'annuncio-sblocco')) fallisci('T2: annuncio ripetuto dopo il reload');
     console.log('OK T2: un solo annuncio (ultima soglia), nessuna tappa ripetuta, nessuna scena;', chip.trim());
@@ -298,7 +311,8 @@ try {
     await attendi(1500);
     const rC = await C.page.getByTestId('regalo').getAttribute('data-disponibili');
     const rD = await D.page.getByTestId('regalo').getAttribute('data-disponibili');
-    if (rC !== '1' || rD !== '1') fallisci(`${w}×${h}: regali del giardino persi con "Nuova" insieme (C ${rC}, D ${rD})`);
+    // almeno il regalo seminato (1), più l'eventuale regalo dell'annuncio chiuso all'avvio; uguali sui due lati
+    if (!rC || Number(rC) < 1 || rC !== rD) fallisci(`${w}×${h}: regali del giardino persi con "Nuova" insieme (C ${rC}, D ${rD})`);
     console.log(`OK ${w}×${h}: "Nuova" insieme → stessa griglia; regali del giardino nella nuova partita: C ${rC}, D ${rD}`);
     await C.ctx.close();
     await D.ctx.close();

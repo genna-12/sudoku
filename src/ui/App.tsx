@@ -103,7 +103,8 @@ export function App() {
   // Nome libero di T1 (non "Semino"/"Semina"): l'Ingresso chiede una volta di confermare il colore,
   // già preselezionato da profiloDiNome; un nome non riconosciuto diventerebbe Blu in silenzio.
   const [schermata, setSchermata] = useState<Schermata>(() =>
-    !io || !profiloConfermato(archivio) ? 'ingresso' : archivio.partita && !archivio.partita.finita ? 'partita' : 'home',
+    // Al (ri)avvio si parte sempre dalla Home: la partita in corso è lì, su "Continua" (richiesta di Genna).
+    !io || !profiloConfermato(archivio) ? 'ingresso' : 'home',
   );
   const [tema, setTema] = useState<Tema>(leggiTema);
   const [partnerCursore, setPartnerCursore] = useState<number | null>(null);
