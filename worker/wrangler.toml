@@ -1,0 +1,12 @@
+# Worker + KV per la memoria condivisa di "Sudoku di coppia" (piano gratuito Cloudflare).
+# Deploy dal PC: `npx wrangler login` (una volta) e `npx wrangler deploy`.
+name = "sudoku-coppia"
+main = "src/index.ts"
+compatibility_date = "2026-10-01"
+
+[[kv_namespaces]]
+binding = "ARCHIVI"
+id = "03053516d8e3473fad7a32ecf845e411"
+
+[observability]
+enabled = false
