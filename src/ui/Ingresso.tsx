@@ -77,7 +77,7 @@ export function Ingresso({
           <span className="campo-aiuto">Apre la vostra stanza: chi non la conosce non vi trova.</span>
         </label>
         <button data-testid="entra" className="bottone primario" type="submit" disabled={!pronto}>
-          {profilo ? `Entra: ${nomeVisibile(profilo, sbloccata)}` : 'Scegli il tuo colore'}
+          {profilo ? `Entra come ${nomeVisibile(profilo, sbloccata)}` : 'Scegli chi sei'}
         </button>
       </form>
     </main>

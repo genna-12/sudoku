@@ -148,8 +148,8 @@ try {
     'A e B non si collegano',
   );
   const chipPrima = (await B.page.locator('.partner-chip').textContent())?.trim();
-  if (chipPrima !== 'Verde') fallisci(`prima dello sblocco B vede il partner come "${chipPrima}"`);
-  console.log('OK 4 fiori, connessi, nomi Verde/Blu');
+  if (chipPrima !== 'Genna') fallisci(`prima dello sblocco B vede il partner come "${chipPrima}"`);
+  console.log('OK 4 fiori, connessi, nomi veri (Genna/Mati)');
 
   const [idx, v] = ultimaA;
   await B.page.getByTestId(`cella-${idx}`).click();
@@ -199,8 +199,9 @@ try {
     if (await visibile(page, 'scena-sblocco')) fallisci(`${n}: la scena non si chiude`);
   }
   // dopo: nomi Semino/Semina, nessun annuncio sopra, scena mai più
-  await finche(async () => (await A.page.locator('.partner-chip').textContent())?.trim() === 'Semina', 4000, async () => `A vede il partner come "${await A.page.locator('.partner-chip').textContent()}"`);
-  await finche(async () => (await B.page.locator('.partner-chip').textContent())?.trim() === 'Semino', 4000, async () => `B vede il partner come "${await B.page.locator('.partner-chip').textContent()}"`);
+  // i giocatori restano Genna e Mati anche dopo lo sblocco: Semino e Semina sono le mascotte
+  await finche(async () => (await A.page.locator('.partner-chip').textContent())?.trim() === 'Mati', 4000, async () => `A vede il partner come "${await A.page.locator('.partner-chip').textContent()}"`);
+  await finche(async () => (await B.page.locator('.partner-chip').textContent())?.trim() === 'Genna', 4000, async () => `B vede il partner come "${await B.page.locator('.partner-chip').textContent()}"`);
   for (const [n, { page }] of [['A', A], ['B', B]]) {
     await page.getByTestId('indietro').click();
     await page.getByTestId('home').waitFor({ timeout: 4000 });

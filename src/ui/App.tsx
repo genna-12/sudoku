@@ -17,6 +17,7 @@ import { Giardino } from './Giardino';
 import type { Arrivo, Lampo } from './Griglia';
 import { Home } from './Home';
 import type { Chiacchiera } from './Home';
+import { BannerAggiornamento } from './Aggiornamento';
 import { Ingresso } from './Ingresso';
 import { cancellaPartita, esporta, importa, ioDaArchivio, nomeFileEsportazione, profiloConfermato, ricomincia } from './memoria';
 import type { Tema } from './MenuHome';
@@ -230,7 +231,7 @@ export function App() {
     }
     if (!r.testo) return;
     const delPartner = v.sbloccata && dalPartner && chi === mascotteDi(altro(v.mioRuolo));
-    const prefisso = delPartner ? nomeVisibile(PROFILI.find((p) => p.id === chi) ?? PROFILI[0], true) : undefined;
+    const prefisso = delPartner ? (PROFILI.find((p) => p.id === chi) ?? PROFILI[0]).nome : undefined;
     const errore = r.categoria === 'sbagliata' || r.categoria === 'sbagliataSerie';
     const tono: Tono = errore ? 'errore' : r.categoria === 'completato' ? 'completato' : dalPartner ? 'suo' : 'mio';
     if (v.schermata === 'partita') {
@@ -638,6 +639,7 @@ export function App() {
 
   return (
     <div className="app" style={stile}>
+      <BannerAggiornamento />
       {schermata === 'ingresso' && (
         <Ingresso key="ingresso" iniziale={io} sbloccata={sbloccata} onEntra={entra} />
       )}

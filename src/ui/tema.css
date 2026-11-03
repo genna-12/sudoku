@@ -3310,3 +3310,27 @@ input:focus-visible {
     animation: none;
   }
 }
+
+/* ---- Aggiornamento PWA: striscia in alto, sopra tutto, nello stile delle superfici ---- */
+.aggiornamento {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px 8px 14px;
+  max-width: calc(100vw - 24px);
+  background: var(--superficie);
+  color: var(--testo);
+  border: 1px solid color-mix(in oklab, var(--verde) 45%, transparent);
+  border-radius: var(--r-foglia, 18px);
+  box-shadow: 0 10px 30px color-mix(in oklab, var(--blu) 25%, transparent);
+  animation: aggiornamento-entra 0.35s ease-out;
+}
+.aggiornamento-testo { font-size: 0.92rem; }
+.aggiornamento .bottone.piccolo { padding: 6px 12px; font-size: 0.9rem; }
+@keyframes aggiornamento-entra { from { opacity: 0; transform: translate(-50%, -8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@media (prefers-reduced-motion: reduce) { .aggiornamento { animation: none; } }

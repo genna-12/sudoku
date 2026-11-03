@@ -33,9 +33,13 @@ export function profiloDiNome(nome: string): Profilo {
   return PROFILI[1];
 }
 
-/** Nome da mostrare: colore prima dello sblocco di Semina, personaggio dopo. */
-export function nomeVisibile(p: Profilo, seminaSbloccata: boolean): string {
-  return seminaSbloccata ? p.nome : p.nomePrima;
+/**
+ * Nome del GIOCATORE da mostrare: sempre quello vero (Genna / Mati). Il colore è solo un'etichetta
+ * (`nomePrima`) e Semino/Semina (`nome`) sono le mascotte, non i giocatori.
+ * Il parametro resta per compatibilità: non cambia più il risultato.
+ */
+export function nomeVisibile(p: Profilo, _seminaSbloccata?: boolean): string {
+  return p.nomeReale;
 }
 
 export function coloreDiNome(nome: string): string {
