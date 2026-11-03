@@ -119,3 +119,6 @@ Estetica: "notte in giardino". Niente viola generico da template: fondo verde-ne
 - Sfondo: "cielo del giardino" che vira dal verde-notte al blu-notte con la presenza del blu, con gradiente ampio e grana, non blocchi di colore; il bicolore sui bottoni va usato con parsimonia (un solo elemento primario), i titoli tornano monocromi con un dettaglio bicolore.
 - Interattività: feedback su ogni tocco, tastierino con pressione fisica, griglia con "respiro" al completamento, mascotte che seguono con lo sguardo la cella selezionata (occhi che si spostano), fumetti con coda verso chi parla.
 - Criterio: due screenshot prima/dopo per schermata nel documento, con le scelte spiegate in una riga ciascuna.
+
+## Icone (richiesta 03:49)
+- Dopo lo studio colori: icona PWA (192, 512, maskable con margine sicuro), favicon SVG/PNG per desktop, apple-touch-icon e splash iOS (vite-plugin-pwa assets o PNG dedicate). Soggetto: Semino (stadio 2) o i due semini dopo lo sblocco? No: l'icona è fissa e non spoilera: Semino solo, su fondo della palette scelta, con un dettaglio verde fluo e uno blu nei dettagli (non 50/50). Niente testo, niente effetti gratuiti, leggibile a 48 px. Verifica resa su sfondo chiaro e scuro della home del telefono.
