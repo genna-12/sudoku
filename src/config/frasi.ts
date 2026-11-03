@@ -37,13 +37,23 @@ export const FRASI = {
  * la prima volta che la si raggiunge. `chi` dice chi parla. Semina compare dalla tappa 5.
  */
 export const SEMINA_SBLOCCATA_A = 5;
+
+/** Scena di sblocco di Semina (a SEMINA_SBLOCCATA_A fiori): battute in ordine, una per tocco. */
+export const SCENA_SBLOCCO: Array<{ chi: 'semino' | 'semina' | 'nessuno'; umore: string; testo: string }> = [
+  { chi: 'semino', umore: 'neutro', testo: 'Cinque fiori. Il giardino è grande, adesso.' },
+  { chi: 'nessuno', umore: '', testo: '...fruscio...' },
+  { chi: 'semino', umore: 'sorpreso', testo: 'Il fruscio! È qui, è qui dietro...' },
+  { chi: 'semina', umore: 'euforico', testo: 'CIAO! Sono Semina! Vi guardavo giocare da un sacco di tempo, non ce la facevo più a stare zitta!' },
+  { chi: 'semino', umore: 'imbarazzato', testo: 'Ehm. Ciao. Io sono Semino. Mi sentivo un po\' solo, prima.' },
+  { chi: 'semina', umore: 'felice', testo: 'Lo so. Ti ho sentito. Da adesso le righe le chiudiamo in due.' },
+];
 export const STORIA_SEMINO: Array<{ partite: number; chi: 'semino' | 'semina' | 'entrambi'; testo: string }> = [
   { partite: 0, chi: 'semino', testo: 'Ciao. Sono Semino. Sono piccolo, ma se risolvete i sudoku insieme cresco. Promesso.' },
   { partite: 1, chi: 'semino', testo: 'Il primo fiore! Il giardino comincia da qui.' },
   { partite: 2, chi: 'semino', testo: 'Stanotte ho sentito un fruscio dall\'altra parte dell\'aiuola. Sarà il vento.' },
   { partite: 3, chi: 'semino', testo: 'Tre fiori. Il fruscio è tornato. Non era il vento.' },
-  { partite: 4, chi: 'semino', testo: 'Ho lasciato una fogliolina vicino al fruscio. Stamattina non c\'era più.' },
-  { partite: 5, chi: 'semina', testo: 'Ciao. Sono Semina. Ero qui da un pezzo, aspettavo che il giardino fosse abbastanza grande per due.' },
+  { partite: 4, chi: 'semino', testo: 'Quattro fiori. Stasera mi sento un po\' solo, qui in mezzo. Dai... ne facciamo un altro insieme?' },
+  { partite: 5, chi: 'semina', testo: 'Ciao. Sono Semina. Ero qui da un pezzo: aspettavo che il giardino fosse abbastanza grande per due.' },
   { partite: 6, chi: 'semino', testo: 'Semina conta i fiori in modo diverso da me. Dice che i miei sono storti. Sono storti.' },
   { partite: 8, chi: 'semina', testo: 'Semino parla nel sonno. Dice "sei mini". Non so a chi.' },
   { partite: 10, chi: 'entrambi', testo: 'Dieci fiori. Ora ci vengono le api. Le contiamo insieme, ma arriviamo a numeri diversi.' },
