@@ -6,7 +6,7 @@ compatibility_date = "2026-10-01"
 
 [[kv_namespaces]]
 binding = "ARCHIVI"
-id = "03053516d8e3473fad7a32ecf845e411"
+id = "8196ebc1ce0b41a9803404b312be5220"
 
 [observability]
 enabled = false

@@ -11,4 +11,4 @@ npx wrangler deploy         # stampa l'URL https://sudoku-coppia.<account>.worke
 ```
 Poi metti l'URL in `src/config/sync.ts` (campo `URL_SYNC`) e fai push: il sito si aggiorna da solo.
 
-Il namespace KV `sudoku-coppia-archivi` è già creato (id in wrangler.toml).
+Il namespace KV `ARCHIVI` è nell'account Cloudflare di Genna (id in wrangler.toml).
