@@ -63,3 +63,9 @@ Estetica: "notte in giardino". Niente viola generico da template: fondo verde-ne
 - Mosse fatte dal dispositivo A di Genna si propagano anche al dispositivo B di Genna in tempo reale (stessa partita), e da lì nulla rimbalza: un messaggio ricevuto dalla stanza personale NON viene reinviato nella stanza di coppia e viceversa, salvo lo stato al `ciao` (per allineare chi arriva dopo).
 - Nella stanza di coppia resta il limite a due peer: se il secondo dispositivo di Genna non riesce a entrare (id occupati), mostra "sei già collegato da un altro dispositivo" e gioca comunque tramite la stanza personale.
 - Fallback: esporta/importa (sezione precedente) e allineamento tramite il partner.
+
+## Robustezza delle memorie divergenti (deciso 02:33)
+- Ruolo di gioco (`Giocatore` 'a'|'b') deciso SOLO dal nome con `ruoloDiNome` (Genna = 'a', chiunque altro = 'b'): non più dall'ordine alfabetico né dal ruolo di rete. Il ruolo di rete (chi è `-a`/`-b` su PeerJS) non compare mai nello stato di gioco.
+- `migra` conserva i campi sconosciuti dell'archivio (app vecchia che legge dati nuovi non li perde al salvataggio).
+- Test di robustezza in src/stato (archivio.test.ts): dati due archivi divergenti A e B (partite diverse, stessa partita con celle diverse e contatori diversi, azzeramenti diversi), `unisci(A,B)` ≡ `unisci(B,A)` e `unisci(unisci(A,B),B)` ≡ `unisci(A,B)` (commutativa, idempotente); il vuoto non vince mai.
+- Limiti accettati e documentati in README: stessa partita giocata su due dispositivi propri NON collegati tra loro → i contatori personali non si sommano (vince l'ultimo); nome diverso su due dispositivi = persona diversa; orologio sballato altera i conflitti sulla stessa cella; "ricomincia" cancella anche dal partner le partite precedenti alla data.
