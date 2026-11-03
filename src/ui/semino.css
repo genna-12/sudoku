@@ -1,0 +1,570 @@
+/* Semino e Semina: stile "adesivo" (contorno d'inchiostro caldo), colori dal tema se ci sono. */
+.semino {
+  --semino-corpo: #e9b57c;
+  --semino-ombra: #c98c52;
+  --semino-tratto: #2a1c0e;
+  --semino-foglia: #5fcf3e;
+  --semino-guance: #ff8b78;
+  --semino-lingua: #ff7b6b;
+  --semino-goccia: #a9d2ff;
+  --semino-verde: var(--verde, #7cff4a);
+  --semino-blu: var(--blu, #2f6bff);
+  --semino-oro: var(--oro, #ffc94a);
+  --semino-durata: 600ms;
+  display: inline-block;
+  flex: none;
+  overflow: visible;
+  vertical-align: middle;
+}
+.semino-semina {
+  --semino-corpo: #f1c3a2;
+  --semino-ombra: #d8957a;
+}
+
+/* ---------- materiali ---------- */
+.semino .s-corpo {
+  fill: var(--semino-corpo);
+}
+.semino .s-ombra {
+  fill: var(--semino-ombra);
+  opacity: 0.7;
+}
+.semino .s-riflesso {
+  fill: #fff;
+  opacity: 0.42;
+}
+.semino .s-contorno {
+  fill: none;
+  stroke: var(--semino-tratto);
+  stroke-width: 2.7;
+  stroke-linejoin: round;
+}
+.semino .s-contorno-pieno {
+  stroke: var(--semino-tratto);
+  stroke-width: 2.2;
+}
+.semino .s-cucitura {
+  fill: none;
+  stroke: var(--semino-tratto);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  opacity: 0.38;
+}
+.semino .s-terra {
+  fill: #000;
+  opacity: 0.22;
+}
+.semino .s-pieno {
+  fill: var(--semino-tratto);
+}
+.semino .s-luce {
+  fill: #fff;
+}
+.semino .s-linea {
+  fill: none;
+  stroke: var(--semino-tratto);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.semino .s-sottile {
+  stroke-width: 2;
+}
+.semino .s-ciglia {
+  fill: none;
+  stroke: var(--semino-tratto);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+.semino .s-lingua {
+  fill: var(--semino-lingua);
+}
+.semino .s-guance {
+  fill: var(--semino-guance);
+  opacity: 0.55;
+}
+.semino .s-guance-forti {
+  opacity: 0.95;
+}
+.semino .s-tratteggio {
+  stroke: #d8574a;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  opacity: 0.8;
+}
+.semino .s-stella {
+  fill: var(--semino-oro);
+  stroke: var(--semino-tratto);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+.semino .s-scintilla {
+  fill: var(--semino-oro);
+}
+.semino .s-goccia {
+  fill: var(--semino-goccia);
+  stroke: var(--semino-tratto);
+  stroke-width: 1.3;
+}
+.semino .s-braccio-bordo,
+.semino .s-braccio {
+  fill: none;
+  stroke-linecap: round;
+}
+.semino .s-braccio-bordo {
+  stroke: var(--semino-tratto);
+  stroke-width: 7.4;
+}
+.semino .s-braccio {
+  stroke: var(--semino-corpo);
+  stroke-width: 3.6;
+}
+.semino .s-oro {
+  fill: var(--semino-oro);
+  stroke: var(--semino-tratto);
+  stroke-width: 1.8;
+}
+.semino .s-nastro {
+  fill: #fff6e0;
+  stroke: var(--semino-tratto);
+  stroke-width: 1.4;
+}
+.semino .s-accento {
+  fill: var(--semino-blu);
+  stroke: var(--semino-tratto);
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+.semino .s-coriandolo {
+  opacity: 0;
+}
+.semino .s-z {
+  fill: var(--inchiostro, #f2ead6);
+  font: 800 9px/1 'Recursive', ui-rounded, system-ui, sans-serif;
+  opacity: 0;
+}
+.semino .s-z2 {
+  font-size: 11px;
+}
+.semino .s-z3 {
+  font-size: 13px;
+}
+
+/* pianta */
+.semino .s-stelo-bordo,
+.semino .s-stelo {
+  fill: none;
+  stroke-linecap: round;
+}
+.semino .s-stelo-bordo {
+  stroke: var(--semino-tratto);
+  stroke-width: 5.6;
+}
+.semino .s-stelo {
+  stroke: var(--semino-foglia);
+  stroke-width: 2.8;
+}
+.semino .s-foglia {
+  fill: var(--semino-foglia);
+  stroke: var(--semino-tratto);
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+.semino .s-vena {
+  fill: none;
+  stroke: var(--semino-tratto);
+  stroke-width: 1;
+  stroke-linecap: round;
+  opacity: 0.35;
+}
+.semino .s-petalo {
+  stroke: var(--semino-tratto);
+  stroke-width: 1.7;
+  stroke-linejoin: round;
+}
+.semino .s-piega {
+  fill: none;
+  stroke: var(--semino-tratto);
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  opacity: 0.4;
+}
+.semino .s-cuore {
+  fill: var(--semino-oro);
+  stroke: var(--semino-tratto);
+  stroke-width: 1.7;
+}
+.semino .s-zolla {
+  fill: var(--semino-zolla, #3a2a1c);
+  stroke: var(--semino-tratto);
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+.semino .s-zolla-segni {
+  stroke: #fff;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  opacity: 0.16;
+}
+.semino-pianta:not(.fiorita) .s-corpo {
+  opacity: 0.95;
+}
+
+/* ---------- coppia ---------- */
+.semino-coppia {
+  display: inline-flex;
+  align-items: flex-end;
+}
+.semino-coppia-lui {
+  transform: rotate(7deg);
+  transform-origin: 50% 95%;
+  margin-right: calc(var(--taglia, 96px) * -0.16);
+}
+.semino-coppia-lei {
+  transform: rotate(-7deg);
+  transform-origin: 50% 95%;
+}
+
+/* ---------- movimento ---------- */
+.semino .semino-idle,
+.semino .semino-reazione,
+.semino .semino-crescita,
+.semino .semino-occhi,
+.semino .s-mano,
+.semino .s-braccio-sx,
+.semino .s-braccio-dx,
+.semino .s-pacco-scatola,
+.semino .s-sudore,
+.semino .s-scintilla,
+.semino .s-coriandolo,
+.semino .s-z,
+.semino .s-stella {
+  transform-box: fill-box;
+}
+.semino .semino-idle,
+.semino .semino-reazione,
+.semino .semino-crescita {
+  transform-origin: 50% 100%;
+}
+.semino .semino-occhi,
+.semino .s-scintilla,
+.semino .s-stella,
+.semino .s-coriandolo {
+  transform-origin: 50% 50%;
+}
+
+/* respiro d'attesa: ogni 20 s un battito di ciglia (due volte) e un ondeggio */
+.semino .semino-idle {
+  animation: semino-ondeggia 20s 4s ease-in-out infinite;
+}
+.semino .semino-occhi {
+  animation: semino-batti 20s 1s infinite;
+}
+@keyframes semino-ondeggia {
+  0%,
+  86%,
+  100% {
+    transform: none;
+  }
+  89% {
+    transform: rotate(-4deg);
+  }
+  93% {
+    transform: rotate(3deg);
+  }
+  96% {
+    transform: rotate(-1deg);
+  }
+}
+@keyframes semino-batti {
+  0%,
+  46%,
+  47.6%,
+  96%,
+  97.6%,
+  100% {
+    transform: none;
+  }
+  46.8%,
+  96.8% {
+    transform: scaleY(0.1);
+  }
+}
+
+/* nuovo stadio: la pianta spunta */
+.semino .semino-crescita {
+  animation: semino-cresce var(--semino-durata) cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes semino-cresce {
+  from {
+    transform: scale(0.3, 0.1);
+    opacity: 0;
+  }
+}
+
+/* reazioni (nome che inizia con semino-r-: Semino.tsx le riavvia con `impulso`) */
+.semino .semino-r-neutro {
+  animation: semino-r-neutro 400ms ease-out;
+}
+.semino .semino-r-felice {
+  animation: semino-r-felice var(--semino-durata) ease-out;
+}
+.semino .semino-r-sorpreso {
+  animation: semino-r-sorpreso var(--semino-durata) cubic-bezier(0.3, 0.7, 0.4, 1);
+}
+.semino .semino-r-estasiato {
+  animation: semino-r-estasiato 700ms ease-in-out;
+}
+.semino .semino-r-festa {
+  animation: semino-r-festa 700ms ease-out;
+}
+.semino .semino-r-imbarazzato {
+  animation: semino-r-imbarazzato var(--semino-durata) ease-out;
+}
+.semino .semino-r-preoccupato {
+  animation: semino-r-preoccupato var(--semino-durata) ease-in-out;
+}
+.semino .semino-r-regalo {
+  animation: semino-r-regalo var(--semino-durata) cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.semino .semino-r-saluta {
+  animation: semino-r-saluta var(--semino-durata) ease-in-out;
+}
+.semino .semino-r-dorme {
+  animation: semino-r-dorme 3.4s ease-in-out infinite;
+}
+.semino-u-dorme .semino-idle,
+.semino-u-dorme .semino-occhi {
+  animation: none;
+}
+
+@keyframes semino-r-neutro {
+  from {
+    transform: scale(0.96, 1.03);
+  }
+}
+@keyframes semino-r-felice {
+  25% {
+    transform: scale(1.1, 0.88);
+  }
+  55% {
+    transform: translateY(-9px) scale(0.94, 1.08);
+  }
+  80% {
+    transform: translateY(0) scale(1.04, 0.96);
+  }
+}
+@keyframes semino-r-sorpreso {
+  18% {
+    transform: translateY(-13px) scale(1.07);
+  }
+  42% {
+    transform: translateY(0) scale(1.05);
+  }
+  60% {
+    transform: scale(1.06, 0.94);
+  }
+}
+@keyframes semino-r-estasiato {
+  15% {
+    transform: rotate(-10deg) scale(1.1);
+  }
+  35% {
+    transform: rotate(9deg) scale(1.13);
+  }
+  55% {
+    transform: rotate(-6deg) scale(1.08);
+  }
+  75% {
+    transform: rotate(3deg) scale(1.03);
+  }
+}
+@keyframes semino-r-festa {
+  20% {
+    transform: scale(1.08, 0.9);
+  }
+  45% {
+    transform: translateY(-18px) rotate(-7deg) scale(0.96, 1.06);
+  }
+  62% {
+    transform: translateY(-16px) rotate(7deg);
+  }
+  82% {
+    transform: translateY(0) scale(1.07, 0.92);
+  }
+}
+@keyframes semino-r-imbarazzato {
+  12% {
+    transform: translateX(-4px) rotate(-3deg) scale(0.96);
+  }
+  30% {
+    transform: translateX(4px) rotate(3deg) scale(0.96);
+  }
+  48% {
+    transform: translateX(-3px) rotate(-2deg) scale(0.97);
+  }
+  66% {
+    transform: translateX(2px) scale(0.98);
+  }
+}
+@keyframes semino-r-preoccupato {
+  20%,
+  60% {
+    transform: translate(-1.5px, 2px) scale(1.02, 0.94);
+  }
+  40%,
+  80% {
+    transform: translate(1.5px, 2px) scale(1.02, 0.94);
+  }
+}
+@keyframes semino-r-regalo {
+  35% {
+    transform: translateY(-7px) scale(1.04);
+  }
+}
+@keyframes semino-r-saluta {
+  30% {
+    transform: rotate(-5deg);
+  }
+  70% {
+    transform: rotate(2deg);
+  }
+}
+@keyframes semino-r-dorme {
+  50% {
+    transform: scale(1.03, 0.965);
+  }
+}
+
+/* pezzi che si muovono da soli */
+.semino .semino-faccia .s-mano {
+  transform-origin: 0% 100%;
+  animation: semino-r-mano 1.2s ease-in-out;
+}
+@keyframes semino-r-mano {
+  20%,
+  60% {
+    transform: rotate(-28deg);
+  }
+  40%,
+  80% {
+    transform: rotate(14deg);
+  }
+}
+.semino .s-braccio-dx {
+  transform-origin: 0% 100%;
+  animation: semino-r-braccio-dx 700ms ease-out;
+}
+.semino .s-braccio-sx {
+  transform-origin: 100% 100%;
+  animation: semino-r-braccio-sx 700ms ease-out;
+}
+@keyframes semino-r-braccio-dx {
+  from {
+    transform: rotate(70deg);
+  }
+  45% {
+    transform: rotate(-12deg);
+  }
+}
+@keyframes semino-r-braccio-sx {
+  from {
+    transform: rotate(-70deg);
+  }
+  45% {
+    transform: rotate(12deg);
+  }
+}
+.semino .s-pacco-scatola {
+  transform-origin: 50% 100%;
+  animation: semino-r-pacco var(--semino-durata) cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes semino-r-pacco {
+  from {
+    transform: translateY(6px) scale(0.3);
+    opacity: 0;
+  }
+}
+.semino .s-scintilla {
+  animation: semino-r-scintilla 900ms ease-out both;
+}
+@keyframes semino-r-scintilla {
+  from {
+    transform: scale(0) rotate(-90deg);
+  }
+  45% {
+    transform: scale(1.3) rotate(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+.semino .s-stella {
+  animation: semino-r-stella var(--semino-durata) ease-out;
+}
+@keyframes semino-r-stella {
+  from {
+    transform: scale(0.2) rotate(-144deg);
+  }
+  60% {
+    transform: scale(1.25) rotate(10deg);
+  }
+}
+.semino .s-coriandolo {
+  animation: semino-r-coriandolo 900ms cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+}
+@keyframes semino-r-coriandolo {
+  from {
+    transform: scale(0);
+    opacity: 1;
+  }
+  20% {
+    opacity: 1;
+  }
+  to {
+    transform: translate(var(--dx), var(--dy)) rotate(var(--r)) scale(1);
+    opacity: 0;
+  }
+}
+.semino .s-sudore {
+  animation: semino-r-sudore var(--semino-durata) ease-in both;
+}
+@keyframes semino-r-sudore {
+  from {
+    transform: translateY(-4px);
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+.semino .s-z {
+  animation: semino-z 2.4s ease-out infinite;
+}
+@keyframes semino-z {
+  0% {
+    opacity: 0;
+    transform: translate(-3px, 4px);
+  }
+  30% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(4px, -6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .semino *,
+  .semino .semino-idle,
+  .semino .semino-occhi {
+    animation: none !important;
+  }
+  .semino .s-coriandolo {
+    display: none;
+  }
+  .semino .s-z {
+    opacity: 0.8;
+  }
+}

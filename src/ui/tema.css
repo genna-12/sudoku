@@ -1,41 +1,70 @@
 @import url('https://fonts.googleapis.com/css2?family=Recursive:slnt,wght,CASL,CRSV,MONO@-15..0,300..1000,0..1,0..1,0..1&display=swap');
 
 /* ------------------------------------------------------------------------
-   Sudoku di coppia: carta di notte, due inchiostri (a = corallo, b = blu)
-   e un evidenziatore color burro per selezione e momenti belli.
+   NOTTE IN GIARDINO (scuro) / MATTINA IN GIARDINO (chiaro, prefers-color-scheme)
+   Colori: fondo verde-nero con grana (puntini a gradiente), carta crema per il testo,
+   --evid = luce di luna (scuro) / inchiostro verde (chiaro) per selezione e tasti primari.
+   Accenti vivi SOLO: --verde (Genna) e --blu (lei), arrivano come --mio/--suo; --oro solo
+   per regali e semi d'oro. --errore corallo spento, solo per gli sbagli.
+   Raggi: niente card tutte uguali. --r-foglia (due punte opposte) per superfici grandi,
+   --r-seme (una punta in basso a sinistra) per bottoni e chip, --r-petalo (punta a destra).
+   Movimento: --curva per gli spostamenti, --molla per ciò che "atterra"; pressione = scale .94;
+   reazioni brevi (≤ 600 ms), un solo moto continuo per volta; tutto spento con reduced-motion.
    ------------------------------------------------------------------------ */
 :root {
-  --fondo: #1b1a24;
-  --carta: #24222f;
-  --carta-2: #2d2a3a;
-  --linea: #3a3649;
-  --linea-forte: #6f6884;
-  --inchiostro: #f2ece4;
-  --tenue: #9e98ae;
-  --evid: #f3d27b;
-  --su-evid: #22202b;
-  --errore: #ff6584;
-  --a: #ff7a59;
-  --b: #5b8def;
-  --ombra: 0 12px 32px rgb(5 4 12 / 0.45);
+  --fondo: #0b1410;
+  --grana-chiara: rgb(239 232 214 / 0.045);
+  --grana-scura: rgb(0 0 0 / 0.32);
+  --luna: rgb(241 230 194 / 0.07);
+  --carta: #13221a;
+  --carta-2: #1b2e24;
+  --linea: #263a2f;
+  --linea-forte: #5b7566;
+  --inchiostro: #efe8d6;
+  --tenue: #93a698;
+  --evid: #f1e6c2;
+  --su-evid: #0b1410;
+  --errore: #ff7c6b;
+  --verde: #7cff4a;
+  --blu: #2f6bff;
+  --oro: #ffc94a;
+  --su-oro: #2a1c0e;
+  --verde-inchiostro: #7cff4a;
+  --blu-inchiostro: #7a9dff;
+  --oro-inchiostro: #ffd36e;
+  --a: var(--verde);
+  --b: var(--blu);
+  --r-foglia: 26px 8px 26px 8px;
+  --r-seme: 20px 20px 20px 6px;
+  --r-petalo: 20px 6px 20px 20px;
+  --ombra: 0 14px 34px rgb(0 0 0 / 0.5);
   --curva: cubic-bezier(0.2, 0.8, 0.2, 1);
   --molla: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --premi: 0.94;
   color-scheme: dark;
 }
 
 @media (prefers-color-scheme: light) {
   :root {
-    --fondo: #ece8f1;
-    --carta: #fbfafd;
-    --carta-2: #e2dde9;
-    --linea: #d6d0e0;
-    --linea-forte: #5f5875;
-    --inchiostro: #25212f;
-    --tenue: #6b6580;
-    --evid: #f0c443;
-    --su-evid: #25212f;
-    --errore: #d92d50;
-    --ombra: 0 12px 32px rgb(40 30 70 / 0.14);
+    --fondo: #f4efe3;
+    --grana-chiara: rgb(255 255 255 / 0.5);
+    --grana-scura: rgb(29 51 38 / 0.07);
+    --luna: rgb(183 205 170 / 0.35);
+    --carta: #fbf8f0;
+    --carta-2: #e4e9d8;
+    --linea: #d3d8c3;
+    --linea-forte: #58705f;
+    --inchiostro: #1d3326;
+    --tenue: #5f7366;
+    --evid: #1f4a33;
+    --su-evid: #f4efe3;
+    --errore: #c8412f;
+    --oro: #f2b11f;
+    --su-oro: #2a1c0e;
+    --verde-inchiostro: #2f8a12;
+    --blu-inchiostro: #2453d6;
+    --oro-inchiostro: #95620a;
+    --ombra: 0 14px 30px rgb(29 51 38 / 0.13);
     color-scheme: light;
   }
 }
@@ -62,6 +91,14 @@ body {
   font-family: 'Recursive', ui-rounded, system-ui, sans-serif;
   font-size: 16px;
   line-height: 1.4;
+  min-height: 100dvh;
+  /* luna in alto + due reticoli di puntini sfasati (5 e 7 px) = grana senza immagini */
+  background:
+    radial-gradient(120% 60% at 70% -12%, var(--luna), transparent 62%),
+    radial-gradient(circle at 1px 1px, var(--grana-chiara) 0.9px, transparent 1.5px) 0 0 / 5px 5px,
+    radial-gradient(circle at 1px 1px, var(--grana-scura) 0.9px, transparent 1.6px) 2px 3px / 7px 7px,
+    var(--fondo);
+  background-attachment: fixed;
 }
 /* --casl si eredita come variabile: ogni elemento ricalcola l'asse "casual" di Recursive */
 body * {
@@ -77,13 +114,14 @@ body {
 }
 
 .app {
-  --mio-testo: var(--mio);
-  --suo-testo: var(--suo);
+  /* testo nei colori dei giocatori: un filo schiarito al buio, scurito di mattina */
+  --mio-testo: color-mix(in srgb, var(--mio) 80%, #fff);
+  --suo-testo: color-mix(in srgb, var(--suo) 80%, #fff);
 }
 @media (prefers-color-scheme: light) {
   .app {
-    --mio-testo: color-mix(in srgb, var(--mio) 72%, #2a1410);
-    --suo-testo: color-mix(in srgb, var(--suo) 72%, #0b1430);
+    --mio-testo: color-mix(in srgb, var(--mio) 58%, #0c2414);
+    --suo-testo: color-mix(in srgb, var(--suo) 82%, #0b1430);
   }
 }
 
@@ -145,11 +183,11 @@ input:focus-visible {
   stroke-width: 1.4;
 }
 .marchio-a {
-  fill: var(--a);
+  fill: var(--verde);
   stroke: none;
 }
 .marchio-b {
-  fill: var(--b);
+  fill: var(--blu);
   stroke: none;
 }
 
@@ -161,23 +199,24 @@ input:focus-visible {
   min-height: 58px;
   padding: 0 20px;
   border: 0;
-  border-radius: 18px;
+  border-radius: var(--r-seme);
   font-size: 18px;
   font-weight: 700;
   --casl: 0.6;
   transition:
     transform 0.15s var(--curva),
+    box-shadow 0.15s var(--curva),
     opacity 0.2s,
     filter 0.2s;
 }
 .bottone.primario {
   background: var(--evid);
   color: var(--su-evid);
-  box-shadow: 0 6px 0 color-mix(in srgb, var(--evid) 45%, var(--fondo));
+  box-shadow: 0 5px 0 color-mix(in srgb, var(--evid) 40%, var(--fondo));
 }
 .bottone:active:not(:disabled) {
-  transform: translateY(3px);
-  box-shadow: 0 3px 0 color-mix(in srgb, var(--evid) 45%, var(--fondo));
+  transform: translateY(3px) scale(0.985);
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--evid) 40%, var(--fondo));
 }
 .bottone:disabled {
   cursor: default;
@@ -235,7 +274,7 @@ input:focus-visible {
   font-size: 18px;
   background: var(--carta);
   border: 1.5px solid var(--linea);
-  border-radius: 16px;
+  border-radius: var(--r-seme);
   outline: none;
   transition:
     border-color 0.2s,
@@ -246,7 +285,7 @@ input:focus-visible {
 }
 .campo input:focus {
   border-color: var(--evid);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--evid) 18%, transparent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--evid) 16%, transparent);
 }
 .campo-aiuto {
   font-size: 13.5px;
@@ -276,7 +315,7 @@ input:focus-visible {
   align-items: center;
   gap: 9px;
   padding: 7px 14px 7px 11px;
-  border-radius: 999px;
+  border-radius: 999px 999px 999px 8px;
   background: var(--carta);
   border: 1px solid var(--linea);
   font-size: 14px;
@@ -286,7 +325,7 @@ input:focus-visible {
 .partner-chip i {
   width: 9px;
   height: 9px;
-  border-radius: 50%;
+  border-radius: 50% 50% 50% 1px;
   background: var(--tenue);
   flex: none;
 }
@@ -322,14 +361,14 @@ input:focus-visible {
   padding: 14px;
   text-align: left;
   background: var(--carta);
-  border: 1.5px solid var(--linea);
-  border-radius: 20px;
+  border: 1px solid var(--linea);
+  border-radius: var(--r-foglia);
   transition:
     transform 0.15s var(--curva),
     border-color 0.2s;
 }
 .continua:active {
-  transform: scale(0.985);
+  transform: scale(0.98);
   border-color: var(--evid);
 }
 .continua-testo {
@@ -355,7 +394,7 @@ input:focus-visible {
   flex: none;
   padding: 4px;
   background: var(--fondo);
-  border-radius: 10px;
+  border-radius: 14px 4px 14px 4px;
 }
 .mini i {
   border-radius: 1.5px;
@@ -382,8 +421,8 @@ input:focus-visible {
   grid-template-columns: 1fr 1fr;
   padding: 4px;
   background: var(--carta);
-  border: 1.5px solid var(--linea);
-  border-radius: 18px;
+  border: 1px solid var(--linea);
+  border-radius: 22px 8px 22px 8px;
 }
 .segmentato button {
   position: relative;
@@ -405,8 +444,9 @@ input:focus-visible {
   bottom: 4px;
   left: 4px;
   width: calc(50% - 4px);
-  border-radius: 14px;
+  border-radius: 18px 5px 18px 5px;
   background: var(--carta-2);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--inchiostro) 10%, transparent);
   transition: transform 0.32s var(--molla);
 }
 .segmentato-cursore[data-pos='1'] {
@@ -428,15 +468,15 @@ input:focus-visible {
   padding: 11px 12px 10px;
   text-align: left;
   background: var(--carta);
-  border: 1.5px solid var(--linea);
-  border-radius: 16px;
+  border: 1px solid var(--linea);
+  border-radius: var(--r-seme);
   transition:
     border-color 0.2s,
     background 0.2s,
     transform 0.15s var(--curva);
 }
 .livello:active {
-  transform: scale(0.96);
+  transform: scale(var(--premi));
 }
 .livello-nome {
   font-size: 15px;
@@ -451,7 +491,7 @@ input:focus-visible {
 }
 .livello-scala i {
   width: 5px;
-  border-radius: 2px;
+  border-radius: 3px 3px 3px 1px;
   background: var(--linea);
   transition: background 0.25s;
 }
@@ -510,13 +550,16 @@ input:focus-visible {
   height: 44px;
   flex: none;
   border: 0;
-  border-radius: 14px;
+  border-radius: 16px 16px 16px 5px;
   background: none;
   color: var(--inchiostro);
-  transition: background 0.15s;
+  transition:
+    background 0.15s,
+    transform 0.12s var(--curva);
 }
 .icona-bottone:active {
   background: var(--carta-2);
+  transform: scale(var(--premi));
 }
 .barra-titolo {
   display: flex;
@@ -546,8 +589,9 @@ input:focus-visible {
   gap: 7px;
   max-width: 120px;
   padding: 6px 11px 6px 9px;
-  border-radius: 999px;
+  border-radius: 999px 999px 999px 7px;
   background: var(--carta);
+  border: 1px solid var(--linea);
   font-size: 13.5px;
   white-space: nowrap;
 }
@@ -576,7 +620,7 @@ input:focus-visible {
   padding: 6px;
   background: var(--carta-2);
   border: 1px solid var(--linea);
-  border-radius: 18px;
+  border-radius: 22px 6px 22px 22px;
   box-shadow: var(--ombra);
   transform-origin: top right;
   animation: apri 0.2s var(--curva) both;
@@ -596,7 +640,7 @@ input:focus-visible {
   min-height: 48px;
   padding: 0 12px;
   border: 0;
-  border-radius: 12px;
+  border-radius: 16px 5px 16px 16px;
   background: none;
   font-size: 16px;
   text-align: left;
@@ -624,15 +668,18 @@ input:focus-visible {
   left: 3px;
   width: 22px;
   height: 22px;
-  border-radius: 50%;
+  border-radius: 50% 50% 50% 4px;
   background: var(--inchiostro);
-  transition: transform 0.25s var(--molla);
+  transition:
+    transform 0.25s var(--molla),
+    border-radius 0.25s;
 }
 .interruttore:checked {
   background: var(--evid);
 }
 .interruttore:checked::after {
   transform: translateX(18px);
+  border-radius: 50% 50% 4px 50%;
   background: var(--su-evid);
 }
 
@@ -658,7 +705,7 @@ input:focus-visible {
   aspect-ratio: 1;
   width: 100%;
   border: 2.5px solid var(--linea-forte);
-  border-radius: 14px;
+  border-radius: 18px 6px 18px 6px;
   overflow: hidden;
   background: var(--carta);
   container-type: inline-size;
@@ -684,7 +731,7 @@ input:focus-visible {
   stroke-width: 5.5;
 }
 .linea-gabbia {
-  stroke: color-mix(in srgb, var(--inchiostro) 52%, transparent);
+  stroke: color-mix(in srgb, var(--inchiostro) 50%, transparent);
   stroke-width: 2.6;
   stroke-dasharray: 7 6;
 }
@@ -701,19 +748,19 @@ input:focus-visible {
   --bg: color-mix(in srgb, var(--mio) 9%, var(--carta));
 }
 .cella.sua {
-  --bg: color-mix(in srgb, var(--suo) 10%, var(--carta));
+  --bg: color-mix(in srgb, var(--suo) 11%, var(--carta));
 }
 .cella.vicina {
-  --bg: color-mix(in srgb, var(--inchiostro) 7%, var(--carta));
+  --bg: color-mix(in srgb, var(--inchiostro) 6%, var(--carta));
 }
 .cella.errore {
   --bg: color-mix(in srgb, var(--errore) 18%, var(--carta));
 }
 .cella.stessa {
-  --bg: color-mix(in srgb, var(--evid) 17%, var(--carta-2));
+  --bg: color-mix(in srgb, var(--evid) 16%, var(--carta-2));
 }
 .cella.selezionata {
-  --bg: color-mix(in srgb, var(--inchiostro) 15%, var(--carta));
+  --bg: color-mix(in srgb, var(--inchiostro) 13%, var(--carta));
   box-shadow: inset 0 0 0 2.5px var(--evid);
 }
 .cella.partner {
@@ -762,7 +809,7 @@ input:focus-visible {
 }
 @keyframes pop {
   from {
-    transform: scale(0.4);
+    transform: scale(0.4) translateY(-30%);
     opacity: 0;
   }
 }
@@ -792,9 +839,9 @@ input:focus-visible {
   font-style: normal;
 }
 .note i.acc {
-  color: var(--inchiostro);
-  background: color-mix(in srgb, var(--evid) 45%, transparent);
-  border-radius: 3px;
+  color: var(--su-evid);
+  background: color-mix(in srgb, var(--evid) 88%, transparent);
+  border-radius: 3px 3px 3px 1px;
   padding: 0 1px;
 }
 
@@ -828,7 +875,7 @@ input:focus-visible {
 }
 @keyframes lampo {
   30% {
-    opacity: 0.5;
+    opacity: 0.45;
   }
   to {
     opacity: 0;
@@ -868,7 +915,7 @@ input:focus-visible {
   gap: 3px;
   height: 56px;
   border: 0;
-  border-radius: 14px;
+  border-radius: var(--r-seme);
   background: none;
   color: var(--tenue);
   font-size: 12.5px;
@@ -880,7 +927,7 @@ input:focus-visible {
 }
 .strumento:active:not(:disabled) {
   background: var(--carta);
-  transform: scale(0.94);
+  transform: scale(var(--premi));
 }
 .strumento:disabled {
   opacity: 0.35;
@@ -909,23 +956,28 @@ input:focus-visible {
   height: clamp(58px, 9dvh, 76px);
   padding: 0;
   border: 0;
-  border-radius: 14px;
+  border-radius: 16px 16px 16px 6px;
   background: var(--carta-2);
+  box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--fondo) 45%, transparent);
   transition:
     transform 0.12s var(--curva),
     background 0.15s,
+    box-shadow 0.15s,
     opacity 0.25s;
 }
 .tasto:active {
-  transform: scale(0.9);
-  background: color-mix(in srgb, var(--evid) 35%, var(--carta-2));
+  transform: scale(var(--premi));
+  background: color-mix(in srgb, var(--evid) 26%, var(--carta-2));
+  box-shadow: none;
 }
 .tasto-cifra {
   font-size: 27px;
   line-height: 1;
   font-weight: 560;
   --casl: 1;
-  transition: font-size 0.2s var(--curva);
+  transition:
+    font-size 0.2s var(--curva),
+    color 0.2s;
 }
 .tasto-resto {
   font-size: 11px;
@@ -935,13 +987,53 @@ input:focus-visible {
 .tasto.finito {
   opacity: 0.28;
 }
-.in-matita .tasto {
+/* matita accesa dal pulsante, o note momentanee (tasto tenuto premuto) */
+.in-matita .tasto,
+.tastierino.note-momentanee .tasto {
   background: var(--carta);
-  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--evid) 55%, transparent);
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--evid) 50%, transparent);
 }
-.in-matita .tasto-cifra {
+.in-matita .tasto-cifra,
+.tastierino.note-momentanee .tasto-cifra {
   font-size: 19px;
   color: var(--tenue);
+}
+.tastierino.note-momentanee .tasto {
+  outline: 1.5px dashed color-mix(in srgb, var(--evid) 45%, transparent);
+  outline-offset: -5px;
+}
+/* il tasto tenuto: resta premuto e mostra che ora scrive note */
+.tasto.tenuto,
+.tastierino .tasto.tenuto {
+  outline: 0;
+  transform: scale(var(--premi));
+  background: var(--evid);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--evid) 25%, transparent);
+}
+.tasto.tenuto .tasto-cifra,
+.tasto.tenuto .tasto-resto {
+  color: var(--su-evid);
+}
+.tasto.tenuto::after {
+  content: 'note';
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 2px 7px;
+  border-radius: 8px 8px 8px 2px;
+  background: var(--evid);
+  color: var(--su-evid);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  animation: atterra-su 0.2s var(--molla) both;
+}
+@keyframes atterra-su {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 6px) scale(0.8);
+  }
 }
 
 /* desktop e tablet orizzontale: griglia a sinistra, comandi a destra */
@@ -972,7 +1064,7 @@ input:focus-visible {
     height: 78px;
   }
   .tasto:hover {
-    background: color-mix(in srgb, var(--inchiostro) 8%, var(--carta-2));
+    background: color-mix(in srgb, var(--inchiostro) 7%, var(--carta-2));
   }
   .strumento:hover:not(:disabled) {
     color: var(--inchiostro);
@@ -980,6 +1072,378 @@ input:focus-visible {
   .tasto-cifra {
     font-size: 32px;
   }
+}
+
+/* ---------- crescita di Semino (barra punti di coppia) ----------
+   <div class="crescita [piena]">
+     <Semino taglia={44} …/>
+     <div class="crescita-corpo">
+       <div class="crescita-barra" role="progressbar" aria-valuenow…>
+         <i class="crescita-mia" style="--q: .30"/> <i class="crescita-sua" style="--q: .22"/>
+       </div>
+       <div class="crescita-testo"><span>germoglio</span><span class="tabellare">412</span></div>
+     </div>
+   </div>
+   --q = quota del giocatore sul totale della barra (0..1): le due quote si affiancano. */
+.crescita {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+.crescita-corpo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.crescita-barra {
+  position: relative;
+  display: flex;
+  height: 12px;
+  padding: 2px;
+  border-radius: 999px 999px 999px 4px;
+  background: color-mix(in srgb, var(--fondo) 70%, var(--carta));
+  border: 1px solid var(--linea);
+  overflow: hidden;
+}
+/* tacche dei 4 cambi di stadio */
+.crescita-barra::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0 calc(25% - 1px),
+    color-mix(in srgb, var(--fondo) 75%, transparent) calc(25% - 1px) 25%
+  );
+  pointer-events: none;
+}
+.crescita-mia,
+.crescita-sua {
+  flex: none;
+  width: calc(var(--q, 0) * 100%);
+  height: 100%;
+  transition: width 0.7s var(--molla);
+}
+.crescita-mia {
+  background: var(--mio);
+  border-radius: 999px 0 0 999px;
+}
+.crescita-sua {
+  background: var(--suo);
+  border-radius: 0 999px 999px 0;
+}
+.crescita-testo {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12.5px;
+  line-height: 1.1;
+  color: var(--tenue);
+  --casl: 1;
+}
+.crescita.piena .crescita-barra {
+  border-color: color-mix(in srgb, var(--oro) 60%, var(--linea));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--oro) 18%, transparent);
+}
+
+/* ---------- contatori errori ----------
+   <span class="contatore contatore-mio [scatta]"><b>2</b> errori</span>  (e contatore-suo)
+   per far ripartire "scatta" a ogni errore, cambiare la key del contatore. */
+.contatore {
+  --c: var(--tenue);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px 4px 8px;
+  border-radius: 12px 12px 12px 4px;
+  background: var(--carta);
+  border: 1px solid var(--linea);
+  font-size: 13px;
+  line-height: 1.1;
+  color: var(--tenue);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.contatore::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 50% 50% 50% 1px;
+  background: var(--c);
+}
+.contatore b {
+  color: var(--inchiostro);
+  font-weight: 800;
+}
+.contatore-mio {
+  --c: var(--mio);
+}
+.contatore-suo {
+  --c: var(--suo);
+}
+.contatore.scatta {
+  animation: scatta 0.45s var(--molla);
+}
+.contatore.scatta b {
+  color: var(--errore);
+}
+@keyframes scatta {
+  30% {
+    transform: scale(1.14) rotate(-3deg);
+  }
+}
+
+/* ---------- fumetto di Semino ----------
+   <div class="fumetto [fumetto--semina | fumetto--entrambi] [fumetto-giu | fumetto-destra]">testo</div>
+   la codina punta a sinistra (Semino accanto); -giu = sotto; -destra = Semino a destra. */
+.fumetto {
+  --fumetto-accento: color-mix(in srgb, var(--verde-inchiostro) 65%, var(--linea));
+  --fumetto-fondo: var(--carta-2);
+  position: relative;
+  max-width: 32ch;
+  padding: 11px 15px 12px;
+  background: var(--fumetto-fondo);
+  color: var(--inchiostro);
+  border: 1.5px solid var(--fumetto-accento);
+  border-radius: 22px 22px 22px 8px;
+  font-size: 15px;
+  line-height: 1.35;
+  --casl: 1;
+  text-wrap: pretty;
+  transform-origin: 0 100%;
+  animation: fumetto-entra 0.42s var(--molla) both;
+}
+.fumetto::before {
+  content: '';
+  position: absolute;
+  left: -8.5px;
+  bottom: 14px;
+  width: 15px;
+  height: 15px;
+  background: var(--fumetto-fondo);
+  border-left: 1.5px solid var(--fumetto-accento);
+  border-bottom: 1.5px solid var(--fumetto-accento);
+  border-bottom-left-radius: 3px;
+  transform: rotate(45deg);
+}
+.fumetto-giu {
+  border-radius: 22px 22px 22px 22px;
+}
+.fumetto-giu::before {
+  left: 26px;
+  bottom: -8.5px;
+  transform: rotate(-45deg);
+}
+.fumetto-destra {
+  border-radius: 22px 22px 8px 22px;
+  transform-origin: 100% 100%;
+}
+.fumetto-destra::before {
+  left: auto;
+  right: -8.5px;
+  transform: rotate(-135deg);
+}
+.fumetto--semina {
+  --fumetto-accento: color-mix(in srgb, var(--blu-inchiostro) 75%, var(--linea));
+}
+.fumetto--entrambi {
+  border-color: transparent;
+  background:
+    linear-gradient(var(--fumetto-fondo), var(--fumetto-fondo)) padding-box,
+    linear-gradient(100deg, var(--verde-inchiostro), var(--blu-inchiostro)) border-box;
+}
+.fumetto--entrambi::before {
+  --fumetto-accento: var(--verde-inchiostro);
+}
+.fumetto--entrambi.fumetto-destra::before {
+  --fumetto-accento: var(--blu-inchiostro);
+}
+@keyframes fumetto-entra {
+  from {
+    opacity: 0;
+    transform: scale(0.7) translateY(6px);
+  }
+}
+
+/* ---------- regalo (semi d'oro = suggerimenti) ----------
+   <button class="regalo [disponibile] [attivo]"><svg/> <span class="regalo-n">2</span></button>
+   disponibile = ce n'è almeno uno (pulsa); attivo = toccato, ora si sceglie la cella. */
+.regalo {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 44px;
+  height: 44px;
+  padding: 0 12px;
+  border: 1.5px solid color-mix(in srgb, var(--oro) 40%, var(--linea));
+  border-radius: 16px 16px 16px 5px;
+  background: color-mix(in srgb, var(--oro) 10%, var(--carta));
+  color: var(--oro-inchiostro);
+  font-size: 14px;
+  font-weight: 750;
+  transition:
+    transform 0.12s var(--curva),
+    background 0.2s,
+    color 0.2s,
+    opacity 0.2s;
+}
+.regalo:disabled {
+  opacity: 0.38;
+  filter: saturate(0.3);
+  cursor: default;
+}
+.regalo:active:not(:disabled) {
+  transform: scale(var(--premi));
+}
+.regalo.disponibile {
+  animation: regalo-pulsa 2.4s ease-in-out infinite;
+}
+.regalo.attivo {
+  background: var(--oro);
+  border-color: var(--oro);
+  color: var(--su-oro);
+  animation: none;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--oro) 25%, transparent);
+}
+.regalo-n {
+  display: grid;
+  place-items: center;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 5px;
+  border-radius: 10px 10px 10px 3px;
+  background: var(--oro);
+  color: var(--su-oro);
+  font-size: 11.5px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.regalo.attivo .regalo-n {
+  background: var(--su-oro);
+  color: var(--oro);
+}
+@keyframes regalo-pulsa {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--oro) 45%, transparent);
+  }
+  45% {
+    transform: scale(1.05) rotate(-2deg);
+  }
+  60% {
+    box-shadow: 0 0 0 9px color-mix(in srgb, var(--oro) 0%, transparent);
+    transform: none;
+  }
+}
+
+/* ---------- giardino (storico) ----------
+   <div class="giardino-totali"><div class="giardino-totale"><b>12</b><span>fiori</span></div>…</div>
+   <div class="giardino">
+     <article class="pianta pianta-fiorita | pianta-germoglio">
+       <SeminoPianta …/> <span class="pianta-titolo">Killer · medio</span>
+       <span class="pianta-info">3 nov · 12:40</span>
+       <span class="pianta-dati"><span>840 punti</span><span>2 errori</span></span>
+       <button class="pianta-riprendi">Riprendi</button>   (solo germogli)
+     </article>
+   </div> */
+.giardino-totali {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+}
+.giardino-totale {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  background: var(--carta);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-seme);
+}
+.giardino-totale:nth-child(even) {
+  border-radius: var(--r-petalo);
+}
+.giardino-totale b {
+  font-size: 24px;
+  line-height: 1.05;
+  font-weight: 850;
+  --casl: 1;
+  font-variant-numeric: tabular-nums;
+}
+.giardino-totale span {
+  font-size: 12.5px;
+  color: var(--tenue);
+}
+.giardino {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 146px), 1fr));
+  gap: 10px;
+}
+.pianta {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 10px 12px;
+  text-align: center;
+  background: var(--carta);
+  border: 1px solid var(--linea);
+  border-radius: 28px 28px 28px 8px;
+}
+.pianta:nth-child(even) {
+  border-radius: 28px 28px 8px 28px;
+}
+.pianta-fiorita {
+  background:
+    radial-gradient(90% 60% at 50% 0%, color-mix(in srgb, var(--oro) 9%, transparent), transparent 70%),
+    var(--carta);
+}
+.pianta-germoglio {
+  border-style: dashed;
+  border-color: var(--linea-forte);
+  background: color-mix(in srgb, var(--carta) 60%, transparent);
+}
+.pianta-titolo {
+  margin-top: 2px;
+  font-size: 15px;
+  font-weight: 750;
+  line-height: 1.15;
+  --casl: 1;
+}
+.pianta-info {
+  font-size: 12.5px;
+  color: var(--tenue);
+  font-variant-numeric: tabular-nums;
+}
+.pianta-dati {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2px 8px;
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+.pianta-riprendi {
+  margin-top: 6px;
+  height: 36px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 14px 14px 14px 4px;
+  background: var(--evid);
+  color: var(--su-evid);
+  font-size: 14px;
+  font-weight: 750;
+  transition: transform 0.12s var(--curva);
+}
+.pianta-riprendi:active {
+  transform: scale(var(--premi));
 }
 
 /* ---------- toast ---------- */
@@ -1026,7 +1490,7 @@ input:focus-visible {
   top: calc(max(10px, env(safe-area-inset-top)) + 56px);
   max-width: calc(100vw - 32px);
   padding: 11px 18px;
-  border-radius: 999px;
+  border-radius: 999px 999px 999px 10px;
   background: var(--carta-2);
   border: 1px solid var(--linea);
   box-shadow: var(--ombra);
@@ -1108,7 +1572,7 @@ input:focus-visible {
   display: grid;
   place-items: center;
   padding: 24px;
-  background: color-mix(in srgb, var(--fondo) 78%, transparent);
+  background: color-mix(in srgb, var(--fondo) 80%, transparent);
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
   animation: dissolvi 0.4s ease both;
@@ -1124,8 +1588,8 @@ input:focus-visible {
   width: min(100%, 380px);
   padding: 30px 24px 18px;
   background: var(--carta);
-  border: 1.5px solid var(--linea);
-  border-radius: 26px;
+  border: 1px solid var(--linea);
+  border-radius: 36px 10px 36px 10px;
   box-shadow: var(--ombra);
   text-align: center;
   animation: atterra 0.6s 0.15s var(--molla) both;
@@ -1172,7 +1636,7 @@ input:focus-visible {
 }
 .coriandoli i.tondo {
   height: var(--w);
-  border-radius: 50%;
+  border-radius: 50% 50% 50% 1px;
 }
 @keyframes cade {
   to {
@@ -1189,7 +1653,11 @@ input:focus-visible {
   .cella.partner,
   .pallino i,
   .fx-lampo,
-  .fx-arrivo {
+  .fx-arrivo,
+  .fumetto,
+  .regalo.disponibile,
+  .contatore.scatta,
+  .tasto.tenuto::after {
     animation: none;
   }
   .coriandoli {
@@ -1207,8 +1675,13 @@ input:focus-visible {
     transform: translateX(-50%);
   }
   .segmentato-cursore,
-  .interruttore::after {
+  .interruttore::after,
+  .crescita-mia,
+  .crescita-sua {
     transition: none;
+  }
+  .regalo.disponibile {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--oro) 35%, transparent);
   }
 }
 @keyframes solo-dissolvenza {
