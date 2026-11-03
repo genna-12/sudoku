@@ -1,0 +1,521 @@
+/* Il giardino di sfondo (Scena.tsx). Sagome piatte senza contorno, così le mascotte "adesivo" restano
+   davanti; tinte ricavate dal tema con color-mix (notte di default, mattina con il tema chiaro). */
+.sc-scena {
+  --sc-fondo: var(--fondo, #0a1613);
+  --sc-terra: var(--fondo-2, #07100d);
+  --sc-testo: var(--testo, #f1ead7);
+  --sc-verde: var(--verde, #7cff4a);
+  --sc-blu: var(--blu, #2f6bff);
+  --sc-oro: var(--oro, #ffc94a);
+
+  --sc-collina: color-mix(in oklab, var(--sc-terra), var(--sc-verde) 11%);
+  --sc-filo: color-mix(in oklab, var(--sc-verde) 30%, transparent);
+  --sc-erba: color-mix(in oklab, var(--sc-verde) 42%, var(--sc-terra));
+  --sc-aiuola: color-mix(in oklab, var(--sc-terra), #6b4426 34%);
+  --sc-aiuola-segno: color-mix(in oklab, var(--sc-aiuola), #000 30%);
+  --sc-sabbia: color-mix(in oklab, var(--sc-terra), var(--sc-oro) 18%);
+  --sc-mare-alto: color-mix(in oklab, var(--sc-fondo), var(--sc-blu) 30%);
+  --sc-mare-basso: color-mix(in oklab, var(--sc-fondo), var(--sc-blu) 62%);
+  --sc-schiuma: color-mix(in oklab, var(--sc-testo) 55%, var(--sc-blu));
+  --sc-monte-1: color-mix(in oklab, color-mix(in oklab, var(--sc-fondo), #8fa6c8 22%), var(--sc-blu) 10%);
+  --sc-monte-2: color-mix(in oklab, color-mix(in oklab, var(--sc-terra), #6f86aa 20%), var(--sc-blu) 8%);
+  --sc-neve: color-mix(in oklab, var(--sc-testo) 82%, #9fc2ff);
+  --sc-stella: #fff2cf;
+  --sc-luna: #fff4d8;
+  --sc-chiarore: color-mix(in oklab, var(--sc-verde), var(--sc-blu) var(--sc-p, 0%));
+  --sc-chiarore-forza: 22%;
+  --sc-legno: color-mix(in oklab, #7a5233, var(--sc-terra) 40%);
+  --sc-chioma: color-mix(in oklab, var(--sc-terra), var(--sc-verde) 22%);
+  --sc-muro: color-mix(in oklab, #e6d2b0, var(--sc-terra) 52%);
+  --sc-tetto: color-mix(in oklab, #c4573f, var(--sc-terra) 45%);
+  --sc-luce-casa: var(--sc-oro);
+  --sc-cavallo: color-mix(in oklab, #c58b5a, var(--sc-terra) 30%);
+  --sc-criniera: color-mix(in oklab, #4a2c18, var(--sc-terra) 20%);
+  --sc-stagno-1: color-mix(in oklab, var(--sc-terra), var(--sc-blu) 40%);
+  --sc-stagno-0: color-mix(in oklab, var(--sc-terra), var(--sc-blu) 62%);
+  --sc-merlo: #17130f;
+  --sc-merlo-bordo: color-mix(in oklab, var(--sc-testo) 26%, transparent);
+
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* mattina: niente notte da accendere, la luce è del giorno */
+@media (prefers-color-scheme: light) {
+  :root:not([data-tema='scuro']) .sc-scena {
+    --sc-schiuma: #ffffff;
+    --sc-neve: #ffffff;
+    --sc-stella: color-mix(in oklab, var(--sc-blu) 55%, #fff);
+    --sc-luna: #ffffff;
+    --sc-chiarore-forza: 30%;
+    --sc-aiuola: color-mix(in oklab, var(--sc-terra), #8a5a34 40%);
+    --sc-collina: color-mix(in oklab, var(--sc-terra), var(--sc-verde) 22%);
+    --sc-erba: color-mix(in oklab, var(--sc-verde) 50%, #2e5a1e);
+    --sc-filo: color-mix(in oklab, #2e7a14 30%, transparent);
+    --sc-merlo-bordo: transparent;
+    --sc-luce-casa: color-mix(in oklab, var(--sc-blu) 25%, #fff);
+  }
+}
+:root[data-tema='chiaro'] .sc-scena {
+  --sc-schiuma: #ffffff;
+  --sc-neve: #ffffff;
+  --sc-stella: color-mix(in oklab, var(--sc-blu) 55%, #fff);
+  --sc-luna: #ffffff;
+  --sc-chiarore-forza: 30%;
+  --sc-aiuola: color-mix(in oklab, var(--sc-terra), #8a5a34 40%);
+  --sc-collina: color-mix(in oklab, var(--sc-terra), var(--sc-verde) 22%);
+  --sc-erba: color-mix(in oklab, var(--sc-verde) 50%, #2e5a1e);
+  --sc-filo: color-mix(in oklab, #2e7a14 30%, transparent);
+  --sc-merlo-bordo: transparent;
+  --sc-luce-casa: color-mix(in oklab, var(--sc-blu) 25%, #fff);
+}
+
+/* sotto sfuma nel fondo della pagina (Home) */
+.sc-sfuma {
+  -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 72%, transparent 100%);
+}
+
+/* ---------- cielo ---------- */
+.sc-scena .sc-chiarore-0 {
+  stop-color: var(--sc-chiarore);
+  stop-opacity: 0;
+}
+.sc-scena .sc-chiarore-1 {
+  stop-color: var(--sc-chiarore);
+  stop-opacity: var(--sc-chiarore-forza);
+}
+.sc-scena .sc-stella {
+  fill: var(--sc-stella);
+}
+.sc-scena .sc-luna {
+  fill: var(--sc-luna);
+}
+.sc-scena .sc-brilla {
+  animation: sc-brilla 4s ease-in-out infinite;
+}
+@keyframes sc-brilla {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+/* ---------- mare ---------- */
+.sc-scena .sc-mare-0 {
+  stop-color: var(--sc-mare-alto);
+}
+.sc-scena .sc-mare-1 {
+  stop-color: var(--sc-mare-basso);
+}
+.sc-scena .sc-mare-2 {
+  stop-color: var(--sc-mare-basso);
+  stop-opacity: 0.6;
+}
+.sc-scena .sc-orizzonte-mare {
+  stroke: var(--sc-schiuma);
+  stroke-width: 0.8;
+  opacity: 0.45;
+}
+.sc-scena .sc-onda {
+  fill: none;
+  stroke: var(--sc-schiuma);
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  opacity: 0.6;
+  animation: sc-onda 7s ease-in-out infinite alternate;
+}
+.sc-scena .sc-onda-1 {
+  stroke-width: 1.5;
+  opacity: 0.7;
+  animation-duration: 5.5s;
+  animation-direction: alternate-reverse;
+}
+.sc-scena .sc-onda-2 {
+  stroke-width: 1.7;
+  opacity: 0.8;
+  animation-duration: 6.3s;
+}
+@keyframes sc-onda {
+  to {
+    transform: translateX(5px);
+  }
+}
+.sc-scena .sc-spiaggia {
+  fill: var(--sc-sabbia);
+}
+
+/* ---------- montagna ---------- */
+.sc-scena .sc-monte-lontano {
+  fill: var(--sc-monte-1);
+}
+.sc-scena .sc-monte-vicino {
+  fill: var(--sc-monte-2);
+}
+.sc-scena .sc-neve {
+  fill: var(--sc-neve);
+}
+.sc-scena .sc-monte-luce {
+  fill: none;
+  stroke: var(--sc-neve);
+  stroke-width: 1;
+  stroke-linecap: round;
+  opacity: 0.35;
+}
+
+/* ---------- arcobaleno ---------- */
+.sc-scena .sc-arcobaleno path {
+  fill: none;
+  stroke-width: 3.6;
+}
+.sc-scena .sc-arcobaleno {
+  opacity: 0.32;
+  transition: opacity 800ms ease;
+}
+.sc-scena .sc-arcobaleno.sc-acceso {
+  opacity: 0.85;
+}
+
+/* ---------- prato ---------- */
+.sc-scena .sc-collina {
+  fill: var(--sc-collina);
+}
+.sc-scena .sc-collina-filo {
+  fill: none;
+  stroke: var(--sc-filo);
+  stroke-width: 1.2;
+}
+.sc-scena .sc-ciuffo {
+  fill: none;
+  stroke: var(--sc-erba);
+  stroke-width: 1.3;
+  stroke-linecap: round;
+}
+.sc-scena .sc-aiuola {
+  fill: var(--sc-aiuola);
+}
+.sc-scena .sc-aiuola-segni {
+  stroke: var(--sc-aiuola-segno);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+.sc-scena .sc-tronco,
+.sc-scena .sc-ramo {
+  fill: none;
+  stroke: var(--sc-legno);
+  stroke-width: 3.4;
+  stroke-linecap: round;
+}
+.sc-scena .sc-ramo {
+  stroke-width: 2;
+}
+.sc-scena .sc-chioma {
+  fill: var(--sc-chioma);
+}
+.sc-scena .sc-chioma-2 {
+  fill: color-mix(in oklab, var(--sc-chioma), var(--sc-verde) 10%);
+}
+
+/* ---------- fiori ---------- */
+.sc-scena .sc-stelo {
+  fill: none;
+  stroke: var(--sc-erba);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+.sc-scena .sc-foglia {
+  fill: var(--sc-erba);
+}
+.sc-scena .sc-petalo-verde {
+  fill: var(--sc-verde);
+}
+.sc-scena .sc-petalo-blu {
+  fill: var(--sc-blu);
+}
+.sc-scena .sc-cuore {
+  fill: var(--sc-oro);
+}
+
+/* ---------- sentiero ---------- */
+.sc-scena .sc-sasso {
+  fill: color-mix(in oklab, var(--sc-testo) 62%, var(--sc-collina));
+}
+
+/* ---------- stagno ---------- */
+.sc-scena .sc-stagno-riva {
+  fill: color-mix(in oklab, var(--sc-collina), #000 22%);
+}
+.sc-scena .sc-stagno-0 {
+  stop-color: var(--sc-stagno-0);
+}
+.sc-scena .sc-stagno-1 {
+  stop-color: var(--sc-stagno-1);
+}
+.sc-scena .sc-stagno-luce {
+  fill: var(--sc-schiuma);
+  opacity: 0.35;
+}
+.sc-scena .sc-riflesso-luna {
+  fill: var(--sc-luna);
+  opacity: 0.75;
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: sc-tremola 3.6s ease-in-out infinite;
+}
+@keyframes sc-tremola {
+  50% {
+    transform: scaleX(1.35);
+    opacity: 0.5;
+  }
+}
+.sc-scena .sc-ninfea {
+  fill: color-mix(in oklab, var(--sc-erba), var(--sc-terra) 20%);
+}
+.sc-scena .sc-ninfea-taglio {
+  stroke: var(--sc-stagno-0);
+  stroke-width: 1;
+}
+.sc-scena .sc-rana {
+  fill: color-mix(in oklab, var(--sc-verde) 70%, #2a5a12);
+}
+.sc-scena .sc-canna {
+  fill: none;
+  stroke: var(--sc-erba);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+.sc-scena .sc-tifa {
+  fill: var(--sc-legno);
+}
+
+/* ---------- animali ---------- */
+.sc-scena .sc-merlo-corpo {
+  fill: var(--sc-merlo);
+  stroke: var(--sc-merlo-bordo);
+  stroke-width: 0.8;
+  stroke-linejoin: round;
+}
+.sc-scena .sc-merlo-ala {
+  fill: color-mix(in oklab, var(--sc-merlo), #fff 12%);
+}
+.sc-scena .sc-becco {
+  fill: #ff9f2e;
+}
+.sc-scena .sc-merlo-occhio {
+  fill: #ffb43b;
+}
+.sc-scena .sc-merlo-pupilla {
+  fill: #000;
+}
+.sc-scena .sc-zampe {
+  stroke: #ff9f2e;
+  stroke-width: 0.9;
+  stroke-linecap: round;
+}
+.sc-scena .sc-cavallo {
+  fill: var(--sc-cavallo);
+}
+.sc-scena .sc-criniera {
+  fill: var(--sc-criniera);
+}
+.sc-scena .sc-gamba {
+  stroke: var(--sc-cavallo);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.sc-scena .sc-occhio {
+  fill: #1a120a;
+}
+.sc-scena .sc-luce {
+  fill: #fff;
+  opacity: 0.18;
+}
+
+/* ---------- cose ---------- */
+.sc-scena .sc-muro {
+  fill: var(--sc-muro);
+}
+.sc-scena .sc-tetto {
+  fill: var(--sc-tetto);
+}
+.sc-scena .sc-tetto-bordo {
+  fill: none;
+  stroke: color-mix(in oklab, var(--sc-tetto), #000 30%);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.sc-scena .sc-camino {
+  fill: color-mix(in oklab, var(--sc-muro), #000 22%);
+}
+.sc-scena .sc-finestra {
+  fill: var(--sc-luce-casa);
+}
+.sc-scena .sc-finestra-segno {
+  fill: none;
+  stroke: color-mix(in oklab, var(--sc-luce-casa), #3a2410 55%);
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.sc-scena .sc-porta {
+  fill: color-mix(in oklab, var(--sc-legno), #000 15%);
+}
+.sc-scena .sc-pomello {
+  fill: var(--sc-oro);
+}
+.sc-scena .sc-chiodo {
+  fill: color-mix(in oklab, var(--sc-muro), #000 45%);
+}
+.sc-scena .sc-manico {
+  fill: #5a3518;
+}
+.sc-scena .sc-cassa {
+  fill: #d9893e;
+}
+.sc-scena .sc-buca {
+  fill: #2a1607;
+}
+.sc-scena .sc-paletto,
+.sc-scena .sc-asta {
+  fill: var(--sc-legno);
+  stroke: var(--sc-legno);
+  stroke-width: 1;
+}
+.sc-scena .sc-cassetta {
+  fill: color-mix(in oklab, var(--sc-blu) 70%, var(--sc-terra));
+}
+.sc-scena .sc-cassetta-bordo {
+  fill: none;
+  stroke: color-mix(in oklab, var(--sc-blu), #000 40%);
+  stroke-width: 1;
+}
+.sc-scena .sc-lettera {
+  fill: #fffaf0;
+}
+.sc-scena .sc-lettera-segno {
+  fill: none;
+  stroke: #c0392b;
+  stroke-width: 0.7;
+}
+.sc-scena .sc-bandierina {
+  fill: var(--sc-verde);
+}
+.sc-scena .sc-tavola {
+  fill: #fff1d6;
+}
+.sc-scena .sc-tavola-punta {
+  fill: #ff8a6a;
+}
+.sc-scena .sc-tavola-monte {
+  fill: var(--sc-blu);
+}
+.sc-scena .sc-tavola-anima {
+  stroke: var(--sc-verde);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+.sc-scena .sc-muretto {
+  fill: color-mix(in oklab, var(--sc-testo) 30%, var(--sc-collina));
+}
+.sc-scena .sc-muretto-fuga {
+  fill: none;
+  stroke: color-mix(in oklab, var(--sc-collina), #000 20%);
+  stroke-width: 0.8;
+}
+.sc-scena .sc-bastoncino {
+  stroke: var(--sc-legno);
+  stroke-width: 1;
+}
+.sc-scena .sc-razzo-verde {
+  fill: var(--sc-verde);
+}
+.sc-scena .sc-razzo-oro {
+  fill: var(--sc-oro);
+}
+.sc-scena .sc-razzo-blu {
+  fill: var(--sc-blu);
+}
+
+/* ---------- fuochi (festa) ---------- */
+.sc-scena .sc-scoppio {
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  opacity: 0;
+  animation: sc-scoppio 2.2s cubic-bezier(0.2, 0.8, 0.3, 1) infinite;
+}
+.sc-scena .sc-fuoco-verde {
+  stroke: var(--sc-verde);
+  fill: var(--sc-verde);
+}
+.sc-scena .sc-fuoco-oro {
+  stroke: var(--sc-oro);
+  fill: var(--sc-oro);
+}
+.sc-scena .sc-fuoco-blu {
+  stroke: color-mix(in oklab, var(--sc-blu), #fff 25%);
+  fill: color-mix(in oklab, var(--sc-blu), #fff 25%);
+}
+@keyframes sc-scoppio {
+  0% {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  55% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  80%,
+  100% {
+    transform: scale(1.12) translateY(3px);
+    opacity: 0;
+  }
+}
+
+/* ---------- entrata degli elementi nuovi ---------- */
+.sc-scena .sc-el {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+.sc-scena .sc-el[data-nuovo] {
+  animation: sc-sorge 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.sc-scena .sc-pop[data-nuovo] {
+  animation: sc-entra 760ms var(--molla, cubic-bezier(0.34, 1.56, 0.64, 1)) 200ms both;
+}
+@keyframes sc-sorge {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@keyframes sc-entra {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  40% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-scena *,
+  .sc-scena .sc-el[data-nuovo] {
+    animation: none !important;
+  }
+  .sc-scena .sc-scoppio {
+    opacity: 0.85;
+  }
+}

@@ -11,6 +11,8 @@
   --semino-blu: var(--blu, #2f6bff);
   --semino-oro: var(--oro, #ffc94a);
   --semino-durata: 600ms;
+  /* ampiezza delle reazioni (1 piena; 0.6 di notte con `attenuato`) */
+  --sa: 1;
   display: inline-block;
   flex: none;
   overflow: visible;
@@ -226,6 +228,21 @@
   opacity: 0.95;
 }
 
+/* di notte: reazioni al 60%, effetti più tenui */
+.semino-attenuato {
+  --sa: 0.6;
+}
+.semino-attenuato .s-coriandolo,
+.semino-attenuato .s-scintilla,
+.semino-attenuato .s-fumo {
+  opacity: 0.6;
+}
+
+/* lo sguardo segue un punto: si spostano gli occhi (il battito resta sul gruppo interno) */
+.semino .semino-sguardo {
+  transition: transform 120ms ease-out;
+}
+
 /* ---------- coppia ---------- */
 .semino-coppia {
   display: inline-flex;
@@ -385,144 +402,144 @@
 
 @keyframes semino-r-neutro {
   from {
-    transform: scale(0.96, 1.03);
+    transform: scale(calc(1 - 0.04 * var(--sa)), calc(1 + 0.03 * var(--sa)));
   }
 }
 @keyframes semino-r-felice {
   25% {
-    transform: scale(1.1, 0.88);
+    transform: scale(calc(1 + 0.1 * var(--sa)), calc(1 - 0.12 * var(--sa)));
   }
   55% {
-    transform: translateY(-9px) scale(0.94, 1.08);
+    transform: translateY(calc(-9px * var(--sa))) scale(calc(1 - 0.06 * var(--sa)), calc(1 + 0.08 * var(--sa)));
   }
   80% {
-    transform: translateY(0) scale(1.04, 0.96);
+    transform: translateY(0) scale(calc(1 + 0.04 * var(--sa)), calc(1 - 0.04 * var(--sa)));
   }
 }
 @keyframes semino-r-sorpreso {
   18% {
-    transform: translateY(-13px) scale(1.07);
+    transform: translateY(calc(-13px * var(--sa))) scale(calc(1 + 0.07 * var(--sa)));
   }
   42% {
-    transform: translateY(0) scale(1.05);
+    transform: translateY(0) scale(calc(1 + 0.05 * var(--sa)));
   }
   60% {
-    transform: scale(1.06, 0.94);
+    transform: scale(calc(1 + 0.06 * var(--sa)), calc(1 - 0.06 * var(--sa)));
   }
 }
 @keyframes semino-r-estasiato {
   15% {
-    transform: rotate(-10deg) scale(1.1);
+    transform: rotate(calc(-10deg * var(--sa))) scale(calc(1 + 0.1 * var(--sa)));
   }
   35% {
-    transform: rotate(9deg) scale(1.13);
+    transform: rotate(calc(9deg * var(--sa))) scale(calc(1 + 0.13 * var(--sa)));
   }
   55% {
-    transform: rotate(-6deg) scale(1.08);
+    transform: rotate(calc(-6deg * var(--sa))) scale(calc(1 + 0.08 * var(--sa)));
   }
   75% {
-    transform: rotate(3deg) scale(1.03);
+    transform: rotate(calc(3deg * var(--sa))) scale(calc(1 + 0.03 * var(--sa)));
   }
 }
 @keyframes semino-r-festa {
   20% {
-    transform: scale(1.08, 0.9);
+    transform: scale(calc(1 + 0.08 * var(--sa)), calc(1 - 0.1 * var(--sa)));
   }
   45% {
-    transform: translateY(-18px) rotate(-7deg) scale(0.96, 1.06);
+    transform: translateY(calc(-18px * var(--sa))) rotate(calc(-7deg * var(--sa))) scale(calc(1 - 0.04 * var(--sa)), calc(1 + 0.06 * var(--sa)));
   }
   62% {
-    transform: translateY(-16px) rotate(7deg);
+    transform: translateY(calc(-16px * var(--sa))) rotate(calc(7deg * var(--sa)));
   }
   82% {
-    transform: translateY(0) scale(1.07, 0.92);
+    transform: translateY(0) scale(calc(1 + 0.07 * var(--sa)), calc(1 - 0.08 * var(--sa)));
   }
 }
 @keyframes semino-r-imbarazzato {
   12% {
-    transform: translateX(-4px) rotate(-3deg) scale(0.96);
+    transform: translateX(calc(-4px * var(--sa))) rotate(calc(-3deg * var(--sa))) scale(calc(1 - 0.04 * var(--sa)));
   }
   30% {
-    transform: translateX(4px) rotate(3deg) scale(0.96);
+    transform: translateX(calc(4px * var(--sa))) rotate(calc(3deg * var(--sa))) scale(calc(1 - 0.04 * var(--sa)));
   }
   48% {
-    transform: translateX(-3px) rotate(-2deg) scale(0.97);
+    transform: translateX(calc(-3px * var(--sa))) rotate(calc(-2deg * var(--sa))) scale(calc(1 - 0.03 * var(--sa)));
   }
   66% {
-    transform: translateX(2px) scale(0.98);
+    transform: translateX(calc(2px * var(--sa))) scale(calc(1 - 0.02 * var(--sa)));
   }
 }
 @keyframes semino-r-preoccupato {
   20%,
   60% {
-    transform: translate(-1.5px, 2px) scale(1.02, 0.94);
+    transform: translate(calc(-1.5px * var(--sa)), calc(2px * var(--sa))) scale(calc(1 + 0.02 * var(--sa)), calc(1 - 0.06 * var(--sa)));
   }
   40%,
   80% {
-    transform: translate(1.5px, 2px) scale(1.02, 0.94);
+    transform: translate(calc(1.5px * var(--sa)), calc(2px * var(--sa))) scale(calc(1 + 0.02 * var(--sa)), calc(1 - 0.06 * var(--sa)));
   }
 }
 @keyframes semino-r-regalo {
   35% {
-    transform: translateY(-7px) scale(1.04);
+    transform: translateY(calc(-7px * var(--sa))) scale(calc(1 + 0.04 * var(--sa)));
   }
 }
 @keyframes semino-r-saluta {
   30% {
-    transform: rotate(-5deg);
+    transform: rotate(calc(-5deg * var(--sa)));
   }
   70% {
-    transform: rotate(2deg);
+    transform: rotate(calc(2deg * var(--sa)));
   }
 }
 @keyframes semino-r-arrabbiato {
   18% {
-    transform: translateY(2px) scale(1.08, 0.88);
+    transform: translateY(calc(2px * var(--sa))) scale(calc(1 + 0.08 * var(--sa)), calc(1 - 0.12 * var(--sa)));
   }
   34% {
-    transform: translateX(-3px) scale(1.04, 0.94);
+    transform: translateX(calc(-3px * var(--sa))) scale(calc(1 + 0.04 * var(--sa)), calc(1 - 0.06 * var(--sa)));
   }
   50% {
-    transform: translateX(3px) scale(1.04, 0.94);
+    transform: translateX(calc(3px * var(--sa))) scale(calc(1 + 0.04 * var(--sa)), calc(1 - 0.06 * var(--sa)));
   }
   66% {
-    transform: translateX(-2px) scale(1.02, 0.97);
+    transform: translateX(calc(-2px * var(--sa))) scale(calc(1 + 0.02 * var(--sa)), calc(1 - 0.03 * var(--sa)));
   }
   82% {
-    transform: translateX(1px);
+    transform: translateX(calc(1px * var(--sa)));
   }
 }
 @keyframes semino-r-euforico {
   12% {
-    transform: scale(1.08, 0.9);
+    transform: scale(calc(1 + 0.08 * var(--sa)), calc(1 - 0.1 * var(--sa)));
   }
   28% {
-    transform: translateY(-12px) scale(0.95, 1.07) rotate(-4deg);
+    transform: translateY(calc(-12px * var(--sa))) scale(calc(1 - 0.05 * var(--sa)), calc(1 + 0.07 * var(--sa))) rotate(calc(-4deg * var(--sa)));
   }
   44% {
-    transform: translateY(0) scale(1.09, 0.89);
+    transform: translateY(0) scale(calc(1 + 0.09 * var(--sa)), calc(1 - 0.11 * var(--sa)));
   }
   62% {
-    transform: translateY(-12px) scale(0.95, 1.07) rotate(4deg);
+    transform: translateY(calc(-12px * var(--sa))) scale(calc(1 - 0.05 * var(--sa)), calc(1 + 0.07 * var(--sa))) rotate(calc(4deg * var(--sa)));
   }
   80% {
-    transform: translateY(0) scale(1.06, 0.93);
+    transform: translateY(0) scale(calc(1 + 0.06 * var(--sa)), calc(1 - 0.07 * var(--sa)));
   }
 }
 @keyframes semino-r-trema {
   from {
-    transform: rotate(-4deg);
+    transform: rotate(calc(-4deg * var(--sa)));
   }
   to {
-    transform: rotate(4deg);
+    transform: rotate(calc(4deg * var(--sa)));
   }
 }
 @keyframes semino-r-sventola {
   from {
-    transform: rotate(-9deg) scale(1.03);
+    transform: rotate(calc(-9deg * var(--sa))) scale(calc(1 + 0.03 * var(--sa)));
   }
   to {
-    transform: rotate(9deg) scale(1.03);
+    transform: rotate(calc(9deg * var(--sa))) scale(calc(1 + 0.03 * var(--sa)));
   }
 }
 @keyframes semino-r-pulsa {
@@ -545,7 +562,7 @@
 }
 @keyframes semino-r-dorme {
   50% {
-    transform: scale(1.03, 0.965);
+    transform: scale(calc(1 + 0.03 * var(--sa)), calc(1 - 0.035 * var(--sa)));
   }
 }
 
@@ -930,6 +947,34 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .semino .semino-alzata {
+    transition: none;
+  }
+}
+
+/* tavola da surf */
+.semino .s-tavola {
+  fill: #5fd0dc;
+  stroke: var(--semino-tratto);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.semino .s-tavola-punta {
+  fill: #ff8a6a;
+}
+.semino .s-tavola-anima {
+  fill: none;
+  stroke: #fffaf0;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+.semino .s-tavola-pinna {
+  fill: #ff8a6a;
+  stroke: var(--semino-tratto);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+@media (prefers-reduced-motion: reduce) {
+  .semino .semino-sguardo {
     transition: none;
   }
 }

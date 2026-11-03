@@ -6,6 +6,8 @@
 //   - chi: 'semino' (accento verde, fiore a margherita) | 'semina' (accento blu, tulipano, ciglia, fiocco)
 //   - accessorio: uno di ACCESSORI (default per personaggio in ACCESSORI_DI); entra con un pop al cambio
 //   - onSolletico: la rende toccabile (role=button), tremolio di 250 ms e poi la callback
+//   - sguardo: {x, y} in -1..1 (es. la cella selezionata rispetto alla mascotte): gli occhi ci guardano
+//   - attenuato: reazioni al 60% (di notte)
 // <SeminoPianta stadio fiorita colore | quotaBlu chi /> pianta statica per il giardino.
 // <SeminoCoppia stadio umore accessorioSemino accessorioSemina onSolletico /> i due vicini.
 import {
@@ -330,7 +332,20 @@ function braccio(d: string, cls = '') {
   );
 }
 
-function Faccia({ umore, chi }: { umore: SeminoUmore; chi: SeminoChi }) {
+/** spostamento degli occhi verso lo sguardo: al massimo 2 unità (1.5 in verticale), dentro un cerchio */
+function spostaOcchi(sguardo: { x: number; y: number } | undefined): [number, number] {
+  if (!sguardo) return [0, 0];
+  let x = Number.isFinite(sguardo.x) ? sguardo.x : 0;
+  let y = Number.isFinite(sguardo.y) ? sguardo.y : 0;
+  const l = Math.hypot(x, y);
+  if (l > 1) {
+    x /= l;
+    y /= l;
+  }
+  return [Math.round(x * 2 * 100) / 100, Math.round(y * 1.5 * 100) / 100];
+}
+
+function Faccia({ umore, chi, sguardo }: { umore: SeminoUmore; chi: SeminoChi; sguardo?: { x: number; y: number } }) {
   const lei = chi === 'semina';
   let occhi: ReactNode;
   let bocca: ReactNode;
@@ -489,13 +504,17 @@ function Faccia({ umore, chi }: { umore: SeminoUmore; chi: SeminoChi }) {
       bocca = BOCCA.sorriso;
   }
 
+  // dormendo non si guarda niente
+  const [dx, dy] = umore === 'dorme' ? [0, 0] : spostaOcchi(sguardo);
   return (
     <>
       <ellipse cx={31.5} cy={79.2} rx={4.4} ry={2.6} className={guance} />
       <ellipse cx={68.5} cy={79.2} rx={4.4} ry={2.6} className={guance} />
-      <g className="semino-occhi">
-        {occhi}
-        {lei && ciglia(chiusi)}
+      <g className="semino-sguardo" style={{ transform: dx || dy ? `translate(${dx}px, ${dy}px)` : 'none' }}>
+        <g className="semino-occhi">
+          {occhi}
+          {lei && ciglia(chiusi)}
+        </g>
       </g>
       {bocca}
       {extra}
@@ -538,11 +557,21 @@ function Fiocco() {
 
 /* ------------------------------------------------------------ accessori */
 
-export const ACCESSORI = ['occhiali', 'cuoco', 'palla', 'chitarra', 'corona', 'montagna', 'cavallo', 'animale'] as const;
+export const ACCESSORI = [
+  'occhiali',
+  'cuoco',
+  'palla',
+  'chitarra',
+  'surf',
+  'corona',
+  'montagna',
+  'cavallo',
+  'animale',
+] as const;
 export type Accessorio = (typeof ACCESSORI)[number];
-/** gli stili di default di ciascuno (ma chiunque può indossare tutto) */
+/** gli stili di ciascuno. Semino: mai montagna né cavallo. Semina: il surf solo nelle scene al mare con lui */
 export const ACCESSORI_DI: Record<SeminoChi, Accessorio[]> = {
-  semino: ['occhiali', 'cuoco', 'palla', 'chitarra'],
+  semino: ['occhiali', 'cuoco', 'palla', 'chitarra', 'surf'],
   semina: ['corona', 'montagna', 'cavallo', 'animale'],
 };
 const NOMI_ACCESSORIO: Record<Accessorio, string> = {
@@ -550,6 +579,7 @@ const NOMI_ACCESSORIO: Record<Accessorio, string> = {
   cuoco: 'col cappello da cuoco',
   palla: 'con la palla da pallanuoto',
   chitarra: 'con la chitarra',
+  surf: 'con la tavola da surf',
   corona: 'con la corona di fiori',
   montagna: 'vestito da montagna',
   cavallo: 'col caschetto e il cavallino',
@@ -692,6 +722,32 @@ function Chitarra() {
   );
 }
 
+/** tavola da surf in piedi accanto al corpo, tenuta con la manina: acqua con una fascia corallo e l'anima bianca */
+function TavolaSurf({ id }: { id: string }) {
+  const bordo = 'M0 -29 C5.4 -29 8.8 -19 9 -3 C9.2 12 6.2 23.6 0 28.6 C-6.2 23.6 -9.2 12 -9 -3 C-8.8 -19 -5.4 -29 0 -29Z';
+  return (
+    <g>
+      <g transform="translate(9.6 67.6) rotate(8)">
+        <defs>
+          <clipPath id={`tavola-${id}`}>
+            <path d={bordo} />
+          </clipPath>
+        </defs>
+        <path d="M-2 19 L-7.6 25.6 L-1.4 24.4Z" className="s-tavola-pinna" />
+        <path d={bordo} className="s-tavola" />
+        <g clipPath={`url(#tavola-${id})`}>
+          <path d="M-10 -17 Q0 -14.4 10 -17 V-11.6 Q0 -9 -10 -11.6Z" className="s-tavola-punta" />
+          <path d="M-10 -8.6 Q0 -6 10 -8.6 V-7 Q0 -4.4 -10 -7Z" className="s-tavola-punta" />
+          <path d="M0 -29 V29" className="s-tavola-anima" />
+        </g>
+        <path d={bordo} className="s-tavola" style={{ fill: 'none' }} />
+        <ellipse cx={-4.4} cy={4} rx={1.3} ry={9} className="s-luce" opacity={0.45} />
+      </g>
+      {manina('M27.2 80 Q23.4 79.6 18.6 78.4')}
+    </g>
+  );
+}
+
 /** zaino: dietro il corpo, ne spunta un fianco a sinistra */
 function ZainoRetro() {
   return (
@@ -795,7 +851,7 @@ function AccessorioTesta({ a, chi }: { a: Accessorio; chi: SeminoChi }) {
       return null;
   }
 }
-function AccessorioDavanti({ a, chi, stadio }: { a: Accessorio; chi: SeminoChi; stadio: SeminoStadio }) {
+function AccessorioDavanti({ a, chi, stadio, id }: { a: Accessorio; chi: SeminoChi; stadio: SeminoStadio; id: string }) {
   switch (a) {
     case 'occhiali':
       return (
@@ -812,6 +868,8 @@ function AccessorioDavanti({ a, chi, stadio }: { a: Accessorio; chi: SeminoChi; 
       return <Palla />;
     case 'chitarra':
       return <Chitarra />;
+    case 'surf':
+      return <TavolaSurf id={id} />;
     case 'montagna':
       return <Spallaccio chi={chi} />;
     case 'cavallo':
@@ -872,6 +930,10 @@ interface Props {
   chi?: SeminoChi;
   /** cambialo per ripetere la reazione anche con lo stesso umore */
   impulso?: number | string;
+  /** dove guardare, -1..1 per asse (x verso destra, y verso il basso): gli occhi si spostano fino a 2 unità */
+  sguardo?: { x: number; y: number };
+  /** reazioni al 60% (di notte) */
+  attenuato?: boolean;
   className?: string;
   style?: CSSProperties;
 }
@@ -884,6 +946,8 @@ export function Semino({
   accessorio,
   onSolletico,
   impulso,
+  sguardo,
+  attenuato,
   className,
   style,
 }: Props) {
@@ -914,7 +978,7 @@ export function Semino({
   const toccabile = !!onSolletico;
   return (
     <svg
-      className={`semino semino-${chi} semino-u-${umore}${toccabile ? ' semino-toccabile' : ''}${className ? ` ${className}` : ''}`}
+      className={`semino semino-${chi} semino-u-${umore}${toccabile ? ' semino-toccabile' : ''}${attenuato ? ' semino-attenuato' : ''}${className ? ` ${className}` : ''}`}
       width={taglia}
       height={taglia}
       viewBox="0 0 100 100"
@@ -964,11 +1028,11 @@ export function Semino({
             )}
             {lei && <Fiocco />}
             <g key={umore} className="semino-faccia">
-              <Faccia umore={umore} chi={chi} />
+              <Faccia umore={umore} chi={chi} sguardo={sguardo} />
             </g>
             {accessorio && (
               <g key={`f-${accessorio}`} className="s-accessorio">
-                <AccessorioDavanti a={accessorio} chi={chi} stadio={s} />
+                <AccessorioDavanti a={accessorio} chi={chi} stadio={s} id={id} />
               </g>
             )}
           </g>
@@ -1043,6 +1107,8 @@ export function SeminoCoppia({
   onSolletico,
   taglia = 96,
   impulso,
+  sguardo,
+  attenuato,
   className,
 }: {
   stadio?: number;
@@ -1055,6 +1121,10 @@ export function SeminoCoppia({
   onSolletico?: (chi: SeminoChi) => void;
   taglia?: number;
   impulso?: number | string;
+  /** dove guardano tutti e due (-1..1), vedi Semino */
+  sguardo?: { x: number; y: number };
+  /** reazioni al 60% (di notte) */
+  attenuato?: boolean;
   className?: string;
 }) {
   return (
@@ -1067,6 +1137,8 @@ export function SeminoCoppia({
         onSolletico={onSolletico ? () => onSolletico('semino') : undefined}
         taglia={taglia}
         impulso={impulso}
+        sguardo={sguardo}
+        attenuato={attenuato}
         className="semino-coppia-lui"
       />
       <Semino
@@ -1077,6 +1149,8 @@ export function SeminoCoppia({
         onSolletico={onSolletico ? () => onSolletico('semina') : undefined}
         taglia={taglia}
         impulso={impulso}
+        sguardo={sguardo}
+        attenuato={attenuato}
         className="semino-coppia-lei"
       />
     </span>
