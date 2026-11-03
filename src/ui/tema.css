@@ -54,6 +54,8 @@ body {
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior: none;
+  /* niente zoom col doppio tap (anche negli spazi fra i tasti) né ritardo del tocco */
+  touch-action: manipulation;
 }
 
 body {
@@ -474,7 +476,11 @@ input:focus-visible {
   --lato: min(
     100%,
     560px,
-    calc(100dvh - 318px - env(safe-area-inset-top) - env(safe-area-inset-bottom))
+    /* tutto ciò che non è griglia: barra 48 + gap 10+12 + strumenti 56 + gap 8 + tasto + padding, +12 di margine */
+    calc(
+      100dvh - 146px - clamp(58px, 9dvh, 76px) - max(10px, env(safe-area-inset-top)) -
+        max(12px, env(safe-area-inset-bottom))
+    )
   );
   display: flex;
   flex-direction: column;

@@ -60,4 +60,13 @@ export function unisci(a: StatoPartita, b: StatoPartita): StatoPartita {
   };
 }
 
+/**
+ * Una `nuova` arrivata dal partner va accettata? Sì, salvo quando anche noi abbiamo appena
+ * iniziato una partita diversa e più recente (due "nuova" incrociate): stessa regola di `unisci`,
+ * così entrambi i lati scelgono la stessa partita.
+ */
+export function accettaNuova(mia: StatoPartita | null, arrivata: StatoPartita): boolean {
+  return !mia || unisci(mia, arrivata) !== mia;
+}
+
 export const stato: Stato = { nuovaPartita, applica, unisci, griglia };

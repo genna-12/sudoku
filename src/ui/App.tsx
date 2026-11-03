@@ -4,7 +4,7 @@ import { COLORI, FRASI } from '../config/frasi';
 import { generaPuzzle, verificaCompleta } from '../engine';
 import type { Livello, Modalita } from '../engine';
 import type { Messaggio } from '../net';
-import { applica, griglia, nuovaPartita, unisci } from '../stato';
+import { accettaNuova, applica, griglia, nuovaPartita, unisci } from '../stato';
 import type { StatoPartita } from '../stato';
 import type { Arrivo, Lampo } from './Griglia';
 import { Home } from './Home';
@@ -78,7 +78,10 @@ export function App() {
         if (m.nome) salvaPartner(m.nome);
         const unita = m.stato ? (mia ? unisci(mia, m.stato) : m.stato) : mia;
         if (unita && unita !== mia) {
-          if (!mia || unita.puzzle.seed !== mia.puzzle.seed) azzeraPassi();
+          if (!mia || unita.puzzle.seed !== mia.puzzle.seed) {
+            azzeraPassi();
+            setPartnerCursore(null);
+          }
           aggiorna(unita);
         }
         if (unita) invia({ t: 'stato', stato: unita });
@@ -97,6 +100,8 @@ export function App() {
       }
       case 'cella': {
         if (!mia) break;
+        // mossa fatta sulla partita precedente, arrivata dopo una "nuova": non va sulla griglia nuova
+        if (m.ts <= mia.iniziata) break;
         const n = applica(mia, { tipo: 'cella', idx: m.idx, v: m.v, note: m.note, da: m.da, ts: m.ts });
         if (n !== mia) {
           aggiorna(n);
@@ -105,6 +110,11 @@ export function App() {
         break;
       }
       case 'nuova': {
+        if (!accettaNuova(mia, m.stato)) {
+          // "nuova" incrociate: vince la mia (più recente); rimando lo stato così convergiamo
+          if (mia) invia({ t: 'stato', stato: mia });
+          break;
+        }
         aggiorna(m.stato);
         azzeraPassi();
         setPartnerCursore(null);
@@ -138,7 +148,22 @@ export function App() {
       }
     },
   });
-  const mioRuolo = ruolo ?? 'a';
+  // Il colore di ciascuno deve restare lo stesso da una partita all'altra: lo decidono i nomi
+  // (ordine alfabetico), non chi si è collegato per primo. Il ruolo di rete serve solo se i nomi
+  // coincidono o il partner non è ancora noto. Il nome del partner è salvato in localStorage,
+  // quindi dalla seconda apertura in poi è noto fin dall'avvio.
+  const mioNome = io?.nome ?? '';
+  const mioRuolo: 'a' | 'b' =
+    partnerNome && partnerNome !== mioNome
+      ? mioNome.localeCompare(partnerNome, 'it') <= 0
+        ? 'a'
+        : 'b'
+      : (ruolo ?? 'a');
+
+  // partner andato via: il suo cursore non deve restare acceso sulla griglia
+  useEffect(() => {
+    if (connessione !== 'connesso') setPartnerCursore(null);
+  }, [connessione]);
 
   // --- timer ----------------------------------------------------------------
   const inGioco = schermata === 'partita' && !!partita && !partita.finita;
@@ -156,7 +181,8 @@ export function App() {
     const p = partitaRef.current;
     if (!p || p.finita || p.puzzle.dati[idx] !== 0) return;
     const prec = p.celle[idx];
-    const ts = Math.max(Date.now(), (prec?.ts ?? 0) + 1);
+    // ts sempre dopo `iniziata`: l'altro scarta le mosse con ts <= iniziata (residui di partite vecchie)
+    const ts = Math.max(Date.now(), (prec?.ts ?? 0) + 1, p.iniziata + 1);
     const n = applica(p, { tipo: 'cella', idx, v, note, da: mioRuolo, ts });
     if (n === p) return;
     if (!daAnnulla) {

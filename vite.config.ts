@@ -14,6 +14,7 @@ export default defineConfig({
         name: 'Sudoku di coppia',
         short_name: 'Sudoku',
         description: 'Sudoku e Killer Sudoku in due, sulla stessa griglia.',
+        lang: 'it',
         theme_color: '#1b1a24',
         background_color: '#1b1a24',
         display: 'standalone',

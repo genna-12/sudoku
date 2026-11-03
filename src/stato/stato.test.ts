@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Puzzle } from '../engine/types';
-import { applica, griglia, nuovaPartita, unisci } from './index';
+import { accettaNuova, applica, griglia, nuovaPartita, unisci } from './index';
 import type { StatoPartita } from './types';
 
 function puzzle(seed: number): Puzzle {
@@ -122,5 +122,29 @@ describe('griglia', () => {
     expect(g[1]).toBe(9);
     expect(g[3]).toBe(0);
     expect(P.dati[1]).toBe(0); // dati non mutati
+  });
+});
+
+describe('accettaNuova (due "nuova" incrociate)', () => {
+  it('senza partita locale accetta sempre', () => {
+    expect(accettaNuova(null, nuovaPartita(puzzle(2), 100))).toBe(true);
+  });
+
+  it('i due lati convergono sulla stessa partita', () => {
+    const mia = nuovaPartita(puzzle(2), 200);
+    const sua = nuovaPartita(puzzle(3), 150);
+    // io ricevo la sua (più vecchia): la scarto; lui riceve la mia (più nuova): la accetta
+    expect(accettaNuova(mia, sua)).toBe(false);
+    expect(accettaNuova(sua, mia)).toBe(true);
+  });
+
+  it('stesso istante: decide il seed, in modo simmetrico', () => {
+    const x = nuovaPartita(puzzle(2), 100);
+    const y = nuovaPartita(puzzle(3), 100);
+    expect(accettaNuova(x, y)).not.toBe(accettaNuova(y, x));
+  });
+
+  it('una partita vecchia in corso viene sostituita dalla nuova', () => {
+    expect(accettaNuova(nuovaPartita(puzzle(2), 100), nuovaPartita(puzzle(3), 500))).toBe(true);
   });
 });
