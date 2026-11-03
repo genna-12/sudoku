@@ -68,6 +68,15 @@ interface Passo {
 const STORICO_OGNI_MS = 2000;
 const idDi = (s: StatoPartita) => `${s.puzzle.modalita}-${s.puzzle.seed}`;
 const PROBABILITA_FRASE_GIUSTA = 0.25;
+/** Errori sulla stessa cella entro questa finestra (tocchi rapidi) contano uno solo. */
+export const FINESTRA_ERRORE_MS = 1500;
+
+/** Con gli errori visibili, una cella col valore giusto è definitiva (come le date): non si cambia più. */
+export function cellaBloccata(p: StatoPartita, idx: number, mostraErrori: boolean): boolean {
+  if (p.puzzle.dati[idx] !== 0) return true;
+  const v = p.celle[idx]?.v ?? 0;
+  return mostraErrori && v !== 0 && v === p.puzzle.soluzione[idx];
+}
 
 export function usePartita(opzioni: Opzioni) {
   const o = useRef(opzioni);
@@ -81,6 +90,7 @@ export function usePartita(opzioni: Opzioni) {
   /** celle che hanno già dato punti in questa partita (annulla + riscrivi non conta due volte) */
   const contate = useRef<{ seed: number; celle: Set<number> }>({ seed: -1, celle: new Set() });
   const erroriDiFila = useRef(0);
+  const ultimoErrore = useRef({ idx: -1, t: 0 });
   /** la partita che ha ricevuto i regali del giardino (e quanti): se viene scavalcata intatta, tornano da parte */
   const accreditata = useRef<{ id: string; n: number } | null>(null);
 
@@ -154,7 +164,9 @@ export function usePartita(opzioni: Opzioni) {
       if (fin && fin.finita) b = conQuotaBlu(aggiornaStorico(b, fin), fin);
       return b.partita === fin && b === a ? a : { ...b, partita: fin };
     });
-    if (finitaOra) {
+    if (finitaOra && fin) {
+      // lo stato finito anche all'altro: col merge (secondi = max) il tempo è lo stesso sui due lati
+      o.current.invia({ t: 'stato', stato: fin });
       o.current.effetti.vittoria();
       if (daMe) reagisci('vittoria', 'vittoria', null);
     }
@@ -162,16 +174,17 @@ export function usePartita(opzioni: Opzioni) {
 
   // --- mosse -----------------------------------------------------------------
 
-  function mossa(idx: number, v: number, note: number[], daAnnulla = false) {
+  /** true se la mossa ha cambiato la partita. */
+  function mossa(idx: number, v: number, note: number[], daAnnulla = false): boolean {
     const p = o.current.ref.current.partita;
-    if (!p || p.finita || p.puzzle.dati[idx] !== 0) return;
+    if (!p || p.finita || cellaBloccata(p, idx, o.current.mostraErrori)) return false;
     const prec = p.celle[idx];
     const prima = griglia(p);
     // ts sempre dopo `iniziata`: l'altro scarta le mosse con ts <= iniziata (residui di partite vecchie)
     const ts = Math.max(Date.now(), (prec?.ts ?? 0) + 1, p.iniziata + 1);
     const mio = o.current.mioRuolo;
     let n = applica(p, { tipo: 'cella', idx, v, note, da: mio, ts });
-    if (n === p) return;
+    if (n === p) return false;
     if (!daAnnulla) {
       passi.current.push({ idx, v: prec?.v ?? 0, note: prec?.note ?? [] });
       if (passi.current.length > 200) passi.current.shift();
@@ -180,7 +193,7 @@ export function usePartita(opzioni: Opzioni) {
     o.current.invia({ t: 'cella', idx, v, note, da: mio, ts });
 
     const contateQui = celleContate(p);
-    const esito = daAnnulla
+    let esito = daAnnulla
       ? ({ tipo: 'nessuno' } as const)
       : esitoMossa({
           puzzle: p.puzzle,
@@ -192,6 +205,13 @@ export function usePartita(opzioni: Opzioni) {
           giaContata: contateQui.has(idx),
           ts: tsContatori(p),
         });
+    if (esito.tipo === 'errore') {
+      // tocchi rapidi sulla stessa cella: un errore solo per finestra
+      const u = ultimoErrore.current;
+      const ora = Date.now();
+      if (u.idx === idx && ora - u.t < FINESTRA_ERRORE_MS) esito = { tipo: 'nessuno' };
+      else ultimoErrore.current = { idx, t: ora };
+    }
     if (esito.tipo !== 'nessuno') {
       n = applica(n, { tipo: 'contatori', da: mio, contatori: esito.contatori });
       o.current.invia({ t: 'contatori', da: mio, contatori: esito.contatori });
@@ -200,13 +220,13 @@ export function usePartita(opzioni: Opzioni) {
 
     if (esito.tipo === 'errore') {
       erroriDiFila.current = esito.diFila;
-      if (!o.current.mostraErrori) return;
+      if (!o.current.mostraErrori) return true;
       o.current.effetti.vibra([28, 40, 28]);
       if (esito.diFila >= 3 && esito.diFila % 3 === 0) reagisci('erroreSerie', 'sbagliataSerie', null, idx);
       else reagisci('errore', 'sbagliata', null, idx);
-      return;
+      return true;
     }
-    if (esito.tipo !== 'giusta') return;
+    if (esito.tipo !== 'giusta') return true;
     erroriDiFila.current = 0;
     contateQui.add(idx);
     const q = esito.valutazione.qualita;
@@ -222,12 +242,15 @@ export function usePartita(opzioni: Opzioni) {
       o.current.effetti.vibra(12);
       reagisci('regalo', 'regalo', null);
     }
+    return true;
   }
 
+  /** Annulla l'ultimo passo che si può ancora annullare (le celle diventate definitive si saltano). */
   function annulla() {
-    const passo = passi.current.pop();
+    for (let passo = passi.current.pop(); passo; passo = passi.current.pop()) {
+      if (mossa(passo.idx, passo.v, passo.note, true)) break;
+    }
     setNPassi(passi.current.length);
-    if (passo) mossa(passo.idx, passo.v, passo.note, true);
   }
 
   /** Regalo di Semino: riempie `idx` col valore giusto (0 punti, attribuito a me). */

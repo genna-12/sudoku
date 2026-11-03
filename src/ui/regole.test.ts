@@ -38,6 +38,9 @@ import {
   daRimandare,
   esitoMossa,
   fraseMascotte,
+  fraseSonno,
+  nominaSemina,
+  senzaSemina,
   puntiMossa,
   scegliFrase,
   scenaDaMostrare,
@@ -547,5 +550,48 @@ describe('memoria delle ultime frasi', () => {
       m = ricorda(m, f);
     }
     expect(scegliFrase(['solo'], ['solo'], { nome: '', io: '' })).toBe('solo');
+  });
+});
+
+describe('Semina non si nomina prima del suo arrivo', () => {
+  const s = { nome: 'Blu', io: 'Verde', reale: 'Genna', realePartner: 'Mati' };
+  // tutti i valori di `caso` su una griglia fitta: copre ogni indice delle liste
+  const casi = Array.from({ length: 400 }, (_, i) => () => (i + 0.5) / 400);
+  const categorie = Object.keys(FRASI) as Array<keyof typeof FRASI>;
+  const giorni = [null, 'mare', 'montagna'] as const;
+
+  it('nessuna frase scelta con fiori < 5 contiene "Semina" (tutte le categorie)', () => {
+    for (let fiori = 0; fiori < SEMINA_SBLOCCATA_A; fiori++) {
+      for (const caso of casi) {
+        for (const c of categorie) {
+          expect(fraseMascotte(c, 'semino', '', s, caso, fiori, false)).not.toMatch(/semina/i);
+          expect(fraseMascotte(c, 'semino', '', s, caso, fiori)).not.toMatch(/semina/i);
+        }
+        for (const g of giorni) expect(chiacchiera('semino', '', s, caso, { fiori, giorno: g, sbloccata: false })).not.toMatch(/semina/i);
+        expect(chiacchiera('semino', '', s, caso, { fiori })).not.toMatch(/semina/i);
+        expect(solletico('semino', 'felice', '', s, caso).testo).not.toMatch(/semina/i);
+        expect(fraseSonno('semino', '', new Date(2026, 10, 3, 4), caso)).not.toMatch(/semina/i);
+        expect(fraseSonno('semino', '', new Date(2026, 10, 3, 4), caso, { mossa: true })).not.toMatch(/semina/i);
+      }
+      for (const t of frasiInvio(fiori, false)) expect(t).not.toMatch(/semina/i);
+      for (const c of [...categorie, 'chiacchiere', 'solletico']) {
+        for (const f of frasiDisponibili(c, 'semino', fiori, false)) expect(typeof f === 'string' ? f : f.testo).not.toMatch(/semina/i);
+      }
+    }
+  });
+
+  it('dopo lo sblocco le frasi su Semina tornano', () => {
+    const tutte = frasiDisponibili('chiacchiere', 'semino', 5, true).map((f) => (typeof f === 'string' ? f : f.testo));
+    expect(tutte.some((t) => /semina/i.test(t))).toBe(true);
+    expect(senzaSemina(['ciao Semina', 'ciao'], false)).toEqual(['ciao']);
+    expect(nominaSemina('chiedi a Mati')).toBe(false);
+  });
+
+  it('a riposo il sonno non commenta mosse; dopo una mossa sì', () => {
+    const notte = new Date(2026, 10, 3, 4);
+    const riposo = new Set(casi.map((c) => fraseSonno('semino', '', notte, c)));
+    for (const t of riposo) expect(t).not.toMatch(/mossa|giocate|brav/i);
+    const mossa = new Set(casi.map((c) => fraseSonno('semino', '', notte, c, { mossa: true })));
+    expect([...mossa].some((t) => /mossa/i.test(t))).toBe(true);
   });
 });

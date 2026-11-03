@@ -21,7 +21,10 @@ function minuscolo(nome: string): string {
 function testoRegalo(s: Sblocco): { titolo: string; dettaglio: string } {
   switch (s.tipo) {
     case 'regalo':
-      return { titolo: 'Un suggerimento in più nella prossima partita', dettaglio: s.descrizione };
+      // una riga sola: se la descrizione dice già "prossima partita" basta lei
+      return /prossima partita/i.test(s.descrizione)
+        ? { titolo: s.descrizione, dettaglio: '' }
+        : { titolo: 'Un suggerimento in più nella prossima partita', dettaglio: s.descrizione };
     case 'frasi':
       return { titolo: `Frasi nuove: ${minuscolo(s.nome)}`, dettaglio: s.descrizione };
     case 'accessorio':

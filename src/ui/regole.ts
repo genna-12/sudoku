@@ -11,7 +11,7 @@ import {
 } from '../config/punteggio';
 import { LIVELLI, valutaMossa } from '../engine';
 import type { Griglia, Livello, Modalita, Puzzle, Valutazione } from '../engine';
-import { FRASI, FRASI_EXTRA, SEMINA_SBLOCCATA_A, SONNO, VOCE, VOCE_SUGGERIMENTO } from '../config/frasi';
+import { FRASI, FRASI_EXTRA, SEMINA_SBLOCCATA_A, SONNO, SONNO_MOSSA, VOCE, VOCE_SUGGERIMENTO } from '../config/frasi';
 import { GIORNI_SPECIALI, SBLOCCHI, SORPRESE, STORIA as STORIA_COMPLETA, chiaveDi } from '../config/storia';
 import type { Battuta, GiornoSpeciale, Sblocco, Tappa as TappaStoria } from '../config/storia';
 import { ORARI_SONNO, dormePerOrario, seminaDormeTardiOggi } from '../config/sonno';
@@ -330,11 +330,29 @@ export function scegliFrase(
 export type CategoriaFrase = keyof typeof FRASI;
 
 /**
+ * Prima che Semina arrivi su questo dispositivo (scena vista) nessuna frase deve nominarla né parlare
+ * di "lei" come personaggio: Mati si può nominare, Semina no. Filtro prudente: meglio una frase in meno.
+ */
+const PARLA_DI_SEMINA = /\bsemina\b|\blei\b|\ble ho\b/i;
+export function nominaSemina(testo: string): boolean {
+  return PARLA_DI_SEMINA.test(testo);
+}
+/** Le frasi dicibili adesso: con `sbloccata` tutte, altrimenti quelle che non parlano di Semina. */
+export function senzaSemina<T extends FraseConAccessorio>(lista: readonly T[], sbloccata: boolean): T[] {
+  return sbloccata ? [...lista] : lista.filter((f) => !nominaSemina(testoDi(f)));
+}
+
+/**
  * Le frasi "di voce" di un personaggio per una categoria con questi fiori: VOCE[chi][categoria]
  * (per `suggerimento`: VOCE_SUGGERIMENTO; per `invio`: FRASI.invio, uguali per tutti e due) più i
  * pacchetti di FRASI_EXTRA già sbloccati (`partite ≤ fiori`, del personaggio o di 'entrambi').
  */
-export function frasiDisponibili(categoria: string, chi: ChiParla, fiori: number): FraseConAccessorio[] {
+export function frasiDisponibili(
+  categoria: string,
+  chi: ChiParla,
+  fiori: number,
+  sbloccata: boolean = seminaSbloccata(fiori),
+): FraseConAccessorio[] {
   const base: readonly FraseConAccessorio[] =
     categoria === 'suggerimento'
       ? VOCE_SUGGERIMENTO[chi]
@@ -344,7 +362,7 @@ export function frasiDisponibili(categoria: string, chi: ChiParla, fiori: number
   const extra = FRASI_EXTRA.filter(
     (p) => p.categoria === categoria && (p.chi === chi || p.chi === 'entrambi') && p.partite <= fiori,
   ).flatMap((p) => p.frasi);
-  return [...base, ...extra];
+  return senzaSemina([...base, ...extra], sbloccata);
 }
 
 /**
@@ -358,28 +376,34 @@ export function fraseMascotte(
   s: Sostituzioni,
   caso: () => number = Math.random,
   fiori: number = 0,
+  sbloccata: boolean = seminaSbloccata(fiori),
 ): string {
-  const voce = frasiDisponibili(categoria, chi, fiori).map(testoDi);
-  const lista = voce.length && caso() < 0.5 ? voce : FRASI[categoria];
+  const voce = frasiDisponibili(categoria, chi, fiori, sbloccata).map(testoDi);
+  const lista = voce.length && caso() < 0.5 ? voce : senzaSemina(FRASI[categoria], sbloccata);
   return scegliFrase(lista, evita, s, caso);
 }
 
 /** Frasi da mandare al partner con questi fiori (FRASI.invio + pacchetti sbloccati). */
-export function frasiInvio(fiori: number): string[] {
-  return frasiDisponibili('invio', 'semino', fiori).map(testoDi);
+export function frasiInvio(fiori: number, sbloccata: boolean = seminaSbloccata(fiori)): string[] {
+  return frasiDisponibili('invio', 'semino', fiori, sbloccata).map(testoDi);
 }
 
 /** Quanto spesso, nei giorni speciali, la chiacchiera viene da quelle dedicate. */
 export const QUOTA_CHIACCHIERE_SPECIALI = 0.6;
 
 /** Le chiacchiere di un personaggio: le sue, i pacchetti sbloccati e, nei giorni speciali, quelle dedicate. */
-export function chiacchiereDi(chi: ChiParla, fiori: number, giorno: GiornoSpeciale | null = null): {
+export function chiacchiereDi(
+  chi: ChiParla,
+  fiori: number,
+  giorno: GiornoSpeciale | null = null,
+  sbloccata: boolean = seminaSbloccata(fiori),
+): {
   solite: FraseConAccessorio[];
   speciali: FraseConAccessorio[];
 } {
   return {
-    solite: frasiDisponibili('chiacchiere', chi, fiori),
-    speciali: giorno ? (GIORNI_SPECIALI[giorno]?.chiacchiere[chi] ?? []) : [],
+    solite: frasiDisponibili('chiacchiere', chi, fiori, sbloccata),
+    speciali: senzaSemina(giorno ? (GIORNI_SPECIALI[giorno]?.chiacchiere[chi] ?? []) : [], sbloccata),
   };
 }
 
@@ -389,9 +413,10 @@ export function chiacchiera(
   evita: string | readonly string[],
   s: Sostituzioni,
   caso: () => number = Math.random,
-  o: { fiori?: number; giorno?: GiornoSpeciale | null } = {},
+  o: { fiori?: number; giorno?: GiornoSpeciale | null; sbloccata?: boolean } = {},
 ): string {
-  const { solite, speciali } = chiacchiereDi(chi, o.fiori ?? 0, o.giorno ?? null);
+  const fiori = o.fiori ?? 0;
+  const { solite, speciali } = chiacchiereDi(chi, fiori, o.giorno ?? null, o.sbloccata ?? seminaSbloccata(fiori));
   const lista = (speciali.length && caso() < QUOTA_CHIACCHIERE_SPECIALI ? speciali : solite).map(testoDi);
   return lista.length ? scegliFrase(lista, evita, s, caso) : '';
 }
@@ -553,14 +578,18 @@ function nellOrario(ora: number, o: { aLetto: number; sveglia: number }): boolea
 /**
  * Frase di chi viene svegliata nelle sue ore di sonno. Semina nel suo giorno da dormigliona, oltre
  * la sua sveglia normale, dice la frase apposita (quella su Semino e il dormire fino a tardi).
+ * `mossa`: svegliata da una mossa (allora anche le frasi sulla mossa, SONNO_MOSSA); altrimenti
+ * (solletico, riposo) solo quelle da mezzo sonno. `sbloccata`: prima dell'arrivo di Semina niente
+ * frasi che la nominano.
  */
 export function fraseSonno(
   chi: ChiParla,
   evita: string | readonly string[],
   d: Date = new Date(),
   caso: () => number = Math.random,
+  o: { mossa?: boolean; sbloccata?: boolean } = {},
 ): string {
-  const lista = SONNO[chi] ?? [];
+  const lista = senzaSemina([...(SONNO[chi] ?? []), ...(o.mossa ? (SONNO_MOSSA[chi] ?? []) : [])], !!o.sbloccata);
   if (chi === 'semina' && seminaDormeTardiOggi(d) && dormePerOrario('semina', d)) {
     const ora = d.getHours() + d.getMinutes() / 60;
     const apposita = lista.find((t) => /fino a tardi/i.test(t));
@@ -587,12 +616,13 @@ export function solletico(
   ultimaFrase: string | readonly string[],
   s: Sostituzioni,
   caso: () => number = Math.random,
+  sbloccata: boolean = false,
 ): { umore: string; testo: string } {
   const umore =
     chi === 'semina' && ultimoUmore !== 'arrabbiato' && caso() < 1 / RARO_ARRABBIATA
       ? 'arrabbiato'
       : (aCasoDiverso<string>(UMORI_SOLLETICO, ultimoUmore, caso) ?? 'felice');
-  const lista = (VOCE[chi]?.solletico ?? []).map(testoDi);
+  const lista = senzaSemina(VOCE[chi]?.solletico ?? [], sbloccata).map(testoDi);
   const testo = lista.length ? scegliFrase(lista, ultimaFrase, s, caso) : '';
   return { umore, testo };
 }

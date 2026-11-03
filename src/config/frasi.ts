@@ -1265,25 +1265,23 @@ export const SONNO: Record<ChiParla, string[]> = {
   semino: [
     'mmh... che ore sono',
     'cinque minuti',
-    'giocate pure, io ascolto a occhi chiusi',
     'è ancora notte, per me',
-    'zzz... bella mossa... zzz',
     'di notte programmo nei sogni',
     'ho sognato un\'onda alta così... zzz',
     'non è mattina finché non lo dico io',
     'mi sono addormentato sulla tastiera. Di nuovo',
     'svegliami quando c\'è il sugo pronto',
-    'Semina, sei tu? Sono le sette? Perché?',
     'zzz... palla a me... zzz',
     'sono sveglio. Quasi. Tipo al dieci per cento',
+    'mmh... la luna è ancora alta',
+    'sogno in esadecimale, non disturbare',
+    'zzz... onda lunga... zzz',
   ],
   semina: [
-    "mmh... è presto, ma vinco lo stesso",
     "sveglia all'alba e a letto con le galline",
     'dormire è il mio sport preferito dopo il cavallo',
     'cinque minuti anche per me',
     'oggi dormo con Semino fino a tardi, non dirlo a nessuno',
-    'zzz... brava... zzz',
     'sognavo un prato pieno di caprioli...',
     'è buio, si dorme. Regola della montagna',
     'mmh, il merlo dorme, dormo anch\'io',
@@ -1291,6 +1289,22 @@ export const SONNO: Record<ChiParla, string[]> = {
     'chi è? Ah, ciao... zzz',
     'non mi arrabbio solo perché ho sonno',
     'ancora un sogno e arrivo',
+    'mmh... cinque minuti e poi galoppo',
+    'sogno un prato con la rugiada... zzz',
+  ],
+};
+
+/** Frasi da mezzo sonno che commentano una mossa: solo quando a svegliare è stata davvero una mossa. */
+export const SONNO_MOSSA: Record<ChiParla, string[]> = {
+  semino: [
+    'zzz... bella mossa... zzz',
+    'giocate pure, io ascolto a occhi chiusi',
+    'ho sentito un numero cadere... era giusto?',
+  ],
+  semina: [
+    'zzz... brava... zzz',
+    'mmh... è presto, ma vinco lo stesso',
+    'una mossa all\'alba vale doppio... zzz',
   ],
 };
 

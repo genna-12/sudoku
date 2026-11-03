@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { PROFILI, nomeVisibile, profiloDiNome } from '../config/giocatori';
 import type { ProfiloId } from '../config/giocatori';
@@ -23,10 +23,17 @@ export function Ingresso({
   const [frase, setFrase] = useState(iniziale?.frase ?? '');
   const profilo = PROFILI.find((p) => p.id === scelto) ?? null;
   const pronto = !!profilo && frase.trim().length >= 4;
+  const [manca, setManca] = useState(false);
+  const campo = useRef<HTMLInputElement>(null);
 
   function invia(e: FormEvent) {
     e.preventDefault();
     if (pronto && profilo) onEntra({ nome: profilo.nome, frase: frase.trim() });
+    else if (profilo) {
+      // colore scelto ma frase troppo corta: si va al campo e lo si dice
+      setManca(true);
+      campo.current?.focus();
+    }
   }
 
   return (
@@ -68,15 +75,22 @@ export function Ingresso({
           <input
             data-testid="frase"
             value={frase}
-            onChange={(e) => setFrase(e.target.value)}
+            ref={campo}
+            onChange={(e) => {
+              setFrase(e.target.value);
+              setManca(false);
+            }}
+            aria-invalid={manca || undefined}
             autoComplete="off"
             autoCapitalize="none"
             spellCheck={false}
             placeholder="la stessa per tutti e due"
           />
-          <span className="campo-aiuto">Apre la vostra stanza: chi non la conosce non vi trova.</span>
+          <span className={`campo-aiuto${manca ? ' campo-manca' : ''}`} role={manca ? 'alert' : undefined}>
+            {manca ? 'Scrivi la frase segreta (almeno 4 caratteri).' : 'Apre la vostra stanza: chi non la conosce non vi trova.'}
+          </span>
         </label>
-        <button data-testid="entra" className="bottone primario" type="submit" disabled={!pronto}>
+        <button data-testid="entra" className="bottone primario" type="submit" disabled={!profilo}>
           {profilo ? `Entra come ${nomeVisibile(profilo, sbloccata)}` : 'Scegli chi sei'}
         </button>
       </form>

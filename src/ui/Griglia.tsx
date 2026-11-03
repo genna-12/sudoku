@@ -16,6 +16,7 @@ export interface Arrivo {
 }
 
 const DOPPIO_TOCCO_MS = 320;
+const RIGHE = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 
 interface Props {
   puzzle: Puzzle;
@@ -161,10 +162,16 @@ export function Griglia(p: Props) {
       data-prima-vuota={vuote[0]}
       data-prima-vuota-valore={vuote[0] !== undefined ? puzzle.soluzione[vuote[0]] : undefined}
       data-seconda-vuota={vuote[1]}
-      role="group"
+      role="grid"
       aria-label="Griglia"
+      aria-rowcount={9}
+      aria-colcount={9}
     >
-      {valori.map((v, i) => {
+      {RIGHE.map((riga) => (
+        // righe solo per l'accessibilità: `display: contents`, le celle restano figlie della griglia CSS
+        <div key={riga} role="row" className="griglia-riga" aria-rowindex={riga + 1}>
+      {valori.slice(riga * 9, riga * 9 + 9).map((v, k) => {
+        const i = riga * 9 + k;
         const r = Math.floor(i / 9);
         const c = i % 9;
         const b = Math.floor(r / 3) * 3 + Math.floor(c / 3);
@@ -183,8 +190,18 @@ export function Griglia(p: Props) {
         if (i === p.partnerCursore) cls.push('partner');
         const somma = killer?.somme.get(i);
         const ritardo = lampo.get(i);
+        const descr = `riga ${r + 1} colonna ${c + 1}, ${data ? `data ${v}` : v ? `valore ${v}${errore ? ', sbagliato' : ''}` : note.length ? `vuota, note ${note.join(' ')}` : 'vuota'}${somma ? `, gabbia da ${somma.somma}` : ''}`;
         return (
-          <div key={i} className={cls.join(' ')} onPointerDown={() => tocca(i)}>
+          <div
+            key={i}
+            className={cls.join(' ')}
+            onPointerDown={() => tocca(i)}
+            role="gridcell"
+            aria-colindex={c + 1}
+            aria-label={descr}
+            aria-selected={i === sel}
+            aria-readonly={data || undefined}
+          >
             <span key={v} className="valore" data-testid={`cella-${i}`} data-note={note.join(',')}>
               {v || ''}
             </span>
@@ -220,6 +237,8 @@ export function Griglia(p: Props) {
           </div>
         );
       })}
+        </div>
+      ))}
       <svg className="griglia-linee" viewBox="0 0 900 900" preserveAspectRatio="none" aria-hidden="true">
         <path className="linea-sottile" d={LINEE_SOTTILI} />
         <path className="linea-spessa" d={LINEE_SPESSE} />

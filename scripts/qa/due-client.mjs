@@ -179,6 +179,10 @@ try {
   await a.getByTestId('modalita-killer').click();
   await a.getByTestId('livello-facile').click();
   await a.getByTestId('nuova').click();
+  // c'è una partita già iniziata: conferma leggera ("resta nel giardino come germoglio")
+  await a.getByTestId('conferma-nuova').waitFor({ timeout: 3000 });
+  await a.getByTestId('nuova-conferma').click();
+  console.log('OK conferma "Nuova partita?" con una partita in corso');
   await a.getByTestId('griglia').waitFor({ timeout: 10000 });
   await b.getByTestId('griglia').waitFor({ timeout: 10000 });
   await attendi(1000);

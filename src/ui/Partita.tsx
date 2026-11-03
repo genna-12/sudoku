@@ -40,7 +40,10 @@ interface Props {
   onAnnulla: () => void;
   puoAnnullare: boolean;
   onCursore: (idx: number | null) => void;
-  onFrase: () => void;
+  /** manda una frase al partner: quella scelta, o una a caso */
+  onFrase: (testo?: string) => void;
+  /** le frasi da proporre nel foglio (sei) */
+  frasiDaScegliere: () => string[];
   onEsci: () => void;
   lampo: Lampo | null;
   arrivo: Arrivo | null;
@@ -59,12 +62,19 @@ export function Partita(p: Props) {
   const [menu, setMenu] = useState(false);
   const [regaloAttivo, setRegaloAttivo] = useState(false);
   const [evidenziato, setEvidenziato] = useState(0);
+  const [proposte, setProposte] = useState<string[] | null>(null);
   const valori = useMemo(() => griglia(partita), [partita]);
+  // "ne restano": con gli errori visibili contano solo i valori giusti, così un numero sbagliato non
+  // esaurisce la cifra (senza errori visibili contano tutti: non si rivela cosa è sbagliato)
+  const soluzione = partita.puzzle.soluzione;
+  const mostraErrori = p.mostraErrori;
   const restano = useMemo(() => {
     const r = Array<number>(10).fill(9);
-    valori.forEach((v) => v && r[v]--);
+    valori.forEach((v, i) => {
+      if (v && (!mostraErrori || v === soluzione[i])) r[v]--;
+    });
     return r;
-  }, [valori]);
+  }, [valori, soluzione, mostraErrori]);
 
   // nuova partita: si riparte senza selezione
   const seme = partita.puzzle.seed;
@@ -84,10 +94,15 @@ export function Partita(p: Props) {
   }, [sel, onCursore]);
   useEffect(() => () => onCursore(null), [onCursore]);
 
-  const modificabile = sel !== null && partita.puzzle.dati[sel] === 0 && !partita.finita;
+  // con gli errori visibili una cella giusta è definitiva, come le date
+  const modificabile =
+    sel !== null && partita.puzzle.dati[sel] === 0 && !partita.finita && !(p.mostraErrori && valori[sel] === soluzione[sel]);
 
   function seleziona(i: number) {
     setSel(i);
+    // il faro del doppio tocco si spegne su una cella con un altro numero o vuota
+    const v = valori[i];
+    setEvidenziato((e) => (e && v !== e ? 0 : e));
     if (regaloAttivo && p.onSuggerisci(i)) setRegaloAttivo(false);
   }
 
@@ -185,7 +200,7 @@ export function Partita(p: Props) {
           <i aria-hidden="true" />
           <span>{CHIP[p.connessione] ?? (p.partnerNome || 'in due')}</span>
           {p.personaleConnesso && (
-            <b className="altro-dispositivo" data-testid="personale-connesso" title="Un altro tuo dispositivo è collegato" />
+            <b className="altro-dispositivo" data-testid="personale-connesso" title="Anche il tuo altro dispositivo è qui" aria-label="Anche il tuo altro dispositivo è qui" />
           )}
         </span>
         <div className="menu-ancora">
@@ -291,15 +306,58 @@ export function Partita(p: Props) {
               <IconaMatita />
               <span>Note</span>
             </button>
-            <button className="strumento strumento-cuore" onClick={p.onFrase}>
+            <button
+              className="strumento strumento-cuore"
+              data-testid="manda-frase"
+              aria-label="Manda una frase"
+              aria-haspopup="dialog"
+              onClick={() => setProposte(p.frasiDaScegliere())}
+            >
               <IconaCuore />
-              <span>Manda frase</span>
+              <span>Frase</span>
             </button>
           </div>
 
           <Tastierino restano={restano} matita={matita} onCifra={premi} />
         </div>
       </div>
+      {proposte && (
+        <div className="foglio-velo foglio-velo-leggero" onPointerDown={(e) => e.target === e.currentTarget && setProposte(null)}>
+          <div className="foglio foglio-frasi" role="dialog" aria-modal="true" aria-label="Scegli una frase da mandare" data-testid="foglio-frasi">
+            <p className="foglio-frasi-titolo">Manda una frase</p>
+            <div className="foglio-frasi-lista">
+              {proposte.map((t, i) => (
+                <button
+                  key={t}
+                  className="frase-proposta"
+                  data-testid={`frase-proposta-${i}`}
+                  onClick={() => {
+                    setProposte(null);
+                    p.onFrase(t);
+                  }}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+            <div className="foglio-azioni">
+              <button className="bottone" onClick={() => setProposte(null)}>
+                Chiudi
+              </button>
+              <button
+                className="bottone primario"
+                data-testid="frase-a-caso"
+                onClick={() => {
+                  setProposte(null);
+                  p.onFrase();
+                }}
+              >
+                A caso
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
@@ -322,7 +380,7 @@ function ultimo(c: Array<Detto | null | false | undefined>): Detto | null {
   return u;
 }
 
-const MEDIA_DESKTOP = '(min-width: 860px) and (min-aspect-ratio: 1/1)';
+const MEDIA_DESKTOP = '(min-width: 860px) and (min-aspect-ratio: 1/1) and (min-height: 501px)';
 function iscrivi(cb: () => void) {
   const m = window.matchMedia?.(MEDIA_DESKTOP);
   m?.addEventListener('change', cb);

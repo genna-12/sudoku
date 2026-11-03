@@ -15,6 +15,8 @@ interface Props {
   vibrazione: boolean;
   tema: Tema;
   inCorso: boolean;
+  /** Semina già arrivata: prima non si nomina nemmeno qui */
+  sbloccata: boolean;
   onImpostazione: (chiave: 'mostraErrori' | 'vibrazione', v: boolean) => void;
   onTema: (t: Tema) => void;
   onEsporta: () => void;
@@ -162,8 +164,10 @@ export function MenuHome(p: Props) {
               <>
                 <h2 id="foglio-titolo">Ricominciare da zero?</h2>
                 <p>
-                  Si cancellano il giardino, i punti, la storia sbloccata e Semina, per tutti e due: anche dal telefono
-                  dell'altra persona, al prossimo collegamento. Nome e frase restano.
+                  {p.sbloccata
+                    ? 'Si cancellano il giardino, i punti, la storia sbloccata e Semina, per tutti e due'
+                    : 'Si cancellano il giardino, i punti e la storia sbloccata, per tutti e due'}
+                  : anche dal telefono dell'altra persona, al prossimo collegamento. Nome e frase restano.
                 </p>
                 <div className="foglio-azioni">
                   <button className="bottone" onClick={chiudiTutto}>
@@ -209,7 +213,7 @@ export function MenuHome(p: Props) {
                       chiudiTutto();
                     }}
                   >
-                    Cancella tutto
+                    Sì, cancella tutto
                   </button>
                 </div>
               </>

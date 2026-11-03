@@ -35,12 +35,15 @@ import {
   fraseSonno,
   frasiInvio,
   mascotteDi,
+  nominaSemina,
+  partitaToccata,
   presenzaBlu,
   regaliBonusDi,
   sblocchiNuovi,
   scegliFrase,
   scenaDaMostrare,
   seminaSbloccata,
+  senzaSemina,
   solletico,
   sorpresaDaMostrare,
   sostituisci,
@@ -73,6 +76,7 @@ const RISPETTA_CHIACCHIERA_MS = 30000;
 const DURATA_CHIACCHIERA_MS = 6500;
 const DURATA_SOLLETICO_MS = 2600;
 const STORICO_OGNI_MS = 2000;
+const AZZERAMENTO_RECENTE_MS = 10 * 60 * 1000;
 
 function leggiTema(): Tema {
   const t = leggi<string>(CHIAVI.tema);
@@ -113,6 +117,8 @@ export function App() {
   const [solleticoOra, setSolleticoOra] = useState<Chiacchiera | null>(null);
   const [annuncio, setAnnuncio] = useState<Sblocco[] | null>(null);
   const [sorpresa, setSorpresa] = useState<{ iniziata: number; battute: Battuta[] } | null>(null);
+  /** azione in attesa di conferma (nuova partita o ripresa con un'altra partita già iniziata) */
+  const [daConfermare, setDaConfermare] = useState<{ azione: () => void } | null>(null);
   const { ultime, ricorda } = useUltimeFrasi();
   const { attivi, mostra } = useToasts();
   const { battuta, dici } = useBattute();
@@ -169,11 +175,14 @@ export function App() {
   };
   const frase = (c: CategoriaFrase, chi: ChiParla, n?: number) => {
     // svegliata nelle sue ore di sonno: una volta su due parla del sonno
-    if (dormePerOrario(chi) && Math.random() < 0.5) return usata('sonno', fraseSonno(chi, evita('sonno')));
-    return usata(c, fraseMascotte(c, chi, evita(c), sost(n), Math.random, vivi.current.fiori));
+    const sb = vivi.current.sbloccata;
+    if (dormePerOrario(chi) && Math.random() < 0.5)
+      return usata('sonno', fraseSonno(chi, evita('sonno'), new Date(), Math.random, { mossa: true, sbloccata: sb }));
+    return usata(c, fraseMascotte(c, chi, evita(c), sost(n), Math.random, vivi.current.fiori, sb));
   };
   const fraseSemplice = (c: CategoriaFrase) => {
-    const lista = c === 'invio' ? frasiInvio(vivi.current.fiori) : FRASI[c];
+    const sb = vivi.current.sbloccata;
+    const lista = c === 'invio' ? frasiInvio(vivi.current.fiori, sb) : senzaSemina(FRASI[c], sb);
     return usata(c, scegliFrase(lista, evita(c), sost()));
   };
 
@@ -207,6 +216,11 @@ export function App() {
     const v = vivi.current;
     // prima dello sblocco Semina non esiste: se un dispositivo indietro la nomina, si mostra Semino
     const chi: ChiParla = v.sbloccata ? r.chi : 'semino';
+    // una frase arrivata da un dispositivo dove Semina è già arrivata non la rivela qui
+    if (!v.sbloccata && r.testo && nominaSemina(r.testo)) {
+      if (r.categoria === 'chiacchiera' || r.categoria === 'solletico') return;
+      r = { ...r, testo: '' };
+    }
     if (r.categoria === 'solletico') {
       // prima che Semina arrivi qui, un suo solletico dall'altro dispositivo non si mostra
       if (chi !== r.chi) return;
@@ -268,8 +282,9 @@ export function App() {
     if (ora - u.ts < SOLLETICO_OGNI_MS) return;
     const v = vivi.current;
     if (!v.sbloccata && chi !== 'semino') return;
-    const r = solletico(chi, u.umore, [...ultime('solletico'), u.testo], sost());
-    if (dormePerOrario(chi) && Math.random() < 0.5) r.testo = fraseSonno(chi, [...ultime('sonno'), u.testo]);
+    const r = solletico(chi, u.umore, [...ultime('solletico'), u.testo], sost(), Math.random, v.sbloccata);
+    if (dormePerOrario(chi) && Math.random() < 0.5)
+      r.testo = fraseSonno(chi, [...ultime('sonno'), u.testo], new Date(), Math.random, { sbloccata: v.sbloccata });
     ricorda('solletico', r.testo);
     ultimoSolletico.current = { ts: ora, umore: r.umore, testo: r.testo };
     const reazione: Reazione = { chi, umore: r.umore, categoria: 'solletico', testo: r.testo };
@@ -336,7 +351,17 @@ export function App() {
   function riceviStorico(lista: VoceStorico[] | undefined, azzerato: number | undefined, da: Origine) {
     if (!Array.isArray(lista) && azzerato === undefined) return;
     const remoti = Array.isArray(lista) ? lista : [];
+    const azzeratoPrima = ref.current.azzerato;
     const dopo = modifica((a) => unisciStoricoRemoto(a, remoti, azzerato));
+    // l'altra persona ha ricominciato da zero: lo si dice (in Home: la partita qui si è chiusa)
+    // (solo se recente: un dispositivo nuovo che riceve un azzeramento vecchio non lo annuncia)
+    if (dopo.azzerato > azzeratoPrima && azzerato === dopo.azzerato && Date.now() - dopo.azzerato < AZZERAMENTO_RECENTE_MS) {
+      const chi = da === 'coppia' ? profiloPartner.nomeReale : '';
+      mostra({
+        tipo: 'banner',
+        testo: chi ? `${chi} ha ricominciato da zero: il giardino riparte` : 'Da un altro tuo dispositivo: si ricomincia da zero',
+      });
+    }
     const ricevuti = new Set(remoti.map((v) => v?.id));
     for (const v of dopo.storico) if (ricevuti.has(v.id)) inviate.current.set(v.id, v.aggiornata);
     const rimanda = daRimandare(dopo.storico, remoti);
@@ -431,7 +456,7 @@ export function App() {
         break;
       case 'frase':
         if (!m.inoltrato) inoltra(m, da);
-        if (dalPartner(m, da)) {
+        if (dalPartner(m, da) && !(nominaSemina(m.testo ?? '') && !vivi.current.sbloccata)) {
           // in partita la frase del partner esce dal suo fumetto, col suo colore; fuori, grande al centro
           if (vivi.current.schermata === 'partita') annuncia(m.testo, { chi: 'sua', tono: 'suo', firma: vivi.current.nomePartner, categoria: 'frase', ms: 4500 });
           else mostra({ tipo: 'grande', testo: m.testo, firma: vivi.current.nomePartner, colore: 'var(--suo)' });
@@ -537,7 +562,11 @@ export function App() {
     prossimaChi.current = chi === 'semino' ? 'semina' : 'semino';
     // chi dorme non chiacchiera
     if (vivi.current.mascotte[chi].umore === 'dorme') return;
-    const testo = chiacchiera(chi, evita('chiacchiere'), sost(), Math.random, { fiori: vivi.current.fiori, giorno: vivi.current.giorno });
+    const testo = chiacchiera(chi, evita('chiacchiere'), sost(), Math.random, {
+      fiori: vivi.current.fiori,
+      giorno: vivi.current.giorno,
+      sbloccata: vivi.current.sbloccata,
+    });
     if (!testo) return;
     usata('chiacchiere', testo);
     const r: Reazione = { chi, umore: CARATTERE[chi].umoreBase, categoria: 'chiacchiera', testo };
@@ -549,12 +578,26 @@ export function App() {
   // verso entrambe: il mio altro dispositivo non le mostra (non sono del partner) ma le inoltra
   const onCursore = useCallback((idx: number | null) => invia({ t: 'cursore', idx }), [invia]);
 
-  function mandaFrase() {
+  /** Sei frasi da proporre nel foglio "Frase" (diverse fra loro, evitando le ultime mandate). */
+  function frasiDaScegliere(): string[] {
+    const v = vivi.current;
+    const tutte = [...new Set(frasiInvio(v.fiori, v.sbloccata).map((t) => sostituisci(t, sost())))];
+    const recenti = new Set(ultime('invio'));
+    const fresche = tutte.filter((t) => !recenti.has(t));
+    const da = fresche.length >= 6 ? fresche : tutte;
+    for (let i = da.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [da[i], da[j]] = [da[j], da[i]];
+    }
+    return da.slice(0, 6);
+  }
+
+  function mandaFrase(scelta?: string) {
     if (connessione !== 'connesso' && !rete.personaleConnesso) {
       annuncia('Non c’è nessuno nella stanza: la frase non è partita', { tono: 'errore' });
       return;
     }
-    const testo = fraseSemplice('invio');
+    const testo = scelta ? usata('invio', scelta) : fraseSemplice('invio');
     invia({ t: 'frase', testo });
     annuncia(`Mandata: ${testo}`, { categoria: 'invio' });
   }
@@ -572,6 +615,13 @@ export function App() {
         setGenerando(false);
       }
     }, 30);
+  }
+
+  /** Con una partita già toccata in corso si chiede prima (resta nel giardino come germoglio). */
+  function conConferma(azione: () => void) {
+    const p = ref.current.partita;
+    if (p && !p.finita && partitaToccata(p)) setDaConfermare({ azione });
+    else azione();
   }
 
   function riprendi(v: VoceStorico) {
@@ -673,7 +723,7 @@ export function App() {
           onCancellaPartita={cancellaInCorso}
           onRicomincia={ricominciaDaZero}
           onContinua={() => setSchermata('partita')}
-          onNuova={iniziaNuova}
+          onNuova={(m, l) => conConferma(() => iniziaNuova(m, l))}
           onGiardino={() => setSchermata('giardino')}
           onCambia={() => setSchermata('ingresso')}
         />
@@ -688,7 +738,7 @@ export function App() {
           mascotte={mascotte}
           solletico={solleticoOra}
           onSolletico={onSolletico}
-          onRiprendi={riprendi}
+          onRiprendi={(v) => conConferma(() => riprendi(v))}
           onEsci={() => setSchermata('home')}
         />
       )}
@@ -721,6 +771,7 @@ export function App() {
           puoAnnullare={gioco.puoAnnullare}
           onCursore={onCursore}
           onFrase={mandaFrase}
+          frasiDaScegliere={frasiDaScegliere}
           onEsci={() => setSchermata('home')}
           lampo={lampo}
           arrivo={arrivo}
@@ -744,11 +795,46 @@ export function App() {
           onChiudi={() => setVittoriaChiusa(partita.iniziata)}
         />
       )}
+      {daConfermare && (
+        <ConfermaNuova
+          onNuova={() => {
+            setDaConfermare(null);
+            daConfermare.azione();
+          }}
+          onContinua={() => {
+            setDaConfermare(null);
+            if (ref.current.partita) setSchermata('partita');
+          }}
+          onChiudi={() => setDaConfermare(null)}
+        />
+      )}
       {scena && <ScenaSblocco onFine={fineScena} />}
       {annuncio && schermata === 'home' && !scena && (
         <AnnuncioSblocco sblocchi={annuncio} fiori={fiori} bluPresenza={blu} onChiudi={() => setAnnuncio(null)} />
       )}
       <Toasts attivi={attivi} />
+    </div>
+  );
+}
+
+/** Conferma leggera prima di lasciare una partita iniziata per un'altra. */
+function ConfermaNuova({ onNuova, onContinua, onChiudi }: { onNuova: () => void; onContinua: () => void; onChiudi: () => void }) {
+  return (
+    <div className="foglio-velo" onPointerDown={(e) => e.target === e.currentTarget && onChiudi()}>
+      <div className="foglio" role="alertdialog" aria-modal="true" aria-labelledby="conferma-nuova-titolo" data-testid="conferma-nuova">
+        <div className="foglio-passo">
+          <h2 id="conferma-nuova-titolo">Nuova partita?</h2>
+          <p>La partita in corso resta nel giardino come germoglio.</p>
+          <div className="foglio-azioni">
+            <button className="bottone" data-testid="nuova-continua" onClick={onContinua}>
+              Continua quella
+            </button>
+            <button className="bottone primario" data-testid="nuova-conferma" onClick={onNuova}>
+              Nuova
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

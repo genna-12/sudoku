@@ -90,11 +90,11 @@ export function Home(p: Props) {
         nuovi={inEvidenza(p)}
       />
       <header className="home-testa">
-        <Pallino connessione={p.connessione} partner={p.partnerNome} occupata={p.occupata} />
+        <Pallino connessione={p.connessione} partner={p.partnerNome} occupata={p.occupata} femminile={p.mioRuolo === 'b'} />
         {p.personaleConnesso && (
-          <span className="altro-dispositivo-chip" data-testid="personale-connesso" title="Un altro tuo dispositivo è collegato">
+          <span className="altro-dispositivo-chip" data-testid="personale-connesso" title="Anche il tuo altro dispositivo è qui">
             <b className="altro-dispositivo" aria-hidden="true" />
-            <span className="nascosto-visivo">altro mio dispositivo collegato</span>
+            <span className="nascosto-visivo">anche il tuo altro dispositivo è qui</span>
           </span>
         )}
         <span className="home-testa-spazio" />
@@ -112,6 +112,7 @@ export function Home(p: Props) {
           vibrazione={p.vibrazione}
           tema={p.tema}
           inCorso={!!inCorso}
+          sbloccata={p.sbloccata}
           onImpostazione={p.onImpostazione}
           onTema={p.onTema}
           onEsporta={p.onEsporta}
@@ -364,16 +365,19 @@ export function Pallino({
   connessione,
   partner,
   occupata = false,
+  femminile = false,
 }: {
   connessione: StatoConnessione;
   partner: string;
   occupata?: boolean;
+  /** per il testo "sei già collegato/a" (Mati → collegata) */
+  femminile?: boolean;
 }) {
   return (
     <span className={`pallino pallino-${occupata ? 'occupata' : connessione}`}>
       <i data-testid={connessione === 'connesso' ? 'connesso' : undefined} aria-hidden="true" />
       <span className="pallino-testo">
-        {occupata ? 'sei già collegato da un altro dispositivo' : testoConnessione(connessione, partner)}
+        {occupata ? `sei già ${femminile ? 'collegata' : 'collegato'} da un altro dispositivo` : testoConnessione(connessione, partner)}
       </span>
     </span>
   );

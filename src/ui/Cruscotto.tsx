@@ -146,11 +146,16 @@ function Contatore({
     <span
       key={errori}
       className={`contatore contatore-${lato}${errori > 0 && mostraErrori ? ' scatta' : ''}`}
-      aria-label={`${lato === 'mio' ? 'Tu' : 'Partner'}: ${punti} punti${mostraErrori ? `, ${errori} errori` : ''}`}
+      role="group"
+      aria-label={`${lato === 'mio' ? 'Tu' : 'Partner'}: ${punti} punti${mostraErrori ? `, ${errori} errori (annullare non li toglie)` : ''}`}
     >
-      <b data-testid={`punti-${lato}`}>{punti}</b>
-      <span className="contatore-errori" data-testid={`errori-${lato}`} hidden={!mostraErrori}>
-        {errori}
+      <span className="contatore-voce" title="punti">
+        <b data-testid={`punti-${lato}`}>{punti}</b>
+        <small aria-hidden="true">punti</small>
+      </span>
+      <span className="contatore-errori" hidden={!mostraErrori} title="errori: annullare una mossa non li toglie">
+        <span data-testid={`errori-${lato}`}>{errori}</span>
+        <small aria-hidden="true">errori</small>
       </span>
     </span>
   );

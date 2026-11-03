@@ -128,9 +128,12 @@ export function Vittoria({
             </span>
           </button>
         ) : (
-          <p className={`vittoria-frase${frase ? '' : ' in-arrivo'}`} data-testid="vittoria-frase">
-            {frase || '…'}
-          </p>
+          <>
+            <h2 className="vittoria-titolo">{sbloccata ? 'Fiorita insieme!' : 'Fiorita!'}</h2>
+            <p className={`vittoria-frase${frase ? '' : ' in-arrivo'}`} data-testid="vittoria-frase">
+              {frase || '…'}
+            </p>
+          </>
         )}
         <p className="vittoria-tempo">
           Finita in <span className="tabellare">{tempo(secondi)}</span>, un fiore in più nel giardino
