@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import type { CSSProperties } from 'react';
+import type { ChiParla } from '../config/frasi';
+import type { Chiacchiera } from './Home';
 import { Semino, SeminoCoppia } from './Semino';
 import { umoreValido } from './useMascotte';
+import type { Mascotte } from './useMascotte';
 import { tempo } from './util';
 
 const COLORI = ['var(--a)', 'var(--b)', 'var(--evid)', 'var(--inchiostro)'];
@@ -10,6 +13,9 @@ export function Vittoria({
   secondi,
   frase,
   sbloccata,
+  mascotte,
+  solletico,
+  onSolletico,
   puntiMiei,
   puntiSuoi,
   bonus,
@@ -20,6 +26,10 @@ export function Vittoria({
   /** scelta da chi ha messo l'ultima cella (arriva con l'evento `vittoria`) */
   frase: string;
   sbloccata: boolean;
+  mascotte: Mascotte;
+  /** solletico in corso: quella mascotte cambia umore e parla nel fumetto */
+  solletico: Chiacchiera | null;
+  onSolletico: (chi: ChiParla) => void;
   puntiMiei: number;
   puntiSuoi: number;
   bonus: number;
@@ -48,9 +58,32 @@ export function Vittoria({
       <div className="vittoria-carta" data-testid="vittoria">
         <span className="vittoria-mascotte">
           {sbloccata ? (
-            <SeminoCoppia stadio={4} umore="festa" umoreSemina={umoreValido('euforico')} taglia={92} impulso="vittoria" />
+            <SeminoCoppia
+              stadio={4}
+              umore={solletico?.chi === 'semino' ? mascotte.semino.umore : 'festa'}
+              umoreSemina={solletico?.chi === 'semina' ? mascotte.semina.umore : umoreValido('euforico')}
+              taglia={92}
+              impulso={solletico ? `s${solletico.id}` : 'vittoria'}
+              onSolletico={onSolletico}
+            />
           ) : (
-            <Semino stadio={4} umore="festa" impulso="vittoria" taglia={112} />
+            <Semino
+              stadio={4}
+              umore={solletico ? mascotte.semino.umore : 'festa'}
+              impulso={solletico ? `s${solletico.id}` : 'vittoria'}
+              onSolletico={() => onSolletico('semino')}
+              taglia={112}
+            />
+          )}
+          {solletico && (
+            <span
+              key={solletico.id}
+              className={`fumetto fumetto-solletico vittoria-fumetto${solletico.chi === 'semina' ? ' fumetto--semina' : ''}`}
+              role="status"
+              data-testid="fumetto-solletico"
+            >
+              {solletico.testo}
+            </span>
           )}
         </span>
         <p className={`vittoria-frase${frase ? '' : ' in-arrivo'}`} data-testid="vittoria-frase">

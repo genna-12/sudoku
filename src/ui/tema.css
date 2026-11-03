@@ -2436,3 +2436,295 @@ input:focus-visible {
     opacity: 1;
   }
 }
+
+/* ==========================================================================
+   T2b: il blu che cresce. Gli accenti "di coppia" (bottone primario, livello scelto, pallino di
+   connessione, barra di crescita, grana del fondo, titoli) nascono verdi e accolgono il blu man
+   mano che il giardino fiorisce: --blu-presenza (0..1, da App) sposta lo stop del gradiente da
+   100% (tutto verde) a 50% (metà e metà, dallo sblocco di Semina). Il passaggio è morbido:
+   --cp-sfuma si allarga con la presenza, così a 0 non c'è nemmeno un filo di blu.
+   I colori PERSONALI (celle, cursore, quote della barra, contatori) non passano di qui.
+   ========================================================================== */
+@property --blu-presenza {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+:root {
+  transition: --blu-presenza 1.6s var(--curva);
+  --cp-stop: calc(100% - var(--blu-presenza) * 50%);
+  --cp-sfuma: calc(var(--blu-presenza) * 16%);
+  --cp-da: calc(var(--cp-stop) - var(--cp-sfuma));
+  --cp-a: calc(var(--cp-stop) + var(--cp-sfuma));
+  --coppia: linear-gradient(90deg, var(--verde) var(--cp-da), var(--blu) var(--cp-a));
+  --coppia-netto: linear-gradient(90deg, var(--verde) var(--cp-stop), var(--blu) var(--cp-stop));
+  --coppia-testo: linear-gradient(90deg, var(--verde-inchiostro) var(--cp-da), var(--blu-inchiostro) var(--cp-a));
+  --coppia-tenue: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--verde) 45%, var(--linea)) var(--cp-da),
+    color-mix(in srgb, var(--blu) 60%, var(--linea)) var(--cp-a)
+  );
+  /* una sola tinta, per ombre e aloni (dove un gradiente non si può) */
+  --coppia-mix: color-mix(in oklab, var(--verde), var(--blu) calc(var(--blu-presenza) * 50%));
+}
+
+/* grana: oltre ai puntini neutri, un reticolo verde e uno blu che si accende con la presenza */
+body {
+  --grana-verde: color-mix(in srgb, var(--verde) 9%, transparent);
+  --grana-blu: color-mix(in srgb, var(--blu) calc(var(--blu-presenza) * 24%), transparent);
+  background:
+    radial-gradient(120% 60% at 70% -12%, var(--luna), transparent 62%),
+    radial-gradient(circle at 1px 1px, var(--grana-verde) 0.9px, transparent 1.6px) 1px 4px / 13px 13px,
+    radial-gradient(circle at 1px 1px, var(--grana-blu) 1px, transparent 1.7px) 7px 10px / 13px 13px,
+    radial-gradient(circle at 1px 1px, var(--grana-chiara) 0.9px, transparent 1.5px) 0 0 / 5px 5px,
+    radial-gradient(circle at 1px 1px, var(--grana-scura) 0.9px, transparent 1.6px) 2px 3px / 7px 7px,
+    var(--fondo);
+  background-attachment: fixed;
+}
+
+/* bottone primario: il gesto di coppia per eccellenza */
+.bottone.primario:not(:disabled),
+.bottone.primario.invito:not(:disabled) {
+  background: var(--coppia);
+  color: #0b1410;
+  box-shadow: 0 5px 0 color-mix(in srgb, var(--coppia-mix) 38%, var(--fondo));
+}
+.bottone.primario:active:not(:disabled) {
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--coppia-mix) 38%, var(--fondo));
+}
+.bottone.primario.invito:not(:disabled) {
+  box-shadow:
+    0 5px 0 color-mix(in srgb, var(--coppia-mix) 38%, var(--fondo)),
+    0 0 0 6px color-mix(in srgb, var(--coppia-mix) 16%, transparent);
+  animation-name: invito-coppia;
+}
+@keyframes invito-coppia {
+  50% {
+    box-shadow:
+      0 5px 0 color-mix(in srgb, var(--coppia-mix) 38%, var(--fondo)),
+      0 0 0 11px color-mix(in srgb, var(--coppia-mix) 4%, transparent);
+  }
+}
+
+/* livello scelto: bordo bicolore; le tacche della scala sono un solo gradiente che le attraversa */
+.livello.attivo {
+  border-color: transparent;
+  background:
+    linear-gradient(var(--carta-2), var(--carta-2)) padding-box,
+    var(--coppia) border-box;
+}
+.livello.attivo .livello-scala i.pieno {
+  background: var(--coppia) calc(var(--k, 0) * -8px) 0 / 45px 100%;
+}
+
+/* pallino "connessi": metà di ciascuno quando ci siete tutti e due */
+.pallino-connesso i,
+.partner-chip.pallino-connesso i {
+  background: var(--coppia-netto);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--coppia-mix) 26%, transparent);
+}
+
+/* barra di crescita: la traccia vuota lascia trasparire la coppia, il bordo è bicolore */
+.crescita-barra {
+  --traccia: color-mix(in srgb, var(--fondo) 70%, var(--carta));
+  border-color: transparent;
+  background:
+    linear-gradient(color-mix(in srgb, var(--traccia) 86%, transparent), color-mix(in srgb, var(--traccia) 86%, transparent)) padding-box,
+    var(--coppia) padding-box,
+    var(--coppia-tenue) border-box;
+}
+.crescita.piena .crescita-barra {
+  background:
+    linear-gradient(var(--traccia), var(--traccia)) padding-box,
+    linear-gradient(color-mix(in srgb, var(--oro) 60%, var(--linea)), color-mix(in srgb, var(--oro) 60%, var(--linea))) border-box;
+}
+
+/* titoli: inchiostro di coppia */
+.home .titolo.home-titolo,
+.barra-livello {
+  width: fit-content;
+  background: var(--coppia-testo);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.barra-titolo {
+  align-items: flex-start;
+}
+
+/* ---------- solletico: fumetto breve che "salta" fuori ---------- */
+.fumetto-solletico {
+  font-weight: 650;
+  animation: fumetto-solletico 0.38s var(--molla) both;
+}
+@keyframes fumetto-solletico {
+  0% {
+    opacity: 0;
+    transform: scale(0.6) rotate(-4deg);
+  }
+  60% {
+    transform: scale(1.05) rotate(1.5deg);
+  }
+}
+
+/* giardino: le mascotte in testa, vestite a caso; il fumetto del solletico scende sotto di loro */
+.giardino-mascotte {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  margin-left: auto;
+  flex: none;
+}
+.giardino-mascotte .semino + .semino {
+  margin-left: -10px;
+}
+.giardino-fumetto {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 10px);
+  right: 0;
+  width: max-content;
+  max-width: min(64vw, 260px);
+  font-size: 14px;
+  transform-origin: 85% 0;
+  box-shadow: var(--ombra);
+}
+.giardino-fumetto::before {
+  top: -8.5px;
+  bottom: auto;
+  left: auto;
+  right: 20px;
+  transform: rotate(135deg);
+}
+
+/* vittoria: la battuta del solletico sopra le mascotte */
+.vittoria-mascotte {
+  position: relative;
+}
+.vittoria-fumetto {
+  position: absolute;
+  z-index: 2;
+  bottom: calc(100% - 6px);
+  left: 50%;
+  translate: -50% 0;
+  width: max-content;
+  max-width: 240px;
+  font-size: 14.5px;
+  transform-origin: 50% 100%;
+}
+.vittoria-fumetto::before {
+  left: calc(50% - 7px);
+  bottom: -8.5px;
+  transform: rotate(-45deg);
+}
+
+/* ---------- mascotte più presenti ----------
+   telefono: nel cruscotto, 44 px; desktop: pannello accanto alla griglia, sopra i comandi. */
+.mascottina {
+  width: 44px;
+  height: 50px;
+}
+.pannello-mascotte {
+  display: none;
+}
+@media (min-width: 860px) and (min-aspect-ratio: 1/1) {
+  .pannello-mascotte {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px 14px 14px;
+    border-radius: var(--r-foglia);
+    background: var(--carta);
+    border: 1px solid var(--linea);
+  }
+  .pannello-mascotte-figure {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    min-height: 74px;
+  }
+  .pannello-mascotte-figura {
+    display: grid;
+    place-items: center;
+    transition: opacity 0.3s;
+  }
+  .pannello-mascotte.in-due .pannello-mascotte-figura:not(.parla) {
+    opacity: 0.9;
+  }
+  .pannello-fumetto {
+    margin: 0;
+    max-width: none;
+    min-height: 3.6em;
+    font-size: 14.5px;
+    transform-origin: 30% 0;
+  }
+  .pannello-fumetto::before {
+    top: -8.5px;
+    bottom: auto;
+    left: 46px;
+    transform: rotate(135deg);
+  }
+  .pannello-mascotte.in-due .pannello-fumetto::before {
+    left: calc(25% - 7px);
+  }
+  .pannello-mascotte.in-due .pannello-fumetto.a-destra::before {
+    left: calc(75% - 7px);
+  }
+  .pannello-fumetto.quieto {
+    border-style: dashed;
+    --fumetto-accento: var(--linea);
+    color: var(--tenue);
+    animation: none;
+  }
+  /* sul desktop le mascotte stanno nel pannello, non nel cruscotto */
+  .cruscotto .mascottina,
+  .chiacchiera-partita:not(.suggerimento-aiuto) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    transition: none;
+  }
+  .fumetto-solletico,
+  .bottone.primario.invito:not(:disabled) {
+    animation: none;
+  }
+}
+
+/* cruscotto in due su telefono: le mascotte a 44 px si prendono lo spazio della parola dello stadio */
+@media (max-width: 459px) {
+  .crescita.in-due .crescita-stadio {
+    display: none;
+  }
+}
+.chiacchiera-partita.a-destra {
+  left: auto;
+  right: 64px;
+  transform-origin: 100% 100%;
+}
+.chiacchiera-partita.a-destra::before {
+  left: auto;
+  right: 26px;
+}
+@media (min-width: 860px) and (min-aspect-ratio: 1/1) {
+  .pannello-fumetto.vuoto {
+    visibility: hidden;
+  }
+  .pannello-fumetto.quieto {
+    font-style: italic;
+    --casl: 1;
+  }
+}
+/* il fumetto in partita scende sulla griglia: la codina punta in su, verso chi parla */
+.chiacchiera-partita:not(.suggerimento-aiuto)::before {
+  top: -8.5px;
+  bottom: auto;
+  left: 14px;
+  transform: rotate(135deg);
+}
+.chiacchiera-partita.a-destra::before {
+  left: auto;
+  right: 14px;
+}

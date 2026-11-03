@@ -1,7 +1,11 @@
+import { useState } from 'react';
+import type { ChiParla } from '../config/frasi';
 import { LIVELLI_PARAMETRI } from '../config/livelli';
 import type { VoceStorico } from '../stato';
-import { statistiche } from './regole';
-import { SeminoPianta, stadioDaCrescita } from './Semino';
+import type { Chiacchiera } from './Home';
+import { aCasoDiverso, numeriFiori, quotaBluFiore, statistiche } from './regole';
+import { ACCESSORI_DI, Semino, SeminoPianta, stadioDaCrescita } from './Semino';
+import type { Mascotte } from './useMascotte';
 import { IconaIndietro } from './Icone';
 import { tempo } from './util';
 
@@ -14,6 +18,9 @@ interface Props {
   /** id della partita aperta adesso (non si "riprende" quella in corso) */
   inCorso: string | null;
   sbloccata: boolean;
+  mascotte: Mascotte;
+  solletico: Chiacchiera | null;
+  onSolletico: (chi: ChiParla) => void;
   onRiprendi: (v: VoceStorico) => void;
   onEsci: () => void;
 }
@@ -21,6 +28,14 @@ interface Props {
 /** Il giardino: una pianta per partita, dalla più recente; fiori = finite, germogli = da riprendere. */
 export function Giardino(p: Props) {
   const st = statistiche(p.storico);
+  const numeri = numeriFiori(p.storico);
+  // le mascotte in testa al giardino, ciascuna con un accessorio a caso (fisso per questa visita)
+  const [accessori] = useState(() => ({
+    semino: aCasoDiverso(ACCESSORI_DI.semino, undefined),
+    semina: aCasoDiverso(ACCESSORI_DI.semina, undefined),
+  }));
+  const chi: ChiParla[] = p.sbloccata ? ['semino', 'semina'] : ['semino'];
+  const stadio = Math.min(4, st.fiori);
   return (
     <main className="schermata giardino-schermata">
       <header className="barra">
@@ -33,6 +48,30 @@ export function Giardino(p: Props) {
             {st.fiori === 1 ? '1 fiore' : `${st.fiori} fiori`}, {st.germogli === 1 ? '1 germoglio' : `${st.germogli} germogli`}
           </span>
         </div>
+        <span className="giardino-mascotte" data-testid="giardino-mascotte">
+          {chi.map((c) => (
+            <Semino
+              key={c}
+              chi={c}
+              stadio={stadio}
+              umore={p.mascotte[c].umore}
+              impulso={p.mascotte[c].impulso}
+              accessorio={accessori[c]}
+              onSolletico={() => p.onSolletico(c)}
+              taglia={52}
+            />
+          ))}
+          {p.solletico && (
+            <span
+              key={p.solletico.id}
+              className={`fumetto fumetto-giu fumetto-solletico giardino-fumetto${p.solletico.chi === 'semina' ? ' fumetto--semina' : ''}`}
+              role="status"
+              data-testid="fumetto-solletico"
+            >
+              {p.solletico.testo}
+            </span>
+          )}
+        </span>
       </header>
 
       {p.storico.length > 0 && (
@@ -75,7 +114,14 @@ export function Giardino(p: Props) {
           </p>
         )}
         {p.storico.map((v) => (
-          <Pianta key={v.id} voce={v} inCorso={p.inCorso === v.id} sbloccata={p.sbloccata} onRiprendi={p.onRiprendi} />
+          <Pianta
+            key={v.id}
+            voce={v}
+            inCorso={p.inCorso === v.id}
+            sbloccata={p.sbloccata}
+            quotaBlu={quotaBluFiore(v, numeri.get(v.id) ?? 0, p.sbloccata)}
+            onRiprendi={p.onRiprendi}
+          />
         ))}
       </div>
     </main>
@@ -86,11 +132,14 @@ function Pianta({
   voce,
   inCorso,
   sbloccata,
+  quotaBlu,
   onRiprendi,
 }: {
   voce: VoceStorico;
   inCorso: boolean;
   sbloccata: boolean;
+  /** frazione di petali blu (null per i germogli, che restano neutri) */
+  quotaBlu: number | null;
   onRiprendi: (v: VoceStorico) => void;
 }) {
   const finita = !!voce.finita;
@@ -103,11 +152,13 @@ function Pianta({
       className={`pianta ${finita ? 'pianta-fiorita' : 'pianta-germoglio'}`}
       data-testid={`pianta-${voce.id}`}
       data-finita={finita ? 'true' : 'false'}
+      data-quota-blu={quotaBlu ?? undefined}
     >
       <SeminoPianta
         fiorita={finita}
         stadio={Math.max(1, stadioDaCrescita(voce.progresso))}
         chi={chi}
+        quotaBlu={quotaBlu ?? undefined}
         taglia={68}
       />
       <span className="pianta-titolo">

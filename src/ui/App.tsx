@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { CARATTERE, FRASI } from '../config/frasi';
 import type { ChiParla } from '../config/frasi';
+import { dormePerOrario } from '../config/sonno';
 import { COLORI_RUOLO, PROFILI, nomeVisibile, profiloDiNome } from '../config/giocatori';
 import type { Livello, Modalita } from '../engine';
 import type { Messaggio } from '../net';
@@ -19,15 +20,21 @@ import type { Tema } from './MenuHome';
 import { Partita } from './Partita';
 import {
   CHIAVE_SBLOCCO,
+  SOLLETICO_OGNI_MS,
+  accessorioDi,
   bonusVittoria,
   chiacchiera,
   daRimandare,
   fioriDi,
   fraseMascotte,
+  fraseSonno,
   mascotteDi,
+  presenzaBlu,
   scegliFrase,
   scenaDaMostrare,
   seminaSbloccata,
+  solletico,
+  sostituisci,
   tappaDaMostrare,
   umoreEvento,
   vociCambiate,
@@ -47,12 +54,13 @@ import { Vittoria } from './Vittoria';
 
 type Schermata = 'ingresso' | 'home' | 'partita' | 'giardino';
 
-const CATEGORIE = new Set<string>([...Object.keys(FRASI), 'chiacchiera']);
+const CATEGORIE = new Set<string>([...Object.keys(FRASI), 'chiacchiera', 'solletico']);
 /** reazioni del partner che meritano anche il suo banner "hai visto?" e il lampo sulla cella */
 const DA_APPLAUSO = new Set(['brillante', 'intelligente', 'serie', 'regalo']);
 const SILENZIO_PARTITA_MS = 45000;
 const RISPETTA_CHIACCHIERA_MS = 30000;
 const DURATA_CHIACCHIERA_MS = 6500;
+const DURATA_SOLLETICO_MS = 2600;
 const STORICO_OGNI_MS = 2000;
 
 function leggiTema(): Tema {
@@ -89,13 +97,14 @@ export function App() {
   const [fraseVittoria, setFraseVittoria] = useState<{ iniziata: number; testo: string } | null>(null);
   const [chiacchieraOra, setChiacchieraOra] = useState<Chiacchiera | null>(null);
   const [tappaHome, setTappaHome] = useState<Tappa | null>(null);
+  const [solleticoOra, setSolleticoOra] = useState<Chiacchiera | null>(null);
   const { attivi, mostra } = useToasts();
-  const { mascotte, reagisci } = useMascotte();
+  const { mascotte, reagisci, sveglia } = useMascotte();
 
   // valori letti dai gestori di rete (sempre gli ultimi)
-  const vivi = useRef({ nomeMio, nomePartner, sbloccata, mioRuolo, schermata, mostraErrori, vibrazione });
+  const vivi = useRef({ nomeMio, nomePartner, sbloccata, mioRuolo, schermata, mostraErrori, vibrazione, mascotte });
   useEffect(() => {
-    vivi.current = { nomeMio, nomePartner, sbloccata, mioRuolo, schermata, mostraErrori, vibrazione };
+    vivi.current = { nomeMio, nomePartner, sbloccata, mioRuolo, schermata, mostraErrori, vibrazione, mascotte };
   });
   const ultimaFrase = useRef('');
   const ultimoEvento = useRef(0);
@@ -104,6 +113,8 @@ export function App() {
   const prossimaChi = useRef<ChiParla>('semino');
   const inviate = useRef(new Map<string, number>());
   const timerChiacchiera = useRef(0);
+  const timerSolletico = useRef(0);
+  const ultimoSolletico = useRef({ ts: 0, umore: '', testo: '' });
   // invio verso le stanze: la rete si apre più sotto (ha bisogno dei gestori), qui un rimando stabile
   const inviaRef = useRef<(m: Messaggio, dove?: Destinazione) => void>(() => {});
   const invia = useCallback((m: Messaggio, dove?: Destinazione) => inviaRef.current(m, dove), []);
@@ -114,15 +125,28 @@ export function App() {
     if (tema === 'auto') delete r.dataset.tema;
     else r.dataset.tema = tema;
   }, [tema]);
+  // quanto blu negli accenti di coppia: sul root, così arriva anche alla grana del body
+  const blu = presenzaBlu(fiori, sbloccata);
+  useEffect(() => {
+    document.documentElement.style.setProperty('--blu-presenza', String(blu));
+  }, [blu]);
   function cambiaTema(t: Tema) {
     setTema(t);
     scrivi(CHIAVI.tema, t === 'auto' ? null : t);
   }
 
   // --- frasi -------------------------------------------------------------------
-  const sost = (n?: number) => ({ nome: vivi.current.nomePartner, io: vivi.current.nomeMio, n });
+  const sost = (n?: number) => ({
+    nome: vivi.current.nomePartner,
+    io: vivi.current.nomeMio,
+    n,
+    reale: profilo.nomeReale,
+    realePartner: profiloPartner.nomeReale,
+  });
   const frase = (c: CategoriaFrase, chi: ChiParla, n?: number) => {
-    const t = fraseMascotte(c, chi, ultimaFrase.current, sost(n));
+    // svegliata nelle sue ore di sonno: una volta su due parla del sonno
+    const assonnata = dormePerOrario(chi) && Math.random() < 0.5;
+    const t = assonnata ? fraseSonno(chi, ultimaFrase.current) : fraseMascotte(c, chi, ultimaFrase.current, sost(n));
     ultimaFrase.current = t;
     return t;
   };
@@ -143,7 +167,7 @@ export function App() {
   }
 
   function mostraChiacchiera(chi: ChiParla, testo: string) {
-    setChiacchieraOra({ id: Date.now(), chi, testo });
+    setChiacchieraOra({ id: Date.now(), chi, testo, accessorio: accessorioDi(chi, testo) });
     window.clearTimeout(timerChiacchiera.current);
     timerChiacchiera.current = window.setTimeout(() => setChiacchieraOra(null), DURATA_CHIACCHIERA_MS);
   }
@@ -152,7 +176,18 @@ export function App() {
     const v = vivi.current;
     // prima dello sblocco Semina non esiste: se un dispositivo indietro la nomina, si mostra Semino
     const chi: ChiParla = v.sbloccata ? r.chi : 'semino';
-    reagisci(chi, r.umore);
+    if (r.categoria === 'solletico') {
+      // prima che Semina arrivi qui, un suo solletico dall'altro dispositivo non si mostra
+      if (chi !== r.chi) return;
+      // anche quello arrivato dall'altro conta come "precedente": il prossimo sarà diverso
+      ultimoSolletico.current = { ...ultimoSolletico.current, umore: r.umore, testo: r.testo };
+      reagisci(chi, r.umore);
+      setSolleticoOra({ id: Date.now(), chi, testo: r.testo });
+      window.clearTimeout(timerSolletico.current);
+      timerSolletico.current = window.setTimeout(() => setSolleticoOra(null), DURATA_SOLLETICO_MS);
+      return;
+    }
+    reagisci(chi, r.umore, { attivita: r.categoria !== 'chiacchiera' });
     if (r.categoria === 'chiacchiera') {
       if (r.testo) mostraChiacchiera(chi, r.testo);
       return;
@@ -192,6 +227,22 @@ export function App() {
       if (categoria === 'brillante' || categoria === 'intelligente') mostra({ tipo: 'banner', testo: fraseSemplice('partnerBrillante'), categoria: 'partnerBrillante' });
     }
   }
+
+  /** tocco su una mascotte: reazione a caso, mai uguale alla precedente; dopo lo sblocco la vede anche l'altro */
+  function onSolletico(chi: ChiParla) {
+    const u = ultimoSolletico.current;
+    const ora = Date.now();
+    if (ora - u.ts < SOLLETICO_OGNI_MS) return;
+    const v = vivi.current;
+    if (!v.sbloccata && chi !== 'semino') return;
+    const r = solletico(chi, u.umore, u.testo, sost());
+    if (dormePerOrario(chi) && Math.random() < 0.5) r.testo = fraseSonno(chi, u.testo);
+    ultimoSolletico.current = { ts: ora, umore: r.umore, testo: r.testo };
+    const reazione: Reazione = { chi, umore: r.umore, categoria: 'solletico', testo: r.testo };
+    mostraReazione(reazione, false);
+    if (v.sbloccata) inviaReazione(reazione);
+  }
+  useEffect(() => () => window.clearTimeout(timerSolletico.current), []);
 
   // --- partita ------------------------------------------------------------------
   const gioco = usePartita({
@@ -300,6 +351,7 @@ export function App() {
         break;
       case 'cella':
         if (gioco.riceviCella(m)) {
+          sveglia();
           if (dalPartner(m, da)) setArrivo({ id: Date.now(), idx: m.idx, tipo: 'mossa' });
           inoltra(m, da);
         }
@@ -384,7 +436,13 @@ export function App() {
   const chiaveHome = schermata === 'home' && !scena ? `${fiori}-${archivio.azzerato}` : null;
   if (chiaveHome !== homeVista) {
     setHomeVista(chiaveHome);
-    setTappaHome(chiaveHome ? tappaDaMostrare(fiori, archivio.tappeViste) : null);
+    const t = chiaveHome ? tappaDaMostrare(fiori, archivio.tappeViste) : null;
+    setTappaHome(
+      t && {
+        ...t,
+        testo: sostituisci(t.testo, { nome: nomePartner, io: nomeMio, reale: profilo.nomeReale, realePartner: profiloPartner.nomeReale }),
+      },
+    );
   }
   useEffect(() => {
     if (!tappaHome) return;
@@ -406,6 +464,8 @@ export function App() {
     if (connessione === 'connesso' && ora - ultimaChiacchieraRicevuta.current < RISPETTA_CHIACCHIERA_MS) return;
     const chi: ChiParla = vivi.current.sbloccata ? prossimaChi.current : 'semino';
     prossimaChi.current = chi === 'semino' ? 'semina' : 'semino';
+    // chi dorme non chiacchiera
+    if (vivi.current.mascotte[chi].umore === 'dorme') return;
     const testo = chiacchiera(chi, ultimaFrase.current, sost());
     if (!testo) return;
     ultimaFrase.current = testo;
@@ -527,6 +587,8 @@ export function App() {
           tappa={tappaHome}
           onChiudiTappa={() => setTappaHome(null)}
           chiacchiera={chiacchieraOra}
+          solletico={solleticoOra}
+          onSolletico={onSolletico}
           mascotte={mascotte}
           mostraErrori={mostraErrori}
           vibrazione={vibrazione}
@@ -549,6 +611,9 @@ export function App() {
           storico={archivio.storico}
           inCorso={partita && !partita.finita ? `${partita.puzzle.modalita}-${partita.puzzle.seed}` : null}
           sbloccata={sbloccata}
+          mascotte={mascotte}
+          solletico={solleticoOra}
+          onSolletico={onSolletico}
           onRiprendi={riprendi}
           onEsci={() => setSchermata('home')}
         />
@@ -568,8 +633,13 @@ export function App() {
           sbloccata={sbloccata}
           mascotte={mascotte}
           chiacchiera={chiacchieraOra}
+          solletico={solleticoOra}
+          onSolletico={onSolletico}
           onSuggerisci={gioco.suggerisci}
-          onMossa={gioco.mossa}
+          onMossa={(i, v, note) => {
+            sveglia();
+            gioco.mossa(i, v, note);
+          }}
           onAnnulla={gioco.annulla}
           puoAnnullare={gioco.puoAnnullare}
           onCursore={onCursore}
@@ -584,6 +654,9 @@ export function App() {
           secondi={partita.secondi}
           frase={testoVittoria}
           sbloccata={sbloccata}
+          mascotte={mascotte}
+          solletico={solleticoOra}
+          onSolletico={onSolletico}
           puntiMiei={partita.contatori?.[mioRuolo]?.punti ?? 0}
           puntiSuoi={partita.contatori?.[altro(mioRuolo)]?.punti ?? 0}
           bonus={bonusVittoria(partita.secondi)}

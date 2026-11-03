@@ -9,7 +9,11 @@ import type { Arrivo, Lampo } from './Griglia';
 import { IconaAnnulla, IconaCancella, IconaCuore, IconaIndietro, IconaMatita, IconaMenu } from './Icone';
 import type { Chiacchiera } from './Home';
 import { Tastierino } from './Tastierino';
-import type { Mascotte } from './useMascotte';
+import { Semino, stadioDaCrescita } from './Semino';
+import { crescita, mascotteDi } from './regole';
+import { accessorioValido } from './useMascotte';
+import type { Indossati, Mascotte } from './useMascotte';
+import type { ChiParla } from '../config/frasi';
 import { tempo, testoConnessione } from './util';
 
 interface Props {
@@ -25,6 +29,8 @@ interface Props {
   sbloccata: boolean;
   mascotte: Mascotte;
   chiacchiera: Chiacchiera | null;
+  solletico: Chiacchiera | null;
+  onSolletico: (chi: ChiParla) => void;
   /** regalo: Semino riempie la cella; false se non si può */
   onSuggerisci: (idx: number) => boolean;
   onMossa: (idx: number, v: number, note: number[]) => void;
@@ -135,6 +141,12 @@ export function Partita(p: Props) {
     return () => window.removeEventListener('keydown', suTasto);
   }, [annulla]);
 
+  // la chiacchiera aperta fa indossare il suo accessorio a chi parla; il solletico la copre
+  const fumetto = p.solletico ?? p.chiacchiera;
+  const indossati: Indossati = {};
+  const acc = accessorioValido(p.chiacchiera?.accessorio);
+  if (acc && p.chiacchiera) indossati[p.chiacchiera.chi] = acc;
+
   const livello = LIVELLI_PARAMETRI[partita.puzzle.livello].etichetta;
   const nomeModalita = partita.puzzle.modalita === 'killer' ? 'Killer' : 'Sudoku';
 
@@ -209,17 +221,20 @@ export function Partita(p: Props) {
               mioRuolo={p.mioRuolo}
               sbloccata={p.sbloccata}
               mascotte={p.mascotte}
+              indossati={indossati}
+              onSolletico={p.onSolletico}
               mostraErrori={p.mostraErrori}
               regaloAttivo={regaloAttivo}
               onRegalo={() => setRegaloAttivo((a) => !a)}
             />
-            {p.chiacchiera && (
+            {fumetto && (
               <div
-                key={p.chiacchiera.id}
-                className={`fumetto fumetto-giu chiacchiera-partita${p.chiacchiera.chi === 'semina' ? ' fumetto--semina' : ''}`}
+                key={fumetto.id}
+                className={`fumetto fumetto-giu chiacchiera-partita${fumetto.chi === 'semina' ? ' fumetto--semina' : ''}${fumetto === p.solletico ? ' fumetto-solletico' : ''}${p.sbloccata && fumetto.chi === mascotteDi(p.mioRuolo === 'a' ? 'b' : 'a') ? ' a-destra' : ''}`}
                 role="status"
+                data-testid={fumetto === p.solletico ? 'fumetto-solletico' : undefined}
               >
-                {p.chiacchiera.testo}
+                {fumetto.testo}
               </div>
             )}
             {regaloAttivo && (
@@ -246,6 +261,15 @@ export function Partita(p: Props) {
         </div>
 
         <div className="comandi">
+          <PannelloMascotte
+            partita={partita}
+            mioRuolo={p.mioRuolo}
+            sbloccata={p.sbloccata}
+            mascotte={p.mascotte}
+            indossati={indossati}
+            fumetto={fumetto}
+            onSolletico={p.onSolletico}
+          />
           <div className="strumenti">
             <button className="strumento" onClick={p.onAnnulla} disabled={!p.puoAnnullare}>
               <IconaAnnulla />
@@ -274,5 +298,52 @@ export function Partita(p: Props) {
         </div>
       </div>
     </main>
+  );
+}
+
+/**
+ * Su desktop le mascotte stanno qui, accanto alla griglia e sopra i comandi, più grandi e col
+ * fumetto sotto (su telefono restano nel cruscotto: questo pannello è nascosto dal CSS).
+ */
+function PannelloMascotte(p: {
+  partita: StatoPartita;
+  mioRuolo: Giocatore;
+  sbloccata: boolean;
+  mascotte: Mascotte;
+  indossati: Indossati;
+  fumetto: Chiacchiera | null;
+  onSolletico: (chi: ChiParla) => void;
+}) {
+  const stadio = stadioDaCrescita(crescita(p.partita, p.mioRuolo).frazione);
+  const chi: ChiParla[] = p.sbloccata ? [mascotteDi(p.mioRuolo), mascotteDi(p.mioRuolo === 'a' ? 'b' : 'a')] : ['semino'];
+  const f = p.fumetto;
+  // niente da dire: se qualcuno dorme si sente il suo "zzz", altrimenti il fumetto resta vuoto e invisibile
+  const dormiente = chi.find((c) => p.mascotte[c].umore === 'dorme');
+  const lato = f ? f.chi : dormiente;
+  return (
+    <section className={`pannello-mascotte${chi.length > 1 ? ' in-due' : ''}`} aria-label="Le mascotte">
+      <div className="pannello-mascotte-figure">
+        {chi.map((c) => (
+          <span key={c} className={`pannello-mascotte-figura figura-${c}${f?.chi === c ? ' parla' : ''}`}>
+            <Semino
+              chi={c}
+              stadio={stadio}
+              umore={p.mascotte[c].umore}
+              impulso={p.mascotte[c].impulso}
+              accessorio={p.indossati[c]}
+              onSolletico={() => p.onSolletico(c)}
+              taglia={96}
+            />
+          </span>
+        ))}
+      </div>
+      <p
+        key={f?.id ?? `quieto-${dormiente ?? ''}`}
+        className={`fumetto pannello-fumetto${f ? '' : dormiente ? ' quieto' : ' vuoto'}${lato === 'semina' ? ' fumetto--semina' : ''}${lato && chi.length > 1 && lato === chi[1] ? ' a-destra' : ''}`}
+        role="status"
+      >
+        {f ? f.testo : dormiente ? 'zzz…' : '\u00a0'}
+      </p>
+    </section>
   );
 }

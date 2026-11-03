@@ -11,6 +11,7 @@ import type { Contatori, Giocatore, StatoPartita, VoceStorico } from '../stato';
 import { aggiornaStorico } from '../stato/archivio';
 import type { Archivio } from '../stato/archivio';
 import {
+  conQuotaBlu,
   celleCompletate,
   conBonusVittoria,
   esitoMossa,
@@ -27,7 +28,7 @@ import type { Destinazione, Origine } from './useRete';
 export interface Reazione {
   chi: ChiParla;
   umore: string;
-  categoria: CategoriaFrase | 'chiacchiera';
+  categoria: CategoriaFrase | 'chiacchiera' | 'solletico';
   testo: string;
   idx?: number;
 }
@@ -134,8 +135,8 @@ export function usePartita(opzioni: Opzioni) {
     if (fin) celleContate(fin);
     o.current.modifica((a) => {
       let b = a;
-      if (a.partita && !stessoPuzzle(a.partita, fin) && partitaToccata(a.partita)) b = aggiornaStorico(b, a.partita);
-      if (fin && fin.finita) b = aggiornaStorico(b, fin);
+      if (a.partita && !stessoPuzzle(a.partita, fin) && partitaToccata(a.partita)) b = conQuotaBlu(aggiornaStorico(b, a.partita), a.partita);
+      if (fin && fin.finita) b = conQuotaBlu(aggiornaStorico(b, fin), fin);
       return b.partita === fin && b === a ? a : { ...b, partita: fin };
     });
     if (finitaOra) {
@@ -325,7 +326,7 @@ export function usePartita(opzioni: Opzioni) {
     if (!partita || !partitaToccata(partita) || inAttesa.current) return;
     inAttesa.current = window.setTimeout(() => {
       inAttesa.current = 0;
-      modifica((a) => (a.partita && partitaToccata(a.partita) ? aggiornaStorico(a, a.partita) : a));
+      modifica((a) => (a.partita && partitaToccata(a.partita) ? conQuotaBlu(aggiornaStorico(a, a.partita), a.partita) : a));
     }, STORICO_OGNI_MS);
   }, [partita, modifica]);
   useEffect(() => () => window.clearTimeout(inAttesa.current), []);

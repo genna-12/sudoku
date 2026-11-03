@@ -11,7 +11,8 @@ import {
 } from '../config/punteggio';
 import { LIVELLI, valutaMossa } from '../engine';
 import type { Griglia, Livello, Modalita, Puzzle, Valutazione } from '../engine';
-import { FRASI, SEMINA_SBLOCCATA_A, STORIA_EXTRA, STORIA_SEMINO, VOCE } from '../config/frasi';
+import { FRASI, SEMINA_SBLOCCATA_A, SONNO, STORIA_EXTRA, STORIA_SEMINO, VOCE } from '../config/frasi';
+import { ORARI_SONNO, dormePerOrario, seminaDormeTardiOggi } from '../config/sonno';
 import type { ChiParla, FraseConAccessorio } from '../config/frasi';
 import { chiaveTappa } from '../stato/archivio';
 import type { Contatori, Giocatore, StatoPartita, VoceStorico } from '../stato';
@@ -175,10 +176,68 @@ export function seminaSbloccata(fiori: number): boolean {
   return fiori >= SEMINA_SBLOCCATA_A;
 }
 
-export type Tappa = (typeof STORIA_SEMINO)[number] & { chiave: string };
+/**
+ * Quanto blu c'è negli accenti di coppia (0..1): cresce con i fiori verso lo sblocco, poi 1 fisso
+ * (= metà e metà). Diventa la variabile CSS `--blu-presenza`.
+ */
+export function presenzaBlu(fiori: number, sbloccata: boolean): number {
+  if (sbloccata) return 1;
+  return Math.max(0, Math.min(fiori / SEMINA_SBLOCCATA_A, 1));
+}
+
+/** Voce del giardino con la quota di petali blu salvata a fine partita (campo extra, sopravvive a migra e merge). */
+export type VoceGiardino = VoceStorico & { quotaBlu?: number };
+
+/** Punti di Blu (ruolo 'b') sul totale della partita; 0.5 se nessuno ha punti. */
+export function quotaBluPartita(s: StatoPartita): number {
+  const a = Math.max(0, s.contatori?.a?.punti ?? 0);
+  const b = Math.max(0, s.contatori?.b?.punti ?? 0);
+  return a + b > 0 ? b / (a + b) : 0.5;
+}
+
+/**
+ * Dopo `aggiornaStorico` su una partita finita: scrive nella sua voce `quotaBlu` (dai contatori dello
+ * stato completo). Stesso archivio se non cambia nulla.
+ */
+export function conQuotaBlu<A extends { storico: VoceStorico[] }>(a: A, s: StatoPartita): A {
+  if (!s.finita) return a;
+  const id = `${s.puzzle.modalita}-${s.puzzle.seed}`;
+  const q = quotaBluPartita(s);
+  let cambiato = false;
+  const storico = a.storico.map((v) => {
+    if (v.id !== id || !v.finita || (v as VoceGiardino).quotaBlu === q) return v;
+    cambiato = true;
+    return { ...v, quotaBlu: q } as VoceGiardino;
+  });
+  return cambiato ? { ...a, storico } : a;
+}
+
+/** Numero d'ordine di ogni fiore (1 = il primo finito), per data di fine crescente. */
+export function numeriFiori(storico: readonly VoceStorico[]): Map<string, number> {
+  const fiori = storico.filter((v) => v.finita).sort((x, y) => (x.finita ?? 0) - (y.finita ?? 0) || (x.id < y.id ? -1 : 1));
+  return new Map(fiori.map((v, i) => [v.id, i + 1]));
+}
+
+/**
+ * Frazione di petali blu di un fiore (null per i germogli). I primi SEMINA_SBLOCCATA_A fiori seguono
+ * la progressione verso Semina (1 = tutto verde … 5 = metà e metà) e restano così; dal successivo
+ * conta chi ha fatto più punti in quella partita (`quotaBlu` salvata a fine partita; 0.5 se manca).
+ * Prima che Semina sia arrivata su questo dispositivo, nessun fiore va oltre la metà.
+ */
+export function quotaBluFiore(voce: VoceGiardino, n: number, sbloccata: boolean): number | null {
+  if (!voce.finita) return null;
+  const k = SEMINA_SBLOCCATA_A;
+  if (n <= k) return k > 1 ? ((Math.max(1, n) - 1) / (k - 1)) * 0.5 : 0.5;
+  if (!sbloccata) return 0.5;
+  const q = voce.quotaBlu;
+  return typeof q === 'number' && Number.isFinite(q) ? Math.max(0, Math.min(1, q)) : 0.5;
+}
+
+type TappaStoria = (typeof STORIA_SEMINO)[number] & { accessorio?: string };
+export type Tappa = TappaStoria & { chiave: string };
 
 /** Storia completa: STORIA_SEMINO + STORIA_EXTRA, ordinate per numero di fiori. */
-export const STORIA: ReadonlyArray<(typeof STORIA_SEMINO)[number]> = [...STORIA_SEMINO, ...STORIA_EXTRA].sort(
+export const STORIA: ReadonlyArray<TappaStoria> = [...STORIA_SEMINO, ...STORIA_EXTRA].sort(
   (x, y) => x.partite - y.partite,
 );
 
@@ -212,10 +271,16 @@ export interface Sostituzioni {
   /** il mio nome */
   io: string;
   n?: number;
+  /** il mio nome vero (Genna / Mati), per le mascotte che parlano di voi */
+  reale?: string;
+  /** il nome vero dell'altro */
+  realePartner?: string;
 }
 
 export function sostituisci(testo: string, s: Sostituzioni): string {
   return testo
+    .replaceAll('{realePartner}', s.realePartner || s.nome || 'mini')
+    .replaceAll('{reale}', s.reale || s.io || 'mini')
     .replaceAll('{nome}', s.nome || 'mini')
     .replaceAll('{io}', s.io || 'mini')
     .replaceAll('{n}', s.n === undefined ? '' : String(s.n));
@@ -258,10 +323,93 @@ export function testoDi(f: FraseConAccessorio): string {
   return typeof f === 'string' ? f : f.testo;
 }
 
-/** Accessorio associato a un testo di chiacchiera, se c'è. */
+/** Il modello di una frase come espressione: i segnaposto ({reale}, {nome}…) valgono qualunque testo. */
+function modello(t: string): RegExp {
+  const pezzi = t.split(/\{(?:realePartner|reale|nome|io|n)\}/);
+  return new RegExp(`^${pezzi.map((p) => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('.*?')}$`);
+}
+
+/**
+ * Accessorio associato a un testo di chiacchiera (già sostituito, anche arrivato dall'altro
+ * dispositivo, che sostituisce coi suoi nomi), se c'è.
+ */
 export function accessorioDi(chi: ChiParla, testo: string): string | undefined {
-  for (const f of VOCE[chi]?.chiacchiere ?? []) if (typeof f !== 'string' && f.testo === testo) return f.accessorio;
+  for (const f of VOCE[chi]?.chiacchiere ?? []) {
+    if (typeof f === 'string') continue;
+    if (f.testo === testo || modello(f.testo).test(testo)) return f.accessorio;
+  }
   return undefined;
+}
+
+/** Elemento a caso della lista, diverso da `ultimo` se c'è alternativa. */
+export function aCasoDiverso<T>(lista: readonly T[], ultimo: T | undefined, caso: () => number = Math.random): T | undefined {
+  const buone = lista.filter((x) => x !== ultimo);
+  const da = buone.length ? buone : lista;
+  return da[Math.min(da.length - 1, Math.floor(caso() * da.length))];
+}
+
+// --- sonno ------------------------------------------------------------------------
+
+/** Svegliata nelle sue ore di sonno: la reazione c'è ma più assonnata. */
+const ATTENUATO: Record<string, string> = {
+  euforico: 'felice',
+  festa: 'felice',
+  estasiato: 'sorpreso',
+  arrabbiato: 'preoccupato',
+  sorpreso: 'neutro',
+  saluta: 'neutro',
+  regalo: 'felice',
+};
+export function attenuaUmore(u: string): string {
+  return ATTENUATO[u] ?? u;
+}
+
+function nellOrario(ora: number, o: { aLetto: number; sveglia: number }): boolean {
+  return o.aLetto < o.sveglia ? ora >= o.aLetto && ora < o.sveglia : ora >= o.aLetto || ora < o.sveglia;
+}
+
+/**
+ * Frase di chi viene svegliata nelle sue ore di sonno. Semina nel suo giorno da dormigliona, oltre
+ * la sua sveglia normale, dice la frase apposita (quella su Semino e il dormire fino a tardi).
+ */
+export function fraseSonno(chi: ChiParla, ultima: string, d: Date = new Date(), caso: () => number = Math.random): string {
+  const lista = SONNO[chi] ?? [];
+  if (chi === 'semina' && seminaDormeTardiOggi(d) && dormePerOrario('semina', d)) {
+    const ora = d.getHours() + d.getMinutes() / 60;
+    const apposita = lista.find((t) => /fino a tardi/i.test(t));
+    if (apposita && !nellOrario(ora, ORARI_SONNO.semina)) return apposita;
+  }
+  const buone = lista.filter((t) => t !== ultima);
+  const da = buone.length ? buone : lista;
+  return da[Math.min(da.length - 1, Math.floor(caso() * da.length))] ?? '';
+}
+
+// --- solletico ----------------------------------------------------------------
+
+/** Umori del solletico; `arrabbiato` solo per Semina, una volta su RARO_ARRABBIATA. */
+export const UMORI_SOLLETICO = ['felice', 'sorpreso', 'euforico', 'festa', 'imbarazzato', 'saluta'] as const;
+export const RARO_ARRABBIATA = 8;
+/** Al massimo un solletico ogni tanti ms (per dispositivo). */
+export const SOLLETICO_OGNI_MS = 700;
+
+/**
+ * Reazione a un tocco sulla mascotte: umore mai uguale al precedente, battuta da VOCE[chi].solletico
+ * mai uguale alla precedente.
+ */
+export function solletico(
+  chi: ChiParla,
+  ultimoUmore: string,
+  ultimaFrase: string,
+  s: Sostituzioni,
+  caso: () => number = Math.random,
+): { umore: string; testo: string } {
+  const umore =
+    chi === 'semina' && ultimoUmore !== 'arrabbiato' && caso() < 1 / RARO_ARRABBIATA
+      ? 'arrabbiato'
+      : (aCasoDiverso<string>(UMORI_SOLLETICO, ultimoUmore, caso) ?? 'felice');
+  const lista = (VOCE[chi]?.solletico ?? []).map(testoDi);
+  const testo = lista.length ? scegliFrase(lista, ultimaFrase, s, caso) : '';
+  return { umore, testo };
 }
 
 /** Eventi a cui le mascotte reagiscono. */

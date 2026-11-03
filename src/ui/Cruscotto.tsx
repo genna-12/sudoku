@@ -4,7 +4,7 @@ import type { ChiParla } from '../config/frasi';
 import type { Giocatore, StatoPartita } from '../stato';
 import { crescita, mascotteDi } from './regole';
 import { Semino, stadioDaCrescita } from './Semino';
-import type { Mascotte } from './useMascotte';
+import type { Indossati, Mascotte } from './useMascotte';
 import { altro } from './util';
 
 const NOMI_STADIO = ['seme', 'germoglio', 'fogliolina', 'pianta', 'fiore'];
@@ -14,6 +14,9 @@ interface Props {
   mioRuolo: Giocatore;
   sbloccata: boolean;
   mascotte: Mascotte;
+  /** accessori indossati adesso (quello della chiacchiera aperta) */
+  indossati: Indossati;
+  onSolletico: (chi: ChiParla) => void;
   mostraErrori: boolean;
   regaloAttivo: boolean;
   onRegalo: () => void;
@@ -40,7 +43,7 @@ export function Cruscotto(p: Props) {
       data-testid="crescita"
       data-frazione={cr.frazione.toFixed(3)}
     >
-      <Mascottina chi={sinistra} stadio={stadio} mascotte={p.mascotte} />
+      <Mascottina chi={sinistra} stadio={stadio} {...p} />
       <div className="crescita-corpo">
         <div
           className="crescita-barra"
@@ -59,7 +62,7 @@ export function Cruscotto(p: Props) {
           <Contatore lato="suo" punti={suoi?.punti ?? 0} errori={suoi?.errori ?? 0} mostraErrori={p.mostraErrori} />
         </div>
       </div>
-      {destra && <Mascottina chi={destra} stadio={stadio} mascotte={p.mascotte} />}
+      {destra && <Mascottina chi={destra} stadio={stadio} {...p} />}
       <button
         type="button"
         data-testid="regalo"
@@ -81,7 +84,19 @@ export function Cruscotto(p: Props) {
   );
 }
 
-function Mascottina({ chi, stadio, mascotte }: { chi: ChiParla; stadio: number; mascotte: Mascotte }) {
+function Mascottina({
+  chi,
+  stadio,
+  mascotte,
+  indossati,
+  onSolletico,
+}: {
+  chi: ChiParla;
+  stadio: number;
+  mascotte: Mascotte;
+  indossati: Indossati;
+  onSolletico: (chi: ChiParla) => void;
+}) {
   const m = mascotte[chi];
   const el = useRef<HTMLSpanElement>(null);
   // a ogni reazione la mascottina si ingrandisce un attimo (fuori dal flusso: la griglia non si muove)
@@ -90,13 +105,21 @@ function Mascottina({ chi, stadio, mascotte }: { chi: ChiParla; stadio: number; 
     if (!m.impulso || !e || typeof e.animate !== 'function') return;
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
     e.animate(
-      [{ transform: 'scale(1)' }, { transform: 'scale(1.55) translateY(4px)', offset: 0.35 }, { transform: 'scale(1)' }],
+      [{ transform: 'scale(1)' }, { transform: 'scale(1.5) translateY(5px)', offset: 0.35 }, { transform: 'scale(1)' }],
       { duration: 640, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' },
     );
   }, [m.impulso]);
   return (
     <span ref={el} className={`mascottina mascottina-${chi}`}>
-      <Semino chi={chi} stadio={stadio} umore={m.umore} impulso={m.impulso} taglia={34} />
+      <Semino
+        chi={chi}
+        stadio={stadio}
+        umore={m.umore}
+        impulso={m.impulso}
+        accessorio={indossati[chi]}
+        onSolletico={() => onSolletico(chi)}
+        taglia={44}
+      />
     </span>
   );
 }

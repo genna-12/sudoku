@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { LIVELLI } from '../engine';
 import type { Livello, Modalita } from '../engine';
 import { SEMINA_SBLOCCATA_A } from '../config/frasi';
@@ -8,15 +9,19 @@ import type { StatoConnessione } from '../net';
 import type { Giocatore, StatoPartita } from '../stato';
 import { MenuHome } from './MenuHome';
 import type { Tema } from './MenuHome';
+import { aCasoDiverso, presenzaBlu } from './regole';
 import type { Tappa } from './regole';
-import { Semino, SeminoCoppia, SeminoPianta } from './Semino';
-import type { Mascotte } from './useMascotte';
+import { ACCESSORI_DI, Semino, SeminoCoppia, SeminoPianta } from './Semino';
+import { accessorioValido, chiIndossa } from './useMascotte';
+import type { Indossati, Mascotte } from './useMascotte';
 import { CHIAVI, leggi, scrivi, tempo, testoConnessione } from './util';
 
 export interface Chiacchiera {
   id: number;
   chi: ChiParla;
   testo: string;
+  /** accessorio da indossare mentre il fumetto è aperto */
+  accessorio?: string;
 }
 
 interface Props {
@@ -33,6 +38,9 @@ interface Props {
   tappa: Tappa | null;
   onChiudiTappa: () => void;
   chiacchiera: Chiacchiera | null;
+  /** reazione al solletico in corso (fumetto breve, sopra a tutto) */
+  solletico: Chiacchiera | null;
+  onSolletico: (chi: ChiParla) => void;
   mascotte: Mascotte;
   mostraErrori: boolean;
   vibrazione: boolean;
@@ -75,7 +83,12 @@ export function Home(p: Props) {
         )}
         <span className="home-testa-spazio" />
         <button className="giardino-bottone" data-testid="giardino" onClick={p.onGiardino} aria-label={`Giardino: ${p.fiori} fiori`}>
-          <SeminoPianta fiorita={p.fiori > 0} stadio={2} taglia={30} />
+          <SeminoPianta
+            fiorita={p.fiori > 0}
+            stadio={2}
+            taglia={30}
+            quotaBlu={p.fiori > 0 ? presenzaBlu(p.fiori, p.sbloccata) * 0.5 : undefined}
+          />
           <span className="tabellare">{p.fiori}</span>
         </button>
         <MenuHome
@@ -143,7 +156,7 @@ export function Home(p: Props) {
               <span className="livello-nome">{LIVELLI_PARAMETRI[l].etichetta}</span>
               <span className="livello-scala" aria-hidden="true">
                 {LIVELLI.map((_, k) => (
-                  <i key={k} className={k <= i ? 'pieno' : ''} style={{ height: 4 + k * 2 }} />
+                  <i key={k} className={k <= i ? 'pieno' : ''} style={{ height: 4 + k * 2, '--k': k } as CSSProperties} />
                 ))}
               </span>
             </button>
@@ -168,12 +181,52 @@ export function Home(p: Props) {
   );
 }
 
-/** Le mascotte con il loro fumetto: storia (se c'è una tappa nuova), chiacchiere o un saluto. */
+const RIPOSO_MS = 60000;
+
+/**
+ * A riposo (nessun fumetto aperto) ogni 60 s circa una mascotte cambia accessorio a caso fra i
+ * suoi; prima dello sblocco solo Semino. Si alternano.
+ */
+function useAccessoriRiposo(attivo: boolean, sbloccata: boolean): Indossati {
+  const [{ indossati }, setStato] = useState<{ indossati: Indossati; giri: number }>({ indossati: {}, giri: 0 });
+  // il ritmo non riparte a ogni fumetto (le chiacchiere arrivano più spesso di 60 s): se allo
+  // scadere c'è un fumetto aperto, si riprova poco dopo
+  const vivo = useRef({ attivo, sbloccata });
+  useEffect(() => {
+    vivo.current = { attivo, sbloccata };
+  });
+  useEffect(() => {
+    let t = 0;
+    const prossimo = (ms: number) => {
+      t = window.setTimeout(() => {
+        const v = vivo.current;
+        if (!v.attivo) return prossimo(5000);
+        const scelta = Math.random();
+        setStato(({ indossati: x, giri }) => {
+          const chi: ChiParla = v.sbloccata && giri % 2 ? 'semina' : 'semino';
+          return { indossati: { ...x, [chi]: aCasoDiverso(ACCESSORI_DI[chi], x[chi], () => scelta) }, giri: giri + 1 };
+        });
+        prossimo(RIPOSO_MS * (0.9 + Math.random() * 0.2));
+      }, ms);
+    };
+    prossimo(RIPOSO_MS * (0.9 + Math.random() * 0.2));
+    return () => window.clearTimeout(t);
+  }, []);
+  return sbloccata ? indossati : { semino: indossati.semino };
+}
+
+/** Le mascotte con il loro fumetto: solletico, storia (se c'è una tappa nuova), chiacchiere o un saluto. */
 function Eroe(p: Props) {
   const stadio = Math.min(4, p.fiori);
   const tappa = p.tappa;
-  const parla: ChiParla | 'entrambi' = tappa ? tappa.chi : p.chiacchiera ? p.chiacchiera.chi : 'semino';
+  const sol = p.solletico;
+  const parla: ChiParla | 'entrambi' = sol ? sol.chi : tappa ? tappa.chi : p.chiacchiera ? p.chiacchiera.chi : 'semino';
   const coppia = p.sbloccata;
+  const riposo = useAccessoriRiposo(!sol && !tappa && !p.chiacchiera, coppia);
+  // l'accessorio della frase aperta (storia o chiacchiera) lo indossa chi parla; il solletico non lo toglie
+  const daFrase = accessorioValido(tappa ? tappa.accessorio : !sol ? p.chiacchiera?.accessorio : undefined);
+  const indossati: Indossati = { ...riposo };
+  if (daFrase) indossati[chiIndossa(daFrase, tappa ? tappa.chi : (p.chiacchiera?.chi ?? 'semino'))] = daFrase;
   const variante = parla === 'semina' ? ' fumetto--semina' : parla === 'entrambi' ? ' fumetto--entrambi' : '';
   const saluto =
     p.fiori === 0
@@ -190,6 +243,9 @@ function Eroe(p: Props) {
             umore={m.semino.umore}
             umoreSemina={m.semina.umore}
             impulso={m.semino.impulso + m.semina.impulso}
+            accessorioSemino={indossati.semino}
+            accessorioSemina={indossati.semina}
+            onSolletico={p.onSolletico}
             taglia={72}
           />
         ) : (
@@ -197,11 +253,17 @@ function Eroe(p: Props) {
             stadio={stadio}
             umore={solo(p) && m.semino.umore === 'neutro' ? 'preoccupato' : m.semino.umore}
             impulso={m.semino.impulso}
+            accessorio={indossati.semino}
+            onSolletico={() => p.onSolletico('semino')}
             taglia={92}
           />
         )}
       </span>
-      {tappa ? (
+      {sol ? (
+        <p key={sol.id} className={`fumetto fumetto-solletico${variante}`} data-testid="fumetto-solletico">
+          {sol.testo}
+        </p>
+      ) : tappa ? (
         <button key={tappa.chiave} className={`fumetto fumetto-storia${variante}`} onClick={p.onChiudiTappa}>
           {tappa.testo}
           <span className="fumetto-firma">{firma(tappa.chi)}, tocca per chiudere</span>

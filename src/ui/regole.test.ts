@@ -7,6 +7,16 @@ import { applica, griglia, nuovaPartita, voceStorico } from '../stato';
 import type { Contatori, StatoPartita, VoceStorico } from '../stato';
 import {
   CHIAVE_SBLOCCO,
+  RARO_ARRABBIATA,
+  UMORI_SOLLETICO,
+  accessorioDi,
+  aCasoDiverso,
+  conQuotaBlu,
+  numeriFiori,
+  presenzaBlu,
+  quotaBluFiore,
+  quotaBluPartita,
+  solletico,
   STORIA,
   celleCompletate,
   conBonusVittoria,
@@ -237,5 +247,134 @@ describe('allineamento dello storico', () => {
     expect(daRimandare([v1], [v1])).toEqual([]);
     expect(daRimandare([v1], [])).toEqual([]);
     expect(griglia(s)[vuote[0]]).toBe(1);
+  });
+});
+
+// --- T2b ----------------------------------------------------------------------
+
+/** generatore pseudo-casuale ripetibile per i test */
+function casoDa(seme: number): () => number {
+  let x = seme;
+  return () => {
+    x = (x * 1103515245 + 12345) % 2147483648;
+    return x / 2147483648;
+  };
+}
+
+describe('presenza del blu', () => {
+  it('cresce coi fiori fino allo sblocco, poi resta piena', () => {
+    expect(presenzaBlu(0, false)).toBe(0);
+    expect(presenzaBlu(3, false)).toBeCloseTo(3 / SEMINA_SBLOCCATA_A);
+    expect(presenzaBlu(SEMINA_SBLOCCATA_A + 4, false)).toBe(1);
+    expect(presenzaBlu(0, true)).toBe(1);
+    expect(presenzaBlu(-2, false)).toBe(0);
+  });
+});
+
+describe('fiori del giardino', () => {
+  const finita = (id: string, fine: number, extra: object = {}): VoceStorico =>
+    ({ id, modalita: 'sudoku', livello: 'facile', iniziata: fine - 100, finita: fine, secondi: 60, progresso: 1, punti: 10, errori: 0, aggiornata: fine, ...extra }) as VoceStorico;
+
+  it('numera i fiori per data di fine, i germogli no', () => {
+    const germoglio = { ...finita('g', 50), finita: undefined };
+    const n = numeriFiori([finita('c', 300), germoglio, finita('a', 100), finita('b', 200)]);
+    expect([...n.entries()]).toEqual([
+      ['a', 1],
+      ['b', 2],
+      ['c', 3],
+    ]);
+  });
+
+  it('i primi fiori vanno dal tutto verde a metà e metà, e restano così', () => {
+    const v = finita('x', 1, { quotaBlu: 1 });
+    expect(quotaBluFiore(v, 1, false)).toBe(0);
+    expect(quotaBluFiore(v, 3, false)).toBeCloseTo(0.25);
+    expect(quotaBluFiore(v, SEMINA_SBLOCCATA_A, false)).toBe(0.5);
+    expect(quotaBluFiore(v, 1, true)).toBe(0);
+    expect(quotaBluFiore(v, SEMINA_SBLOCCATA_A, true)).toBe(0.5);
+  });
+
+  it('dal fiore successivo conta chi ha fatto più punti', () => {
+    const n = SEMINA_SBLOCCATA_A + 1;
+    expect(quotaBluFiore(finita('x', 1, { quotaBlu: 0.8 }), n, true)).toBe(0.8);
+    expect(quotaBluFiore(finita('x', 1, { quotaBlu: 0 }), n, true)).toBe(0);
+    expect(quotaBluFiore(finita('x', 1), n, true)).toBe(0.5);
+    // Semina non ancora arrivata su questo dispositivo: niente fiori più blu che verdi
+    expect(quotaBluFiore(finita('x', 1, { quotaBlu: 0.9 }), n, false)).toBe(0.5);
+  });
+
+  it('i germogli restano neutri', () => {
+    expect(quotaBluFiore({ ...finita('x', 1), finita: undefined }, 1, true)).toBeNull();
+  });
+
+  it('quota dai contatori della partita e salvata nella voce finita', () => {
+    let s = nuovaPartita(puzzle, 1000);
+    expect(quotaBluPartita(s)).toBe(0.5);
+    s = applica(s, { tipo: 'contatori', da: 'a', contatori: { ...contatoriVuoti(), punti: 300, ts: 2000 } });
+    s = applica(s, { tipo: 'contatori', da: 'b', contatori: { ...contatoriVuoti(), punti: 100, ts: 2000 } });
+    expect(quotaBluPartita(s)).toBe(0.25);
+    const aperta = { storico: [voceStorico(s)] };
+    expect(conQuotaBlu(aperta, s)).toBe(aperta);
+    const fin = applica(s, { tipo: 'finita', ts: 3000 });
+    const a = { storico: [voceStorico(fin)] };
+    const b = conQuotaBlu(a, fin);
+    expect((b.storico[0] as VoceStorico & { quotaBlu?: number }).quotaBlu).toBe(0.25);
+    expect(conQuotaBlu(b, fin)).toBe(b);
+  });
+});
+
+describe('solletico', () => {
+  const s = { nome: 'Blu', io: 'Verde' };
+
+  it('umore e battuta mai uguali ai precedenti', () => {
+    const caso = casoDa(7);
+    for (const chi of ['semino', 'semina'] as const) {
+      let umore = '';
+      let testo = '';
+      for (let i = 0; i < 200; i++) {
+        const r = solletico(chi, umore, testo, s, caso);
+        expect(r.umore).not.toBe(umore);
+        expect(r.testo).not.toBe(testo);
+        expect(VOCE[chi].solletico).toContain(r.testo);
+        umore = r.umore;
+        testo = r.testo;
+      }
+    }
+  });
+
+  it('Semino non si arrabbia mai; Semina di rado', () => {
+    const caso = casoDa(11);
+    let arrabbiate = 0;
+    let u = '';
+    for (let i = 0; i < 4000; i++) {
+      expect(solletico('semino', u, '', s, caso).umore).not.toBe('arrabbiato');
+      const r = solletico('semina', u, '', s, caso);
+      expect([...UMORI_SOLLETICO, 'arrabbiato']).toContain(r.umore);
+      if (r.umore === 'arrabbiato') arrabbiate++;
+      u = r.umore;
+    }
+    expect(arrabbiate).toBeGreaterThan(4000 / RARO_ARRABBIATA / 2);
+    expect(arrabbiate).toBeLessThan((4000 / RARO_ARRABBIATA) * 1.5);
+  });
+
+  it('a caso ma diverso', () => {
+    expect(aCasoDiverso(['x', 'y'], 'x', () => 0.99)).toBe('y');
+    expect(aCasoDiverso(['x'], 'x', () => 0.5)).toBe('x');
+    expect(aCasoDiverso([], 'x')).toBeUndefined();
+  });
+});
+
+describe('nomi veri e accessori nelle frasi', () => {
+  it('sostituisce {reale} e {realePartner}', () => {
+    const t = sostituisci('{reale} e {realePartner} ({io}, {nome})', { nome: 'Blu', io: 'Verde', reale: 'Genna', realePartner: 'Mati' });
+    expect(t).toBe('Genna e Mati (Verde, Blu)');
+    expect(sostituisci('{reale}', { nome: 'Blu', io: 'Verde' })).toBe('Verde');
+  });
+
+  it('ritrova l’accessorio di una chiacchiera, anche già sostituita', () => {
+    const conAcc = VOCE.semino.chiacchiere.find((f) => typeof f !== 'string');
+    if (!conAcc || typeof conAcc === 'string') throw new Error('nessuna chiacchiera con accessorio');
+    expect(accessorioDi('semino', conAcc.testo)).toBe(conAcc.accessorio);
+    expect(accessorioDi('semino', 'una frase che non esiste')).toBeUndefined();
   });
 });
