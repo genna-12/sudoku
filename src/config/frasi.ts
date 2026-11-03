@@ -46,6 +46,8 @@ export const SCENA_SBLOCCO: Array<{ chi: 'semino' | 'semina' | 'nessuno'; umore:
   { chi: 'semina', umore: 'euforico', testo: 'CIAO! Sono Semina! Vi guardavo giocare da un sacco di tempo, non ce la facevo più a stare zitta!' },
   { chi: 'semino', umore: 'imbarazzato', testo: 'Ehm. Ciao. Io sono Semino. Mi sentivo un po\' solo, prima.' },
   { chi: 'semina', umore: 'felice', testo: 'Lo so. Ti ho sentito. Da adesso le righe le chiudiamo in due.' },
+  { chi: 'nessuno', umore: '', testo: 'Il verde è Semino. La blu è Semina. Siete voi, da sempre.' },
+  { chi: 'semina', umore: 'euforico', testo: 'E adesso... giochiamo!' },
 ];
 export const STORIA_SEMINO: Array<{ partite: number; chi: 'semino' | 'semina' | 'entrambi'; testo: string }> = [
   { partite: 0, chi: 'semino', testo: 'Ciao. Sono Semino. Sono piccolo, ma se risolvete i sudoku insieme cresco. Promesso.' },

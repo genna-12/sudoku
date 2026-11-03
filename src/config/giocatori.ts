@@ -8,7 +8,10 @@ export type ProfiloId = 'semino' | 'semina';
 
 export interface Profilo {
   id: ProfiloId;
+  /** nome dopo lo sblocco di Semina (il personaggio) */
   nome: string;
+  /** nome PRIMA dello sblocco: solo un colore, nessun personaggio (Semina deve restare una sorpresa) */
+  nomePrima: string;
   ruolo: 'a' | 'b';
   colore: string;
   /** chi è, per la scelta all'ingresso */
@@ -16,16 +19,21 @@ export interface Profilo {
 }
 
 export const PROFILI: readonly Profilo[] = [
-  { id: 'semino', nome: 'Semino', ruolo: 'a', colore: COLORE_GENNA, descrizione: 'verde, il primo semino del giardino' },
-  { id: 'semina', nome: 'Semina', ruolo: 'b', colore: COLORE_LEI, descrizione: 'blu, arrivata col fruscio' },
+  { id: 'semino', nome: 'Semino', nomePrima: 'Verde', ruolo: 'a', colore: COLORE_GENNA, descrizione: 'il verde fluo' },
+  { id: 'semina', nome: 'Semina', nomePrima: 'Blu', ruolo: 'b', colore: COLORE_LEI, descrizione: 'il blu elettrico' },
 ];
 
-/** Profilo da un nome (anche vecchi nomi liberi di T1: Genna/Lorenzo → Semino, tutto il resto → Semina). */
+/** Profilo da un nome (Verde/Semino/Genna/Lorenzo → 'semino'; Blu/Semina/tutto il resto → 'semina'). */
 export function profiloDiNome(nome: string): Profilo {
   const n = nome.trim().toLowerCase().replace(/\s+/g, '');
-  if (n === 'semina') return PROFILI[1];
-  if (n === 'semino' || ['genna', 'lorenzo', 'lorenzogennari', 'gennari'].includes(n)) return PROFILI[0];
+  if (n === 'semina' || n === 'blu') return PROFILI[1];
+  if (n === 'semino' || n === 'verde' || ['genna', 'lorenzo', 'lorenzogennari', 'gennari'].includes(n)) return PROFILI[0];
   return PROFILI[1];
+}
+
+/** Nome da mostrare: colore prima dello sblocco di Semina, personaggio dopo. */
+export function nomeVisibile(p: Profilo, seminaSbloccata: boolean): string {
+  return seminaSbloccata ? p.nome : p.nomePrima;
 }
 
 export function coloreDiNome(nome: string): string {
