@@ -4,9 +4,10 @@ import type { Contatori, StatoPartita, VoceStorico } from '../stato/types';
 export type StatoConnessione = 'connessione' | 'in-attesa' | 'connesso' | 'errore';
 
 export type Messaggio =
-  | { t: 'ciao'; nome: string; stato: StatoPartita | null; ts: number; storico?: VoceStorico[] }
+  | { t: 'ciao'; nome: string; stato: StatoPartita | null; ts: number; storico?: VoceStorico[]; azzerato?: number }
   | { t: 'stato'; stato: StatoPartita }
-  | { t: 'storico'; storico: VoceStorico[] }
+  /** `azzerato`: Date.now() dell'ultimo "ricomincia da zero"; le voci con iniziata < azzerato si scartano ovunque */
+  | { t: 'storico'; storico: VoceStorico[]; azzerato?: number }
   | { t: 'cella'; idx: number; v: number; note: number[]; da: 'a' | 'b'; ts: number }
   | { t: 'contatori'; da: 'a' | 'b'; contatori: Contatori }
   | { t: 'cursore'; idx: number | null }

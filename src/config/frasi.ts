@@ -3,17 +3,17 @@
 
 export const FRASI = {
   /** cella giusta semplice (compare circa 1 volta su 4) */
-  giusta: ['sei mini', 'brava/o!', 'che testa', 'semplice e pulito', 'uno alla volta', 'Semino approva'],
+  giusta: ['sei mini', 'se(i)mini', 'sei mignon', 'smol', 'mini', 'brava/o!', 'che testa', 'semplice e pulito', 'uno alla volta', 'Semino approva', 'mini ma precisa/o'],
   /** mossa intelligente (hidden single) */
-  intelligente: ['occhio fino', 'l\'hai vista!', 'intelligente, mini', 'Semino ha fatto gli occhi grandi', 'nessun altro posto: giusto'],
+  intelligente: ['occhio fino', 'l\'hai vista!', 'intelligente, mini', 'sei mignon e sveglia/o', 'smol brain? no.', 'Semino ha fatto gli occhi grandi', 'nessun altro posto: giusto'],
   /** mossa brillante (deduzione profonda) */
   brillante: ['BRILLANTE', 'ma come hai fatto', 'mini e geniale', 'Semino è senza parole', 'mossa da campione/essa', 'questa me la segno'],
   /** riga, colonna, box o gabbia completati */
-  completato: ['sei mini', 'chiusa!', 'un pezzetto di giardino in più', 'Semino cresce'],
+  completato: ['sei mini', 'se(i)mini', 'chiusa!', 'un pezzetto di giardino in più', 'Semino cresce', 'mignon e completa/o'],
   /** serie di celle giuste (5, 10, 15...) */
   serie: ['sei in serie', '{n} di fila, mini', 'non ti ferma nessuno', 'Semino batte le foglioline'],
   /** numero sbagliato */
-  sbagliata: ['sei mini lo stesso', 'quasi!', 'Semino fa finta di niente', 'capita anche ai migliori', 'respira, riprova'],
+  sbagliata: ['sei mini lo stesso', 'smol errore', 'mignon, ma sbagliato', 'quasi!', 'Semino fa finta di niente', 'capita anche ai migliori', 'respira, riprova'],
   /** tre errori di fila */
   sbagliataSerie: ['fermati un attimo, mini', 'Semino ti porta un tè', 'guarda le note, dai'],
   /** regalo ottenuto */
@@ -29,7 +29,7 @@ export const FRASI = {
   /** partita ripresa dallo storico */
   ripresa: ['il germoglio si risveglia', 'si riparte da dove eravamo', 'Semino si stiracchia'],
   /** frasi inviabili al partner col pulsante apposito */
-  invio: ['sei mini', 'ti penso', 'ci sei?', 'mini mini mini', 'Semino ti manda un abbraccio', 'manca poco'],
+  invio: ['sei mini', 'se(i)mini', 'sei mignon', 'smol', 'ti penso', 'ci sei?', 'mini mini mini', 'Semino ti manda un abbraccio', 'manca poco'],
 } as const;
 
 /**
