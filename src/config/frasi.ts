@@ -165,3 +165,9 @@ export const STORIA_EXTRA: Array<{ partite: number; chi: 'semino' | 'semina' | '
   { partite: 25, chi: 'semina', testo: 'Mi sono arrabbiata per una riga sbagliata. Lui ha aspettato. Poi abbiamo riso.' },
   { partite: 40, chi: 'entrambi', testo: 'Quaranta. Abbiamo un merlo, un riccio e una ricetta nostra. E voi due.' },
 ];
+
+/** Frasi dette mentre si viene svegliati (mossa o tocco) nelle proprie ore di sonno. */
+export const SONNO: Record<ChiParla, string[]> = {
+  semino: ['mmh... che ore sono', 'cinque minuti', 'giocate pure, io ascolto a occhi chiusi', 'è ancora notte, per me', 'zzz... bella mossa... zzz', 'di notte programmo nei sogni'],
+  semina: ['mmh... è presto, ma vinco lo stesso', 'sveglia all\'alba e a letto con le galline', 'dormire è il mio sport preferito dopo il cavallo', 'cinque minuti anche per me', 'oggi dormo con Semino fino a tardi, non dirlo a nessuno', 'zzz... brava... zzz'],
+};
