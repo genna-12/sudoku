@@ -2,7 +2,16 @@
 // Uso: node scripts/qa/due-client.mjs [urlBase]   (default http://localhost:5173/sudoku/)
 // Richiede: `npx peerjs --port 9000` in esecuzione e il dev server avviato con
 //   VITE_PEER_HOST=localhost VITE_PEER_PORT=9000 VITE_PEER_SECURE=false npx vite --port 5173
-import { chromium } from 'playwright';
+import { createRequire } from 'node:module';
+// playwright può stare nel progetto o in un'installazione globale (cloud: /opt/npm-tools)
+const require = createRequire(import.meta.url);
+const { chromium } = (() => {
+  try {
+    return require('playwright');
+  } catch {
+    return require('/opt/npm-tools/node_modules/playwright');
+  }
+})();
 
 const base = process.argv[2] ?? 'http://localhost:5173/sudoku/';
 const FRASE = 'frase di prova ' + Date.now();
@@ -94,7 +103,9 @@ try {
   if (gabbie < 10) fallisci(`killer: poche somme visibili (${gabbie})`);
   console.log('OK killer condiviso, gabbie visibili:', gabbie);
 
-  const errori = log.filter((l) => /error|uncaught/i.test(l) && !/favicon/i.test(l));
+  // PeerJS logga come errore anche il percorso previsto "ID -a occupato → divento -b": non è un errore nostro.
+  const attesi = /favicon|is taken|Aborting!|\[stanza\]/i;
+  const errori = log.filter((l) => /error|uncaught/i.test(l) && !attesi.test(l));
   if (errori.length) {
     console.log('Errori in console:\n' + errori.join('\n'));
     fallisci('errori in console');
