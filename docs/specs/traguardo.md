@@ -93,3 +93,29 @@ Estetica: "notte in giardino". Niente viola generico da template: fondo verde-ne
 - **Sonno per inattività**: dopo SECONDI_PRIMA_DI_DORMIRE (60) senza tocchi/mosse la mascotte si addormenta (`dorme`); si sveglia a qualunque mossa (propria o del partner) o tocco, con reazione normale.
 - **Orari** (`src/config/sonno.ts`, ora locale): nelle proprie ore di sonno la mascotte è addormentata di default anche con attività; una mossa o un tocco la sveglia per ~6 s con la reazione dovuta ma umore attenuato e, una volta su due, una frase da `SONNO[chi]` al posto della normale; poi si riaddormenta. `seminaDormeTardiOggi` (un giorno su 4, deterministico dalla data) estende il sonno di Semina alla sveglia di Semino: quel giorno in Home dormono insieme (SeminoCoppia con umore dorme per entrambi) e, se svegliata, Semina usa la frase apposita.
 - Il partner vede lo stesso stato di sonno della mia mascotte (dipende dall'orario, non da chi tocca; il risveglio per tocco viaggia come evento di solletico).
+
+# Traguardo 3 — Storia, sblocchi, UI con gusto (notte 03/11, autonomo)
+
+## Fatti sui personaggi (correzione di Genna: vincolante)
+- **Semino** (Genna, verde): ama il mare e il surf; la palla in acqua; è un po' nerd (PC, occhiali); cucina per Semina; suonano insieme. NON ama la montagna: troppo faticosa (ci va solo per lei, lamentandosi). Va a letto tardissimo, si sveglia tardissimo.
+- **Semina** (Mati, blu): ama la montagna, andare a cavallo, la natura e gli animali; euforica e positiva, ogni tanto si arrabbia; preferisce la montagna al mare, ma il mare le piace quando c'è Semino; mangia quello che lui cucina; suonano insieme. A letto prestissimo, sveglia prestissimo; ogni tanto dorme con lui fino a tardi. A entrambi piace moltissimo dormire.
+- Accessori: Semino → occhiali, cuoco, palla, chitarra, **surf** (tavola, nuovo), mai montagna/cavallo. Semina → corona, montagna, cavallo, animale, chitarra; mare solo in scene con Semino.
+
+## Bug da chiudere subito
+- I toast delle frasi NON devono mai coprire la griglia: in Partita vanno nel cruscotto (fumetto accanto alla mascotte, a larghezza limitata) su telefono e nel pannello laterale su desktop; mai sopra le celle; niente toast grandi al centro durante il gioco (la frase ricevuta dal partner si mostra nello stesso posto, col suo colore). La vittoria resta a schermo intero.
+
+## Storyline e sblocchi (src/config/storia.ts, dati puri)
+- Capitoli legati ai fiori (partite finite), con progressione fino ad almeno 60 fiori e un epilogo aperto; ogni tappa: `{ partite, chi, testo, accessorio?, scena?, sblocca? }`. La storia è quella di due semini che crescono in un giardino condiviso, scoprono le differenze (mare/montagna, notte/alba), litigano e fanno pace, costruiscono cose, con richiami a Genna e Mati. Toni: tenero, buffo, mai stucchevole; ogni tappa ≤ 240 caratteri.
+- **Sblocchi visibili nel giardino** (scena SVG di sfondo in Giardino e in Home, `src/ui/Scena.tsx`): elementi che compaiono a soglie: 1 primo fiore; 3 sentiero; 5 Semina; 8 stagno; 10 merlo (animale); 12 cassetta della posta (le frasi inviate); 15 onde del mare in lontananza (Semino); 18 profilo di montagna (Semina); 20 cielo stellato notturno con stelle = fiori; 25 tavola da surf appoggiata; 30 cavallino nel prato; 35 casetta; 40 chitarra appesa; 50 fuochi d'artificio alla vittoria; 60 arcobaleno. Ogni sblocco ha una tappa di storia e un piccolo "regalo" (un suggerimento in più nella prossima partita, un accessorio nuovo, un pacchetto di frasi).
+- **Pacchetti di frasi** sbloccabili: `FRASI_EXTRA[livelloSblocco]` che si aggiungono alle liste a quella soglia (la varietà cresce col gioco).
+- **Sorprese**: a tappe scelte, alla vittoria una scena breve (2–3 battute) invece del solo overlay; "giorno speciale" (seminaDormeTardi) già esiste; giorno del mare/giorno della montagna (deterministici dalla data) con accessori a tema e chiacchiere dedicate.
+- Tutto derivato dal numero di fiori e dalla data: nulla da migrare, le tappe viste restano per chiave stabile.
+
+## Frasi (src/config/frasi.ts)
+- Obiettivo: ≥ 25 frasi per categoria e per personaggio nelle categorie principali (giusta, intelligente, brillante, completato, serie, sbagliata, sbagliataSerie, regalo, suggerimento, vittoria, solletico, chiacchiere, sonno), con i loro interessi; "sei mini / se(i)mini / sei mignon / smol / mini" ricorrenti ma non ossessivi. Mai due uguali di fila, e memoria delle ultime 8 usate per categoria (regole.ts).
+
+## Studio UI anti-slop (docs/design/studio-ui.md + implementazione)
+- Ricerca breve sui principi (tipografia con carattere, spaziatura ritmica, pochi colori usati con intenzione, niente gradienti spiaccicati, niente card tutte uguali, micro-interazioni con senso) e audit onesto delle schermate attuali con screenshot.
+- Sfondo: "cielo del giardino" che vira dal verde-notte al blu-notte con la presenza del blu, con gradiente ampio e grana, non blocchi di colore; il bicolore sui bottoni va usato con parsimonia (un solo elemento primario), i titoli tornano monocromi con un dettaglio bicolore.
+- Interattività: feedback su ogni tocco, tastierino con pressione fisica, griglia con "respiro" al completamento, mascotte che seguono con lo sguardo la cella selezionata (occhi che si spostano), fumetti con coda verso chi parla.
+- Criterio: due screenshot prima/dopo per schermata nel documento, con le scelte spiegate in una riga ciascuna.
