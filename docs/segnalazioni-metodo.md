@@ -1,2 +1,6 @@
 # Segnalazioni sul metodo
 - 2026-11-03 | LEAD · Sudoku · MVP · 03/11 | strumenti | token GitHub della sessione cloud non valido (gh auth fallisce): serve collegare il repo alla sessione per il push | 1 giro di domande | verificare il push al primo avvio come dice la skill, prima di ogni altra cosa
+- 2026-11-03 | LEAD · Sudoku · MVP · 03/11 | funziona | tre agenti in parallelo (motore, rete, UI) contro contratti scritti prima in src/*/types.ts + stub: integrazione senza conflitti, E2E verde al primo giro col motore vero | ~1 h dal via al deploy | tenere: contratti + stub prima di lanciare gli implementatori
+- 2026-11-03 | LEAD · Sudoku · MVP · 03/11 | test | il validatore ha trovato 6 bug non coperti dall'E2E (nuove partite incrociate, colori instabili, iPhone SE) | 1 agente Opus | tenere il validatore anche su MVP "semplici"; l'E2E non copre race e telefono
+- 2026-11-03 | LEAD · Sudoku · MVP · 03/11 | strumenti | hook di stop chiede commit+push a ogni fine turno anche con agenti a metà lavoro: 4 risposte vuote per spiegarlo | ~4 turni | hook che ignora file non tracciati nelle cartelle in lavorazione, o che chiede solo a fine traguardo
+- 2026-11-03 | LEAD · Sudoku · MVP · 03/11 | strumenti | API Pages e 0.peerjs.com bloccati dal proxy cloud; Pages attivato a mano, E2E con server PeerJS locale | 2 giri | documentato in HANDOFF; nessun tool nuovo

@@ -1,32 +1,26 @@
-# React + TypeScript + Vite
+# Sudoku di coppia
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+PWA per giocare a Sudoku e Killer Sudoku in due, a distanza, sulla stessa griglia. Niente backend: i due telefoni parlano direttamente tra loro (WebRTC via PeerJS). Si entra con un nome e una frase segreta comune.
 
-Currently, two official plugins are available:
+Sito: https://genna-12.github.io/sudoku/ (si installa da "Aggiungi alla schermata Home").
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Personalizzare
+- Frasi che compaiono durante il gioco: `src/config/frasi.ts`.
+- Colori dei due giocatori: `COLORI` nello stesso file.
+- Difficoltà dei livelli: `src/config/livelli.ts`.
 
-## React Compiler
+Ogni push su `main` ricostruisce e pubblica il sito (GitHub Actions → Pages).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+## Sviluppo
 ```
-
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+npm install
+npm run dev          # http://localhost:5173/sudoku/
+npm test -- --run    # test unitari (motore, stato, rete)
+npm run build
+```
+Test a due client in locale (serve un server PeerJS locale perché due schede sullo stesso PC usano la stessa frase):
+```
+npx peerjs --port 9000 --host 127.0.0.1
+VITE_PEER_HOST=127.0.0.1 VITE_PEER_PORT=9000 VITE_PEER_SECURE=false npx vite --port 5173 --host 127.0.0.1
+node scripts/qa/due-client.mjs http://127.0.0.1:5173/sudoku/
+```

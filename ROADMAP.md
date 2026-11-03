@@ -1,12 +1,14 @@
 # Roadmap
 
-## T1 — MVP giocabile e deployato (in corso, spec: docs/specs/traguardo.md)
-Motore sudoku+killer, stanza P2P, UI, PWA, deploy GitHub Pages, test su telefono.
+## T1 — MVP giocabile e deployato — chiuso 03/11/2026, commit 0cd4a98
+Motore sudoku+killer, stanza P2P, UI, PWA, deploy GitHub Pages, test a due client. Resta il collaudo sul telefono (HANDOFF, "Da Genna").
+
+## T2 — Collaudo reale e frasi vere (prossimo)
+Esiti del test in due; frasi della coppia in `src/config/frasi.ts`; eventuale relay Python se il P2P non passa.
 
 ## Dopo (solo se serve)
-- Frasi vere della coppia in `src/config/frasi.ts`.
-- Relay Python sul PC se il P2P non passa.
 - Storico partite vinte (localStorage).
+- Badge "sta scrivendo".
 
 ## Riserva
-- Test end-to-end automatici con due browser (Playwright).
+- Test end-to-end anche nel workflow CI (serve `peer` in CI: già in devDependencies).
