@@ -11,7 +11,7 @@ T4 collaudo reale: Genna e Mati giocano dal telefono; raccogliere bug ed esiti (
 - Nessuna decisione aperta. Splash iOS non fatte (troppe immagini).
 
 ## Da Genna
-0. Aperto: PC ↔ telefono non si vedevano la partita (12:40). Serve il registro di "Diagnostica rete" dal telefono (menù ⋯) e la versione su entrambi; sospetto TURN gratuito. Verificare anche che la memoria condivisa riempia l'incognito da sola.
+0. RISOLTO 15:45: PC ↔ telefono in 4G non si collegavano perché il TURN gratuito Open Relay non era raggiungibile (nessun evento ICE). Ora TURN di Cloudflare Realtime nel Worker (`GET /ice`, secrets TURN_KEY_ID/TURN_API_TOKEN messi da Genna con wrangler): registro telefono `ice: cloudflare (8 server)` → `ice -a connected`. Resta da fare la prova pulita PC=Genna, telefono=Mati, poi la partita vera con Mati.
 1. Riaprire l'app di ieri su entrambi i telefoni: nessuna scena/tappa ripetuta, al massimo un annuncio.
 2. Telefono + telefono, stessa frase: connessione, mosse e reazioni identiche sui due lati, fumetti mai sulla griglia.
 3. PC + telefono tuoi insieme: "sei già collegato da un altro dispositivo" ma le mosse si vedono.
@@ -21,7 +21,8 @@ T4 collaudo reale: Genna e Mati giocano dal telefono; raccogliere bug ed esiti (
 
 ## Attenzione
 - Il connettore Cloudflare del Project è di un CLIENTE: mai usarlo (errore del 03/11, annotato). Tutto Cloudflare passa da wrangler sul PC di Genna.
-- Il Worker non è raggiungibile dal cloud (proxy): i test della sync usano un Worker finto locale.
+- Il Worker non è raggiungibile dal cloud (proxy): i test della sync e di /ice usano fetch finto. Il Worker serve anche le credenziali TURN (src/net/ice.ts, fallback ai server statici di src/config/ice.ts).
+- Il browser integrato della chat (Claude) resta loggato come un profilo e occupa un posto nella stanza: chiuderlo prima delle prove di Genna.
 - Il server PeerJS pubblico e l'API Pages non sono raggiungibili dal cloud: E2E con `npx peerjs` locale e `VITE_PEER_*`; Pages si gestisce dal sito GitHub.
 - Semina prima di 5 fiori non deve MAI comparire (sorpresa): ogni modifica a Home/Ingresso/Vittoria va controllata con `sbloccata=false`.
 - Ruolo di gioco dal profilo (Verde=a, Blu=b), mai dal ruolo di rete. Posti per profilo nella stanza di coppia.

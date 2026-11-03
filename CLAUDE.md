@@ -24,7 +24,7 @@ GitHub Pages dal repo `genna-12/sudoku`, workflow `.github/workflows/deploy.yml`
 - Tutto ciò che si sblocca deriva dal numero di fiori e dalla data: aggiungere tappe/sblocchi non richiede migrazioni; le chiavi delle tappe viste sono stabili (`chi-partite`).
 - Livelli in ordine: semini, facile, medio, difficile, extreme, supersemini.
 - Si lavora su `main` (progetto personale). Push solo con tsc, test ed E2E verdi.
-- Fallback se il P2P non attraversa le reti: relay WebSocket Python sul PC di Genna (non scritto).
+- TURN: credenziali temporanee di Cloudflare Realtime via Worker `GET /ice` (secrets nel Worker); i server statici in src/config/ice.ts sono solo riserva.
 
 ## Decisioni
 - 03/11 Niente Supabase né backend: P2P via PeerJS. Hosting GitHub Pages.
