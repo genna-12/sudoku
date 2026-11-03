@@ -1,41 +1,66 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
+import { PROFILI, nomeVisibile, profiloDiNome } from '../config/giocatori';
+import type { ProfiloId } from '../config/giocatori';
+import { Semino } from './Semino';
 import type { Io } from './useStanza';
 
-export function Ingresso({ iniziale, onEntra }: { iniziale: Io | null; onEntra: (io: Io) => void }) {
-  const [nome, setNome] = useState(iniziale?.nome ?? '');
+/**
+ * Ingresso: si sceglie il proprio colore (verde o blu) e si scrive la frase della stanza.
+ * Prima dello sblocco di Semina le card sono solo colore: i personaggi sono una sorpresa.
+ */
+export function Ingresso({
+  iniziale,
+  sbloccata,
+  onEntra,
+}: {
+  iniziale: Io | null;
+  sbloccata: boolean;
+  onEntra: (io: Io) => void;
+}) {
+  const [scelto, setScelto] = useState<ProfiloId | null>(() => (iniziale ? profiloDiNome(iniziale.nome).id : null));
   const [frase, setFrase] = useState(iniziale?.frase ?? '');
-  const pronto = nome.trim().length > 0 && frase.trim().length >= 4;
+  const profilo = PROFILI.find((p) => p.id === scelto) ?? null;
+  const pronto = !!profilo && frase.trim().length >= 4;
 
   function invia(e: FormEvent) {
     e.preventDefault();
-    if (pronto) onEntra({ nome: nome.trim(), frase: frase.trim() });
+    if (pronto && profilo) onEntra({ nome: profilo.nome, frase: frase.trim() });
   }
 
   return (
     <main className="schermata ingresso">
       <div className="ingresso-testa">
-        <Marchio />
         <h1 className="titolo">
           Sudoku
           <br />
           di coppia
         </h1>
-        <p className="sottotitolo">Una griglia, due penne.</p>
+        <p className="sottotitolo">Una griglia, due semi.</p>
       </div>
 
       <form className="ingresso-form" onSubmit={invia}>
-        <label className="campo">
-          <span className="campo-etichetta">Come ti chiami</span>
-          <input
-            data-testid="nome"
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
-            autoComplete="given-name"
-            maxLength={24}
-            placeholder="il tuo nome"
-          />
-        </label>
+        <fieldset className="profili">
+          <legend className="campo-etichetta">Il tuo colore</legend>
+          {PROFILI.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              data-testid={`scegli-${p.id}`}
+              className={`profilo profilo-${p.id}${scelto === p.id ? ' scelto' : ''}`}
+              aria-pressed={scelto === p.id}
+              onClick={() => setScelto(p.id)}
+            >
+              {sbloccata ? (
+                <Semino chi={p.id} stadio={2} umore="felice" impulso={scelto === p.id ? 1 : 0} taglia={72} />
+              ) : (
+                <span className="profilo-goccia" aria-hidden="true" />
+              )}
+              <span className="profilo-nome">{nomeVisibile(p, sbloccata)}</span>
+              <span className="profilo-desc">{p.descrizione}</span>
+            </button>
+          ))}
+        </fieldset>
         <label className="campo">
           <span className="campo-etichetta">Frase segreta</span>
           <input
@@ -50,7 +75,7 @@ export function Ingresso({ iniziale, onEntra }: { iniziale: Io | null; onEntra: 
           <span className="campo-aiuto">Apre la vostra stanza: chi non la conosce non vi trova.</span>
         </label>
         <button data-testid="entra" className="bottone primario" type="submit" disabled={!pronto}>
-          Entra
+          {profilo ? `Entra: ${nomeVisibile(profilo, sbloccata)}` : 'Scegli il tuo colore'}
         </button>
       </form>
     </main>

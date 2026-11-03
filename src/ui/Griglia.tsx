@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import type { CSSProperties } from 'react';
 import type { Gabbia, Puzzle } from '../engine';
 import type { Cella, Giocatore } from '../stato';
@@ -11,7 +11,11 @@ export interface Lampo {
 export interface Arrivo {
   id: number;
   idx: number;
+  /** mossa del partner (alone del suo colore) o sua reazione importante (lampo d'oro) */
+  tipo?: 'mossa' | 'evento';
 }
+
+const DOPPIO_TOCCO_MS = 320;
 
 interface Props {
   puzzle: Puzzle;
@@ -24,6 +28,11 @@ interface Props {
   partnerCursore: number | null;
   lampo: Lampo | null;
   arrivo: Arrivo | null;
+  /** cifra evidenziata col doppio tocco (0 = nessuna) */
+  evidenziato: number;
+  onDoppio: (idx: number) => void;
+  /** regalo attivo: si sceglie la cella da far riempire a Semino */
+  sceltaRegalo: boolean;
 }
 
 const D = 9; // rientro del contorno della gabbia, in centesimi di cella
@@ -92,6 +101,17 @@ export function Griglia(p: Props) {
     return v;
   }, [puzzle]);
 
+  const ultimoTocco = useRef({ idx: -1, t: 0 });
+  function tocca(i: number) {
+    const ora = performance.now();
+    const u = ultimoTocco.current;
+    if (u.idx === i && ora - u.t < DOPPIO_TOCCO_MS) {
+      ultimoTocco.current = { idx: -1, t: 0 };
+      p.onDoppio(i);
+    } else ultimoTocco.current = { idx: i, t: ora };
+    p.onSeleziona(i);
+  }
+
   const sel = p.selezionata;
   const selV = sel !== null ? valori[sel] : 0;
   const sr = sel !== null ? Math.floor(sel / 9) : -1;
@@ -108,7 +128,7 @@ export function Griglia(p: Props) {
 
   return (
     <div
-      className={`griglia${killer ? ' griglia-killer' : ''}`}
+      className={`griglia${killer ? ' griglia-killer' : ''}${p.sceltaRegalo ? ' scelta-regalo' : ''}`}
       data-testid="griglia"
       data-seed={puzzle.seed}
       data-prima-vuota={vuote[0]}
@@ -128,6 +148,7 @@ export function Griglia(p: Props) {
         const cls = ['cella'];
         if (data) cls.push('data');
         else if (v && cella) cls.push(cella.da === p.mioRuolo ? 'mia' : 'sua');
+        if (p.evidenziato && v === p.evidenziato) cls.push('faro');
         if (i === sel) cls.push('selezionata');
         else if (selV && v === selV) cls.push('stessa');
         else if (r === sr || c === sc || b === sb) cls.push('vicina');
@@ -136,7 +157,7 @@ export function Griglia(p: Props) {
         const somma = killer?.somme.get(i);
         const ritardo = lampo.get(i);
         return (
-          <div key={i} className={cls.join(' ')} onPointerDown={() => p.onSeleziona(i)}>
+          <div key={i} className={cls.join(' ')} onPointerDown={() => tocca(i)}>
             <span key={v} className="valore" data-testid={`cella-${i}`} data-note={note.join(',')}>
               {v || ''}
             </span>
@@ -162,7 +183,13 @@ export function Griglia(p: Props) {
                 aria-hidden="true"
               />
             )}
-            {p.arrivo?.idx === i && <span key={`a${p.arrivo.id}`} className="fx-arrivo" aria-hidden="true" />}
+            {p.arrivo?.idx === i && (
+              <span
+                key={`a${p.arrivo.id}`}
+                className={p.arrivo.tipo === 'evento' ? 'fx-arrivo fx-evento' : 'fx-arrivo'}
+                aria-hidden="true"
+              />
+            )}
           </div>
         );
       })}

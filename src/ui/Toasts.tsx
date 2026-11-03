@@ -11,6 +11,10 @@ export interface Toast {
   /** colore dell'inchiostro (variabile CSS o colore) */
   colore?: string;
   firma?: string;
+  /** chi parla (nome della mascotte del partner), mostrato prima del testo */
+  prefisso?: string;
+  /** categoria della frase (per i test e lo stile) */
+  categoria?: string;
 }
 
 const DURATA = { piccolo: 1400, banner: 2400, grande: 3600 } as const;
@@ -53,6 +57,7 @@ export function useToasts() {
 
   const mostra = useCallback(
     (t: Omit<Toast, 'id'>) => {
+      if (!t.testo) return;
       const toast = { ...t, id: prossimoId++ };
       if (toast.tipo === 'piccolo') {
         setAttivi((a) => [...a, toast]);
@@ -77,13 +82,16 @@ export function Toasts({ attivi }: { attivi: Toast[] }) {
           <div
             key={t.id}
             className="toast toast-piccolo"
+            data-categoria={t.categoria}
             style={{ left: t.x, top: t.y, color: t.colore }}
           >
-            {t.testo}
+            {t.prefisso && <span className="toast-prefisso">{t.prefisso}</span>}
+            <span data-testid="toast-testo">{t.testo}</span>
           </div>
         ) : t.tipo === 'banner' ? (
-          <div key={t.id} className="toast toast-banner">
-            {t.testo}
+          <div key={t.id} className="toast toast-banner" data-categoria={t.categoria}>
+            {t.prefisso && <span className="toast-prefisso">{t.prefisso}</span>}
+            <span data-testid="toast-testo">{t.testo}</span>
           </div>
         ) : (
           <div key={t.id} className="toast toast-grande" style={{ color: t.colore }}>

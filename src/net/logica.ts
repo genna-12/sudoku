@@ -86,7 +86,7 @@ export interface StanzaInterna extends Stanza {
   primoPiano(): void;
 }
 
-const TIPI = new Set(['ciao', 'stato', 'cella', 'cursore', 'nuova', 'frase', 'ping', 'pong']);
+const TIPI = new Set(['ciao', 'stato', 'storico', 'cella', 'contatori', 'cursore', 'nuova', 'frase', 'evento', 'ping', 'pong']);
 
 export function eMessaggio(d: unknown): d is Messaggio {
   return typeof d === 'object' && d !== null && TIPI.has((d as { t?: unknown }).t as string);

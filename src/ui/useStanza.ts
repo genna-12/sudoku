@@ -1,68 +1,56 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { apriStanza } from '../net';
 import type { Messaggio, Stanza, StatoConnessione } from '../net';
-import type { Giocatore, StatoPartita } from '../stato';
+import type { StatoPartita } from '../stato';
 
 export interface Io {
   nome: string;
   frase: string;
 }
 
-interface Gestori {
+export interface GestoriStanza {
   statoCorrente: () => StatoPartita | null;
   messaggio: (m: Messaggio) => void;
-  partner: (nome: string) => void;
 }
 
-/** Apre la stanza P2P quando nome e frase sono noti; espone stato connessione, ruolo e invio. */
-export function useStanza(io: Io | null, gestori: Gestori) {
+/** Apre una stanza P2P per `chiave` (la frase, o frase#nome per la stanza personale). */
+export function useStanza(chiave: string | null, nome: string | null, gestori: GestoriStanza) {
   const [connessione, setConnessione] = useState<StatoConnessione>('connessione');
-  const [ruolo, setRuolo] = useState<Giocatore | null>(null);
+  const [dettaglio, setDettaglio] = useState<string | undefined>();
   const stanzaRef = useRef<Stanza | null>(null);
   const gestoriRef = useRef(gestori);
   useEffect(() => {
     gestoriRef.current = gestori;
   });
 
-  const frase = io?.frase;
-  const nome = io?.nome;
-
   useEffect(() => {
-    if (!frase || !nome) return;
+    if (!chiave || !nome) return;
     let stanza: Stanza | null = null;
     let spegni: (() => void)[] = [];
-    let intervallo = 0;
     // Apertura rimandata di un giro: in StrictMode il primo mount viene smontato subito,
     // così non si registra (e libera) un ID PeerJS a vuoto.
     const avvio = window.setTimeout(() => {
-      const s = apriStanza(frase, nome, () => gestoriRef.current.statoCorrente());
+      const s = apriStanza(chiave, nome, () => gestoriRef.current.statoCorrente());
       stanza = s;
       stanzaRef.current = s;
       setConnessione(s.stato);
-      setRuolo(s.ruolo);
       spegni = [
-        s.on('stato', (st) => {
+        s.on('stato', (st, d) => {
           setConnessione(st);
-          setRuolo(s.ruolo);
+          setDettaglio(d);
         }),
-        s.on('messaggio', (m) => {
-          setRuolo(s.ruolo);
-          gestoriRef.current.messaggio(m);
-        }),
-        s.on('partner', (n) => gestoriRef.current.partner(n)),
+        s.on('messaggio', (m) => gestoriRef.current.messaggio(m)),
       ];
-      // il ruolo può cambiare (b che ridiventa a): lo rileggo ogni tanto
-      intervallo = window.setInterval(() => setRuolo(s.ruolo), 2000);
     }, 0);
     return () => {
       window.clearTimeout(avvio);
-      window.clearInterval(intervallo);
       spegni.forEach((f) => f());
       stanza?.chiudi();
       stanzaRef.current = null;
       setConnessione('connessione');
+      setDettaglio(undefined);
     };
-  }, [frase, nome]);
+  }, [chiave, nome]);
 
   const invia = useCallback((m: Messaggio) => {
     try {
@@ -72,5 +60,5 @@ export function useStanza(io: Io | null, gestori: Gestori) {
     }
   }, []);
 
-  return { connessione, ruolo, invia };
+  return { connessione, dettaglio, invia };
 }

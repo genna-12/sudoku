@@ -44,8 +44,9 @@
   color-scheme: dark;
 }
 
+/* tema: automatico dal sistema, oppure forzato dal menù (data-tema su <html>) */
 @media (prefers-color-scheme: light) {
-  :root {
+  :root:not([data-tema='scuro']) {
     --fondo: #f4efe3;
     --grana-chiara: rgb(255 255 255 / 0.5);
     --grana-scura: rgb(29 51 38 / 0.07);
@@ -67,6 +68,28 @@
     --ombra: 0 14px 30px rgb(29 51 38 / 0.13);
     color-scheme: light;
   }
+}
+:root[data-tema='chiaro'] {
+  --fondo: #f4efe3;
+  --grana-chiara: rgb(255 255 255 / 0.5);
+  --grana-scura: rgb(29 51 38 / 0.07);
+  --luna: rgb(183 205 170 / 0.35);
+  --carta: #fbf8f0;
+  --carta-2: #e4e9d8;
+  --linea: #d3d8c3;
+  --linea-forte: #58705f;
+  --inchiostro: #1d3326;
+  --tenue: #5f7366;
+  --evid: #1f4a33;
+  --su-evid: #f4efe3;
+  --errore: #c8412f;
+  --oro: #f2b11f;
+  --su-oro: #2a1c0e;
+  --verde-inchiostro: #2f8a12;
+  --blu-inchiostro: #2453d6;
+  --oro-inchiostro: #95620a;
+  --ombra: 0 14px 30px rgb(29 51 38 / 0.13);
+  color-scheme: light;
 }
 
 *,
@@ -119,10 +142,14 @@ body {
   --suo-testo: color-mix(in srgb, var(--suo) 80%, #fff);
 }
 @media (prefers-color-scheme: light) {
-  .app {
+  :root:not([data-tema='scuro']) .app {
     --mio-testo: color-mix(in srgb, var(--mio) 58%, #0c2414);
     --suo-testo: color-mix(in srgb, var(--suo) 82%, #0b1430);
   }
+}
+:root[data-tema='chiaro'] .app {
+  --mio-testo: color-mix(in srgb, var(--mio) 58%, #0c2414);
+  --suo-testo: color-mix(in srgb, var(--suo) 82%, #0b1430);
 }
 
 button,
@@ -516,9 +543,9 @@ input:focus-visible {
   --lato: min(
     100%,
     560px,
-    /* tutto ciò che non è griglia: barra 48 + gap 10+12 + strumenti 56 + gap 8 + tasto + padding, +12 di margine */
+    /* tutto ciò che non è griglia: barra 48 + cruscotto 46 + gap 10+10+12 + strumenti 56 + gap 8 + tasto + padding, +12 */
     calc(
-      100dvh - 146px - clamp(58px, 9dvh, 76px) - max(10px, env(safe-area-inset-top)) -
+      100dvh - 202px - clamp(58px, 9dvh, 76px) - max(10px, env(safe-area-inset-top)) -
         max(12px, env(safe-area-inset-bottom))
     )
   );
@@ -1039,7 +1066,7 @@ input:focus-visible {
 /* desktop e tablet orizzontale: griglia a sinistra, comandi a destra */
 @media (min-width: 860px) and (min-aspect-ratio: 1/1) {
   .partita {
-    --lato: min(600px, calc(100dvh - 110px));
+    --lato: min(600px, calc(100dvh - 170px));
   }
   .tavolo {
     flex-direction: row;
@@ -1644,6 +1671,706 @@ input:focus-visible {
   }
 }
 
+/* ======================================================================
+   T2 — schermate e pezzi nuovi (Ingresso a colori, Home con mascotte,
+   cruscotto della partita, menù, giardino, vittoria, scena di Semina)
+   ====================================================================== */
+.nascosto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+.nascosto-visivo {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- ingresso: due card di colore ---------- */
+.profili {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.profili legend {
+  margin-bottom: 8px;
+  padding: 0;
+}
+.profilo {
+  --c: var(--verde);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-height: 132px;
+  padding: 14px 14px 13px;
+  text-align: left;
+  background: color-mix(in srgb, var(--c) 7%, var(--carta));
+  border: 1.5px solid color-mix(in srgb, var(--c) 22%, var(--linea));
+  border-radius: 30px 30px 30px 8px;
+  transition:
+    transform 0.15s var(--curva),
+    border-color 0.2s,
+    background 0.2s,
+    box-shadow 0.2s;
+}
+.profilo-semina {
+  --c: var(--blu);
+  border-radius: 30px 30px 8px 30px;
+}
+.profilo:active {
+  transform: scale(0.97);
+}
+.profilo.scelto {
+  border-color: var(--c);
+  background: color-mix(in srgb, var(--c) 16%, var(--carta));
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--c) 18%, transparent);
+}
+/* goccia di colore: il seme senza ancora un personaggio */
+.profilo-goccia {
+  width: 46px;
+  height: 54px;
+  margin-bottom: auto;
+  border-radius: 55% 55% 50% 50% / 62% 62% 40% 40%;
+  background:
+    radial-gradient(40% 30% at 34% 30%, rgb(255 255 255 / 0.45), transparent 70%),
+    var(--c);
+  transform: rotate(-8deg);
+  box-shadow: inset 0 -6px 0 rgb(0 0 0 / 0.18);
+  transition: transform 0.4s var(--molla);
+}
+.profilo-semina .profilo-goccia {
+  transform: rotate(8deg);
+}
+.profilo.scelto .profilo-goccia {
+  transform: rotate(0) scale(1.08);
+}
+.profilo .semino {
+  margin: -6px 0 auto -6px;
+}
+.profilo-nome {
+  font-size: 22px;
+  font-weight: 850;
+  line-height: 1.05;
+  --casl: 1;
+}
+.profilo-desc {
+  font-size: 13px;
+  color: var(--tenue);
+}
+
+/* ---------- home ---------- */
+.home {
+  gap: 18px;
+}
+.home-testa {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.home-testa .pallino {
+  min-width: 0;
+}
+.pallino-testo {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pallino-occupata i {
+  background: var(--oro);
+}
+.home-testa-spazio {
+  flex: 1;
+}
+.home .titolo.home-titolo {
+  font-size: clamp(38px, 11vw, 52px);
+}
+.giardino-bottone {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 44px;
+  padding: 0 12px 0 4px;
+  border: 1px solid var(--linea);
+  border-radius: 999px 999px 999px 8px;
+  background: var(--carta);
+  font-size: 15px;
+  font-weight: 750;
+  transition: transform 0.12s var(--curva);
+}
+.giardino-bottone:active {
+  transform: scale(var(--premi));
+}
+.giardino-bottone .semino-pianta {
+  margin-top: -4px;
+}
+
+/* l'altro mio dispositivo: due semini sovrapposti, discreti */
+.altro-dispositivo-chip {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: 50% 50% 50% 6px;
+  background: var(--carta);
+  border: 1px solid var(--linea);
+}
+.altro-dispositivo {
+  position: relative;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50% 50% 50% 1px;
+  background: var(--mio);
+  box-shadow: 5px -3px 0 -1px color-mix(in srgb, var(--mio) 55%, transparent);
+}
+.partner-chip .altro-dispositivo {
+  margin-left: 2px;
+}
+
+.home-eroe {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 104px;
+}
+.home-mascotte {
+  flex: none;
+  display: grid;
+  place-items: center;
+}
+.home-eroe .fumetto {
+  flex: 1;
+  margin: 0;
+  text-align: left;
+}
+.fumetto-storia {
+  cursor: pointer;
+  font: inherit;
+  font-size: 15.5px;
+  line-height: 1.35;
+}
+.fumetto-firma {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--tenue);
+}
+.fumetto-quieto {
+  border-style: dashed;
+  --fumetto-accento: var(--linea-forte);
+  color: var(--tenue);
+}
+/* chi non parla resta un passo indietro */
+.home-eroe.parla-semino .semino-coppia-lei,
+.home-eroe.parla-semina .semino-coppia-lui {
+  opacity: 0.88;
+  transition: opacity 0.3s;
+}
+.bottone.primario.invito {
+  background: var(--mio);
+  color: #0b1410;
+  box-shadow:
+    0 5px 0 color-mix(in srgb, var(--mio) 40%, var(--fondo)),
+    0 0 0 6px color-mix(in srgb, var(--mio) 16%, transparent);
+  animation: invito 2.8s ease-in-out infinite;
+}
+@keyframes invito {
+  50% {
+    box-shadow:
+      0 5px 0 color-mix(in srgb, var(--mio) 40%, var(--fondo)),
+      0 0 0 11px color-mix(in srgb, var(--mio) 4%, transparent);
+  }
+}
+
+/* ---------- menù della home e fogli di conferma ---------- */
+.menu-home {
+  min-width: 262px;
+}
+.menu-riga {
+  margin: 4px 10px;
+  border: 0;
+  border-top: 1px solid var(--linea);
+}
+.menu-pericolo {
+  color: var(--errore);
+  font-weight: 650;
+}
+.tema-scelta {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  border-radius: 14px 14px 14px 4px;
+  background: var(--carta);
+  border: 1px solid var(--linea);
+}
+.tema-scelta button {
+  height: 32px;
+  padding: 0 9px;
+  border: 0;
+  border-radius: 11px 11px 11px 3px;
+  background: none;
+  font-size: 13.5px;
+  color: var(--tenue);
+}
+.tema-scelta button.attivo {
+  background: var(--evid);
+  color: var(--su-evid);
+  font-weight: 700;
+}
+.foglio-velo {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  align-items: end;
+  justify-items: center;
+  padding: 16px max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  background: color-mix(in srgb, var(--fondo) 70%, transparent);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  animation: dissolvi 0.25s ease both;
+}
+.foglio {
+  width: min(100%, 420px);
+  padding: 22px 20px 16px;
+  background: var(--carta-2);
+  border: 1px solid var(--linea);
+  border-radius: 32px 32px 32px 10px;
+  box-shadow: var(--ombra);
+  animation: atterra 0.4s var(--molla) both;
+}
+.foglio h2 {
+  margin: 0 0 8px;
+  font-size: 22px;
+  line-height: 1.1;
+  font-weight: 850;
+  --casl: 1;
+}
+.foglio p {
+  margin: 0 0 16px;
+  color: var(--tenue);
+  text-wrap: pretty;
+}
+.foglio p b {
+  color: var(--errore);
+}
+.foglio-campo {
+  width: 100%;
+  height: 52px;
+  margin-bottom: 14px;
+  padding: 0 16px;
+  font-size: 18px;
+  background: var(--carta);
+  border: 1.5px solid var(--linea);
+  border-radius: var(--r-seme);
+  outline: none;
+}
+.foglio-campo:focus {
+  border-color: var(--errore);
+}
+.foglio-azioni {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.foglio-azioni .bottone {
+  min-height: 52px;
+  font-size: 16px;
+  background: var(--carta);
+}
+.bottone.pericolo {
+  background: var(--errore);
+  color: #1b0d0a;
+}
+.bottone.pericolo:disabled {
+  background: var(--carta);
+  color: var(--tenue);
+  opacity: 0.6;
+}
+
+/* ---------- partita: cruscotto sopra la griglia ---------- */
+.cruscotto-box {
+  position: relative;
+  width: 100%;
+  margin-bottom: 10px;
+}
+.crescita.cruscotto {
+  gap: 8px;
+  min-height: 46px;
+}
+.mascottina {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 40px;
+  flex: none;
+  transform-origin: 50% 90%;
+}
+.crescita-testo {
+  align-items: center;
+}
+.crescita-stadio {
+  font-size: 12px;
+  color: var(--tenue);
+}
+.crescita.cruscotto .contatore {
+  padding: 2px 8px 2px 6px;
+  gap: 6px;
+  font-size: 13px;
+}
+.contatore-suo {
+  flex-direction: row-reverse;
+  padding: 2px 6px 2px 8px;
+  border-radius: 12px 12px 4px 12px;
+}
+.contatore-errori {
+  padding-left: 7px;
+  border-left: 1px solid var(--linea);
+  color: var(--errore);
+  font-weight: 700;
+  /* stessa sottolineatura ondulata delle celle sbagliate */
+  text-decoration: underline wavy color-mix(in srgb, var(--errore) 75%, transparent);
+  text-decoration-thickness: 1.2px;
+  text-underline-offset: 3px;
+}
+.contatore-suo .contatore-errori {
+  padding: 0 7px 0 0;
+  border-left: 0;
+  border-right: 1px solid var(--linea);
+}
+.contatore-errori[hidden] {
+  display: none;
+}
+.contatore.scatta b {
+  color: var(--inchiostro);
+}
+.contatore.scatta .contatore-errori {
+  color: var(--errore);
+}
+.chiacchiera-partita {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 10px);
+  left: 0;
+  max-width: min(78vw, 300px);
+  font-size: 14px;
+  pointer-events: none;
+  box-shadow: var(--ombra);
+}
+.chiacchiera-partita.suggerimento-aiuto {
+  left: auto;
+  right: 0;
+  --fumetto-accento: var(--oro);
+  border-radius: 22px 22px 22px 22px;
+}
+.chiacchiera-partita.suggerimento-aiuto::before {
+  left: auto;
+  right: 16px;
+}
+.griglia.scelta-regalo .cella:not(.data) {
+  cursor: copy;
+}
+.griglia.scelta-regalo {
+  box-shadow:
+    var(--ombra),
+    0 0 0 3px color-mix(in srgb, var(--oro) 45%, transparent);
+}
+/* doppio tocco: tutte le celle con quella cifra */
+.cella.faro {
+  --bg: color-mix(in srgb, var(--oro) 22%, var(--carta));
+}
+.cella.faro .valore {
+  font-weight: 800;
+}
+.fx-evento {
+  animation: lampo-evento 1.3s ease-out both;
+}
+@keyframes lampo-evento {
+  from {
+    background: color-mix(in srgb, var(--oro) 55%, transparent);
+    box-shadow:
+      inset 0 0 0 3px var(--oro),
+      0 0 18px var(--oro);
+  }
+  to {
+    background: transparent;
+    box-shadow: inset 0 0 0 3px transparent;
+  }
+}
+.tasto {
+  -webkit-touch-callout: none;
+}
+
+/* ---------- giardino ---------- */
+.giardino-schermata {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 760px;
+  margin: 0 auto;
+}
+.giardino-schermata .giardino-totali {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.giardino-record {
+  grid-column: 1 / -1;
+}
+.giardino-record ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+}
+.giardino-record li {
+  display: flex;
+  gap: 6px;
+}
+.giardino-record li b {
+  font-size: 14px;
+  font-weight: 750;
+}
+.giardino-vuoto {
+  grid-column: 1 / -1;
+  margin: 24px auto;
+  max-width: 30ch;
+  text-align: center;
+  color: var(--tenue);
+  --casl: 1;
+}
+.pianta-in-corso {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--mio-testo);
+  font-weight: 650;
+}
+
+/* ---------- vittoria ---------- */
+.vittoria-mascotte {
+  display: grid;
+  place-items: center;
+  margin: -64px auto 6px;
+}
+.vittoria-carta {
+  padding-top: 18px;
+}
+.vittoria-frase.in-arrivo {
+  opacity: 0.4;
+}
+.vittoria-punti {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 0 0 20px;
+}
+.vittoria-quota {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 12px;
+  border-radius: var(--r-seme);
+  background: color-mix(in srgb, var(--c) 12%, var(--carta-2));
+  border: 1px solid color-mix(in srgb, var(--c) 35%, var(--linea));
+  font-size: 13px;
+  color: var(--tenue);
+}
+.vittoria-quota b {
+  font-size: 26px;
+  line-height: 1.1;
+  font-weight: 850;
+  color: var(--inchiostro);
+  --casl: 1;
+}
+.vittoria-mia {
+  --c: var(--mio);
+}
+.vittoria-sua {
+  --c: var(--suo);
+  border-radius: var(--r-petalo);
+}
+.vittoria-bonus {
+  grid-column: 1 / -1;
+  font-size: 13px;
+  color: var(--oro-inchiostro);
+}
+
+/* ---------- toast: chi parla ---------- */
+.toast-prefisso {
+  margin-right: 0.35em;
+  font-size: 0.62em;
+  font-weight: 700;
+  opacity: 0.85;
+  vertical-align: 0.2em;
+}
+
+/* ---------- scena: arriva Semina ---------- */
+.scena {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: max(24px, env(safe-area-inset-top)) 20px max(24px, env(safe-area-inset-bottom));
+  background:
+    radial-gradient(70% 45% at 50% 40%, rgb(241 230 194 / 0.1), transparent 70%),
+    rgb(5 10 7 / 0.94);
+  color: #efe8d6;
+  cursor: pointer;
+  overflow: hidden;
+  animation: scena-buio 0.9s ease both;
+  -webkit-user-select: none;
+  user-select: none;
+}
+@keyframes scena-buio {
+  from {
+    opacity: 0;
+  }
+}
+.scena-foglie {
+  position: absolute;
+  inset: auto 0 0;
+  height: 34%;
+  pointer-events: none;
+}
+.scena-foglie i {
+  position: absolute;
+  bottom: -18px;
+  left: calc(var(--k) * 12% - 4%);
+  width: 70px;
+  height: 120px;
+  border-radius: 100% 0 100% 0;
+  background: color-mix(in srgb, #2d5a2a calc(60% + var(--k) * 4%), #0b1410);
+  transform-origin: 50% 100%;
+  transform: rotate(calc(-30deg + var(--k) * 8deg));
+  animation: fruscio calc(2.6s + var(--k) * 0.23s) ease-in-out infinite alternate;
+  opacity: 0.85;
+}
+.scena-foglie i:nth-child(odd) {
+  height: 150px;
+  border-radius: 0 100% 0 100%;
+}
+@keyframes fruscio {
+  to {
+    transform: rotate(calc(-22deg + var(--k) * 8deg)) scaleY(1.04);
+  }
+}
+.scena-palco {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0;
+  min-height: 150px;
+}
+.scena-attore {
+  display: grid;
+  transition:
+    transform 0.4s var(--curva),
+    filter 0.4s;
+  filter: brightness(0.75) saturate(0.8);
+}
+.scena-attore.parla {
+  filter: none;
+  transform: translateY(-4px) scale(1.04);
+}
+.scena-lei {
+  margin-left: -18px;
+  animation: sbuca 0.9s var(--molla) both;
+}
+@keyframes sbuca {
+  0% {
+    transform: translate(-40px, 30px) scale(0);
+  }
+  55% {
+    transform: translate(0, -26px) scale(1.08);
+  }
+  75% {
+    transform: translate(0, 0) scale(0.97);
+  }
+  88% {
+    transform: translate(0, -8px) scale(1.02);
+  }
+}
+/* "Il verde è Semino. La blu è Semina.": i due colori si accendono sotto le mascotte */
+.scena-colori .scena-attore::after {
+  content: '';
+  justify-self: center;
+  width: 70%;
+  height: 10px;
+  margin-top: 4px;
+  border-radius: 50%;
+  background: var(--verde);
+  box-shadow: 0 0 22px 6px color-mix(in srgb, var(--verde) 60%, transparent);
+  animation: accendi 0.8s ease both;
+}
+.scena-colori .scena-lei::after {
+  background: var(--blu);
+  box-shadow: 0 0 22px 6px color-mix(in srgb, var(--blu) 70%, transparent);
+}
+@keyframes accendi {
+  from {
+    opacity: 0;
+    transform: scaleX(0.2);
+  }
+}
+.scena-battuta {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: min(100%, 380px);
+  min-height: 150px;
+}
+.scena .fumetto {
+  --fumetto-fondo: #1b2e24;
+  color: #efe8d6;
+  max-width: 100%;
+  font-size: 18px;
+  text-align: center;
+}
+.scena .fumetto-giu::before {
+  top: -8.5px;
+  bottom: auto;
+  left: calc(50% - 7px);
+  transform: rotate(135deg);
+}
+.scena-fruscio {
+  border-style: dashed;
+  --fumetto-accento: #5b7566;
+  font-style: oblique 10deg;
+  color: #93a698;
+}
+.scena-aiuto {
+  font-size: 13px;
+  color: #93a698;
+  animation: respiro 2.4s ease-in-out infinite;
+}
+.scena-andiamo {
+  max-width: 260px;
+  background: #f1e6c2;
+  color: #0b1410;
+}
+
 /* ---------- movimento ridotto ---------- */
 @media (prefers-reduced-motion: reduce) {
   .schermata,
@@ -1657,8 +2384,21 @@ input:focus-visible {
   .fumetto,
   .regalo.disponibile,
   .contatore.scatta,
-  .tasto.tenuto::after {
+  .tasto.tenuto::after,
+  .fx-evento,
+  .foglio,
+  .foglio-velo,
+  .bottone.primario.invito,
+  .scena,
+  .scena-foglie i,
+  .scena-lei,
+  .scena-aiuto,
+  .scena-colori .scena-attore::after {
     animation: none;
+  }
+  .profilo-goccia,
+  .scena-attore {
+    transition: none;
   }
   .coriandoli {
     display: none;

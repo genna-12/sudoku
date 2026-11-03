@@ -5,10 +5,6 @@ export function caso<T>(lista: readonly T[]): T {
   return lista[Math.floor(Math.random() * lista.length)];
 }
 
-export function conNome(testo: string, nome: string): string {
-  return testo.replaceAll('{nome}', nome || 'mini');
-}
-
 export function tempo(secondi: number): string {
   const h = Math.floor(secondi / 3600);
   const m = Math.floor((secondi % 3600) / 60);
@@ -54,12 +50,11 @@ export function scrivi(chiave: string, valore: unknown): void {
   }
 }
 
+/** Preferenze di sola interfaccia, fuori dall'archivio (che per ora non ha un posto per loro).
+ *  Tutto il resto persiste in `sudoku-coppia-archivio` (src/stato/archivio.ts). */
 export const CHIAVI = {
-  partita: 'sudoku-coppia',
-  io: 'sudoku-coppia-io',
-  partner: 'sudoku-coppia-partner',
-  errori: 'sudoku-coppia-errori',
   scelta: 'sudoku-coppia-scelta',
+  tema: 'sudoku-coppia-tema',
 } as const;
 
 /** Indici delle celle di riga, colonna e box di `idx`. */
