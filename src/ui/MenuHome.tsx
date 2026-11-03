@@ -184,6 +184,8 @@ export function MenuHome(p: Props) {
               }}>
               Ricomincia da zero
             </button>
+            <Diagnostica />
+            <p className="menu-versione" data-testid="versione">versione {__APP_VERSIONE__}</p>
           </div>
         </>
       )}
@@ -271,8 +273,6 @@ export function MenuHome(p: Props) {
               </>
             )}
             </div>
-            <Diagnostica />
-            <p className="menu-versione" data-testid="versione">versione {__APP_VERSIONE__}</p>
           </div>
         </div>
       )}
