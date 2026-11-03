@@ -69,3 +69,8 @@ Estetica: "notte in giardino". Niente viola generico da template: fondo verde-ne
 - `migra` conserva i campi sconosciuti dell'archivio (app vecchia che legge dati nuovi non li perde al salvataggio).
 - Test di robustezza in src/stato (archivio.test.ts): dati due archivi divergenti A e B (partite diverse, stessa partita con celle diverse e contatori diversi, azzeramenti diversi), `unisci(A,B)` ≡ `unisci(B,A)` e `unisci(unisci(A,B),B)` ≡ `unisci(A,B)` (commutativa, idempotente); il vuoto non vince mai.
 - Limiti accettati e documentati in README: stessa partita giocata su due dispositivi propri NON collegati tra loro → i contatori personali non si sommano (vince l'ultimo); nome diverso su due dispositivi = persona diversa; orologio sballato altera i conflitti sulla stessa cella; "ricomincia" cancella anche dal partner le partite precedenti alla data.
+
+## Semino e Semina alla pari (richiesta 02:38)
+- Dopo lo sblocco, in Partita si vedono entrambe le mascotte: ognuna reagisce SOLO alle mosse del proprio giocatore (Semino = 'a', Semina = 'b'), su entrambi i dispositivi. Prima dello sblocco Semino reagisce a tutto. Home e Vittoria: SeminoCoppia dopo lo sblocco.
+- Carattere e voce in `src/config/frasi.ts`: `CARATTERE` (umore base), `VOCE` (frasi per personaggio e categoria, metà delle volte al posto di FRASI), `chiacchiere` (fumetti a caso ogni 40–60 s quando non succede nulla), `STORIA_EXTRA` (tappe aggiuntive con le loro passioni: acqua e palla in acqua, nerd, cucina, musica insieme; animali, natura, euforia, arrabbiature).
+- Umori nuovi del componente: `arrabbiato`, `euforico`. Semina: euforica su brillante/chiusura/vittoria, arrabbiata su errori in serie.

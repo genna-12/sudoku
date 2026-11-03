@@ -55,3 +55,68 @@ export const STORIA_SEMINO: Array<{ partite: number; chi: 'semino' | 'semina' | 
 ];
 
 export { COLORI } from './giocatori';
+
+// ---------------------------------------------------------------------------------------------
+// Voce dei due personaggi. Dopo lo sblocco di Semina, ognuno commenta le mosse del PROPRIO
+// giocatore (Semino = Genna, Semina = lei) con queste frasi, in aggiunta a FRASI. Prima dello
+// sblocco parla solo Semino. `chiacchiere` = frasi a caso quando non succede nulla (Home, attesa).
+// ---------------------------------------------------------------------------------------------
+
+export type ChiParla = 'semino' | 'semina';
+
+export const CARATTERE: Record<ChiParla, { descrizione: string; umoreBase: 'neutro' | 'felice' }> = {
+  semino: { descrizione: 'ama l\'acqua e la palla in acqua, un po\' nerd, cucina per Semina, suona con lei', umoreBase: 'neutro' },
+  semina: { descrizione: 'ama animali e natura, euforica e positiva, ogni tanto si arrabbia, suona con Semino, mangia quello che lui cucina', umoreBase: 'felice' },
+};
+
+export const VOCE: Record<ChiParla, Record<string, string[]>> = {
+  semino: {
+    giusta: ['passaggio pulito', 'compilato senza errori', 'un numero alla volta, come in piscina'],
+    intelligente: ['debuggata al volo', 'l\'hai vista prima di me', 'tiro dall\'angolo, dentro'],
+    brillante: ['questo è un gol da metà vasca', 'ricorsione pura', 'devo scriverlo nel diario'],
+    completato: ['vasca finita', 'chiusa, come una parentesi'],
+    serie: ['ritmo da allenamento', '{n} di fila: fiato lungo'],
+    sbagliata: ['palla fuori, niente', 'un typo, capita', 'respira, mini'],
+    sbagliataSerie: ['pausa acqua?', 'fermo il cronometro un attimo'],
+    regalo: ['ho cucinato qualcosa per te', 'regalo: niente codice, solo un aiuto'],
+    vittoria: ['stasera cucino io', 'vinto, insieme. Sempre così'],
+    chiacchiere: [
+      'oggi ho fatto quaranta vasche. Mentali.',
+      'ho scritto un programma che conta i fiori. Dice che sono pochi. Lo sistemo.',
+      'secondo me la palla in acqua è un sudoku con più schizzi',
+      'ho una ricetta nuova. Semina dice che la assaggia solo se finisce la riga.',
+      'provo un accordo nuovo. Se Semina canta sopra, funziona.',
+      'ho perso il segno. Lo ritrovo con una nota a matita.',
+    ],
+  },
+  semina: {
+    giusta: ['SÌ!', 'bravissima/o!', 'che bella mossa, davvero'],
+    intelligente: ['OCCHIO DI FALCO', 'l\'hai vista come un gufo', 'sveglissima/o'],
+    brillante: ['NON CI CREDO', 'saltello come un capriolo', 'applausi con tutte le foglie'],
+    completato: ['fiorita!', 'un\'aiuola in più, evviva'],
+    serie: ['sei un torrente', '{n} di fila, non ti fermi più'],
+    sbagliata: ['uffa.', 'ma no, dai', 'niente, riproviamo (sbuffo)'],
+    sbagliataSerie: ['OK ORA MI ARRABBIO', 'guardo le note e respiro. Respiro.', 'mi serve un animale da coccolare'],
+    regalo: ['un regalo! lo apro io? no, aprilo tu', 'ti ho portato una ghianda, è un aiuto'],
+    vittoria: ['FIORITA! TUTTA!', 'adesso mangio quello che ha cucinato Semino', 'vinto! vinto! vinto!'],
+    chiacchiere: [
+      'ho visto un riccio. Era mini. L\'ho chiamato "sei mini".',
+      'Semino cucina e io mangio. Equilibrio perfetto dell\'ecosistema.',
+      'c\'è un merlo che canta sulla nostra aiuola. Secondo me vuole suonare con noi.',
+      'il muschio cresce lento ma non sbaglia mai una riga.',
+      'oggi sono euforica senza motivo. Il motivo è che ci siete.',
+      'se Semino rifà la battuta sulla ricorsione mi arrabbio. Un po\'.',
+    ],
+  },
+};
+
+/** Tappe della storia aggiunte (si uniscono a STORIA_SEMINO: chiave stabile chi-partite). */
+export const STORIA_EXTRA: Array<{ partite: number; chi: 'semino' | 'semina' | 'entrambi'; testo: string }> = [
+  { partite: 7, chi: 'semino', testo: 'Le ho fatto vedere la piscina. Ha detto che è "un lago con le regole". Poi si è tuffata.' },
+  { partite: 9, chi: 'semina', testo: 'Ho portato Semino nel bosco. Ha contato gli alberi. Tutti. Poi ha sorriso.' },
+  { partite: 11, chi: 'entrambi', testo: 'Abbiamo suonato insieme per la prima volta. Lui a tempo, io fuori tempo, bellissimo.' },
+  { partite: 12, chi: 'semina', testo: 'Semino ha cucinato. Ho mangiato tutto. Ho chiesto il bis. Era un sudoku di sapori.' },
+  { partite: 17, chi: 'semino', testo: 'Mi ha insegnato i nomi degli uccelli. Io le ho insegnato cos\'è un bug. Pari.' },
+  { partite: 25, chi: 'semina', testo: 'Mi sono arrabbiata per una riga sbagliata. Lui ha aspettato. Poi abbiamo riso.' },
+  { partite: 40, chi: 'entrambi', testo: 'Quaranta. Abbiamo un merlo, un riccio e una ricetta nostra. E voi due.' },
+];
