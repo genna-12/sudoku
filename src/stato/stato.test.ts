@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Puzzle } from '../engine/types';
-import { accettaNuova, applica, griglia, nuovaPartita, unisci } from './index';
-import type { StatoPartita } from './types';
+import { MAX_STORICO, accettaNuova, applica, griglia, nuovaPartita, stato, unisci, unisciStorico, voceStorico } from './index';
+import type { Contatori, StatoPartita, VoceStorico } from './types';
 
 function puzzle(seed: number): Puzzle {
   const soluzione = Array.from({ length: 81 }, (_, i) => ((i % 9) + Math.floor(i / 9) * 3 + Math.floor(i / 27)) % 9 + 1);
@@ -146,5 +146,186 @@ describe('accettaNuova (due "nuova" incrociate)', () => {
 
   it('una partita vecchia in corso viene sostituita dalla nuova', () => {
     expect(accettaNuova(nuovaPartita(puzzle(2), 100), nuovaPartita(puzzle(3), 500))).toBe(true);
+  });
+});
+
+const cont = (ts: number, punti = 0, errori = 0): Contatori => ({
+  punti,
+  errori,
+  serie: 0,
+  regali: 0,
+  regaliDisponibili: 0,
+  ts,
+});
+
+describe('contatori', () => {
+  it('applica: accetta se assente o ts maggiore, ignora ts vecchi o uguali', () => {
+    let s = applica(nuovaPartita(P, 100), { tipo: 'contatori', da: 'a', contatori: cont(10, 50) });
+    expect(s.contatori?.a?.punti).toBe(50);
+    expect(s.contatori?.b).toBeUndefined();
+    const s1 = s;
+    expect(applica(s, { tipo: 'contatori', da: 'a', contatori: cont(10, 99) })).toBe(s1);
+    expect(applica(s, { tipo: 'contatori', da: 'a', contatori: cont(9, 99) })).toBe(s1);
+    s = applica(s, { tipo: 'contatori', da: 'b', contatori: cont(5, 20) });
+    s = applica(s, { tipo: 'contatori', da: 'a', contatori: cont(11, 60, 1) });
+    expect(s.contatori).toMatchObject({ a: { punti: 60, errori: 1 }, b: { punti: 20 } });
+  });
+
+  it('applica: accettati anche a partita finita (bonus vittoria)', () => {
+    const s = applica(nuovaPartita(P, 100), { tipo: 'finita', ts: 500 });
+    expect(applica(s, { tipo: 'contatori', da: 'b', contatori: cont(600, 300) }).contatori?.b?.punti).toBe(300);
+  });
+
+  it('applica: non muta lo stato originale', () => {
+    const s0 = applica(nuovaPartita(P, 100), { tipo: 'contatori', da: 'a', contatori: cont(10, 50) });
+    applica(s0, { tipo: 'contatori', da: 'a', contatori: cont(20, 70) });
+    expect(s0.contatori?.a?.punti).toBe(50);
+  });
+
+  it('unisci: per giocatore vince ts maggiore, simmetrico', () => {
+    let a = nuovaPartita(P, 100);
+    let b = nuovaPartita(P, 100);
+    a = applica(a, { tipo: 'contatori', da: 'a', contatori: cont(30, 300) });
+    a = applica(a, { tipo: 'contatori', da: 'b', contatori: cont(10, 100) });
+    b = applica(b, { tipo: 'contatori', da: 'a', contatori: cont(20, 200) });
+    b = applica(b, { tipo: 'contatori', da: 'b', contatori: cont(40, 400) });
+    const u = unisci(a, b);
+    expect(u.contatori?.a?.punti).toBe(300);
+    expect(u.contatori?.b?.punti).toBe(400);
+    expect(unisci(b, a).contatori).toEqual(u.contatori);
+    // contatori solo da un lato
+    expect(unisci(nuovaPartita(P, 100), a).contatori).toEqual(a.contatori);
+    expect('contatori' in unisci(nuovaPartita(P, 100), nuovaPartita(P, 100))).toBe(false);
+  });
+
+  it('unisci restituisce esattamente a quando b non aggiunge nulla', () => {
+    let a = nuovaPartita(P, 100);
+    a = applica(a, { tipo: 'cella', idx: 1, v: 4, note: [], da: 'a', ts: 20 });
+    a = applica(a, { tipo: 'contatori', da: 'a', contatori: cont(20, 10) });
+    a = { ...a, secondi: 30 };
+    expect(unisci(a, a)).toBe(a);
+    expect(unisci(a, nuovaPartita(P, 100))).toBe(a);
+    // b con contatori più vecchi: niente di nuovo
+    const b = applica(nuovaPartita(P, 100), { tipo: 'contatori', da: 'a', contatori: cont(5, 1) });
+    expect(unisci(a, b)).toBe(a);
+    expect(accettaNuova(a, b)).toBe(false);
+    // b con contatori più nuovi: cambia
+    const c = applica(nuovaPartita(P, 100), { tipo: 'contatori', da: 'b', contatori: cont(5, 1) });
+    expect(unisci(a, c)).not.toBe(a);
+    expect(accettaNuova(a, c)).toBe(true);
+    // b più avanti di secondi: cambia
+    expect(unisci(a, { ...a, secondi: 31 })).not.toBe(a);
+  });
+});
+
+describe('voceStorico', () => {
+  // P: celle pari date, dispari vuote → 40 da riempire
+  const DA_RIEMPIRE = P.dati.filter((v) => v === 0).length;
+
+  it('progresso, punti, errori, id e stato per una partita non finita', () => {
+    let s = nuovaPartita(P, 100);
+    s = applica(s, { tipo: 'cella', idx: 1, v: P.soluzione[1], note: [], da: 'a', ts: 150 });
+    s = applica(s, { tipo: 'cella', idx: 3, v: P.soluzione[3], note: [], da: 'b', ts: 160 });
+    s = applica(s, { tipo: 'cella', idx: 5, v: (P.soluzione[5] % 9) + 1, note: [], da: 'b', ts: 170 }); // sbagliata
+    s = applica(s, { tipo: 'cella', idx: 7, v: 0, note: [1, 2], da: 'a', ts: 140 }); // solo note
+    s = applica(s, { tipo: 'contatori', da: 'a', contatori: cont(155, 40, 1) });
+    s = applica(s, { tipo: 'contatori', da: 'b', contatori: cont(165, 25, 2) });
+    s = { ...s, secondi: 77 };
+    const v = voceStorico(s);
+    expect(v).toMatchObject({
+      id: 'sudoku-1',
+      modalita: 'sudoku',
+      livello: 'medio',
+      iniziata: 100,
+      secondi: 77,
+      punti: 65,
+      errori: 3,
+      aggiornata: 170,
+    });
+    expect(v.progresso).toBeCloseTo(2 / DA_RIEMPIRE);
+    expect(v.stato).toBe(s);
+    expect('finita' in v).toBe(false);
+  });
+
+  it('partita finita: senza stato, aggiornata include finita', () => {
+    let s = nuovaPartita(P, 100);
+    for (let i = 1; i < 81; i += 2) s = applica(s, { tipo: 'cella', idx: i, v: P.soluzione[i], note: [], da: 'a', ts: 200 + i });
+    s = applica(s, { tipo: 'finita', ts: 900 });
+    const v = voceStorico(s);
+    expect(v.progresso).toBe(1);
+    expect(v.finita).toBe(900);
+    expect(v.aggiornata).toBe(900);
+    expect('stato' in v).toBe(false);
+    expect(v.punti).toBe(0);
+  });
+
+  it('aggiornata: contatori più recenti delle celle; partita vuota = iniziata', () => {
+    expect(voceStorico(nuovaPartita(P, 100)).aggiornata).toBe(100);
+    let s = applica(nuovaPartita(P, 100), { tipo: 'cella', idx: 1, v: 3, note: [], da: 'a', ts: 150 });
+    s = applica(s, { tipo: 'contatori', da: 'b', contatori: cont(999) });
+    expect(voceStorico(s).aggiornata).toBe(999);
+  });
+
+  it('è serializzabile in JSON', () => {
+    const v = voceStorico(applica(nuovaPartita(P, 100), { tipo: 'contatori', da: 'a', contatori: cont(10, 5) }));
+    expect(JSON.parse(JSON.stringify(v))).toEqual(v);
+  });
+});
+
+describe('unisciStorico', () => {
+  const voce = (id: string, iniziata: number, aggiornata: number, extra: Partial<VoceStorico> = {}): VoceStorico => ({
+    id,
+    modalita: 'sudoku',
+    livello: 'facile',
+    iniziata,
+    secondi: 0,
+    progresso: 0,
+    punti: 0,
+    errori: 0,
+    aggiornata,
+    ...extra,
+  });
+
+  it('per id vince aggiornata maggiore, simmetrico', () => {
+    const a = [voce('x', 100, 150, { punti: 1 }), voce('y', 200, 300, { punti: 2 })];
+    const b = [voce('x', 100, 180, { punti: 3 }), voce('y', 200, 250, { punti: 4 })];
+    const u = unisciStorico(a, b);
+    expect(u.map((v) => [v.id, v.punti])).toEqual([
+      ['y', 2],
+      ['x', 3],
+    ]);
+    expect(unisciStorico(b, a)).toEqual(u);
+  });
+
+  it('a parità di aggiornata vince chi ha più secondi', () => {
+    const a = [voce('x', 100, 150, { secondi: 10 })];
+    const b = [voce('x', 100, 150, { secondi: 20 })];
+    expect(unisciStorico(a, b)[0].secondi).toBe(20);
+    expect(unisciStorico(b, a)[0].secondi).toBe(20);
+  });
+
+  it('ordina per iniziata decrescente e unisce voci diverse', () => {
+    const u = unisciStorico([voce('a', 100, 100), voce('c', 300, 300)], [voce('b', 200, 200), voce('d', 50, 50)]);
+    expect(u.map((v) => v.id)).toEqual(['c', 'b', 'a', 'd']);
+  });
+
+  it('tiene al massimo 200 voci, le più recenti', () => {
+    const a = Array.from({ length: 150 }, (_, i) => voce(`a${i}`, i, i));
+    const b = Array.from({ length: 150 }, (_, i) => voce(`b${i}`, 1000 + i, 1000 + i));
+    const u = unisciStorico(a, b);
+    expect(MAX_STORICO).toBe(200);
+    expect(u).toHaveLength(200);
+    expect(u[0].id).toBe('b149');
+    expect(u[199].id).toBe('a100');
+  });
+
+  it('storico vuoto', () => {
+    expect(unisciStorico([], [])).toEqual([]);
+  });
+});
+
+describe('oggetto stato', () => {
+  it('espone tutte le funzioni del contratto', () => {
+    expect(stato).toEqual({ nuovaPartita, applica, unisci, griglia, voceStorico, unisciStorico });
   });
 });

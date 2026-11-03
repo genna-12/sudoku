@@ -3,8 +3,9 @@ import { genera } from './genera';
 import { BOX, COLONNA, RIGA, cerca } from './risolutore';
 import type { Gabbia, Griglia, Livello, Modalita, Motore, Puzzle } from './types';
 
-export type { Gabbia, Griglia, Livello, Modalita, Puzzle } from './types';
+export type { Gabbia, Griglia, Livello, Modalita, MotoreValutazione, Puzzle, QualitaMossa, Valutazione } from './types';
 export { LIVELLI } from './types';
+export { candidati, valutaMossa, valutazione } from './valuta';
 
 export function generaPuzzle(modalita: Modalita, livello: Livello, seed: number): Puzzle {
   return genera(modalita, livello, seed);

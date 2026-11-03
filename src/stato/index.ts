@@ -1,7 +1,11 @@
 import type { Puzzle } from '../engine/types';
-import type { Azione, Cella, Stato, StatoPartita } from './types';
+import type { Azione, Cella, Contatori, Giocatore, Stato, StatoPartita, VoceStorico } from './types';
 
-export type { Azione, Cella, Giocatore, StatoPartita } from './types';
+export type { Azione, Cella, Contatori, Giocatore, StatoPartita, VoceStorico } from './types';
+
+const GIOCATORI: Giocatore[] = ['a', 'b'];
+/** Voci massime nello storico. */
+export const MAX_STORICO = 200;
 
 export function nuovaPartita(puzzle: Puzzle, iniziata = Date.now()): StatoPartita {
   return { puzzle, celle: {}, iniziata, secondi: 0 };
@@ -30,6 +34,13 @@ export function applica(stato: StatoPartita, azione: Azione): StatoPartita {
       const cella: Cella = { v, note: [...note].sort(), da, ts };
       return { ...stato, celle: { ...stato.celle, [idx]: cella } };
     }
+    case 'contatori': {
+      // accettati anche a partita finita: il bonus vittoria arriva dopo `finita`
+      const { da, contatori } = azione;
+      const prec = stato.contatori?.[da];
+      if (prec && prec.ts >= contatori.ts) return stato;
+      return { ...stato, contatori: { ...stato.contatori, [da]: { ...contatori } } };
+    }
   }
 }
 
@@ -43,20 +54,40 @@ export function unisci(a: StatoPartita, b: StatoPartita): StatoPartita {
     // stesso istante, puzzle diversi: ordine deterministico sul seed
     return a.puzzle.seed >= b.puzzle.seed ? a : b;
   }
-  const celle: Record<number, Cella> = { ...a.celle };
+  // Se b non aggiunge nulla si restituisce `a` stesso (accettaNuova e la UI contano sull'identità).
+  let cambiato = false;
+  let celle = a.celle;
   for (const k in b.celle) {
     const i = Number(k);
     const cb = b.celle[i];
-    const ca = celle[i];
-    if (!ca || cb.ts > ca.ts) celle[i] = cb;
+    const ca = a.celle[i];
+    if (!ca || cb.ts > ca.ts) {
+      if (celle === a.celle) celle = { ...a.celle };
+      celle[i] = cb;
+      cambiato = true;
+    }
+  }
+  let contatori = a.contatori;
+  for (const g of GIOCATORI) {
+    const cb = b.contatori?.[g];
+    const ca = a.contatori?.[g];
+    if (cb && (!ca || cb.ts > ca.ts)) {
+      if (contatori === a.contatori) contatori = { ...a.contatori };
+      contatori![g] = cb;
+      cambiato = true;
+    }
   }
   const finita = a.finita && b.finita ? Math.min(a.finita, b.finita) : (a.finita ?? b.finita);
+  const iniziata = Math.min(a.iniziata, b.iniziata);
+  const secondi = Math.max(a.secondi, b.secondi);
+  if (!cambiato && finita === a.finita && iniziata === a.iniziata && secondi === a.secondi) return a;
   return {
     puzzle: a.puzzle,
     celle,
-    iniziata: Math.min(a.iniziata, b.iniziata),
-    secondi: Math.max(a.secondi, b.secondi),
+    iniziata,
+    secondi,
     ...(finita ? { finita } : {}),
+    ...(contatori ? { contatori } : {}),
   };
 }
 
@@ -69,4 +100,53 @@ export function accettaNuova(mia: StatoPartita | null, arrivata: StatoPartita): 
   return !mia || unisci(mia, arrivata) !== mia;
 }
 
-export const stato: Stato = { nuovaPartita, applica, unisci, griglia };
+/** Voce di storico derivata dalla partita (`stato` incluso solo se non finita). */
+export function voceStorico(s: StatoPartita): VoceStorico {
+  const { puzzle } = s;
+  const g = griglia(s);
+  let daRiempire = 0;
+  let corrette = 0;
+  for (let i = 0; i < 81; i++) {
+    if (puzzle.dati[i] !== 0) continue;
+    daRiempire++;
+    if (g[i] === puzzle.soluzione[i]) corrette++;
+  }
+  let punti = 0;
+  let errori = 0;
+  let aggiornata = Math.max(s.iniziata, s.finita ?? 0);
+  for (const chi of GIOCATORI) {
+    const c: Contatori | undefined = s.contatori?.[chi];
+    if (!c) continue;
+    punti += c.punti;
+    errori += c.errori;
+    aggiornata = Math.max(aggiornata, c.ts);
+  }
+  for (const k in s.celle) aggiornata = Math.max(aggiornata, s.celle[k].ts);
+  return {
+    id: `${puzzle.modalita}-${puzzle.seed}`,
+    modalita: puzzle.modalita,
+    livello: puzzle.livello,
+    iniziata: s.iniziata,
+    ...(s.finita ? { finita: s.finita } : {}),
+    secondi: s.secondi,
+    progresso: daRiempire ? corrette / daRiempire : 1,
+    punti,
+    errori,
+    aggiornata,
+    ...(s.finita ? {} : { stato: s }),
+  };
+}
+
+/** Merge per id: vince `aggiornata` maggiore (a parità, più secondi; poi la voce di `a`); più recenti prima; max 200. */
+export function unisciStorico(a: VoceStorico[], b: VoceStorico[]): VoceStorico[] {
+  const perId = new Map<string, VoceStorico>();
+  for (const v of [...a, ...b]) {
+    const c = perId.get(v.id);
+    if (!c || v.aggiornata > c.aggiornata || (v.aggiornata === c.aggiornata && v.secondi > c.secondi)) perId.set(v.id, v);
+  }
+  return [...perId.values()]
+    .sort((x, y) => y.iniziata - x.iniziata || (x.id < y.id ? -1 : x.id > y.id ? 1 : 0))
+    .slice(0, MAX_STORICO);
+}
+
+export const stato: Stato = { nuovaPartita, applica, unisci, griglia, voceStorico, unisciStorico };

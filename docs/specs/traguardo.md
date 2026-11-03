@@ -1,61 +1,47 @@
-# Traguardo 1 — MVP giocabile e deployato (03/11/2026)
+# Traguardo 2 — Il giardino di Semino (03/11/2026)
 
-Obiettivo: PWA su GitHub Pages con cui Genna e la sua ragazza giocano **insieme, in tempo reale, sulla stessa griglia**: Sudoku e Killer Sudoku, sei livelli, nessun backend.
+T1 (MVP deployato, spec in git: commit 55da6ce) resta valido: qui solo ciò che cambia o si aggiunge.
 
-## Vincoli (non negoziabili)
-- Nessun backend, nessun database, nessun account di terzi. Sincronizzazione P2P (WebRTC via PeerJS, server pubblico di PeerJS solo per la stretta di mano; STUN Google + TURN gratuito Open Relay per attraversare i NAT).
-- Solo loro due: una **frase segreta** apre la "stanza"; da essa derivano gli ID PeerJS. Chi non la conosce non trova la stanza.
-- Semplice: Vite + React + TypeScript, CSS puro, zero librerie oltre peerjs e vite-plugin-pwa. Niente store esterni, niente router.
-- Interfaccia dinamica, fluida, responsive: mobile-first (si gioca da telefono), anche desktop.
-- Livelli, in quest'ordine, per entrambe le modalità: `semini`, `facile`, `medio`, `difficile`, `extreme`, `supersemini` (semini = più facile, supersemini = più difficile).
-- Frasi della coppia (es. "sei mini") che compaiono negli eventi di gioco: lista in `src/config/frasi.ts`, modificabile da Genna.
-- Persistenza locale (localStorage) della partita in corso e della frase/nome: alla riapertura si continua.
+## Concept (deciso dalla lead, non in discussione)
+**Semino** è la mascotte: un semino (il pun con "sei mini") che cresce mentre i due risolvono. Ogni partita è una pianta nel **giardino** condiviso: finita = fiorita, lasciata a metà = germoglio (si può riprendere). La barra punti è la **crescita** di Semino nella partita corrente. I **regali** sono i suoi doni: suggerimenti. Semino parla (frasi in `src/config/frasi.ts`, storia in `STORIA_SEMINO`) e reagisce alle mosse: giuste, intelligenti, brillanti, chiusure, serie, errori. A `SEMINA_SBLOCCATA_A` fiori (5) si sblocca **Semina**, la sua compagna (stesso componente, `chi='semina'`, accento blu): da lì la storia la raccontano in due e nella Home compaiono insieme (`SeminoCoppia`). Le tappe della storia hanno il campo `chi` (semino | semina | entrambi) che decide chi parla nel fumetto.
 
-## Architettura (tre moduli indipendenti + UI)
-```
-src/engine/   generatore e risolutore puzzle (puro TS, testato con vitest)
-src/net/      stanza P2P (PeerJS), messaggi, riconnessione
-src/config/   frasi.ts (frasi e nomi), livelli.ts (parametri difficoltà)
-src/ui/       React: schermate Ingresso, Home, Partita
-src/stato/    riduttore dello stato condiviso della partita (puro TS)
-```
-I contratti sono in `src/engine/types.ts`, `src/net/types.ts`, `src/stato/types.ts`: **gli agenti implementano contro quei file senza cambiarli** (se serve cambiarli, fermarsi e riportare).
+Estetica: "notte in giardino". Niente viola generico da template: fondo verde-nero profondo con grana leggera, carta crema per il testo, i DUE colori dei giocatori come unici accenti vivi — **verde fluo per Genna, blu elettrico per lei** (`src/config/giocatori.ts`, decisi dal nome inserito). Superfici con bordi morbidi tipo foglia/seme, non card rettangolari uniformi. Tipografia: Recursive resta (il suo asse "casual" distingue stampato/scritto a mano). Tema chiaro: "mattina in giardino" (crema, verde salvia), stessa struttura.
 
-## Motore (src/engine)
-- `generaPuzzle(modalita, livello, seed)`: deterministico dato il seed (così i due client possono anche rigenerare lo stesso puzzle). Soluzione unica garantita (contatore di soluzioni con limite 2).
-- Sudoku: difficoltà = numero di celle date, da `config/livelli.ts` (semini 50, facile 42, medio 36, difficile 31, extreme 27, supersemini 24). Rimozione simmetrica delle celle, mantenendo unicità.
-- Killer: gabbie generate partizionando la griglia risolta in gruppi contigui di 1–5 celle (dimensione media cresce col livello), somma per gabbia, nessuna cifra ripetuta dentro una gabbia (automatico perché partizione della soluzione). Celle date: semini 24, facile 12, medio 6, difficile 0 (gabbie piccole, max 3), extreme 0 (max 4), supersemini 0 (max 5). Unicità: verificata con risolutore killer (vincolo somma + distinte); se non unica, aggiungere celle date finché unica.
-- Prestazioni: generazione < 1,5 s su telefono medio per tutti i livelli (test con timer in vitest, soglia 3 s in Node per margine).
-- Funzioni esportate: `generaPuzzle`, `contaSoluzioni`, `verificaCompleta(stato)`, `celleInConflitto(stato)`.
+## Contratti (già scritti; gli agenti NON li cambiano)
+- `src/engine/types.ts`: `QualitaMossa`, `Valutazione`, `MotoreValutazione` (`valutaMossa`, `candidati`).
+- `src/stato/types.ts`: `Contatori` per giocatore (own-writer), `StatoPartita.contatori`, azione `contatori`, `VoceStorico`, `voceStorico`, `unisciStorico`.
+- `src/net/types.ts`: `ciao.storico?`, messaggi `storico`, `contatori`, `evento`.
+- `src/config/giocatori.ts` (colori per nome), `src/config/punteggio.ts` (punti/regali/soglie), `src/config/frasi.ts` (frasi + storia).
 
-## Rete (src/net)
-- `apriStanza(frase, nome)`: ID = `sudoku-coppia-<sha256(frase) primi 20 hex>-a` e `-b`. Il client prova a registrarsi come `a`; se l'ID è occupato diventa `b` e si connette ad `a`. Se `a` cade, `b` resta e prova a ridiventare `a` ogni 3 s.
-- Config ICE: STUN `stun:stun.l.google.com:19302` + TURN Open Relay (`turn:openrelay.metered.ca:80`, user `openrelayproject`, cred `openrelayproject`), in `src/config/ice.ts`.
-- Eventi: `stato` (connessione | in-attesa | connesso | errore), `messaggio`, `partner` (nome). Metodi: `invia(msg)`, `chiudi()`.
-- Messaggi (vedi `net/types.ts`): `ciao` (nome + stato partita + ts), `stato` (stato partita completo), `cella` (idx, valore, note, autore, ts), `cursore` (idx|null), `nuova` (stato partita nuovo), `frase` (testo da far comparire all'altro).
-- Riconciliazione: a `ciao` entrambi inviano lo stato; vince la partita con `iniziata` più recente; a parità, per cella vince `ts` maggiore. La logica di merge sta in `src/stato/` (puro, testato), non in rete.
-- Heartbeat ogni 5 s; se mancano 3 battiti → stato `in-attesa` e tentativo di riconnessione.
+## Motore (src/engine) — aggiunta
+- `candidati(puzzle, griglia, idx)`: cifre non presenti in riga/colonna/box; nel killer anche non già nella gabbia e tali che la somma resti raggiungibile (somma parziale + v ≤ somma, e se è l'ultima cella della gabbia = somma esatta).
+- `valutaMossa(puzzle, grigliaPrima, idx, v)` (v corretto per ipotesi): `completate` = unità (riga, colonna, box, gabbia) che con questa mossa risultano piene e tutte corrette; `candidati` = numero di candidati prima della mossa. `qualita`: se `completate` non vuoto → `chiusura`; altrimenti 1 candidato → `giusta`; altrimenti se v era "hidden single" in riga, colonna o box (nessun'altra cella vuota di quell'unità ammette v) → `intelligente`; altrimenti ≥3 candidati → `brillante`, 2 candidati → `giusta`.
+- Esportare da `src/engine/index.ts` anche `valutaMossa`, `candidati` e un oggetto `valutazione: MotoreValutazione`. Test con casi costruiti per ciascuna qualità.
 
-## Stato condiviso (src/stato)
-- `StatoPartita`: puzzle, mappa celle `{v, note, da, ts}`, `iniziata`, `finita?` (gli errori si contano localmente nella UI, non nello stato condiviso).
-- Riduttore puro `applica(stato, azione)`; `unisci(a, b)` per il merge; serializzabile in JSON (localStorage e rete).
+## Stato (src/stato) — aggiunta
+- `applica` con azione `contatori`: accetta solo se `contatori.ts` > ts attuale di quel giocatore (o assente).
+- `unisci`: contatori per giocatore, vince ts maggiore.
+- `voceStorico(stato)`: progresso = celle corrette / celle da riempire; punti = somma punti dei giocatori; errori = somma; `stato` incluso solo se non finita; `aggiornata` = max(ts delle celle, contatori, finita, iniziata).
+- `unisciStorico(a, b)`: per id vince `aggiornata` maggiore; ordina per `iniziata` decrescente; max 200.
+- Test per tutto.
 
-## UI (src/ui)
-Schermate (nessun router: uno `useState` di schermata):
-1. **Ingresso**: nome tuo + frase segreta. Memorizzati; la volta dopo si salta.
-2. **Home**: stato connessione col partner (pallino + nome), partita in corso ("continua"), scelta modalità (Sudoku / Killer) e livello (sei chip in ordine). "Nuova partita" la invia anche al partner.
-3. **Partita**: griglia 9×9 (Killer: gabbie con contorno tratteggiato e somma in alto a sinistra), tastierino 1–9, modalità note (matita), cancella, evidenziazione riga/colonna/box e stesso numero, celle date distinte, errori evidenziati (verifica contro la soluzione, opzione per spegnerla), timer, cursore del partner nel suo colore (ognuno dei due ha un colore), piccolo badge "sta scrivendo". Vittoria: schermata con festa e frase.
-- Frasi: compaiono come toast/fluttuanti quando: cella giusta (ogni tanto, non sempre), riga/colonna/box completati, vittoria, partner che entra, errore (frase consolatoria). Pulsante "manda una frase" invia una frase a caso all'altro.
-- Stile: caldo e giocoso, non infantile. Palette definita in `src/ui/tema.css` con variabili; dark mode automatica. Transizioni su ogni cambio di stato (selezione, numero inserito, pop del toast). Font via Google Fonts (uno solo).
-- Responsive: griglia che riempie la larghezza su telefono, centrata max 520 px su desktop; tastierino sempre raggiungibile col pollice.
-- PWA: manifest (nome "Sudoku di coppia", icona generata in `public/`), service worker con precache (vite-plugin-pwa, `registerType: 'autoUpdate'`).
+## Regole di gioco (UI; i numeri stanno in `config/punteggio.ts`)
+- **Punti**: ogni mossa giusta → `PUNTI[qualita] × moltiplicatoreSerie(serie)` + `PUNTI.chiusura × completate.length`. Errore → −PENALITA_ERRORE (mai sotto 0) e serie = 0. Vittoria → BONUS_VITTORIA + bonusTempo(secondi) a entrambi. Ogni giocatore aggiorna SOLO i propri contatori e invia `contatori`.
+- **Errori**: contatore in alto nella partita (mio e suo, nei rispettivi colori), e totale nello storico. Si conta errore un valore ≠ soluzione inserito in una cella vuota o diversa (riscrivere lo stesso sbagliato non conta due volte).
+- **Serie**: celle giuste consecutive del singolo giocatore; frase `serie` a 5, 10, 15...
+- **Regali**: ogni PUNTI_PER_REGALO punti del giocatore → +1 regalo (toast `regalo`, Semino felice, `evento` al partner). Un regalo = **suggerimento**: tocchi il regalo poi una cella vuota → Semino la riempie col valore giusto (mossa attribuita a chi lo usa, vale 0 punti, frase `suggerimento`). Regali non usati restano nella partita (`regaliDisponibili`).
+- **Barra crescita** (sempre visibile in partita): punti di coppia / PUNTI_CRESCITA_PIENA; Semino disegnato accanto cresce in 5 stadi (seme, germoglio, fogliolina, pianta, fiore). Le due quote colorate mostrano chi ha contribuito quanto.
+- **Semino reagisce**: espressione/animazione diversa per giusta, intelligente, brillante, chiusura, errore, errore in serie (≥3 di fila), regalo, vittoria, arrivo del partner, attesa (idle: ogni ~20 s un piccolo movimento). Il partner VEDE le reazioni importanti dell'altro: `evento` con tipo `brillante`/`intelligente`/`regalo`/`serie` + idx → toast `partnerBrillante` e lampo sulla cella.
+- **Storico ("Giardino")**: schermata dalla Home: una griglia di piante, una per partita (fiorita o germoglio), ordinate dalla più recente; ogni pianta mostra modalità, livello, data, tempo, punti, errori; i germogli hanno "riprendi" (invia `nuova` con quello stato, frase `ripresa`). In alto: totale fiori, miglior tempo per livello, punti totali di coppia, errori totali. Sincronizzazione: lo storico sta in localStorage (`sudoku-coppia-storico`), si invia in `ciao` e come `storico` a ogni cambio; si unisce con `unisciStorico` → i due vedono lo stesso giardino. Una partita entra nello storico alla prima mossa e si aggiorna a ogni cambio (debounce 2 s); quando si avvia una `nuova`, quella precedente non finita resta come germoglio.
+- **Storia di Semino**: `STORIA_SEMINO`, mostrata una volta per tappa (tappe salvate in localStorage) in un fumetto di Semino nella Home.
+- **Frasi**: usare TUTTE le categorie di `FRASI` nei momenti indicati; `{nome}`, `{io}`, `{n}` sostituiti. Mai due toast uguali di fila.
 
-## Deploy
-- GitHub Pages dal repo `genna-12/sudoku`, workflow `.github/workflows/deploy.yml` (build + deploy su push a `main`). `base: '/sudoku/'` in vite.config.
-- Verifica finale: due browser (o due profili) sul sito deployato, stessa frase, mosse che si vedono da entrambi i lati.
+## UX "super interattiva" (vincoli)
+- Ogni tocco ha una risposta visibile entro 100 ms: pressione dei tasti (scale), numero che "atterra" nella cella, onda su riga/box chiusi, Semino che reagisce, barra che cresce con easing. Vibrazione breve (`navigator.vibrate`, se disponibile) su errore e chiusura; disattivabile dal menù.
+- Gesti: tenere premuto un tasto numero = modalità note momentanea; doppio tocco su una cella piena evidenzia tutte le celle con quel numero.
+- Rispettare `prefers-reduced-motion`. Nessuna libreria nuova. Suoni: NO (per ora).
 
-## Criterio di "fatto"
-- `npm run build` e `npm test` passano; nessun errore in console.
-- Due client sul sito deployato vedono le mosse reciproche entro 1 s; chiudendo e riaprendo un client la partita riprende.
-- Tutte le 12 combinazioni modalità × livello generano un puzzle a soluzione unica.
-- Test su telefono reale (iPhone/Android, Safari/Chrome) fatto da Genna: installazione PWA e una partita con la ragazza.
+## Fatto quando
+- `npm test -- --run`, `npx tsc -b --noEmit`, `npm run build` passano; `scripts/qa/due-client.mjs` passa (va esteso: punti/errori che si vedono dall'altro lato, regalo usato, storico uguale su entrambi dopo il `ciao`, ripresa di un germoglio).
+- Screenshot delle schermate (Home con Semino, Partita con barra e contatori, Giardino, Vittoria) guardati dalla lead.
+- Genna prova sul telefono con la ragazza.

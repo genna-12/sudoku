@@ -1,15 +1,19 @@
 // Contratto della stanza P2P. Non modificare senza riportarlo alla lead.
-import type { StatoPartita } from '../stato/types';
+import type { Contatori, StatoPartita, VoceStorico } from '../stato/types';
 
 export type StatoConnessione = 'connessione' | 'in-attesa' | 'connesso' | 'errore';
 
 export type Messaggio =
-  | { t: 'ciao'; nome: string; stato: StatoPartita | null; ts: number }
+  | { t: 'ciao'; nome: string; stato: StatoPartita | null; ts: number; storico?: VoceStorico[] }
   | { t: 'stato'; stato: StatoPartita }
+  | { t: 'storico'; storico: VoceStorico[] }
   | { t: 'cella'; idx: number; v: number; note: number[]; da: 'a' | 'b'; ts: number }
+  | { t: 'contatori'; da: 'a' | 'b'; contatori: Contatori }
   | { t: 'cursore'; idx: number | null }
   | { t: 'nuova'; stato: StatoPartita }
   | { t: 'frase'; testo: string }
+  /** evento di gioco da mostrare all'altro (mossa brillante, regalo, ecc.) */
+  | { t: 'evento'; tipo: string; idx?: number; testo?: string }
   | { t: 'ping' }
   | { t: 'pong' };
 
