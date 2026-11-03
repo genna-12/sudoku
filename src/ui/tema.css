@@ -1,95 +1,147 @@
-@import url('https://fonts.googleapis.com/css2?family=Recursive:slnt,wght,CASL,CRSV,MONO@-15..0,300..1000,0..1,0..1,0..1&display=swap');
+/* Recursive, in casa (niente Google Fonts: funziona offline nella PWA). Solo latino, assi peso 300–1000
+   e "casual" 0–1. Tre pesi in tutta l'app: 420 testo, 650 etichette e bottoni, 850 titoli e numeri grandi. */
+@font-face {
+  font-family: 'Recursive';
+  font-style: normal;
+  font-weight: 300 1000;
+  font-display: swap;
+  src: url('./fonts/recursive-casl-latin.woff2') format('woff2-variations'), url('./fonts/recursive-casl-latin.woff2') format('woff2');
+}
 
 /* ------------------------------------------------------------------------
-   NOTTE IN GIARDINO (scuro) / MATTINA IN GIARDINO (chiaro, prefers-color-scheme)
-   Colori: fondo verde-nero con grana (puntini a gradiente), carta crema per il testo,
-   --evid = luce di luna (scuro) / inchiostro verde (chiaro) per selezione e tasti primari.
-   Accenti vivi SOLO: --verde (Genna) e --blu (lei), arrivano come --mio/--suo; --oro solo
-   per regali e semi d'oro. --errore corallo spento, solo per gli sbagli.
-   Raggi: niente card tutte uguali. --r-foglia (due punte opposte) per superfici grandi,
-   --r-seme (una punta in basso a sinistra) per bottoni e chip, --r-petalo (punta a destra).
-   Movimento: --curva per gli spostamenti, --molla per ciò che "atterra"; pressione = scale .94;
-   reazioni brevi (≤ 600 ms), un solo moto continuo per volta; tutto spento con reduced-motion.
+   CIELO DEL GIARDINO (studio in docs/design/studio-ui.md, capitolo "Colori")
+   Base a due tinte "petrolio": --notte-verde e --notte-blu. --blu-presenza (0..1, da App) sposta il
+   cielo dalla prima alla seconda; la terra (--fondo-2, in basso) resta verde. Crema per il testo,
+   grigio-salvia caldo per il secondario.
+   Accenti: --verde (Genna) e --blu (lei) vivono nei DETTAGLI, mai sullo stesso elemento diviso a metà:
+   il verde in punti e fili sottili (pesa 14:1 sul fondo), il blu in aloni, ombre e stelle (pesa 4:1:
+   gli serve più area per pesare uguale). --oro solo per regali, --errore solo per gli sbagli.
+   Raggi: --r-foglia (due punte) superfici grandi, --r-seme (una punta) bottoni e chip, --r-petalo.
+   Spazi: multipli di 4 (--s1..--s8). Movimento: reazioni ≤ 400 ms, --curva per spostarsi,
+   --molla per ciò che atterra; tutto spento con reduced-motion.
    ------------------------------------------------------------------------ */
+@property --blu-presenza {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
 :root {
-  --fondo: #0b1410;
-  --grana-chiara: rgb(239 232 214 / 0.045);
-  --grana-scura: rgb(0 0 0 / 0.32);
-  --luna: rgb(241 230 194 / 0.07);
-  --carta: #13221a;
-  --carta-2: #1b2e24;
-  --linea: #263a2f;
-  --linea-forte: #5b7566;
-  --inchiostro: #efe8d6;
-  --tenue: #93a698;
-  --evid: #f1e6c2;
-  --su-evid: #0b1410;
-  --errore: #ff7c6b;
+  /* palette base (notte) */
+  --notte-verde: #0a1613;
+  --notte-blu: #0a1222;
+  --terra: #07100d;
+  --superficie-verde: #13221e;
+  --superficie-blu: #141d2e;
+  --testo: #f1ead7;
+  --testo-2: #a7ae9c;
+  --linea: #24362f;
+  --linea-forte: #557064;
+  /* accenti */
   --verde: #7cff4a;
   --blu: #2f6bff;
   --oro: #ffc94a;
+  --errore: #ff7c6b;
+  --verde-testo: #7cff4a;
+  --blu-testo: #8aa9ff;
+  --oro-testo: #ffd36e;
+  --evid: #f1e6c2;
+  --su-evid: #0a1613;
   --su-oro: #2a1c0e;
-  --verde-inchiostro: #7cff4a;
-  --blu-inchiostro: #7a9dff;
-  --oro-inchiostro: #ffd36e;
-  --a: var(--verde);
-  --b: var(--blu);
-  --r-foglia: 26px 8px 26px 8px;
+  /* intensità dei dettagli decorativi (grana, stelle, lucciole) */
+  --grana: 0.07;
+  --lucciole: 0.75;
+  --stelle: 0.6;
+  --ombra-base: #000;
+  color-scheme: dark;
+
+  --r-foglia: 24px 8px 24px 8px;
   --r-seme: 20px 20px 20px 6px;
   --r-petalo: 20px 6px 20px 20px;
-  --ombra: 0 14px 34px rgb(0 0 0 / 0.5);
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s6: 24px;
+  --s8: 32px;
   --curva: cubic-bezier(0.2, 0.8, 0.2, 1);
   --molla: cubic-bezier(0.34, 1.56, 0.64, 1);
   --premi: 0.94;
-  color-scheme: dark;
 }
 
-/* tema: automatico dal sistema, oppure forzato dal menù (data-tema su <html>) */
+/* mattina: stessa logica, tinte chiare; il verde fluo non regge come testo su fondo chiaro (1.1:1)
+   e diventa riempimento con testo scuro, i fili e le scritte usano --verde-testo */
 @media (prefers-color-scheme: light) {
   :root:not([data-tema='scuro']) {
-    --fondo: #f4efe3;
-    --grana-chiara: rgb(255 255 255 / 0.5);
-    --grana-scura: rgb(29 51 38 / 0.07);
-    --luna: rgb(183 205 170 / 0.35);
-    --carta: #fbf8f0;
-    --carta-2: #e4e9d8;
-    --linea: #d3d8c3;
-    --linea-forte: #58705f;
-    --inchiostro: #1d3326;
-    --tenue: #5f7366;
-    --evid: #1f4a33;
-    --su-evid: #f4efe3;
-    --errore: #c8412f;
+    --notte-verde: #eef0e4;
+    --notte-blu: #e7ecf2;
+    --terra: #e3e7d4;
+    --superficie-verde: #fbfaf4;
+    --superficie-blu: #f8f9fb;
+    --testo: #182a22;
+    --testo-2: #56625a;
+    --linea: #d2d7c4;
+    --linea-forte: #5b7062;
+    --errore: #c0392b;
     --oro: #f2b11f;
-    --su-oro: #2a1c0e;
-    --verde-inchiostro: #2f8a12;
-    --blu-inchiostro: #2453d6;
-    --oro-inchiostro: #95620a;
-    --ombra: 0 14px 30px rgb(29 51 38 / 0.13);
+    --verde-testo: #2e7a14;
+    --blu-testo: #2453d6;
+    --oro-testo: #8a5a06;
+    --evid: #183c2b;
+    --su-evid: #f4f2e8;
+    --grana: 0.05;
+    --lucciole: 0.5;
+    --stelle: 0.5;
+    --ombra-base: #26402f;
     color-scheme: light;
   }
 }
 :root[data-tema='chiaro'] {
-  --fondo: #f4efe3;
-  --grana-chiara: rgb(255 255 255 / 0.5);
-  --grana-scura: rgb(29 51 38 / 0.07);
-  --luna: rgb(183 205 170 / 0.35);
-  --carta: #fbf8f0;
-  --carta-2: #e4e9d8;
-  --linea: #d3d8c3;
-  --linea-forte: #58705f;
-  --inchiostro: #1d3326;
-  --tenue: #5f7366;
-  --evid: #1f4a33;
-  --su-evid: #f4efe3;
-  --errore: #c8412f;
+  --notte-verde: #eef0e4;
+  --notte-blu: #e7ecf2;
+  --terra: #e3e7d4;
+  --superficie-verde: #fbfaf4;
+  --superficie-blu: #f8f9fb;
+  --testo: #182a22;
+  --testo-2: #56625a;
+  --linea: #d2d7c4;
+  --linea-forte: #5b7062;
+  --errore: #c0392b;
   --oro: #f2b11f;
-  --su-oro: #2a1c0e;
-  --verde-inchiostro: #2f8a12;
-  --blu-inchiostro: #2453d6;
-  --oro-inchiostro: #95620a;
-  --ombra: 0 14px 30px rgb(29 51 38 / 0.13);
+  --verde-testo: #2e7a14;
+  --blu-testo: #2453d6;
+  --oro-testo: #8a5a06;
+  --evid: #183c2b;
+  --su-evid: #f4f2e8;
+  --grana: 0.05;
+  --lucciole: 0.5;
+  --stelle: 0.5;
+  --ombra-base: #26402f;
   color-scheme: light;
+}
+
+/* valori derivati dalla presenza del blu (calcolati su :root, arrivano a tutti) */
+:root {
+  transition: --blu-presenza 1.6s var(--curva);
+  --fondo: color-mix(in oklab, var(--notte-verde), var(--notte-blu) calc(var(--blu-presenza) * 55%));
+  --cielo: color-mix(in oklab, var(--notte-verde), var(--notte-blu) calc(var(--blu-presenza) * 100%));
+  --fondo-2: color-mix(in oklab, var(--terra), var(--notte-blu) calc(var(--blu-presenza) * 12%));
+  --superficie: color-mix(in oklab, var(--superficie-verde), var(--superficie-blu) calc(var(--blu-presenza) * 45%));
+  --superficie-2: color-mix(in oklab, var(--superficie), var(--testo) 6%);
+  /* luce e ombra delle superfici: filo verde in alto, ombra che si fa blu con la presenza */
+  --ombra-tinta: color-mix(in oklab, var(--ombra-base), var(--blu) calc(var(--blu-presenza) * 40%));
+  --luce-alto: inset 0 1px 0 color-mix(in srgb, var(--verde) 12%, transparent);
+  --rilievo: var(--luce-alto), 0 12px 24px -16px var(--ombra-tinta);
+  --ombra: 0 18px 36px -18px var(--ombra-tinta), 0 2px 6px rgb(0 0 0 / 0.18);
+  /* nomi storici (T1–T2) */
+  --carta: var(--superficie);
+  --carta-2: var(--superficie-2);
+  --inchiostro: var(--testo);
+  --tenue: var(--testo-2);
+  --verde-inchiostro: var(--verde-testo);
+  --blu-inchiostro: var(--blu-testo);
+  --oro-inchiostro: var(--oro-testo);
+  --a: var(--verde);
+  --b: var(--blu);
 }
 
 *,
@@ -101,8 +153,7 @@
 html,
 body {
   margin: 0;
-  background: var(--fondo);
-  color: var(--inchiostro);
+  color: var(--testo);
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior: none;
@@ -110,46 +161,81 @@ body {
   touch-action: manipulation;
 }
 
+/* il cielo: un solo gradiente ampio dall'alto (cielo, si fa blu) alla terra (resta verde) + grana vera
+   (rumore frattale, non un reticolo di puntini) */
+html {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 1.2 0 0 0 -.52'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)' opacity='.3'/%3E%3C/svg%3E")
+      0 0 / 200px 200px,
+    linear-gradient(176deg, var(--cielo) 0%, var(--fondo) 46%, var(--fondo-2) 100%);
+  background-color: var(--fondo-2);
+  background-attachment: fixed;
+}
 body {
   font-family: 'Recursive', ui-rounded, system-ui, sans-serif;
   font-size: 16px;
+  font-weight: 420;
   line-height: 1.4;
   min-height: 100dvh;
-  /* luna in alto + due reticoli di puntini sfasati (5 e 7 px) = grana senza immagini */
+  background: transparent;
+  font-variation-settings: 'CASL' 0.3;
+}
+/* stelle blu nel cielo (arrivano con la presenza) e lucciole verdi sulla terra: i due accenti come
+   punti separati, mai lo stesso elemento diviso a metà */
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+body::before {
+  --stella: color-mix(in srgb, var(--blu-testo) calc(var(--blu-presenza) * var(--stelle) * 100%), transparent);
   background:
-    radial-gradient(120% 60% at 70% -12%, var(--luna), transparent 62%),
-    radial-gradient(circle at 1px 1px, var(--grana-chiara) 0.9px, transparent 1.5px) 0 0 / 5px 5px,
-    radial-gradient(circle at 1px 1px, var(--grana-scura) 0.9px, transparent 1.6px) 2px 3px / 7px 7px,
-    var(--fondo);
-  background-attachment: fixed;
+    radial-gradient(circle, var(--stella) 0 1.1px, transparent 1.7px) 13px 29px / 173px 151px,
+    radial-gradient(circle, var(--stella) 0 1.4px, transparent 2px) 97px 71px / 241px 197px,
+    radial-gradient(circle, color-mix(in srgb, var(--stella) 60%, transparent) 0 0.8px, transparent 1.3px) 51px 11px / 113px 127px;
+  -webkit-mask-image: linear-gradient(to bottom, #000, transparent 52%);
+  mask-image: linear-gradient(to bottom, #000, transparent 52%);
+}
+body::after {
+  --lucciola: color-mix(in srgb, var(--verde) calc(var(--lucciole) * 100%), transparent);
+  background:
+    radial-gradient(circle, var(--lucciola) 0 1.2px, color-mix(in srgb, var(--lucciola) 25%, transparent) 2px, transparent 4px) 31px 17px / 157px 139px,
+    radial-gradient(circle, var(--lucciola) 0 1px, color-mix(in srgb, var(--lucciola) 20%, transparent) 1.8px, transparent 3.4px) 117px 83px / 223px 181px;
+  -webkit-mask-image: linear-gradient(to top, #000, transparent 42%);
+  mask-image: linear-gradient(to top, #000, transparent 42%);
 }
 /* --casl si eredita come variabile: ogni elemento ricalcola l'asse "casual" di Recursive */
 body * {
   font-variation-settings: 'CASL' var(--casl, 0.3);
 }
-body {
-  font-variation-settings: 'CASL' 0.3;
-}
 
+#root {
+  position: relative;
+  z-index: 1;
+}
 #root,
 .app {
   min-height: 100dvh;
 }
 
 .app {
-  /* testo nei colori dei giocatori: un filo schiarito al buio, scurito di mattina */
-  --mio-testo: color-mix(in srgb, var(--mio) 80%, #fff);
-  --suo-testo: color-mix(in srgb, var(--suo) 80%, #fff);
+  /* testo nei colori dei giocatori: schiarito al buio (blu ≥ 5:1 sulle superfici), scurito di mattina
+     (verde ≥ 4:1, i numeri della griglia sono testo grande: basta 3:1) */
+  --mio-testo: color-mix(in srgb, var(--mio) 72%, #fff);
+  --suo-testo: color-mix(in srgb, var(--suo) 72%, #fff);
 }
 @media (prefers-color-scheme: light) {
   :root:not([data-tema='scuro']) .app {
-    --mio-testo: color-mix(in srgb, var(--mio) 58%, #0c2414);
-    --suo-testo: color-mix(in srgb, var(--suo) 82%, #0b1430);
+    --mio-testo: color-mix(in srgb, var(--mio) 48%, #0c1a12);
+    --suo-testo: color-mix(in srgb, var(--suo) 48%, #0c1a12);
   }
 }
 :root[data-tema='chiaro'] .app {
-  --mio-testo: color-mix(in srgb, var(--mio) 58%, #0c2414);
-  --suo-testo: color-mix(in srgb, var(--suo) 82%, #0b1430);
+  --mio-testo: color-mix(in srgb, var(--mio) 48%, #0c1a12);
+  --suo-testo: color-mix(in srgb, var(--suo) 48%, #0c1a12);
 }
 
 button,
@@ -228,7 +314,7 @@ input:focus-visible {
   border: 0;
   border-radius: var(--r-seme);
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 650;
   --casl: 0.6;
   transition:
     transform 0.15s var(--curva),
@@ -291,7 +377,7 @@ input:focus-visible {
 }
 .campo-etichetta {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 650;
   color: var(--tenue);
 }
 .campo input {
@@ -405,7 +491,7 @@ input:focus-visible {
 }
 .continua-titolo {
   font-size: 20px;
-  font-weight: 750;
+  font-weight: 650;
   --casl: 1;
 }
 .continua-info {
@@ -597,7 +683,7 @@ input:focus-visible {
 }
 .barra-livello {
   font-size: 19px;
-  font-weight: 800;
+  font-weight: 850;
   --casl: 1;
 }
 .barra-modalita {
@@ -606,7 +692,7 @@ input:focus-visible {
 }
 .timer {
   font-size: 17px;
-  font-weight: 600;
+  font-weight: 650;
   color: var(--tenue);
   padding: 0 4px;
 }
@@ -813,11 +899,11 @@ input:focus-visible {
   place-items: center;
   font-size: 6.3cqi;
   line-height: 1;
-  font-weight: 480;
+  font-weight: 420;
   --casl: 1;
 }
 .cella.data .valore {
-  font-weight: 760;
+  font-weight: 850;
   --casl: 0;
   color: var(--inchiostro);
 }
@@ -857,7 +943,7 @@ input:focus-visible {
   place-items: center;
   font-size: 2.9cqi;
   line-height: 1;
-  font-weight: 600;
+  font-weight: 650;
   color: var(--tenue);
   pointer-events: none;
 }
@@ -884,7 +970,7 @@ input:focus-visible {
   background: var(--bg);
   font-size: 2.65cqi;
   line-height: 1;
-  font-weight: 700;
+  font-weight: 650;
   --casl: 0;
   color: color-mix(in srgb, var(--inchiostro) 85%, transparent);
   pointer-events: none;
@@ -948,7 +1034,7 @@ input:focus-visible {
   background: none;
   color: var(--tenue);
   font-size: 12.5px;
-  font-weight: 560;
+  font-weight: 650;
   transition:
     background 0.15s,
     color 0.15s,
@@ -1002,7 +1088,7 @@ input:focus-visible {
 .tasto-cifra {
   font-size: 27px;
   line-height: 1;
-  font-weight: 560;
+  font-weight: 650;
   --casl: 1;
   transition:
     font-size 0.2s var(--curva),
@@ -1054,7 +1140,7 @@ input:focus-visible {
   background: var(--evid);
   color: var(--su-evid);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 650;
   white-space: nowrap;
   animation: atterra-su 0.2s var(--molla) both;
 }
@@ -1206,7 +1292,7 @@ input:focus-visible {
 }
 .contatore b {
   color: var(--inchiostro);
-  font-weight: 800;
+  font-weight: 850;
 }
 .contatore-mio {
   --c: var(--mio);
@@ -1315,7 +1401,7 @@ input:focus-visible {
   background: color-mix(in srgb, var(--oro) 10%, var(--carta));
   color: var(--oro-inchiostro);
   font-size: 14px;
-  font-weight: 750;
+  font-weight: 650;
   transition:
     transform 0.12s var(--curva),
     background 0.2s,
@@ -1350,7 +1436,7 @@ input:focus-visible {
   background: var(--oro);
   color: var(--su-oro);
   font-size: 11.5px;
-  font-weight: 800;
+  font-weight: 850;
   font-variant-numeric: tabular-nums;
 }
 .regalo.attivo .regalo-n {
@@ -1442,7 +1528,7 @@ input:focus-visible {
 .pianta-titolo {
   margin-top: 2px;
   font-size: 15px;
-  font-weight: 750;
+  font-weight: 650;
   line-height: 1.15;
   --casl: 1;
 }
@@ -1468,7 +1554,7 @@ input:focus-visible {
   background: var(--evid);
   color: var(--su-evid);
   font-size: 14px;
-  font-weight: 750;
+  font-weight: 650;
   transition: transform 0.12s var(--curva);
 }
 .pianta-riprendi:active {
@@ -1483,36 +1569,9 @@ input:focus-visible {
   pointer-events: none;
   overflow: hidden;
 }
-.toast {
+.toasts > .toast {
   position: absolute;
   white-space: nowrap;
-}
-.toast-piccolo {
-  font-size: 23px;
-  font-weight: 850;
-  --casl: 1;
-  font-style: oblique 10deg;
-  text-shadow:
-    0 2px 0 var(--fondo),
-    0 0 18px var(--fondo);
-  animation: sale 1.4s var(--curva) forwards;
-}
-@keyframes sale {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -40%) scale(0.6) rotate(-6deg);
-  }
-  18% {
-    opacity: 1;
-    transform: translate(-50%, -120%) scale(1.08) rotate(-3deg);
-  }
-  70% {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-    transform: translate(-50%, -300%) scale(1) rotate(-2deg);
-  }
 }
 .toast-banner {
   left: 50%;
@@ -1524,7 +1583,7 @@ input:focus-visible {
   border: 1px solid var(--linea);
   box-shadow: var(--ombra);
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 650;
   overflow: hidden;
   text-overflow: ellipsis;
   animation: banner 2.4s var(--curva) both;
@@ -1560,9 +1619,8 @@ input:focus-visible {
 .toast-grande-testo {
   font-size: clamp(42px, 13vw, 76px);
   line-height: 0.98;
-  font-weight: 900;
+  font-weight: 850;
   --casl: 1;
-  font-style: oblique 12deg;
   letter-spacing: -0.02em;
   text-wrap: balance;
 }
@@ -1633,9 +1691,8 @@ input:focus-visible {
   margin: 0 0 10px;
   font-size: clamp(34px, 10vw, 44px);
   line-height: 1;
-  font-weight: 900;
+  font-weight: 850;
   --casl: 1;
-  font-style: oblique 10deg;
   letter-spacing: -0.02em;
   text-wrap: balance;
 }
@@ -1645,7 +1702,7 @@ input:focus-visible {
 }
 .vittoria-tempo span {
   color: var(--inchiostro);
-  font-weight: 700;
+  font-weight: 650;
 }
 .coriandoli {
   position: absolute;
@@ -1806,7 +1863,7 @@ input:focus-visible {
   border-radius: 999px 999px 999px 8px;
   background: var(--carta);
   font-size: 15px;
-  font-weight: 750;
+  font-weight: 650;
   transition: transform 0.12s var(--curva);
 }
 .giardino-bottone:active {
@@ -1879,22 +1936,6 @@ input:focus-visible {
   opacity: 0.88;
   transition: opacity 0.3s;
 }
-.bottone.primario.invito {
-  background: var(--mio);
-  color: #0b1410;
-  box-shadow:
-    0 5px 0 color-mix(in srgb, var(--mio) 40%, var(--fondo)),
-    0 0 0 6px color-mix(in srgb, var(--mio) 16%, transparent);
-  animation: invito 2.8s ease-in-out infinite;
-}
-@keyframes invito {
-  50% {
-    box-shadow:
-      0 5px 0 color-mix(in srgb, var(--mio) 40%, var(--fondo)),
-      0 0 0 11px color-mix(in srgb, var(--mio) 4%, transparent);
-  }
-}
-
 /* ---------- menù della home e fogli di conferma ---------- */
 .menu-home {
   min-width: 262px;
@@ -1928,7 +1969,7 @@ input:focus-visible {
 .tema-scelta button.attivo {
   background: var(--evid);
   color: var(--su-evid);
-  font-weight: 700;
+  font-weight: 650;
 }
 .foglio-velo {
   position: fixed;
@@ -2042,7 +2083,7 @@ input:focus-visible {
   padding-left: 7px;
   border-left: 1px solid var(--linea);
   color: var(--errore);
-  font-weight: 700;
+  font-weight: 650;
   /* stessa sottolineatura ondulata delle celle sbagliate */
   text-decoration: underline wavy color-mix(in srgb, var(--errore) 75%, transparent);
   text-decoration-thickness: 1.2px;
@@ -2062,26 +2103,6 @@ input:focus-visible {
 .contatore.scatta .contatore-errori {
   color: var(--errore);
 }
-.chiacchiera-partita {
-  position: absolute;
-  z-index: 20;
-  top: calc(100% + 10px);
-  left: 0;
-  max-width: min(78vw, 300px);
-  font-size: 14px;
-  pointer-events: none;
-  box-shadow: var(--ombra);
-}
-.chiacchiera-partita.suggerimento-aiuto {
-  left: auto;
-  right: 0;
-  --fumetto-accento: var(--oro);
-  border-radius: 22px 22px 22px 22px;
-}
-.chiacchiera-partita.suggerimento-aiuto::before {
-  left: auto;
-  right: 16px;
-}
 .griglia.scelta-regalo .cella:not(.data) {
   cursor: copy;
 }
@@ -2095,7 +2116,7 @@ input:focus-visible {
   --bg: color-mix(in srgb, var(--oro) 22%, var(--carta));
 }
 .cella.faro .valore {
-  font-weight: 800;
+  font-weight: 850;
 }
 .fx-evento {
   animation: lampo-evento 1.3s ease-out both;
@@ -2145,7 +2166,7 @@ input:focus-visible {
 }
 .giardino-record li b {
   font-size: 14px;
-  font-weight: 750;
+  font-weight: 650;
 }
 .giardino-vuoto {
   grid-column: 1 / -1;
@@ -2214,7 +2235,7 @@ input:focus-visible {
 .toast-prefisso {
   margin-right: 0.35em;
   font-size: 0.62em;
-  font-weight: 700;
+  font-weight: 650;
   opacity: 0.85;
   vertical-align: 0.2em;
 }
@@ -2359,7 +2380,6 @@ input:focus-visible {
 .scena-fruscio {
   border-style: dashed;
   --fumetto-accento: #5b7566;
-  font-style: oblique 10deg;
   color: #93a698;
 }
 .scena-aiuto {
@@ -2405,13 +2425,9 @@ input:focus-visible {
   .coriandoli {
     display: none;
   }
-  .toast-piccolo,
   .toast-banner,
   .toast-grande {
     animation-name: solo-dissolvenza;
-  }
-  .toast-piccolo {
-    transform: translate(-50%, -110%);
   }
   .toast-banner {
     transform: translateX(-50%);
@@ -2438,118 +2454,105 @@ input:focus-visible {
 }
 
 /* ==========================================================================
-   T2b: il blu che cresce. Gli accenti "di coppia" (bottone primario, livello scelto, pallino di
-   connessione, barra di crescita, grana del fondo, titoli) nascono verdi e accolgono il blu man
-   mano che il giardino fiorisce: --blu-presenza (0..1, da App) sposta lo stop del gradiente da
-   100% (tutto verde) a 50% (metà e metà, dallo sblocco di Semina). Il passaggio è morbido:
-   --cp-sfuma si allarga con la presenza, così a 0 non c'è nemmeno un filo di blu.
-   I colori PERSONALI (celle, cursore, quote della barra, contatori) non passano di qui.
+   T3: il blu che cresce vive nei dettagli (mai un elemento diviso a metà, mai gradienti a due
+   stop netti). --blu-presenza (0..1, da App) tinge il cielo, accende le stelle, fa blu le ombre;
+   i colori PERSONALI (celle, quote della barra, contatori, livello scelto) restano --mio/--suo.
    ========================================================================== */
-@property --blu-presenza {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 0;
-}
-:root {
-  transition: --blu-presenza 1.6s var(--curva);
-  --cp-stop: calc(100% - var(--blu-presenza) * 50%);
-  --cp-sfuma: calc(var(--blu-presenza) * 16%);
-  --cp-da: calc(var(--cp-stop) - var(--cp-sfuma));
-  --cp-a: calc(var(--cp-stop) + var(--cp-sfuma));
-  --coppia: linear-gradient(90deg, var(--verde) var(--cp-da), var(--blu) var(--cp-a));
-  --coppia-netto: linear-gradient(90deg, var(--verde) var(--cp-stop), var(--blu) var(--cp-stop));
-  --coppia-testo: linear-gradient(90deg, var(--verde-inchiostro) var(--cp-da), var(--blu-inchiostro) var(--cp-a));
-  --coppia-tenue: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--verde) 45%, var(--linea)) var(--cp-da),
-    color-mix(in srgb, var(--blu) 60%, var(--linea)) var(--cp-a)
+
+/* bottone primario: luna piena (crema), filo verde in alto, gradino d'ombra che si fa blu */
+.bottone.primario:not(:disabled) {
+  --gradino: color-mix(
+    in oklab,
+    color-mix(in oklab, var(--verde) 38%, var(--fondo-2)),
+    color-mix(in oklab, var(--blu) 62%, var(--fondo-2)) calc(var(--blu-presenza) * 100%)
   );
-  /* una sola tinta, per ombre e aloni (dove un gradiente non si può) */
-  --coppia-mix: color-mix(in oklab, var(--verde), var(--blu) calc(var(--blu-presenza) * 50%));
-}
-
-/* grana: oltre ai puntini neutri, un reticolo verde e uno blu che si accende con la presenza */
-body {
-  --grana-verde: color-mix(in srgb, var(--verde) 9%, transparent);
-  --grana-blu: color-mix(in srgb, var(--blu) calc(var(--blu-presenza) * 24%), transparent);
-  background:
-    radial-gradient(120% 60% at 70% -12%, var(--luna), transparent 62%),
-    radial-gradient(circle at 1px 1px, var(--grana-verde) 0.9px, transparent 1.6px) 1px 4px / 13px 13px,
-    radial-gradient(circle at 1px 1px, var(--grana-blu) 1px, transparent 1.7px) 7px 10px / 13px 13px,
-    radial-gradient(circle at 1px 1px, var(--grana-chiara) 0.9px, transparent 1.5px) 0 0 / 5px 5px,
-    radial-gradient(circle at 1px 1px, var(--grana-scura) 0.9px, transparent 1.6px) 2px 3px / 7px 7px,
-    var(--fondo);
-  background-attachment: fixed;
-}
-
-/* bottone primario: il gesto di coppia per eccellenza */
-.bottone.primario:not(:disabled),
-.bottone.primario.invito:not(:disabled) {
-  background: var(--coppia);
-  color: #0b1410;
-  box-shadow: 0 5px 0 color-mix(in srgb, var(--coppia-mix) 38%, var(--fondo));
+  background: var(--evid);
+  color: var(--su-evid);
+  box-shadow:
+    inset 0 1.5px 0 color-mix(in srgb, var(--verde) 55%, var(--evid)),
+    0 5px 0 var(--gradino),
+    0 14px 24px -14px var(--ombra-tinta);
 }
 .bottone.primario:active:not(:disabled) {
-  box-shadow: 0 2px 0 color-mix(in srgb, var(--coppia-mix) 38%, var(--fondo));
+  box-shadow:
+    inset 0 1.5px 0 color-mix(in srgb, var(--verde) 55%, var(--evid)),
+    0 1px 0 var(--gradino);
 }
+/* un fiore prima dello sblocco: il bottone chiama nel colore di chi gioca */
 .bottone.primario.invito:not(:disabled) {
   box-shadow:
-    0 5px 0 color-mix(in srgb, var(--coppia-mix) 38%, var(--fondo)),
-    0 0 0 6px color-mix(in srgb, var(--coppia-mix) 16%, transparent);
-  animation-name: invito-coppia;
+    inset 0 1.5px 0 color-mix(in srgb, var(--verde) 55%, var(--evid)),
+    0 5px 0 var(--gradino),
+    0 0 0 6px color-mix(in srgb, var(--mio) 16%, transparent);
+  animation: invito 2.8s ease-in-out infinite;
 }
-@keyframes invito-coppia {
+@keyframes invito {
   50% {
     box-shadow:
-      0 5px 0 color-mix(in srgb, var(--coppia-mix) 38%, var(--fondo)),
-      0 0 0 11px color-mix(in srgb, var(--coppia-mix) 4%, transparent);
+      inset 0 1.5px 0 color-mix(in srgb, var(--verde) 55%, var(--evid)),
+      0 5px 0 var(--gradino),
+      0 0 0 11px color-mix(in srgb, var(--mio) 4%, transparent);
   }
 }
 
-/* livello scelto: bordo bicolore; le tacche della scala sono un solo gradiente che le attraversa */
+/* livello scelto: bordo nel colore di chi sceglie */
 .livello.attivo {
-  border-color: transparent;
-  background:
-    linear-gradient(var(--carta-2), var(--carta-2)) padding-box,
-    var(--coppia) border-box;
+  border-color: var(--mio-testo);
+  background: color-mix(in srgb, var(--mio) 7%, var(--carta-2));
 }
 .livello.attivo .livello-scala i.pieno {
-  background: var(--coppia) calc(var(--k, 0) * -8px) 0 / 45px 100%;
+  background: var(--mio-testo);
 }
 
-/* pallino "connessi": metà di ciascuno quando ci siete tutti e due */
+/* pallino "connessi": il suo colore dentro, il mio come alone: voi due, ognuno il suo */
 .pallino-connesso i,
 .partner-chip.pallino-connesso i {
-  background: var(--coppia-netto);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--coppia-mix) 26%, transparent);
+  background: var(--suo);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--mio) 30%, transparent);
 }
 
-/* barra di crescita: la traccia vuota lascia trasparire la coppia, il bordo è bicolore */
+/* barra di crescita: traccia piena, filo verde in alto e filo blu in basso (la presenza lo accende) */
 .crescita-barra {
-  --traccia: color-mix(in srgb, var(--fondo) 70%, var(--carta));
-  border-color: transparent;
-  background:
-    linear-gradient(color-mix(in srgb, var(--traccia) 86%, transparent), color-mix(in srgb, var(--traccia) 86%, transparent)) padding-box,
-    var(--coppia) padding-box,
-    var(--coppia-tenue) border-box;
+  background: color-mix(in srgb, var(--fondo-2) 70%, var(--carta));
+  border-color: var(--linea);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--verde) 22%, transparent),
+    0 1px 0 color-mix(in srgb, var(--blu) calc(var(--blu-presenza) * 55%), transparent);
 }
 .crescita.piena .crescita-barra {
-  background:
-    linear-gradient(var(--traccia), var(--traccia)) padding-box,
-    linear-gradient(color-mix(in srgb, var(--oro) 60%, var(--linea)), color-mix(in srgb, var(--oro) 60%, var(--linea))) border-box;
+  border-color: color-mix(in srgb, var(--oro) 60%, var(--linea));
 }
 
-/* titoli: inchiostro di coppia */
-.home .titolo.home-titolo,
-.barra-livello {
-  width: fit-content;
-  background: var(--coppia-testo);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
+/* titoli: crema, monocromi. L'unico dettaglio sono i due semi al posto del punto */
 .barra-titolo {
   align-items: flex-start;
+}
+.semi-titolo {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 0.07em;
+  margin-left: 0.08em;
+  vertical-align: baseline;
+}
+.semi-titolo i {
+  display: block;
+  width: 0.17em;
+  height: 0.23em;
+  border-radius: 55% 55% 50% 50% / 62% 62% 40% 40%;
+}
+.seme-verde {
+  background: var(--verde-testo);
+  transform: rotate(-12deg);
+}
+.seme-blu {
+  /* a zero fiori non c'è; dal primo fiore compare vuoto (solo il contorno) e si riempie di blu
+     man mano che lei arriva */
+  background: color-mix(in srgb, var(--blu) calc(var(--blu-presenza) * 100%), transparent);
+  box-shadow: inset 0 0 0 0.028em color-mix(in srgb, var(--blu-testo) 75%, transparent);
+  opacity: min(1, calc(var(--blu-presenza) * 4));
+  transform: rotate(10deg) scale(calc(0.8 + var(--blu-presenza) * 0.2));
+  transform-origin: 50% 100%;
+  transition: transform 0.4s var(--molla);
 }
 
 /* ---------- solletico: fumetto breve che "salta" fuori ---------- */
@@ -2631,17 +2634,18 @@ body {
   .pannello-mascotte {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    padding: 12px 14px 14px;
+    gap: var(--s3);
+    padding: var(--s3) var(--s4) var(--s4);
     border-radius: var(--r-foglia);
     background: var(--carta);
     border: 1px solid var(--linea);
+    box-shadow: var(--rilievo);
   }
   .pannello-mascotte-figure {
     display: flex;
     justify-content: space-around;
     align-items: flex-end;
-    min-height: 74px;
+    min-height: 76px;
   }
   .pannello-mascotte-figura {
     display: grid;
@@ -2651,45 +2655,9 @@ body {
   .pannello-mascotte.in-due .pannello-mascotte-figura:not(.parla) {
     opacity: 0.9;
   }
-  .pannello-fumetto {
-    margin: 0;
-    max-width: none;
-    min-height: 3.6em;
-    font-size: 14.5px;
-    transform-origin: 30% 0;
-  }
-  .pannello-fumetto::before {
-    top: -8.5px;
-    bottom: auto;
-    left: 46px;
-    transform: rotate(135deg);
-  }
-  .pannello-mascotte.in-due .pannello-fumetto::before {
-    left: calc(25% - 7px);
-  }
-  .pannello-mascotte.in-due .pannello-fumetto.a-destra::before {
-    left: calc(75% - 7px);
-  }
-  .pannello-fumetto.quieto {
-    border-style: dashed;
-    --fumetto-accento: var(--linea);
-    color: var(--tenue);
-    animation: none;
-  }
   /* sul desktop le mascotte stanno nel pannello, non nel cruscotto */
-  .cruscotto .mascottina,
-  .chiacchiera-partita:not(.suggerimento-aiuto) {
+  .cruscotto .mascottina {
     display: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  :root {
-    transition: none;
-  }
-  .fumetto-solletico,
-  .bottone.primario.invito:not(:disabled) {
-    animation: none;
   }
 }
 
@@ -2699,32 +2667,406 @@ body {
     display: none;
   }
 }
-.chiacchiera-partita.a-destra {
+
+/* ---------- battute della partita ----------
+   telefono: il fumetto copre per un attimo la barra di crescita (mai la griglia), accanto alla mascotte
+   che parla, coda verso di lei, due righe al massimo. desktop: sotto le mascotte nel pannello.
+   Il bordo dice di chi è: il mio colore, il suo, l'errore, la luna (riga o box completati), l'oro. */
+.crescita-corpo {
+  position: relative;
+}
+.battuta {
+  --b-accento: var(--mio-testo);
+  position: absolute;
+  z-index: 4;
+  inset: -6px 0;
+  display: flex;
+  align-items: center;
+  padding: var(--s1) var(--s3);
+  background: var(--carta-2);
+  color: var(--testo);
+  border: 1.5px solid var(--b-accento);
+  border-radius: 16px 16px 16px 6px;
+  box-shadow: var(--rilievo);
+  font-size: 13.5px;
+  line-height: 1.25;
+  --casl: 1;
+  transform-origin: 0 50%;
+  animation: battuta-entra 0.26s var(--molla) both;
+}
+.battuta::before {
+  content: '';
+  position: absolute;
+  left: -7px;
+  top: calc(50% - 6px);
+  width: 11px;
+  height: 11px;
+  background: var(--carta-2);
+  border-left: 1.5px solid var(--b-accento);
+  border-bottom: 1.5px solid var(--b-accento);
+  border-bottom-left-radius: 2px;
+  transform: rotate(45deg);
+}
+.battuta.a-destra {
+  border-radius: 16px 16px 6px 16px;
+  transform-origin: 100% 50%;
+}
+.battuta.a-destra::before {
   left: auto;
-  right: 64px;
-  transform-origin: 100% 100%;
+  right: -7px;
+  transform: rotate(-135deg);
 }
-.chiacchiera-partita.a-destra::before {
-  left: auto;
-  right: 26px;
+.battuta-righe {
+  margin: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  text-wrap: pretty;
 }
-@media (min-width: 860px) and (min-aspect-ratio: 1/1) {
-  .pannello-fumetto.vuoto {
-    visibility: hidden;
+.battuta-firma {
+  margin-right: 0.35em;
+  color: var(--b-accento);
+  font-weight: 850;
+}
+.tono-mio {
+  --b-accento: var(--mio-testo);
+}
+.tono-suo {
+  --b-accento: var(--suo-testo);
+}
+.tono-errore {
+  --b-accento: var(--errore);
+}
+.tono-completato {
+  --b-accento: var(--evid);
+}
+.tono-regalo {
+  --b-accento: var(--oro);
+}
+.voce-semino {
+  --b-accento: color-mix(in srgb, var(--verde-testo) 70%, var(--linea));
+}
+.voce-semina {
+  --b-accento: color-mix(in srgb, var(--blu-testo) 80%, var(--linea));
+}
+.battuta-solletico {
+  font-weight: 650;
+  animation-name: fumetto-solletico;
+  animation-duration: 0.3s;
+}
+@keyframes battuta-entra {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
   }
-  .pannello-fumetto.quieto {
-    font-style: italic;
-    --casl: 1;
-  }
 }
-/* il fumetto in partita scende sulla griglia: la codina punta in su, verso chi parla */
-.chiacchiera-partita:not(.suggerimento-aiuto)::before {
-  top: -8.5px;
-  bottom: auto;
-  left: 14px;
+.battuta-pannello {
+  position: relative;
+  inset: auto;
+  min-height: 3.6em;
+  padding: var(--s2) var(--s4);
+  font-size: 14.5px;
+  line-height: 1.35;
+  border-radius: 20px;
+  transform-origin: 30% 0;
+}
+.battuta-pannello .battuta-righe {
+  display: block;
+  -webkit-line-clamp: unset;
+  line-clamp: none;
+}
+.battuta-pannello::before,
+.battuta-pannello.a-destra::before {
+  top: -7px;
+  left: calc(50% - 6px);
+  right: auto;
   transform: rotate(135deg);
 }
-.chiacchiera-partita.a-destra::before {
-  left: auto;
-  right: 14px;
+.pannello-mascotte.in-due .battuta-pannello::before {
+  left: calc(25% - 6px);
+}
+.pannello-mascotte.in-due .battuta-pannello.a-destra::before {
+  left: calc(75% - 6px);
+}
+.battuta-quieta {
+  --b-accento: var(--linea);
+  border-style: dashed;
+  color: var(--testo-2);
+  box-shadow: none;
+  animation: none;
+}
+.battuta-quieta.vuota {
+  visibility: hidden;
+}
+
+/* ---------- le mascotte guardano la cella selezionata (solo gli occhi, ±3.6 unità del disegno su 100) ---------- */
+.guarda .semino-occhi {
+  translate: var(--gx, 0px) var(--gy, 0px);
+  transition: translate 0.22s var(--curva);
+}
+
+/* ---------- tastierino: tasti con un gradino, si schiacciano davvero ---------- */
+.tastierino {
+  padding-bottom: 3px;
+}
+.tasto {
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--testo) 7%, transparent),
+    0 3px 0 color-mix(in oklab, var(--fondo-2) 55%, var(--ombra-tinta));
+  transition:
+    transform 0.07s ease-out,
+    box-shadow 0.07s ease-out,
+    background 0.15s,
+    opacity 0.25s;
+}
+.tasto:active {
+  transform: translateY(3px);
+  background: color-mix(in srgb, var(--evid) 16%, var(--carta-2));
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--testo) 7%, transparent),
+    0 0 0 color-mix(in oklab, var(--fondo-2) 55%, var(--ombra-tinta));
+}
+.tasto.finito {
+  box-shadow: none;
+}
+
+/* il numero scritto atterra: scende, schiaccia un filo e si assesta */
+@keyframes pop {
+  0% {
+    opacity: 0;
+    transform: translateY(-26%) scale(1.16);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(5%) scale(0.95, 1.04);
+  }
+}
+.cella:not(.data) .valore:not(:empty) {
+  animation: pop 0.3s var(--curva) both;
+}
+
+/* ---------- superfici: stesso linguaggio ovunque (filo di luce in alto, ombra tinta in basso) ---------- */
+.continua,
+.livello,
+.segmentato,
+.pianta,
+.giardino-totale,
+.pallino,
+.partner-chip,
+.giardino-bottone,
+.campo input,
+.tema-scelta {
+  box-shadow: var(--rilievo);
+}
+.menu,
+.foglio,
+.vittoria-carta {
+  box-shadow: var(--luce-alto), var(--ombra);
+}
+.griglia {
+  box-shadow: var(--ombra);
+}
+.home {
+  gap: var(--s6);
+}
+.home-eroe {
+  margin: calc(var(--s2) * -1) 0;
+}
+.scelta {
+  gap: var(--s3);
+}
+.ingresso {
+  gap: var(--s8);
+}
+.ingresso-form {
+  gap: var(--s4);
+}
+.profili {
+  gap: var(--s2);
+}
+.profilo {
+  min-height: 128px;
+  padding: var(--s4);
+}
+
+/* ---------- ingresso: le due card respirano piano, a turno ----------
+   respira il contenuto (goccia o mascotte) e un alone del bordo, non la card: il bottone resta fermo
+   sotto il dito (e per i test, che aspettano elementi stabili). */
+.profilo::after {
+  content: '';
+  position: absolute;
+  inset: -1.5px;
+  border-radius: inherit;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 22%, transparent);
+  opacity: 0;
+  pointer-events: none;
+  animation: respira-alone 5s ease-in-out infinite;
+}
+.profilo-goccia,
+.profilo .semino {
+  animation: respira-seme 5s ease-in-out infinite;
+}
+.profilo-semina::after,
+.profilo-semina .profilo-goccia,
+.profilo-semina .semino {
+  animation-delay: -2.5s;
+}
+@keyframes respira-alone {
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes respira-seme {
+  50% {
+    scale: 1.05;
+  }
+}
+
+/* ---------- menù a sezioni; le conferme salgono e scorrono ---------- */
+.menu-sezione {
+  margin: var(--s1) var(--s3) var(--s1);
+  font-size: 12.5px;
+  font-weight: 650;
+  color: var(--testo-2);
+}
+.menu-sezione:not(:first-child) {
+  margin-top: var(--s2);
+  padding-top: var(--s3);
+  border-top: 1px solid var(--linea);
+}
+.foglio {
+  animation: foglio-sale 0.28s var(--curva) both;
+}
+@keyframes foglio-sale {
+  from {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+}
+.foglio-passo.avanti {
+  animation: foglio-scorre 0.24s var(--curva) both;
+}
+@keyframes foglio-scorre {
+  from {
+    opacity: 0;
+    transform: translateX(32px);
+  }
+}
+
+/* ---------- giardino vuoto: Semino invita ---------- */
+.giardino-mascotte[hidden] {
+  display: none;
+}
+.giardino-vuoto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s4);
+  max-width: 320px;
+  margin: var(--s8) auto;
+  color: var(--testo);
+}
+.giardino-invito {
+  margin: 0;
+  max-width: 100%;
+  text-align: center;
+}
+.giardino-invito.fumetto-giu::before {
+  top: -8.5px;
+  bottom: auto;
+  left: calc(50% - 7px);
+  transform: rotate(135deg);
+}
+.giardino-vuoto .bottone {
+  width: auto;
+  padding: 0 var(--s6);
+}
+
+/* ---------- reazioni brevi: nessuna oltre 400 ms ---------- */
+.fumetto {
+  animation-duration: 0.3s;
+}
+.fx-lampo {
+  animation-duration: 0.4s;
+}
+.fx-arrivo,
+.fx-evento {
+  animation-duration: 0.4s;
+}
+.crescita-mia,
+.crescita-sua {
+  transition-duration: 0.4s;
+}
+.contatore.scatta {
+  animation-duration: 0.34s;
+}
+.vittoria-carta {
+  animation: atterra 0.4s 0.1s var(--curva) both;
+}
+.vittoria-frase {
+  letter-spacing: -0.015em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    transition: none;
+  }
+  .fumetto-solletico,
+  .bottone.primario.invito:not(:disabled),
+  .battuta,
+  .profilo::after,
+  .profilo-goccia,
+  .profilo .semino,
+  .foglio,
+  .foglio-passo.avanti,
+  .cella:not(.data) .valore:not(:empty) {
+    animation: none;
+  }
+  .guarda .semino-occhi,
+  .tasto,
+  .seme-blu {
+    transition: none;
+  }
+  .tasto:active {
+    transform: none;
+  }
+}
+
+/* ---------- giardino: niente griglia di card uguali ----------
+   i numeri stanno in un'unica superficie (tre colonne + i record sotto); i fiori finiti stanno
+   direttamente nel cielo, senza scatola; solo i germogli (da riprendere) hanno il contorno tratteggiato. */
+.giardino-schermata .giardino-totali {
+  gap: 0;
+  padding: var(--s1) 0;
+  background: var(--carta);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-foglia);
+  box-shadow: var(--rilievo);
+}
+.giardino-schermata .giardino-totale {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding: var(--s2) var(--s4);
+}
+.giardino-schermata .giardino-totale + .giardino-totale:not(.giardino-record) {
+  border-left: 1px solid var(--linea);
+}
+.giardino-schermata .giardino-record {
+  border-top: 1px solid var(--linea);
+  padding-top: var(--s3);
+}
+.giardino {
+  gap: var(--s6) var(--s2);
+}
+.pianta.pianta-fiorita {
+  background: none;
+  border-color: transparent;
+  box-shadow: none;
+}
+.pianta.pianta-germoglio {
+  box-shadow: none;
 }

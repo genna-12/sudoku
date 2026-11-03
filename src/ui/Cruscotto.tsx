@@ -1,11 +1,11 @@
 import { useEffect, useRef } from 'react';
-import type { CSSProperties } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import type { ChiParla } from '../config/frasi';
 import type { Giocatore, StatoPartita } from '../stato';
 import { crescita, mascotteDi } from './regole';
 import { Semino, stadioDaCrescita } from './Semino';
 import type { Indossati, Mascotte } from './useMascotte';
-import { altro } from './util';
+import { altro, sguardo } from './util';
 
 const NOMI_STADIO = ['seme', 'germoglio', 'fogliolina', 'pianta', 'fiore'];
 
@@ -20,6 +20,10 @@ interface Props {
   mostraErrori: boolean;
   regaloAttivo: boolean;
   onRegalo: () => void;
+  /** cella selezionata: le mascotte la guardano */
+  guarda: { r: number; c: number } | null;
+  /** fumetto di chi parla: copre per un attimo la barra, accanto alla sua mascotte */
+  fumetto: ReactNode;
 }
 
 /**
@@ -43,8 +47,9 @@ export function Cruscotto(p: Props) {
       data-testid="crescita"
       data-frazione={cr.frazione.toFixed(3)}
     >
-      <Mascottina chi={sinistra} stadio={stadio} {...p} />
+      <Mascottina chi={sinistra} stadio={stadio} {...p} sguardo={sguardo(p.guarda, -0.06, -0.12)} />
       <div className="crescita-corpo">
+        {p.fumetto}
         <div
           className="crescita-barra"
           role="progressbar"
@@ -62,7 +67,7 @@ export function Cruscotto(p: Props) {
           <Contatore lato="suo" punti={suoi?.punti ?? 0} errori={suoi?.errori ?? 0} mostraErrori={p.mostraErrori} />
         </div>
       </div>
-      {destra && <Mascottina chi={destra} stadio={stadio} {...p} />}
+      {destra && <Mascottina chi={destra} stadio={stadio} {...p} sguardo={sguardo(p.guarda, 0.8, -0.12)} />}
       <button
         type="button"
         data-testid="regalo"
@@ -90,7 +95,9 @@ function Mascottina({
   mascotte,
   indossati,
   onSolletico,
+  sguardo,
 }: {
+  sguardo?: CSSProperties;
   chi: ChiParla;
   stadio: number;
   mascotte: Mascotte;
@@ -106,11 +113,11 @@ function Mascottina({
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
     e.animate(
       [{ transform: 'scale(1)' }, { transform: 'scale(1.5) translateY(5px)', offset: 0.35 }, { transform: 'scale(1)' }],
-      { duration: 640, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' },
+      { duration: 380, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' },
     );
   }, [m.impulso]);
   return (
-    <span ref={el} className={`mascottina mascottina-${chi}`}>
+    <span ref={el} className={`mascottina mascottina-${chi} guarda`} style={sguardo}>
       <Semino
         chi={chi}
         stadio={stadio}

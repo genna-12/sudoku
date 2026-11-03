@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { LIVELLI_PARAMETRI } from '../config/livelli';
 import type { StatoConnessione } from '../net';
 import { griglia } from '../stato';
@@ -14,7 +14,8 @@ import { crescita, mascotteDi } from './regole';
 import { accessorioValido } from './useMascotte';
 import type { Indossati, Mascotte } from './useMascotte';
 import type { ChiParla } from '../config/frasi';
-import { tempo, testoConnessione } from './util';
+import { altro, sguardo, tempo, testoConnessione } from './util';
+import type { Battuta, Tono } from './Toasts';
 
 interface Props {
   partita: StatoPartita;
@@ -29,6 +30,8 @@ interface Props {
   sbloccata: boolean;
   mascotte: Mascotte;
   chiacchiera: Chiacchiera | null;
+  /** reazioni, frasi del partner e avvisi della partita (escono dal fumetto, mai sopra la griglia) */
+  battuta: Battuta | null;
   solletico: Chiacchiera | null;
   onSolletico: (chi: ChiParla) => void;
   /** regalo: Semino riempie la cella; false se non si può */
@@ -141,11 +144,23 @@ export function Partita(p: Props) {
     return () => window.removeEventListener('keydown', suTasto);
   }, [annulla]);
 
-  // la chiacchiera aperta fa indossare il suo accessorio a chi parla; il solletico la copre
-  const fumetto = p.solletico ?? p.chiacchiera;
+  // la chiacchiera aperta fa indossare il suo accessorio a chi parla
   const indossati: Indossati = {};
   const acc = accessorioValido(p.chiacchiera?.accessorio);
   if (acc && p.chiacchiera) indossati[p.chiacchiera.chi] = acc;
+
+  // cosa si dice adesso: il regalo attivo dà l'istruzione; altrimenti la frase più recente
+  const sinistra: ChiParla = p.sbloccata ? mascotteDi(p.mioRuolo) : 'semino';
+  const destra: ChiParla | null = p.sbloccata ? mascotteDi(altro(p.mioRuolo)) : null;
+  const detto: Detto | null = regaloAttivo
+    ? { id: -1, chi: sinistra, testo: 'Tocca la cella che devo riempire', tono: 'regalo', categoria: 'regalo-aiuto' }
+    : ultimo([
+        p.solletico && { ...p.solletico, voce: true, solletico: true },
+        p.battuta,
+        p.chiacchiera && { ...p.chiacchiera, voce: true },
+      ]);
+  const desktop = useDesktop();
+  const guarda = sel === null ? null : { r: Math.floor(sel / 9), c: sel % 9 };
 
   const livello = LIVELLI_PARAMETRI[partita.puzzle.livello].etichetta;
   const nomeModalita = partita.puzzle.modalita === 'killer' ? 'Killer' : 'Sudoku';
@@ -226,22 +241,9 @@ export function Partita(p: Props) {
               mostraErrori={p.mostraErrori}
               regaloAttivo={regaloAttivo}
               onRegalo={() => setRegaloAttivo((a) => !a)}
+              guarda={guarda}
+              fumetto={!desktop && detto ? <FumettoPartita detto={detto} destra={!!destra && detto.chi === destra} /> : null}
             />
-            {fumetto && (
-              <div
-                key={fumetto.id}
-                className={`fumetto fumetto-giu chiacchiera-partita${fumetto.chi === 'semina' ? ' fumetto--semina' : ''}${fumetto === p.solletico ? ' fumetto-solletico' : ''}${p.sbloccata && fumetto.chi === mascotteDi(p.mioRuolo === 'a' ? 'b' : 'a') ? ' a-destra' : ''}`}
-                role="status"
-                data-testid={fumetto === p.solletico ? 'fumetto-solletico' : undefined}
-              >
-                {fumetto.testo}
-              </div>
-            )}
-            {regaloAttivo && (
-              <div className="fumetto fumetto-giu chiacchiera-partita suggerimento-aiuto" role="status">
-                Tocca la cella che devo riempire
-              </div>
-            )}
           </div>
           <Griglia
             puzzle={partita.puzzle}
@@ -267,7 +269,8 @@ export function Partita(p: Props) {
             sbloccata={p.sbloccata}
             mascotte={p.mascotte}
             indossati={indossati}
-            fumetto={fumetto}
+            detto={desktop ? detto : null}
+            guarda={guarda}
             onSolletico={p.onSolletico}
           />
           <div className="strumenti">
@@ -301,6 +304,63 @@ export function Partita(p: Props) {
   );
 }
 
+/** Una cosa detta in partita: battuta, chiacchiera o solletico (`voce` = parla a nome suo, col suo colore). */
+interface Detto {
+  id: number;
+  chi: ChiParla;
+  testo: string;
+  tono?: Tono;
+  categoria?: string;
+  firma?: string;
+  voce?: boolean;
+  solletico?: boolean;
+}
+
+function ultimo(c: Array<Detto | null | false | undefined>): Detto | null {
+  let u: Detto | null = null;
+  for (const d of c) if (d && (!u || d.id > u.id)) u = d;
+  return u;
+}
+
+const MEDIA_DESKTOP = '(min-width: 860px) and (min-aspect-ratio: 1/1)';
+function iscrivi(cb: () => void) {
+  const m = window.matchMedia?.(MEDIA_DESKTOP);
+  m?.addEventListener('change', cb);
+  return () => m?.removeEventListener('change', cb);
+}
+/** stesso confine del CSS: su desktop il fumetto sta nel pannello, su telefono nel cruscotto */
+function useDesktop() {
+  return useSyncExternalStore(
+    iscrivi,
+    () => !!window.matchMedia?.(MEDIA_DESKTOP).matches,
+    () => false,
+  );
+}
+
+/**
+ * Il fumetto della partita su telefono: copre per un attimo la barra di crescita, accanto alla
+ * mascotte che parla (coda verso di lei), al massimo due righe. Classe `toast` e
+ * `data-categoria` restano per i test a due client.
+ */
+function FumettoPartita({ detto, destra, pannello = false }: { detto: Detto; destra: boolean; pannello?: boolean }) {
+  const tono = detto.voce ? `voce-${detto.chi}` : `tono-${detto.tono ?? 'mio'}`;
+  return (
+    <div
+      key={detto.id}
+      className={`battuta toast ${tono}${destra ? ' a-destra' : ''}${pannello ? ' battuta-pannello' : ''}${detto.solletico ? ' battuta-solletico' : ''}`}
+      data-categoria={detto.categoria ?? (detto.solletico ? 'solletico' : detto.voce ? 'chiacchiera' : undefined)}
+      data-testid={detto.solletico ? 'fumetto-solletico' : undefined}
+      role="status"
+      title={pannello ? undefined : detto.testo}
+    >
+      <p className="battuta-righe">
+        {detto.firma && <b className="battuta-firma">{detto.firma}</b>}
+        <span data-testid="toast-testo">{detto.testo}</span>
+      </p>
+    </div>
+  );
+}
+
 /**
  * Su desktop le mascotte stanno qui, accanto alla griglia e sopra i comandi, più grandi e col
  * fumetto sotto (su telefono restano nel cruscotto: questo pannello è nascosto dal CSS).
@@ -311,20 +371,24 @@ function PannelloMascotte(p: {
   sbloccata: boolean;
   mascotte: Mascotte;
   indossati: Indossati;
-  fumetto: Chiacchiera | null;
+  detto: Detto | null;
+  guarda: { r: number; c: number } | null;
   onSolletico: (chi: ChiParla) => void;
 }) {
   const stadio = stadioDaCrescita(crescita(p.partita, p.mioRuolo).frazione);
-  const chi: ChiParla[] = p.sbloccata ? [mascotteDi(p.mioRuolo), mascotteDi(p.mioRuolo === 'a' ? 'b' : 'a')] : ['semino'];
-  const f = p.fumetto;
-  // niente da dire: se qualcuno dorme si sente il suo "zzz", altrimenti il fumetto resta vuoto e invisibile
+  const chi: ChiParla[] = p.sbloccata ? [mascotteDi(p.mioRuolo), mascotteDi(altro(p.mioRuolo))] : ['semino'];
+  const d = p.detto;
+  // niente da dire: se qualcuno dorme si sente il suo "zzz", altrimenti il posto resta vuoto
   const dormiente = chi.find((c) => p.mascotte[c].umore === 'dorme');
-  const lato = f ? f.chi : dormiente;
   return (
     <section className={`pannello-mascotte${chi.length > 1 ? ' in-due' : ''}`} aria-label="Le mascotte">
       <div className="pannello-mascotte-figure">
-        {chi.map((c) => (
-          <span key={c} className={`pannello-mascotte-figura figura-${c}${f?.chi === c ? ' parla' : ''}`}>
+        {chi.map((c, i) => (
+          <span
+            key={c}
+            className={`pannello-mascotte-figura figura-${c} guarda${d?.chi === c ? ' parla' : ''}`}
+            style={sguardo(p.guarda, chi.length > 1 ? (i ? 1.42 : 1.18) : 1.3, 0.1)}
+          >
             <Semino
               chi={c}
               stadio={stadio}
@@ -337,13 +401,16 @@ function PannelloMascotte(p: {
           </span>
         ))}
       </div>
-      <p
-        key={f?.id ?? `quieto-${dormiente ?? ''}`}
-        className={`fumetto pannello-fumetto${f ? '' : dormiente ? ' quieto' : ' vuoto'}${lato === 'semina' ? ' fumetto--semina' : ''}${lato && chi.length > 1 && lato === chi[1] ? ' a-destra' : ''}`}
-        role="status"
-      >
-        {f ? f.testo : dormiente ? 'zzz…' : '\u00a0'}
-      </p>
+      {d ? (
+        <FumettoPartita detto={d} destra={chi.length > 1 && d.chi === chi[1]} pannello />
+      ) : (
+        <div
+          className={`battuta battuta-pannello battuta-quieta${dormiente ? '' : ' vuota'}${dormiente && chi.length > 1 && dormiente === chi[1] ? ' a-destra' : ''}`}
+          aria-hidden={!dormiente}
+        >
+          <p className="battuta-righe">{dormiente ? 'zzz…' : '\u00a0'}</p>
+        </div>
+      )}
     </section>
   );
 }

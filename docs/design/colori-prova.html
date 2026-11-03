@@ -1,7 +1,7 @@
 <!doctype html><meta charset="utf-8"><style>
 @font-face{font-family:R;src:url(../../src/ui/fonts/recursive-casl-latin.woff2) format('woff2');font-weight:300 1000}
 body{margin:0;padding:24px;background:#222;font:14px/1.4 R,sans-serif;color:#eee;display:grid;gap:16px;width:1180px}
-.c{display:grid;grid-template-columns:330px 1fr;gap:0;border-radius:20px;overflow:hidden}
+button{font:inherit}.c{display:grid;grid-template-columns:400px 1fr;gap:0;border-radius:20px;overflow:hidden}
 .cielo{padding:20px;min-height:250px;display:flex;flex-direction:column;gap:10px}
 h2{margin:0;font-size:26px;font-weight:850;font-variation-settings:'CASL' 1}
 .sup{padding:12px 14px;border-radius:20px 6px 20px 6px;display:flex;gap:10px;align-items:center}
@@ -15,29 +15,39 @@ table{border-collapse:collapse;font-size:13px;margin:16px}td,th{padding:3px 8px;
 <div class="sup" style="background:#13221e;box-shadow:inset 0 1px 0 #7cff4a33">
 <span class="dot" style="background:#7cff4a"></span><span style="color:#7cff4a">Semino 465</span>
 <span class="dot" style="background:#2f6bff"></span><span style="color:#8aa9ff">Semina 290</span></div>
-<div style="display:flex;gap:8px"><button class="bt" style="background:#f1ead7;color:#0a1613;box-shadow:0 4px 0 #2f6bff88">Nuova partita</button>
+<div style="display:flex;gap:8px"><button class="bt" style="background:#f1ead7;color:#0a1613;box-shadow:inset 0 1.5px 0 #7cff4aaa,0 4px 0 #2f6bff">Nuova partita</button>
 <span class="sup" style="border:1.5px solid #2f6bff;padding:8px 12px">bordo blu</span><span class="sup" style="border:1.5px solid #7cff4a;padding:8px 12px">bordo verde</span></div>
-<span><span style="color:#ffc94a">seme d'oro</span> · <span style="color:#ff7c6b">errore</span></span></div>
-<table><tr><th></th><th>testo</th><th>testo-2</th><th>verde</th><th>blu (bordo)</th><th>blu-testo</th><th>oro</th><th>errore</th></tr>
-<tr><th>notteVerde #0a1613</th><td><b class="si">15.4</b></td><td><b class="si">8.1</b></td><td><b class="si">14.3</b></td><td><b class="si">4.1</b></td><td><b class="si">8.1</b></td><td><b class="si">12.1</b></td><td><b class="si">7.3</b></td></tr><tr><th>notteBlu #0a1222</th><td><b class="si">15.6</b></td><td><b class="si">8.2</b></td><td><b class="si">14.5</b></td><td><b class="si">4.2</b></td><td><b class="si">8.2</b></td><td><b class="si">12.2</b></td><td><b class="si">7.4</b></td></tr><tr><th>superficie #13221e</th><td><b class="si">13.7</b></td><td><b class="si">7.2</b></td><td><b class="si">12.8</b></td><td><b class="si">3.7</b></td><td><b class="si">7.2</b></td><td><b class="si">10.7</b></td><td><b class="si">6.5</b></td></tr>
+<span><span style="color:#ffc94a">seme d’oro</span>, <span style="color:#ff7c6b">errore</span></span></div>
+<table><tr><th></th><th>testo</th><th>testo-2</th><th>verde</th><th>blu (bordo ≥3)</th><th>blu come testo</th><th>blu-testo</th><th>oro</th><th>errore</th></tr>
+<tr><th>notteVerde #0a1613</th><td><b class="si">15.4</b></td><td><b class="si">8.1</b></td><td><b class="si">14.3</b></td><td><b class="si">4.1</b></td><td><b class="no">4.1</b></td><td><b class="si">8.1</b></td><td><b class="si">12.1</b></td><td><b class="si">7.3</b></td></tr><tr><th>notteBlu #0a1222</th><td><b class="si">15.6</b></td><td><b class="si">8.2</b></td><td><b class="si">14.5</b></td><td><b class="si">4.2</b></td><td><b class="no">4.2</b></td><td><b class="si">8.2</b></td><td><b class="si">12.2</b></td><td><b class="si">7.4</b></td></tr><tr><th>superficie #13221e</th><td><b class="si">13.7</b></td><td><b class="si">7.2</b></td><td><b class="si">12.8</b></td><td><b class="si">3.7</b></td><td><b class="no">3.7</b></td><td><b class="si">7.2</b></td><td><b class="si">10.7</b></td><td><b class="si">6.5</b></td></tr>
 </table></section><section class="c"><div class="cielo" style="background:linear-gradient(180deg,#0b0f1d,#0e1419 75%);color:#eee8da">
 <h2>B. Inchiostro blu-nero</h2><span style="color:#a3a7b4">testo secondario, neutro caldo</span>
 <div class="sup" style="background:#181e2b;box-shadow:inset 0 1px 0 #7cff4a33">
 <span class="dot" style="background:#7cff4a"></span><span style="color:#7cff4a">Semino 465</span>
 <span class="dot" style="background:#2f6bff"></span><span style="color:#8aa9ff">Semina 290</span></div>
-<div style="display:flex;gap:8px"><button class="bt" style="background:#eee8da;color:#0e1419;box-shadow:0 4px 0 #2f6bff88">Nuova partita</button>
+<div style="display:flex;gap:8px"><button class="bt" style="background:#eee8da;color:#0e1419;box-shadow:inset 0 1.5px 0 #7cff4aaa,0 4px 0 #2f6bff">Nuova partita</button>
 <span class="sup" style="border:1.5px solid #2f6bff;padding:8px 12px">bordo blu</span><span class="sup" style="border:1.5px solid #7cff4a;padding:8px 12px">bordo verde</span></div>
-<span><span style="color:#ffc94a">seme d'oro</span> · <span style="color:#ff7c6b">errore</span></span></div>
-<table><tr><th></th><th>testo</th><th>testo-2</th><th>verde</th><th>blu (bordo)</th><th>blu-testo</th><th>oro</th><th>errore</th></tr>
-<tr><th>notteVerde #0e1419</th><td><b class="si">15.2</b></td><td><b class="si">7.7</b></td><td><b class="si">14.4</b></td><td><b class="si">4.1</b></td><td><b class="si">8.1</b></td><td><b class="si">12.1</b></td><td><b class="si">7.4</b></td></tr><tr><th>notteBlu #0b0f1d</th><td><b class="si">15.6</b></td><td><b class="si">7.9</b></td><td><b class="si">14.8</b></td><td><b class="si">4.2</b></td><td><b class="si">8.4</b></td><td><b class="si">12.5</b></td><td><b class="si">7.6</b></td></tr><tr><th>superficie #181e2b</th><td><b class="si">13.6</b></td><td><b class="si">6.9</b></td><td><b class="si">12.9</b></td><td><b class="si">3.7</b></td><td><b class="si">7.3</b></td><td><b class="si">10.9</b></td><td><b class="si">6.6</b></td></tr>
+<span><span style="color:#ffc94a">seme d’oro</span>, <span style="color:#ff7c6b">errore</span></span></div>
+<table><tr><th></th><th>testo</th><th>testo-2</th><th>verde</th><th>blu (bordo ≥3)</th><th>blu come testo</th><th>blu-testo</th><th>oro</th><th>errore</th></tr>
+<tr><th>notteVerde #0e1419</th><td><b class="si">15.2</b></td><td><b class="si">7.7</b></td><td><b class="si">14.4</b></td><td><b class="si">4.1</b></td><td><b class="no">4.1</b></td><td><b class="si">8.1</b></td><td><b class="si">12.1</b></td><td><b class="si">7.4</b></td></tr><tr><th>notteBlu #0b0f1d</th><td><b class="si">15.6</b></td><td><b class="si">7.9</b></td><td><b class="si">14.8</b></td><td><b class="si">4.2</b></td><td><b class="no">4.2</b></td><td><b class="si">8.4</b></td><td><b class="si">12.5</b></td><td><b class="si">7.6</b></td></tr><tr><th>superficie #181e2b</th><td><b class="si">13.6</b></td><td><b class="si">6.9</b></td><td><b class="si">12.9</b></td><td><b class="si">3.7</b></td><td><b class="no">3.7</b></td><td><b class="si">7.3</b></td><td><b class="si">10.9</b></td><td><b class="si">6.6</b></td></tr>
 </table></section><section class="c"><div class="cielo" style="background:linear-gradient(180deg,#14171d,#171912 75%);color:#efe8d4">
 <h2>C. Oliva caldo</h2><span style="color:#ada78f">testo secondario, neutro caldo</span>
 <div class="sup" style="background:#24271e;box-shadow:inset 0 1px 0 #7cff4a33">
 <span class="dot" style="background:#7cff4a"></span><span style="color:#7cff4a">Semino 465</span>
 <span class="dot" style="background:#2f6bff"></span><span style="color:#8aa9ff">Semina 290</span></div>
-<div style="display:flex;gap:8px"><button class="bt" style="background:#efe8d4;color:#171912;box-shadow:0 4px 0 #2f6bff88">Nuova partita</button>
+<div style="display:flex;gap:8px"><button class="bt" style="background:#efe8d4;color:#171912;box-shadow:inset 0 1.5px 0 #7cff4aaa,0 4px 0 #2f6bff">Nuova partita</button>
 <span class="sup" style="border:1.5px solid #2f6bff;padding:8px 12px">bordo blu</span><span class="sup" style="border:1.5px solid #7cff4a;padding:8px 12px">bordo verde</span></div>
-<span><span style="color:#ffc94a">seme d'oro</span> · <span style="color:#ff7c6b">errore</span></span></div>
-<table><tr><th></th><th>testo</th><th>testo-2</th><th>verde</th><th>blu (bordo)</th><th>blu-testo</th><th>oro</th><th>errore</th></tr>
-<tr><th>notteVerde #171912</th><td><b class="si">14.5</b></td><td><b class="si">7.3</b></td><td><b class="si">13.7</b></td><td><b class="si">3.9</b></td><td><b class="si">7.8</b></td><td><b class="si">11.6</b></td><td><b class="si">7.0</b></td></tr><tr><th>notteBlu #14171d</th><td><b class="si">14.7</b></td><td><b class="si">7.4</b></td><td><b class="si">13.9</b></td><td><b class="si">4.0</b></td><td><b class="si">7.9</b></td><td><b class="si">11.7</b></td><td><b class="si">7.1</b></td></tr><tr><th>superficie #24271e</th><td><b class="si">12.4</b></td><td><b class="si">6.3</b></td><td><b class="si">11.7</b></td><td><b class="si">3.4</b></td><td><b class="si">6.6</b></td><td><b class="si">9.9</b></td><td><b class="si">6.0</b></td></tr>
+<span><span style="color:#ffc94a">seme d’oro</span>, <span style="color:#ff7c6b">errore</span></span></div>
+<table><tr><th></th><th>testo</th><th>testo-2</th><th>verde</th><th>blu (bordo ≥3)</th><th>blu come testo</th><th>blu-testo</th><th>oro</th><th>errore</th></tr>
+<tr><th>notteVerde #171912</th><td><b class="si">14.5</b></td><td><b class="si">7.3</b></td><td><b class="si">13.7</b></td><td><b class="si">3.9</b></td><td><b class="no">3.9</b></td><td><b class="si">7.8</b></td><td><b class="si">11.6</b></td><td><b class="si">7.0</b></td></tr><tr><th>notteBlu #14171d</th><td><b class="si">14.7</b></td><td><b class="si">7.4</b></td><td><b class="si">13.9</b></td><td><b class="si">4.0</b></td><td><b class="no">4.0</b></td><td><b class="si">7.9</b></td><td><b class="si">11.7</b></td><td><b class="si">7.1</b></td></tr><tr><th>superficie #24271e</th><td><b class="si">12.4</b></td><td><b class="si">6.3</b></td><td><b class="si">11.7</b></td><td><b class="si">3.4</b></td><td><b class="no">3.4</b></td><td><b class="si">6.6</b></td><td><b class="si">9.9</b></td><td><b class="si">6.0</b></td></tr>
+</table></section><section class="c"><div class="cielo" style="background:linear-gradient(180deg,#e7ecf2,#eef0e4 75%);color:#182a22">
+<h2>A′. Petrolio, mattina</h2><span style="color:#56625a">testo secondario, neutro caldo</span>
+<div class="sup" style="background:#fbfaf4;box-shadow:inset 0 1px 0 #7cff4a33">
+<span class="dot" style="background:#7cff4a"></span><span style="color:#2e7a14">Semino 465</span>
+<span class="dot" style="background:#2f6bff"></span><span style="color:#2453d6">Semina 290</span></div>
+<div style="display:flex;gap:8px"><button class="bt" style="background:#183c2b;color:#f4f2e8;box-shadow:inset 0 1.5px 0 #7cff4aaa,0 4px 0 #2f6bff">Nuova partita</button>
+<span class="sup" style="border:1.5px solid #2f6bff;padding:8px 12px">bordo blu</span><span class="sup" style="border:1.5px solid #2e7a14;padding:8px 12px">bordo verde</span></div>
+<span><span style="color:#8a5a06">seme d’oro</span>, <span style="color:#c0392b">errore</span></span></div>
+<table><tr><th></th><th>testo</th><th>testo-2</th><th>verde (testo #2e7a14)</th><th>blu (bordo ≥3)</th><th>blu come testo</th><th>blu-testo</th><th>oro</th><th>errore</th></tr>
+<tr><th>notteVerde #eef0e4</th><td><b class="si">13.1</b></td><td><b class="si">5.5</b></td><td><b class="si">4.7</b></td><td><b class="si">3.9</b></td><td><b class="no">3.9</b></td><td><b class="si">5.5</b></td><td><b class="si">5.1</b></td><td><b class="si">4.7</b></td></tr><tr><th>notteBlu #e7ecf2</th><td><b class="si">12.7</b></td><td><b class="si">5.4</b></td><td><b class="si">4.5</b></td><td><b class="si">3.8</b></td><td><b class="no">3.8</b></td><td><b class="si">5.4</b></td><td><b class="si">5.0</b></td><td><b class="si">4.6</b></td></tr><tr><th>superficie #fbfaf4</th><td><b class="si">14.4</b></td><td><b class="si">6.1</b></td><td><b class="si">5.1</b></td><td><b class="si">4.3</b></td><td><b class="no">4.3</b></td><td><b class="si">6.1</b></td><td><b class="si">5.7</b></td><td><b class="si">5.2</b></td></tr>
 </table></section>

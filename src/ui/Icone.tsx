@@ -46,3 +46,11 @@ export const IconaMenu = () => (
     <circle cx="18.5" cy="12" r="1.2" fill="currentColor" />
   </svg>
 );
+
+/** I due semi accanto al titolo, al posto del punto: il verde c'è sempre, il blu arriva coi fiori. */
+export const SemiTitolo = () => (
+  <span className="semi-titolo" aria-hidden="true">
+    <i className="seme-verde" />
+    <i className="seme-blu" />
+  </span>
+);

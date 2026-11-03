@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import type { StatoConnessione } from '../net';
 import type { Giocatore } from '../stato';
 
@@ -67,4 +68,20 @@ export function gruppi(idx: number): { riga: number[]; colonna: number[]; box: n
   const colonna = Array.from({ length: 9 }, (_, k) => k * 9 + c);
   const box = Array.from({ length: 9 }, (_, k) => (br + Math.floor(k / 3)) * 9 + bc + (k % 3));
   return { riga, colonna, box };
+}
+
+/**
+ * Sguardo verso la cella selezionata: spostamento degli occhi (unità del disegno, ±3.6) per una
+ * mascotte che sta in (mx, my), in frazioni della griglia (0..1 = dentro, fuori = accanto).
+ */
+export function sguardo(guarda: { r: number; c: number } | null, mx: number, my: number): CSSProperties | undefined {
+  if (!guarda) return undefined;
+  const dx = (guarda.c + 0.5) / 9 - mx;
+  const dy = (guarda.r + 0.5) / 9 - my;
+  const k = Math.hypot(dx, dy) || 1;
+  const forza = Math.min(1, k * 2.2);
+  return {
+    '--gx': `${((dx / k) * 3.6 * forza).toFixed(2)}px`,
+    '--gy': `${((dy / k) * 2.6 * forza).toFixed(2)}px`,
+  } as CSSProperties;
 }

@@ -3,6 +3,7 @@ import type { FormEvent } from 'react';
 import { PROFILI, nomeVisibile, profiloDiNome } from '../config/giocatori';
 import type { ProfiloId } from '../config/giocatori';
 import { Semino } from './Semino';
+import { SemiTitolo } from './Icone';
 import type { Io } from './useStanza';
 
 /**
@@ -35,6 +36,7 @@ export function Ingresso({
           Sudoku
           <br />
           di coppia
+          <SemiTitolo />
         </h1>
         <p className="sottotitolo">Una griglia, due semi.</p>
       </div>

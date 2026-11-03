@@ -48,7 +48,7 @@ export function Giardino(p: Props) {
             {st.fiori === 1 ? '1 fiore' : `${st.fiori} fiori`}, {st.germogli === 1 ? '1 germoglio' : `${st.germogli} germogli`}
           </span>
         </div>
-        <span className="giardino-mascotte" data-testid="giardino-mascotte">
+        <span className="giardino-mascotte" data-testid="giardino-mascotte" hidden={p.storico.length === 0}>
           {chi.map((c) => (
             <Semino
               key={c}
@@ -109,9 +109,21 @@ export function Giardino(p: Props) {
 
       <div className="giardino" data-testid="giardino-lista" data-voci={p.storico.length}>
         {p.storico.length === 0 && (
-          <p className="giardino-vuoto">
-            Ancora niente. Ogni partita che iniziate pianta qui un seme: finitela insieme e fiorisce.
-          </p>
+          <div className="giardino-vuoto">
+            <Semino
+              stadio={0}
+              umore={p.mascotte.semino.umore === 'dorme' ? 'dorme' : 'saluta'}
+              impulso={p.mascotte.semino.impulso}
+              onSolletico={() => p.onSolletico('semino')}
+              taglia={112}
+            />
+            <p className="fumetto fumetto-giu giardino-invito">
+              {p.solletico?.testo ?? 'Qui non c’è ancora niente. Ogni partita pianta un seme: finitela insieme e fiorisce.'}
+            </p>
+            <button className="bottone primario" onClick={p.onEsci}>
+              Scegli la prima partita
+            </button>
+          </div>
         )}
         {p.storico.map((v) => (
           <Pianta

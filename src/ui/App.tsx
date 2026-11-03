@@ -41,7 +41,8 @@ import {
 } from './regole';
 import type { CategoriaFrase, Tappa } from './regole';
 import { ScenaSblocco } from './ScenaSblocco';
-import { Toasts, useToasts } from './Toasts';
+import { Toasts, useBattute, useToasts } from './Toasts';
+import type { Tono } from './Toasts';
 import { useArchivio } from './useArchivio';
 import { useMascotte, useOgniTanto } from './useMascotte';
 import { usePartita } from './usePartita';
@@ -99,6 +100,7 @@ export function App() {
   const [tappaHome, setTappaHome] = useState<Tappa | null>(null);
   const [solleticoOra, setSolleticoOra] = useState<Chiacchiera | null>(null);
   const { attivi, mostra } = useToasts();
+  const { battuta, dici } = useBattute();
   const { mascotte, reagisci, sveglia } = useMascotte();
 
   // valori letti dai gestori di rete (sempre gli ultimi)
@@ -157,13 +159,20 @@ export function App() {
   };
 
   // --- reazioni delle mascotte (generate qui o arrivate dall'altro: si mostrano uguali) ------
-  function posizioneCella(idx: number) {
-    const el = document.querySelector(`[data-testid="cella-${idx}"]`);
-    const r = el?.getBoundingClientRect();
-    const margine = Math.min(110, window.innerWidth / 2);
-    return r
-      ? { x: Math.min(Math.max(r.left + r.width / 2, margine), window.innerWidth - margine), y: r.top }
-      : { x: window.innerWidth / 2, y: window.innerHeight / 3 };
+  /**
+   * In partita ogni frase esce dal fumetto di una mascotte (mai sopra la griglia); fuori, dal banner.
+   * `chi`: 'mia' (default) o 'sua' = la mascotte mia o del partner (prima dello sblocco c'è solo Semino).
+   */
+  function annuncia(
+    testo: string,
+    o: { chi?: 'mia' | 'sua'; tono?: Tono; categoria?: string; firma?: string; inPartita?: boolean; ms?: number } = {},
+  ) {
+    const v = vivi.current;
+    if (o.inPartita ?? v.schermata === 'partita') {
+      const ruolo = o.chi === 'sua' ? altro(v.mioRuolo) : v.mioRuolo;
+      const chi: ChiParla = v.sbloccata ? mascotteDi(ruolo) : 'semino';
+      dici({ chi, testo, tono: o.tono ?? 'mio', categoria: o.categoria, firma: o.firma }, o.ms);
+    } else mostra({ tipo: 'banner', testo, categoria: o.categoria });
   }
 
   function mostraChiacchiera(chi: ChiParla, testo: string) {
@@ -202,9 +211,9 @@ export function App() {
     const delPartner = v.sbloccata && dalPartner && chi === mascotteDi(altro(v.mioRuolo));
     const prefisso = delPartner ? nomeVisibile(PROFILI.find((p) => p.id === chi) ?? PROFILI[0], true) : undefined;
     const errore = r.categoria === 'sbagliata' || r.categoria === 'sbagliataSerie';
-    const colore = errore ? 'var(--errore)' : r.categoria === 'completato' ? 'var(--evid)' : dalPartner ? 'var(--suo-testo)' : 'var(--mio-testo)';
-    if (r.idx !== undefined && v.schermata === 'partita') {
-      mostra({ tipo: 'piccolo', testo: r.testo, prefisso, colore, categoria: r.categoria, ...posizioneCella(r.idx) });
+    const tono: Tono = errore ? 'errore' : r.categoria === 'completato' ? 'completato' : dalPartner ? 'suo' : 'mio';
+    if (v.schermata === 'partita') {
+      dici({ chi, testo: r.testo, tono, categoria: r.categoria, firma: prefisso });
     } else {
       mostra({ tipo: 'banner', testo: r.testo, prefisso, categoria: r.categoria });
     }
@@ -224,7 +233,7 @@ export function App() {
     mostraReazione({ chi, umore: umore || 'neutro', categoria: categoria as Reazione['categoria'], testo, idx }, delPartner);
     if (delPartner && DA_APPLAUSO.has(categoria)) {
       if (idx !== undefined) setArrivo({ id: Date.now(), idx, tipo: 'evento' });
-      if (categoria === 'brillante' || categoria === 'intelligente') mostra({ tipo: 'banner', testo: fraseSemplice('partnerBrillante'), categoria: 'partnerBrillante' });
+      if (categoria === 'brillante' || categoria === 'intelligente') annuncia(fraseSemplice('partnerBrillante'), { tono: 'suo', categoria: 'partnerBrillante' });
     }
   }
 
@@ -369,10 +378,11 @@ export function App() {
         setVittoriaChiusa(null);
         setSchermata((s) => (s === 'ingresso' ? s : 'partita'));
         if (dalPartner(m, da)) {
-          mostra({
-            tipo: 'banner',
-            testo: eraGermoglio ? fraseSemplice('ripresa') : `${vivi.current.nomePartner} ha iniziato una nuova partita`,
+          annuncia(eraGermoglio ? fraseSemplice('ripresa') : `${vivi.current.nomePartner} ha iniziato una nuova partita`, {
+            chi: 'sua',
+            tono: 'suo',
             categoria: eraGermoglio ? 'ripresa' : undefined,
+            inPartita: vivi.current.schermata !== 'ingresso',
           });
         }
         break;
@@ -383,7 +393,11 @@ export function App() {
         break;
       case 'frase':
         if (!m.inoltrato) inoltra(m, da);
-        if (dalPartner(m, da)) mostra({ tipo: 'grande', testo: m.testo, firma: vivi.current.nomePartner, colore: 'var(--suo)' });
+        if (dalPartner(m, da)) {
+          // in partita la frase del partner esce dal suo fumetto, col suo colore; fuori, grande al centro
+          if (vivi.current.schermata === 'partita') annuncia(m.testo, { chi: 'sua', tono: 'suo', firma: vivi.current.nomePartner, categoria: 'frase', ms: 4500 });
+          else mostra({ tipo: 'grande', testo: m.testo, firma: vivi.current.nomePartner, colore: 'var(--suo)' });
+        }
         break;
       case 'evento':
         if (!m.inoltrato) inoltra(m, da);
@@ -398,7 +412,7 @@ export function App() {
     ultimoArrivo.current = Date.now();
     const v = vivi.current;
     reagisci(v.sbloccata ? mascotteDi(altro(v.mioRuolo)) : 'semino', umoreEvento('semino', 'arrivo'));
-    mostra({ tipo: 'banner', testo: fraseSemplice('arrivo'), categoria: 'arrivo' });
+    annuncia(fraseSemplice('arrivo'), { chi: 'sua', tono: 'suo', categoria: 'arrivo' });
   }
 
   const rete = useRete(io, { statoCorrente: () => ref.current.partita, messaggio: suMessaggio });
@@ -480,12 +494,12 @@ export function App() {
 
   function mandaFrase() {
     if (connessione !== 'connesso' && !rete.personaleConnesso) {
-      mostra({ tipo: 'banner', testo: 'Non c’è nessuno nella stanza: la frase non è partita' });
+      annuncia('Non c’è nessuno nella stanza: la frase non è partita', { tono: 'errore' });
       return;
     }
     const testo = fraseSemplice('invio');
     invia({ t: 'frase', testo });
-    mostra({ tipo: 'banner', testo: `Mandata: ${testo}` });
+    annuncia(`Mandata: ${testo}`, { categoria: 'invio' });
   }
 
   function iniziaNuova(m: Modalita, l: Livello) {
@@ -508,7 +522,7 @@ export function App() {
     setPartnerCursore(null);
     setVittoriaChiusa(null);
     setSchermata('partita');
-    mostra({ tipo: 'banner', testo: fraseSemplice('ripresa'), categoria: 'ripresa' });
+    annuncia(fraseSemplice('ripresa'), { categoria: 'ripresa', inPartita: true });
   }
 
   function entra(nuovo: Io) {
@@ -633,6 +647,7 @@ export function App() {
           sbloccata={sbloccata}
           mascotte={mascotte}
           chiacchiera={chiacchieraOra}
+          battuta={battuta}
           solletico={solleticoOra}
           onSolletico={onSolletico}
           onSuggerisci={gioco.suggerisci}

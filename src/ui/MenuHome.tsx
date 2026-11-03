@@ -65,6 +65,7 @@ export function MenuHome(p: Props) {
         <>
           <div className="menu-velo" onPointerDown={() => setAperto(false)} />
           <div className="menu menu-home" role="menu">
+            <p className="menu-sezione">Impostazioni</p>
             <label className="menu-voce">
               <span>Mostra errori</span>
               <input
@@ -99,7 +100,7 @@ export function MenuHome(p: Props) {
                 ))}
               </span>
             </div>
-            <hr className="menu-riga" />
+            <p className="menu-sezione">Memoria del giardino</p>
             <button className="menu-voce" data-testid="esporta" onClick={p.onEsporta}>
               Esporta memoria
             </button>
@@ -114,7 +115,7 @@ export function MenuHome(p: Props) {
                 onChange={scegliFile}
               />
             </label>
-            <hr className="menu-riga" />
+            <p className="menu-sezione">Per ripartire</p>
             {p.inCorso && (
               <button className="menu-voce" onClick={() => {
                   setAperto(false);
@@ -136,6 +137,7 @@ export function MenuHome(p: Props) {
       {conferma && (
         <div className="foglio-velo" onPointerDown={(e) => e.target === e.currentTarget && chiudiTutto()}>
           <div className="foglio" role="alertdialog" aria-modal="true" aria-labelledby="foglio-titolo">
+            <div key={conferma} className={`foglio-passo${conferma === 'ricomincia-2' ? ' avanti' : ''}`}>
             {conferma === 'cancella' && (
               <>
                 <h2 id="foglio-titolo">Cancellare la partita in corso?</h2>
@@ -212,6 +214,7 @@ export function MenuHome(p: Props) {
                 </div>
               </>
             )}
+            </div>
           </div>
         </div>
       )}

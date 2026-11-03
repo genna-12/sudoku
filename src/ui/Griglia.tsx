@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import type { CSSProperties } from 'react';
 import type { Gabbia, Puzzle } from '../engine';
 import type { Cella, Giocatore } from '../stato';
@@ -79,6 +79,17 @@ function tracciaGabbie(gabbie: Gabbia[]): string {
   return parti.join('');
 }
 
+/** il lampo comprende tutto il box 3×3 della cella appena scritta (il box si è chiuso) */
+function chiudeBox(centro: number, celle: number[]): boolean {
+  const r = Math.floor(centro / 9);
+  const c = centro % 9;
+  const br = r - (r % 3);
+  const bc = c - (c % 3);
+  const tutte = new Set(celle);
+  for (let k = 0; k < 9; k++) if (!tutte.has((br + Math.floor(k / 3)) * 9 + bc + (k % 3))) return false;
+  return true;
+}
+
 const LINEE_SOTTILI = [1, 2, 4, 5, 7, 8]
   .map((k) => `M${k * 100} 0V900M0 ${k * 100}H900`)
   .join('');
@@ -100,6 +111,21 @@ export function Griglia(p: Props) {
     puzzle.dati.forEach((d, i) => d === 0 && v.length < 2 && v.push(i));
     return v;
   }, [puzzle]);
+
+  // un box chiuso: la griglia "respira" (1.01 e ritorno), una volta per lampo
+  const el = useRef<HTMLDivElement>(null);
+  const lampoId = p.lampo?.id;
+  const lampoBox = !!p.lampo && chiudeBox(p.lampo.centro, p.lampo.celle);
+  useEffect(() => {
+    const e = el.current;
+    if (!lampoId || !lampoBox || !e || typeof e.animate !== 'function') return;
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    e.animate([{ scale: '1' }, { scale: '1.01', offset: 0.4 }, { scale: '1' }], {
+      duration: 380,
+      delay: 120,
+      easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)',
+    });
+  }, [lampoId, lampoBox]);
 
   const ultimoTocco = useRef({ idx: -1, t: 0 });
   function tocca(i: number) {
@@ -128,6 +154,7 @@ export function Griglia(p: Props) {
 
   return (
     <div
+      ref={el}
       className={`griglia${killer ? ' griglia-killer' : ''}${p.sceltaRegalo ? ' scelta-regalo' : ''}`}
       data-testid="griglia"
       data-seed={puzzle.seed}
@@ -179,7 +206,7 @@ export function Griglia(p: Props) {
               <span
                 key={`l${p.lampo.id}`}
                 className="fx-lampo"
-                style={{ '--ritardo': `${ritardo * 45}ms` } as CSSProperties}
+                style={{ '--ritardo': `${ritardo * 30}ms` } as CSSProperties}
                 aria-hidden="true"
               />
             )}

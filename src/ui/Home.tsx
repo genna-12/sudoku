@@ -8,6 +8,7 @@ import { LIVELLI_PARAMETRI } from '../config/livelli';
 import type { StatoConnessione } from '../net';
 import type { Giocatore, StatoPartita } from '../stato';
 import { MenuHome } from './MenuHome';
+import { SemiTitolo } from './Icone';
 import type { Tema } from './MenuHome';
 import { aCasoDiverso, presenzaBlu } from './regole';
 import type { Tappa } from './regole';
@@ -109,6 +110,7 @@ export function Home(p: Props) {
         Sudoku
         <br />
         di coppia
+        <SemiTitolo />
       </h1>
 
       <Eroe {...p} />
