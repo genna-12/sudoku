@@ -1,3 +1,4 @@
+/// <reference types="@cloudflare/workers-types" />
 // Memoria condivisa: una chiave per coppia (hash della frase), un JSON per valore.
 // GET  /archivio/:chiave      → { valore: <json> | null, aggiornato: <ms> | null }
 // PUT  /archivio/:chiave      → salva il JSON del body (max 512 KB); risponde { ok: true, aggiornato }
