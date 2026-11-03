@@ -1,10 +1,28 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import { execSync } from 'node:child_process';
+
+// Versione mostrata nel menù: commit corto + data della build (per capire se due dispositivi hanno la stessa).
+function versione(): string {
+  let sha = 'dev';
+  try {
+    sha = execSync('git rev-parse --short HEAD', { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+  } catch {
+    /* fuori da git */
+  }
+  const d = new Date();
+  const gg = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mi = String(d.getMinutes()).padStart(2, '0');
+  return `${gg}/${mm} ${hh}:${mi} · ${sha}`;
+}
 
 // base: il sito vive su https://genna-12.github.io/sudoku/
 export default defineConfig({
   base: '/sudoku/',
+  define: { __APP_VERSIONE__: JSON.stringify(versione()) },
   plugins: [
     react(),
     VitePWA({

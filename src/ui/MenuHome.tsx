@@ -219,6 +219,7 @@ export function MenuHome(p: Props) {
               </>
             )}
             </div>
+            <p className="menu-versione" data-testid="versione">versione {__APP_VERSIONE__}</p>
           </div>
         </div>
       )}

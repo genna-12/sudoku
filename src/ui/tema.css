@@ -3637,3 +3637,5 @@ input:focus-visible {
     font-size: 22px;
   }
 }
+
+.menu-versione { margin: 10px 14px 4px; font-size: 0.75rem; color: var(--testo-2); text-align: center; opacity: 0.8; }
