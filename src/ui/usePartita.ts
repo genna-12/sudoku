@@ -66,6 +66,7 @@ interface Passo {
 }
 
 const STORICO_OGNI_MS = 2000;
+const idDi = (s: StatoPartita) => `${s.puzzle.modalita}-${s.puzzle.seed}`;
 const PROBABILITA_FRASE_GIUSTA = 0.25;
 
 export function usePartita(opzioni: Opzioni) {
@@ -80,6 +81,8 @@ export function usePartita(opzioni: Opzioni) {
   /** celle che hanno già dato punti in questa partita (annulla + riscrivi non conta due volte) */
   const contate = useRef<{ seed: number; celle: Set<number> }>({ seed: -1, celle: new Set() });
   const erroriDiFila = useRef(0);
+  /** la partita che ha ricevuto i regali del giardino (e quanti): se viene scavalcata intatta, tornano da parte */
+  const accreditata = useRef<{ id: string; n: number } | null>(null);
 
   const azzeraPassi = useCallback(() => {
     passi.current = [];
@@ -137,8 +140,16 @@ export function usePartita(opzioni: Opzioni) {
     }
     const fin = n;
     if (fin) celleContate(fin);
+    // due "nuova" incrociate: la partita a cui avevo appena dato i regali del giardino è stata
+    // sostituita prima di giocarci; i regali tornano da parte e li riceve la partita che resta
+    const acc = accreditata.current;
+    let restituiti = 0;
+    if (acc && prima && fin && idDi(prima) === acc.id && !stessoPuzzle(prima, fin) && !partitaToccata(prima)) {
+      accreditata.current = null;
+      restituiti = acc.n;
+    }
     o.current.modifica((a) => {
-      let b = a;
+      let b = restituiti ? { ...a, regaliBonus: regaliBonusDi(a.regaliBonus) + restituiti } : a;
       if (a.partita && !stessoPuzzle(a.partita, fin) && partitaToccata(a.partita)) b = conQuotaBlu(aggiornaStorico(b, a.partita), a.partita);
       if (fin && fin.finita) b = conQuotaBlu(aggiornaStorico(b, fin), fin);
       return b.partita === fin && b === a ? a : { ...b, partita: fin };
@@ -252,6 +263,7 @@ export function usePartita(opzioni: Opzioni) {
     const c: Contatori = { ...base, regaliDisponibili: base.regaliDisponibili + n, ts: tsContatori(p) };
     const mio = o.current.mioRuolo;
     o.current.modifica((x) => ({ ...x, regaliBonus: 0 }));
+    accreditata.current = { id: idDi(p), n };
     imposta(applica(p, { tipo: 'contatori', da: mio, contatori: c }));
     o.current.invia({ t: 'contatori', da: mio, contatori: c });
     o.current.effetti.regaliGiardino?.(n);

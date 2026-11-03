@@ -250,8 +250,16 @@ export function tappaDaMostrare(fiori: number, viste: readonly string[]): Tappa 
   for (const t of STORIA) {
     if (t.partite <= fiori && (!scelta || t.partite >= scelta.partite)) scelta = { ...t, chiave: chiaveDi(t) };
   }
-  if (!scelta || scelta.chiave === CHIAVE_SBLOCCO || viste.includes(scelta.chiave)) return null;
+  if (!scelta || scelta.chiave === CHIAVE_SBLOCCO || tappaVista(scelta.partite, viste)) return null;
   return scelta;
+}
+
+/**
+ * Una tappa per numero di fiori: è vista se c'è la chiave di quel numero con QUALSIASI `chi`.
+ * Così le chiavi di versioni precedenti (T2: `semina-8`, ora la tappa 8 è `semino-8`) valgono ancora.
+ */
+function tappaVista(partite: number, viste: readonly string[]): boolean {
+  return (['semino', 'semina', 'entrambi', 'nessuno'] as const).some((chi) => viste.includes(chiaveDi({ chi, partite })));
 }
 
 /** Tappa dell'arrivo di Semina: al suo posto c'è la scena a schermo intero, una volta per dispositivo. */

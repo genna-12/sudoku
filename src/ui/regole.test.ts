@@ -212,6 +212,10 @@ describe('giardino e storia', () => {
     expect(tappaDaMostrare(SEMINA_SBLOCCATA_A, [CHIAVE_SBLOCCO])).toBeNull();
     expect(tappaDaMostrare(SEMINA_SBLOCCATA_A, [])).toBeNull();
     expect(tappaDaMostrare(SEMINA_SBLOCCATA_A + 1, [CHIAVE_SBLOCCO])?.chiave).toBe('semino-6');
+    // chiavi di T2 con un altro `chi` per lo stesso numero di fiori: la tappa resta vista
+    expect(tappaDaMostrare(8, ['semina-8'])).toBeNull();
+    expect(tappaDaMostrare(7, ['semino-7'])).toBeNull();
+    expect(tappaDaMostrare(8, ['sorpresa-8'])?.chiave).toBe('semino-8');
     expect(scenaDaMostrare(SEMINA_SBLOCCATA_A - 1, [])).toBe(false);
     expect(scenaDaMostrare(SEMINA_SBLOCCATA_A, [])).toBe(true);
     expect(scenaDaMostrare(SEMINA_SBLOCCATA_A + 3, [CHIAVE_SBLOCCO])).toBe(false);

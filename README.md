@@ -5,9 +5,17 @@ PWA per giocare a Sudoku e Killer Sudoku in due, a distanza, sulla stessa grigli
 Sito: https://genna-12.github.io/sudoku/ (si installa da "Aggiungi alla schermata Home").
 
 ## Personalizzare
-- Frasi che compaiono durante il gioco: `src/config/frasi.ts`.
-- Colori dei due giocatori: `COLORI` nello stesso file.
-- Difficoltà dei livelli: `src/config/livelli.ts`.
+- Frasi e voce di Semino e Semina: `src/config/frasi.ts`.
+- Storia, sblocchi, sorprese, giorni speciali: `src/config/storia.ts`.
+- Punti, regali, soglie: `src/config/punteggio.ts`. Orari di sonno: `src/config/sonno.ts`.
+- Colori e nomi dei due giocatori: `src/config/giocatori.ts`. Difficoltà: `src/config/livelli.ts`.
+- Design (palette, regole): `docs/design/studio-ui.md`. Report completo: `docs/REPORT-notte-03-11.md`.
+
+## Limiti da sapere
+- Due dispositivi alla volta nella stanza di coppia (uno per profilo); un secondo dispositivo tuo gioca tramite la stanza personale.
+- La stessa partita giocata su due tuoi dispositivi NON collegati tra loro: i punti personali non si sommano (vince l'ultimo).
+- "Ricomincia da zero" cancella anche dal partner le partite precedenti a quella data.
+- Chi conosce la frase entra: sceglietene una vostra.
 
 Ogni push su `main` ricostruisce e pubblica il sito (GitHub Actions → Pages).
 
@@ -23,4 +31,6 @@ Test a due client in locale (serve un server PeerJS locale perché due schede su
 npx peerjs --port 9000 --host 127.0.0.1
 VITE_PEER_HOST=127.0.0.1 VITE_PEER_PORT=9000 VITE_PEER_SECURE=false npx vite --port 5173 --host 127.0.0.1
 node scripts/qa/due-client.mjs http://127.0.0.1:5173/sudoku/
+node scripts/qa/sblocco-semina.mjs http://127.0.0.1:5173/sudoku/   # archivio T2, 4→5 fiori, layout, "Nuova" insieme
 ```
+(anche `personale.mjs` e `tre-dispositivi.mjs`, stesso uso.)

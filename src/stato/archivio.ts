@@ -212,7 +212,8 @@ function filtra(a: Archivio): Archivio {
 /** azzerato = max(attuale, nuovo); se cresce svuota le tappe viste; filtra storico e partita. */
 export function applicaAzzeramento(a: Archivio, azzerato: number): Archivio {
   if (!isNum(azzerato) || azzerato <= a.azzerato) return filtra(a);
-  return filtra({ ...a, azzerato, tappeViste: [] });
+  // con le tappe ripartono anche gli sblocchi visti e i loro regali in attesa (campi aggiunti in T3)
+  return filtra({ ...a, azzerato, tappeViste: [], sbloccatiVisti: [], regaliBonus: 0 });
 }
 
 /** Unisce lo storico ricevuto dal partner, rispettando prima il suo eventuale azzeramento. */

@@ -396,6 +396,7 @@ export function App() {
         break;
       case 'cella':
         if (gioco.riceviCella(m)) {
+          ultimoEvento.current = Date.now();
           sveglia();
           if (dalPartner(m, da)) setArrivo({ id: Date.now(), idx: m.idx, tipo: 'mossa' });
           inoltra(m, da);
@@ -462,6 +463,12 @@ export function App() {
     if (connessione !== 'connesso') setPartnerCursore(null);
   }, [connessione]);
 
+  // in partita le chiacchiere aspettano 45 s di quiete: si conta da quando si entra (o arriva una griglia nuova)
+  const seedInGioco = schermata === 'partita' ? partita?.puzzle.seed : undefined;
+  useEffect(() => {
+    if (seedInGioco !== undefined) ultimoEvento.current = Date.now();
+  }, [seedInGioco]);
+
   // partita chiusa (azzeramento arrivato dall'altro, o cancellata): si torna alla Home
   if (schermata === 'partita' && !partita) setSchermata('home');
 
@@ -506,7 +513,8 @@ export function App() {
     if (!chiaveHome) return;
     const a = ref.current;
     const n = sblocchiNuovi(fioriDi(a.storico), a.sbloccatiVisti);
-    if (n.annuncio.length) setAnnuncio(n.annuncio);
+    // l'arrivo di Semina l'ha già raccontato la scena: niente secondo annuncio (il regalo arriva lo stesso)
+    if (n.annuncio.length && !n.annuncio.some((s) => s.tipo === 'elemento' && s.id === 'semina')) setAnnuncio(n.annuncio);
     if (n.regali || !stessiVisti(a.sbloccatiVisti, n.visti)) {
       modifica((x) => ({ ...x, sbloccatiVisti: n.visti, regaliBonus: regaliBonusDi(x.regaliBonus) + n.regali }));
     }
@@ -702,6 +710,8 @@ export function App() {
           onSolletico={onSolletico}
           onSuggerisci={gioco.suggerisci}
           onMossa={(i, v, note) => {
+            // anche note e cancellature sono "giocare": niente chiacchiere per i prossimi 45 s
+            ultimoEvento.current = Date.now();
             sveglia();
             gioco.mossa(i, v, note);
           }}

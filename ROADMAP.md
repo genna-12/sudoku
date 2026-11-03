@@ -1,14 +1,17 @@
 # Roadmap
 
 ## T1 — MVP giocabile e deployato — chiuso 03/11/2026, commit 0cd4a98
-Motore sudoku+killer, stanza P2P, UI, PWA, deploy GitHub Pages, test a due client. Resta il collaudo sul telefono (HANDOFF, "Da Genna").
+## T2 — Giardino di Semino: punti, regali, storico, profili, mascotte, archivio, multi-dispositivo — chiuso 03/11, commit 8f5ae7b
+## T2b — Blu che cresce, fiori in quota, solletico, accessori, presenza e sonno — chiuso 03/11, commit 4209f09
+## T3 — Storia da videogioco, sblocchi nel giardino, studio UI/colori, icone — chiuso 03/11 (notte), vedi docs/REPORT-notte-03-11.md
 
-## T2 — Collaudo reale e frasi vere (prossimo)
-Esiti del test in due; frasi della coppia in `src/config/frasi.ts`; eventuale relay Python se il P2P non passa.
+## T4 — Collaudo reale (prossimo)
+Esiti della prima serata di gioco (HANDOFF, "Da Genna"); bug trovati sul telefono; relay Python se il P2P non passa; frasi/storia da ritoccare dopo averle lette in gioco.
 
 ## Dopo (solo se serve)
-- Storico partite vinte (localStorage).
-- Badge "sta scrivendo".
+- Backend minimo (Cloudflare Worker + KV) per profilo ovunque anche a dispositivi spenti.
+- Splash iOS; suoni opzionali; storico partite esportabile in immagine.
 
 ## Riserva
-- Test end-to-end anche nel workflow CI (serve `peer` in CI: già in devDependencies).
+- E2E nel workflow CI (peer in devDependencies, playwright da installare in CI).
+- Lazy load di Scena/Giardino se il bundle cresce.
