@@ -14,8 +14,8 @@ import {
   unisciStoricoRemoto,
   type Archivio,
 } from './archivio';
-import { applica, nuovaPartita, voceStorico } from './index';
-import type { StatoPartita, VoceStorico } from './types';
+import { applica, nuovaPartita, unisci, unisciStorico, voceStorico } from './index';
+import type { Giocatore, StatoPartita, VoceStorico } from './types';
 
 class FintoStorage implements Storage {
   m = new Map<string, string>();
@@ -176,6 +176,39 @@ describe('carica / salva', () => {
   });
 });
 
+describe('campi sconosciuti (archivio di una versione più alta)', () => {
+  const extra = { novita: { a: [1, 2, { b: 'x' }] }, tema: 'notte' };
+
+  it('migra li conserva, validando comunque i campi noti', () => {
+    const a = migra({ versione: 2, partner: 5, ...extra });
+    expect(a.versione).toBe(2);
+    expect(a.partner).toBe('');
+    expect(a.novita).toEqual(extra.novita);
+    expect(a.tema).toBe('notte');
+  });
+
+  it('sopravvivono a carica → salva → carica', () => {
+    const s = new FintoStorage();
+    s.setItem(CHIAVE_ARCHIVIO, JSON.stringify({ ...archivio({ partner: 'Lei', storico: [voce(1, 10)] }), versione: 2, ...extra }));
+    const letto = carica(s);
+    expect(salva({ ...letto, partner: 'Lui' }, s)).toBe(true);
+    const grezzo = JSON.parse(s.getItem(CHIAVE_ARCHIVIO)!);
+    expect(grezzo.versione).toBe(2);
+    expect(grezzo.novita).toEqual(extra.novita);
+    expect(grezzo.tema).toBe('notte');
+    const riletto = carica(s);
+    expect(riletto).toEqual({ ...letto, partner: 'Lui' });
+    expect(riletto.novita).toEqual(extra.novita);
+  });
+
+  it('sopravvivono anche al filtro azzeramento e alla migrazione dalla versione 1', () => {
+    const a = migra({ versione: 1, azzerato: 100, storico: [voce(1, 50)], ...extra });
+    expect(a.storico).toEqual([]);
+    expect(a.tema).toBe('notte');
+    expect(applicaAzzeramento(a, 200).tema).toBe('notte');
+  });
+});
+
 describe('chiaveTappa', () => {
   it('formato stabile', () => {
     expect(chiaveTappa('semina', 5)).toBe('semina-5');
@@ -257,5 +290,145 @@ describe('aggiornaStorico', () => {
   it('non riaggiunge una partita precedente all\'azzeramento', () => {
     const base = archivio({ azzerato: 1000 });
     expect(aggiornaStorico(base, partita(5, 100))).toBe(base);
+  });
+});
+
+// --- robustezza delle memorie divergenti (docs/specs/traguardo.md) -------------------------------
+// Unione di due archivi come la fanno i due dispositivi: storico con `unisciStoricoRemoto` (che applica
+// prima l'azzeramento del partner), partita in corso con `unisci` di index.ts (dopo il filtro azzeramento).
+// Si confronta il "nucleo" che si sincronizza; tappeViste, io, partner e impostazioni sono locali.
+function unisciArchivi(a: Archivio, b: Archivio): Archivio {
+  const r = unisciStoricoRemoto(a, b.storico, b.azzerato);
+  const pb = b.partita && b.partita.iniziata >= r.azzerato ? b.partita : null;
+  const partita = r.partita && pb ? unisci(r.partita, pb) : (r.partita ?? pb);
+  return { ...r, partita };
+}
+
+const nucleo = (a: Archivio) => ({ storico: a.storico, partita: a.partita, azzerato: a.azzerato });
+const VUOTO = (): Archivio => migra(undefined);
+
+/** mulberry32: generatore pseudo-casuale seedato, riproducibile. */
+function prng(seed: number): () => number {
+  let s = seed >>> 0;
+  return () => {
+    s = (s + 0x6d2b79f5) >>> 0;
+    let t = s;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/**
+ * Partita con `iniziata` fissata dal seed (la stessa su entrambi i dispositivi). Il contenuto di una cella o di un
+ * contatore è funzione di (idx, ts) e il ts è pari per 'a', dispari per 'b': come nel gioco reale, un ts identico
+ * non porta mai due contenuti diversi.
+ */
+function partitaCasuale(rnd: () => number, seed: number): StatoPartita {
+  const iniziata = 1000 * seed;
+  let s = nuovaPartita(puzzle(seed), iniziata);
+  const tsDi = (g: Giocatore) => iniziata + 2 + 2 * Math.floor(rnd() * 400) + (g === 'b' ? 1 : 0);
+  for (let k = Math.floor(rnd() * 12); k > 0; k--) {
+    const idx = 1 + 2 * Math.floor(rnd() * 40); // celle vuote del puzzle di prova: indici dispari
+    const da: Giocatore = rnd() < 0.5 ? 'a' : 'b';
+    const ts = tsDi(da);
+    s = applica(s, { tipo: 'cella', idx, v: ((idx + ts) % 9) + 1, note: [], da, ts });
+  }
+  for (const da of ['a', 'b'] as const) {
+    if (rnd() < 0.6) {
+      const ts = tsDi(da);
+      s = applica(s, { tipo: 'contatori', da, contatori: { punti: ts % 50, errori: ts % 4, serie: ts % 7, regali: ts % 3, regaliDisponibili: ts % 2, ts } });
+    }
+  }
+  s = { ...s, secondi: Math.floor(rnd() * 300) };
+  if (rnd() < 0.15) s = applica(s, { tipo: 'finita', ts: iniziata + 1000 + Math.floor(rnd() * 50) });
+  return s;
+}
+
+function archivioCasuale(rnd: () => number): Archivio {
+  const azzerato = rnd() < 0.3 ? 1000 + Math.floor(rnd() * 4000) : 0;
+  const partita = rnd() < 0.7 ? partitaCasuale(rnd, 1 + Math.floor(rnd() * 4)) : null;
+  let storico: VoceStorico[] = [];
+  for (let k = Math.floor(rnd() * 3); k > 0; k--) storico = unisciStorico(storico, [voceStorico(partitaCasuale(rnd, 1 + Math.floor(rnd() * 4)))]);
+  for (let k = Math.floor(rnd() * 4); k > 0; k--) {
+    const n = Math.floor(rnd() * 6);
+    storico = unisciStorico(storico, [voce(10 + n, 700 * (n + 1), 700 * (n + 1) + Math.floor(rnd() * 30))]);
+  }
+  if (partita && rnd() < 0.5) storico = unisciStorico(storico, [voceStorico(partita)]);
+  return migra({ ...VUOTO(), azzerato, partita, storico }); // migra applica il filtro azzeramento
+}
+
+describe('robustezza delle memorie divergenti', () => {
+  function verifica(a: Archivio, b: Archivio, etichetta: string) {
+    const ab = unisciArchivi(a, b);
+    expect(nucleo(unisciArchivi(b, a)), `${etichetta}: commutativa`).toEqual(nucleo(ab));
+    expect(nucleo(unisciArchivi(ab, b)), `${etichetta}: idempotente (rimerge di B)`).toEqual(nucleo(ab));
+    expect(nucleo(unisciArchivi(ab, a)), `${etichetta}: idempotente (rimerge di A)`).toEqual(nucleo(ab));
+    expect(nucleo(unisciArchivi(a, a)), `${etichetta}: A∪A = A`).toEqual(nucleo(a));
+    // il vuoto non cancella mai nulla, da nessuna parte
+    expect(nucleo(unisciArchivi(a, VUOTO())), `${etichetta}: A∪vuoto`).toEqual(nucleo(a));
+    expect(nucleo(unisciArchivi(VUOTO(), a)), `${etichetta}: vuoto∪A`).toEqual(nucleo(a));
+    return ab;
+  }
+
+  it('partite diverse: vince la più recente, lo storico le tiene entrambe', () => {
+    const pa = partita(1, 1000, 2);
+    const pb = partita(2, 2000, 3);
+    const A = archivio({ partita: pa, storico: [voceStorico(pa)] });
+    const B = archivio({ partita: pb, storico: [voceStorico(pb)] });
+    const ab = verifica(A, B, 'partite diverse');
+    expect(ab.partita).toEqual(pb);
+    expect(ab.storico.map((v) => v.id)).toEqual(['sudoku-2', 'sudoku-1']);
+  });
+
+  it('stessa partita, celle e contatori diversi per giocatore: si compongono', () => {
+    const base = nuovaPartita(puzzle(4), 4000);
+    const ctr = (ts: number) => ({ punti: ts % 50, errori: 1, serie: 2, regali: 0, regaliDisponibili: 0, ts });
+    let pa = applica(base, { tipo: 'cella', idx: 1, v: 5, note: [], da: 'a', ts: 4010 });
+    pa = applica(pa, { tipo: 'cella', idx: 3, v: 7, note: [], da: 'a', ts: 4020 });
+    pa = applica(pa, { tipo: 'contatori', da: 'a', contatori: ctr(4020) });
+    pa = { ...pa, secondi: 50 };
+    let pb = applica(base, { tipo: 'cella', idx: 3, v: 2, note: [1], da: 'b', ts: 4031 }); // più recente su idx 3
+    pb = applica(pb, { tipo: 'cella', idx: 5, v: 9, note: [], da: 'b', ts: 4011 });
+    pb = applica(pb, { tipo: 'contatori', da: 'b', contatori: ctr(4031) });
+    pb = { ...pb, secondi: 80 };
+    const A = archivio({ partita: pa, storico: [voceStorico(pa)] });
+    const B = archivio({ partita: pb, storico: [voceStorico(pb)] });
+    const ab = verifica(A, B, 'stessa partita');
+    expect(Object.keys(ab.partita!.celle).sort()).toEqual(['1', '3', '5']);
+    expect(ab.partita!.celle[3]).toMatchObject({ v: 2, da: 'b', ts: 4031 });
+    expect(ab.partita!.contatori?.a?.ts).toBe(4020);
+    expect(ab.partita!.contatori?.b?.ts).toBe(4031);
+    expect(ab.partita!.secondi).toBe(80);
+    expect(ab.storico).toHaveLength(1);
+  });
+
+  it('azzeramenti diversi: vale il maggiore su entrambi i lati, mai una voce resuscitata', () => {
+    const vecchia = partita(1, 1000, 2);
+    const nuova = partita(3, 3000, 2);
+    const A = archivio({ azzerato: 2000, partita: nuova, storico: [voceStorico(nuova)] });
+    const B = archivio({ azzerato: 500, partita: vecchia, storico: [voceStorico(vecchia), voce(7, 600), voce(8, 2500)] });
+    const ab = verifica(A, B, 'azzeramenti');
+    expect(ab.azzerato).toBe(2000);
+    expect(ab.storico.map((v) => v.id)).toEqual(['sudoku-3', 'sudoku-8']);
+    expect(ab.partita).toEqual(nuova);
+    // partita di B precedente all'azzeramento di A: non rientra dalla porta di servizio
+    expect(unisciArchivi(archivio({ azzerato: 2000 }), B).partita).toBeNull();
+  });
+
+  it('uno dei due vuoto: l\'altro resta intatto', () => {
+    const p = partita(2, 2000, 3);
+    const A = archivio({ azzerato: 100, partita: p, storico: [voceStorico(p), voce(9, 500, 900)] });
+    const ab = verifica(A, VUOTO(), 'uno vuoto');
+    expect(ab).toEqual(A);
+    expect(nucleo(verifica(VUOTO(), VUOTO(), 'entrambi vuoti'))).toEqual(nucleo(VUOTO()));
+  });
+
+  it('30 coppie di archivi pseudo-casuali (seed fissi)', () => {
+    for (let i = 1; i <= 30; i++) {
+      const A = archivioCasuale(prng(i * 2));
+      const B = archivioCasuale(prng(i * 2 + 1));
+      verifica(A, B, `coppia ${i} (seed ${i * 2}/${i * 2 + 1})`);
+    }
   });
 });

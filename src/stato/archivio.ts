@@ -15,6 +15,8 @@ export interface Archivio {
   /** chiavi `${chi}-${partite}` delle tappe della storia già mostrate */
   tappeViste: string[];
   impostazioni: { mostraErrori: boolean; vibrazione: boolean };
+  /** Campi di versioni più nuove dell'app: non si leggono, ma `migra` li conserva e `salva` li riscrive. */
+  [extra: string]: unknown;
 }
 
 export const VERSIONE_ARCHIVIO = 1;
@@ -66,11 +68,13 @@ function ioValido(x: unknown): Archivio['io'] {
   return isObj(x) && typeof x.nome === 'string' && typeof x.frase === 'string' ? { nome: x.nome, frase: x.frase } : null;
 }
 
-/** Riempie i campi mancanti o di tipo sbagliato con i default; scarta voci/partite invalide. */
+/** Riempie i campi mancanti o di tipo sbagliato con i default; scarta voci/partite invalide.
+ *  I campi sconosciuti (di una versione più alta) passano intatti: i noti, validati, li sovrascrivono. */
 function normalizza(d: Obj): Archivio {
   const imp = isObj(d.impostazioni) ? d.impostazioni : {};
   const def = ARCHIVIO_VUOTO.impostazioni;
   const a: Archivio = {
+    ...d,
     versione: isNum(d.versione) ? d.versione : VERSIONE_ARCHIVIO,
     io: ioValido(d.io),
     partner: typeof d.partner === 'string' ? d.partner : '',

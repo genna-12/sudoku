@@ -44,6 +44,14 @@ export function applica(stato: StatoPartita, azione: Azione): StatoPartita {
   }
 }
 
+/** Ordine totale tra due versioni della stessa cella: ts, poi autore, poi valore, poi note (tie-break deterministico). */
+function vinceCella(n: Cella, c: Cella): boolean {
+  if (n.ts !== c.ts) return n.ts > c.ts;
+  if (n.da !== c.da) return n.da > c.da;
+  if (n.v !== c.v) return n.v > c.v;
+  return n.note.join(',') > c.note.join(',');
+}
+
 function stessoPuzzle(a: Puzzle, b: Puzzle): boolean {
   return a.modalita === b.modalita && a.livello === b.livello && a.seed === b.seed;
 }
@@ -61,7 +69,7 @@ export function unisci(a: StatoPartita, b: StatoPartita): StatoPartita {
     const i = Number(k);
     const cb = b.celle[i];
     const ca = a.celle[i];
-    if (!ca || cb.ts > ca.ts) {
+    if (!ca || vinceCella(cb, ca)) {
       if (celle === a.celle) celle = { ...a.celle };
       celle[i] = cb;
       cambiato = true;
@@ -138,11 +146,18 @@ export function voceStorico(s: StatoPartita): VoceStorico {
 }
 
 /** Merge per id: vince `aggiornata` maggiore (a parità, più secondi; poi la voce di `a`); più recenti prima; max 200. */
+/** Ordine totale tra due versioni della stessa voce: aggiornata, secondi, poi il JSON (tie-break deterministico). */
+function vinceVoce(n: VoceStorico, c: VoceStorico): boolean {
+  if (n.aggiornata !== c.aggiornata) return n.aggiornata > c.aggiornata;
+  if (n.secondi !== c.secondi) return n.secondi > c.secondi;
+  return JSON.stringify(n) > JSON.stringify(c);
+}
+
 export function unisciStorico(a: VoceStorico[], b: VoceStorico[]): VoceStorico[] {
   const perId = new Map<string, VoceStorico>();
   for (const v of [...a, ...b]) {
     const c = perId.get(v.id);
-    if (!c || v.aggiornata > c.aggiornata || (v.aggiornata === c.aggiornata && v.secondi > c.secondi)) perId.set(v.id, v);
+    if (!c || vinceVoce(v, c)) perId.set(v.id, v);
   }
   return [...perId.values()]
     .sort((x, y) => y.iniziata - x.iniziata || (x.id < y.id ? -1 : x.id > y.id ? 1 : 0))
