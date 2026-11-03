@@ -13,8 +13,8 @@ export interface GestoriStanza {
   messaggio: (m: Messaggio) => void;
 }
 
-/** Apre una stanza P2P per `chiave` (la frase, o frase#nome per la stanza personale). */
-export function useStanza(chiave: string | null, nome: string | null, gestori: GestoriStanza) {
+/** Apre una stanza P2P per `chiave` (la frase, o frase#nome per la stanza personale); `ruolo` = posto fisso. */
+export function useStanza(chiave: string | null, nome: string | null, gestori: GestoriStanza, ruolo?: 'a' | 'b') {
   const [connessione, setConnessione] = useState<StatoConnessione>('connessione');
   const [dettaglio, setDettaglio] = useState<string | undefined>();
   const stanzaRef = useRef<Stanza | null>(null);
@@ -30,7 +30,7 @@ export function useStanza(chiave: string | null, nome: string | null, gestori: G
     // Apertura rimandata di un giro: in StrictMode il primo mount viene smontato subito,
     // così non si registra (e libera) un ID PeerJS a vuoto.
     const avvio = window.setTimeout(() => {
-      const s = apriStanza(chiave, nome, () => gestoriRef.current.statoCorrente());
+      const s = apriStanza(chiave, nome, () => gestoriRef.current.statoCorrente(), ruolo);
       stanza = s;
       stanzaRef.current = s;
       setConnessione(s.stato);
@@ -50,7 +50,7 @@ export function useStanza(chiave: string | null, nome: string | null, gestori: G
       setConnessione('connessione');
       setDettaglio(undefined);
     };
-  }, [chiave, nome]);
+  }, [chiave, nome, ruolo]);
 
   const invia = useCallback((m: Messaggio) => {
     try {

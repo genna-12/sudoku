@@ -12,6 +12,8 @@ export interface Profilo {
   nome: string;
   /** nome PRIMA dello sblocco: solo un colore, nessun personaggio (Semina deve restare una sorpresa) */
   nomePrima: string;
+  /** nome vero della persona (usato dalle mascotte quando parlano di voi) */
+  nomeReale: string;
   ruolo: 'a' | 'b';
   colore: string;
   /** chi è, per la scelta all'ingresso */
@@ -19,8 +21,8 @@ export interface Profilo {
 }
 
 export const PROFILI: readonly Profilo[] = [
-  { id: 'semino', nome: 'Semino', nomePrima: 'Verde', ruolo: 'a', colore: COLORE_GENNA, descrizione: 'il verde fluo' },
-  { id: 'semina', nome: 'Semina', nomePrima: 'Blu', ruolo: 'b', colore: COLORE_LEI, descrizione: 'il blu elettrico' },
+  { id: 'semino', nome: 'Semino', nomePrima: 'Verde', nomeReale: 'Genna', ruolo: 'a', colore: COLORE_GENNA, descrizione: 'il verde fluo' },
+  { id: 'semina', nome: 'Semina', nomePrima: 'Blu', nomeReale: 'Mati', ruolo: 'b', colore: COLORE_LEI, descrizione: 'il blu elettrico' },
 ];
 
 /** Profilo da un nome (Verde/Semino/Genna/Lorenzo → 'semino'; Blu/Semina/tutto il resto → 'semina'). */

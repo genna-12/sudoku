@@ -14,7 +14,7 @@ import type { Arrivo, Lampo } from './Griglia';
 import { Home } from './Home';
 import type { Chiacchiera } from './Home';
 import { Ingresso } from './Ingresso';
-import { cancellaPartita, esporta, importa, ioDaArchivio, nomeFileEsportazione, ricomincia } from './memoria';
+import { cancellaPartita, esporta, importa, ioDaArchivio, nomeFileEsportazione, profiloConfermato, ricomincia } from './memoria';
 import type { Tema } from './MenuHome';
 import { Partita } from './Partita';
 import {
@@ -67,14 +67,18 @@ export function App() {
   const profiloPartner = PROFILI.find((p) => p.id !== profilo.id) ?? PROFILI[1];
   const mioRuolo = profilo.ruolo;
   const fiori = fioriDi(archivio.storico);
-  const sbloccata = seminaSbloccata(fiori);
+  // Semina "esiste" su questo dispositivo solo dopo la sua scena: prima la vittoria che la sblocca
+  // (o lo storico del partner) non deve rivelarla (Vittoria, cruscotto, nomi, voce).
+  const sbloccata = seminaSbloccata(fiori) && archivio.tappeViste.includes(CHIAVE_SBLOCCO);
   const nomeMio = nomeVisibile(profilo, sbloccata);
   const nomePartner = nomeVisibile(profiloPartner, sbloccata);
   const { mostraErrori, vibrazione } = archivio.impostazioni;
   const partita = archivio.partita;
 
+  // Nome libero di T1 (non "Semino"/"Semina"): l'Ingresso chiede una volta di confermare il colore,
+  // già preselezionato da profiloDiNome; un nome non riconosciuto diventerebbe Blu in silenzio.
   const [schermata, setSchermata] = useState<Schermata>(() =>
-    !io ? 'ingresso' : archivio.partita && !archivio.partita.finita ? 'partita' : 'home',
+    !io || !profiloConfermato(archivio) ? 'ingresso' : archivio.partita && !archivio.partita.finita ? 'partita' : 'home',
   );
   const [tema, setTema] = useState<Tema>(leggiTema);
   const [partnerCursore, setPartnerCursore] = useState<number | null>(null);
@@ -181,8 +185,9 @@ export function App() {
     const testo = typeof m.testo === 'string' ? m.testo.slice(0, 200) : '';
     const idx = typeof m.idx === 'number' && m.idx >= 0 && m.idx <= 80 ? m.idx : undefined;
     if (categoria === 'chiacchiera') ultimaChiacchieraRicevuta.current = Date.now();
-    mostraReazione({ chi, umore: umore || 'neutro', categoria: categoria as Reazione['categoria'], testo, idx }, da === 'coppia');
-    if (da === 'coppia' && DA_APPLAUSO.has(categoria)) {
+    const delPartner = da === 'coppia' || !!m.inoltrato;
+    mostraReazione({ chi, umore: umore || 'neutro', categoria: categoria as Reazione['categoria'], testo, idx }, delPartner);
+    if (delPartner && DA_APPLAUSO.has(categoria)) {
       if (idx !== undefined) setArrivo({ id: Date.now(), idx, tipo: 'evento' });
       if (categoria === 'brillante' || categoria === 'intelligente') mostra({ tipo: 'banner', testo: fraseSemplice('partnerBrillante'), categoria: 'partnerBrillante' });
     }
@@ -260,38 +265,58 @@ export function App() {
   useEffect(() => () => window.clearTimeout(timerStorico.current), []);
 
   // --- rete --------------------------------------------------------------------------
+  // Inoltro fra le due stanze (coppia ↔ personale), così il mio secondo dispositivo, che non ha
+  // posto nella stanza di coppia, gioca lo stesso. Messaggi di stato (cella, contatori, nuova,
+  // stato): inoltrati SOLO se hanno cambiato la mia partita → idempotenti, nessun ciclo.
+  // evento/cursore/frase: inoltrati una volta sola (segno `inoltrato`).
+  function inoltra(m: Messaggio, da: Origine) {
+    invia({ ...m, inoltrato: true }, da === 'coppia' ? 'personale' : 'coppia');
+  }
+  /** viene dal partner: diretto dalla stanza di coppia, o inoltrato da un mio dispositivo */
+  const dalPartner = (m: Messaggio, da: Origine) => da === 'coppia' || !!m.inoltrato;
+
   function suMessaggio(m: Messaggio, da: Origine) {
+    // in sviluppo: traccia dei messaggi ricevuti (lo script QA tre-dispositivi conta gli `storico`)
+    if (import.meta.env.DEV) console.debug(`[rete] ${da} ${m.t}${m.inoltrato ? ' inoltrato' : ''}`);
+    const prima = ref.current.partita;
+    const cambiata = () => ref.current.partita !== prima && ref.current.partita !== null;
     switch (m.t) {
       case 'ciao': {
         const mioAltroDispositivo = profiloDiNome(m.nome ?? '').id === profilo.id;
         if (da === 'coppia' && !mioAltroDispositivo) arrivoPartner(m.nome);
         const unita = gioco.riceviStato(m.stato);
         if (unita) invia({ t: 'stato', stato: unita }, da);
+        if (cambiata()) inoltra({ t: 'stato', stato: ref.current.partita! }, da);
         if (m.storico) riceviStorico(m.storico, m.azzerato, da);
         inviaStoricoCompleto(da);
         break;
       }
       case 'stato':
         gioco.riceviStato(m.stato);
+        if (cambiata()) inoltra({ t: 'stato', stato: ref.current.partita! }, da);
         break;
       case 'storico':
         riceviStorico(m.storico, m.azzerato, da);
         break;
       case 'cella':
-        if (gioco.riceviCella(m) && da === 'coppia') setArrivo({ id: Date.now(), idx: m.idx, tipo: 'mossa' });
+        if (gioco.riceviCella(m)) {
+          if (dalPartner(m, da)) setArrivo({ id: Date.now(), idx: m.idx, tipo: 'mossa' });
+          inoltra(m, da);
+        }
         break;
       case 'contatori':
-        gioco.riceviContatori(m);
+        if (gioco.riceviContatori(m)) inoltra(m, da);
         break;
       case 'nuova': {
         const id = m.stato?.puzzle ? `${m.stato.puzzle.modalita}-${m.stato.puzzle.seed}` : '';
         const eraGermoglio = ref.current.storico.some((v) => v.id === id && !v.finita);
         const esito = gioco.riceviNuova(m.stato, da);
+        if (cambiata()) inoltra(m, da);
         if (esito !== 'nuova') break;
         setPartnerCursore(null);
         setVittoriaChiusa(null);
         setSchermata((s) => (s === 'ingresso' ? s : 'partita'));
-        if (da === 'coppia') {
+        if (dalPartner(m, da)) {
           mostra({
             tipo: 'banner',
             testo: eraGermoglio ? fraseSemplice('ripresa') : `${vivi.current.nomePartner} ha iniziato una nuova partita`,
@@ -301,12 +326,15 @@ export function App() {
         break;
       }
       case 'cursore':
-        if (da === 'coppia') setPartnerCursore(m.idx);
+        if (!m.inoltrato) inoltra(m, da);
+        if (dalPartner(m, da)) setPartnerCursore(m.idx);
         break;
       case 'frase':
-        if (da === 'coppia') mostra({ tipo: 'grande', testo: m.testo, firma: vivi.current.nomePartner, colore: 'var(--suo)' });
+        if (!m.inoltrato) inoltra(m, da);
+        if (dalPartner(m, da)) mostra({ tipo: 'grande', testo: m.testo, firma: vivi.current.nomePartner, colore: 'var(--suo)' });
         break;
       case 'evento':
+        if (!m.inoltrato) inoltra(m, da);
         ricevieEvento(m, da);
         break;
     }
@@ -352,7 +380,8 @@ export function App() {
 
   // entrando nella Home: la tappa più alta non ancora vista (segnata subito come vista)
   const [homeVista, setHomeVista] = useState<string | null>(null);
-  const chiaveHome = schermata === 'home' && !scena ? `${fiori}` : null;
+  // con `azzerato`: dopo "ricomincia" la storia riparte anche se i fiori erano già 0
+  const chiaveHome = schermata === 'home' && !scena ? `${fiori}-${archivio.azzerato}` : null;
   if (chiaveHome !== homeVista) {
     setHomeVista(chiaveHome);
     setTappaHome(chiaveHome ? tappaDaMostrare(fiori, archivio.tappeViste) : null);
@@ -386,15 +415,16 @@ export function App() {
   });
 
   // --- azioni ------------------------------------------------------------------------
-  const onCursore = useCallback((idx: number | null) => invia({ t: 'cursore', idx }, 'coppia'), [invia]);
+  // verso entrambe: il mio altro dispositivo non le mostra (non sono del partner) ma le inoltra
+  const onCursore = useCallback((idx: number | null) => invia({ t: 'cursore', idx }), [invia]);
 
   function mandaFrase() {
-    if (connessione !== 'connesso') {
+    if (connessione !== 'connesso' && !rete.personaleConnesso) {
       mostra({ tipo: 'banner', testo: 'Non c’è nessuno nella stanza: la frase non è partita' });
       return;
     }
     const testo = fraseSemplice('invio');
-    invia({ t: 'frase', testo }, 'coppia');
+    invia({ t: 'frase', testo });
     mostra({ tipo: 'banner', testo: `Mandata: ${testo}` });
   }
 

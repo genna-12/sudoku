@@ -3,6 +3,7 @@ import {
   creaStanza,
   derivaBase,
   normalizzaFrase,
+  OCCUPATA_RITENTA_MS,
   PING_MS,
   PROVA_PRIMO_PIANO_MS,
   RITENTA_MS,
@@ -70,7 +71,7 @@ class PeerFinto implements PeerMinimo {
   }
 }
 
-function prepara() {
+function prepara(ruolo?: 'a' | 'b') {
   const peers: PeerFinto[] = [];
   const stati: [StatoConnessione, string | undefined][] = [];
   const messaggi: Messaggio[] = [];
@@ -78,6 +79,7 @@ function prepara() {
   const s: StanzaInterna = creaStanza({
     frase: 'frase',
     nome: 'Genna',
+    ruolo,
     statoIniziale: () => null,
     deriva: async () => BASE,
     webrtcDisponibile: () => true,
@@ -322,6 +324,81 @@ describe('riconnessione', () => {
     t.ultimo().g.errore('network');
     await vi.advanceTimersByTimeAsync(RITENTA_MS);
     expect(t.peers).toHaveLength(2);
+  });
+});
+
+// ---------- posti fissi (stanza di coppia) ----------
+
+describe('posto fisso per profilo', () => {
+  it('ruolo a: si registra solo come a e aspetta; accetta solo b', async () => {
+    const t = prepara('a');
+    await avvio();
+    expect(t.peers.map((p) => p.id)).toEqual([`${BASE}-a`]);
+    t.ultimo().g.aperto();
+    expect(t.s.ruolo).toBe('a');
+    expect(t.s.stato).toBe('in-attesa');
+    const b = new ConnFinta(`${BASE}-b`);
+    t.ultimo().g.connessione(b);
+    b.apri();
+    expect(t.s.stato).toBe('connesso');
+  });
+
+  it('ruolo b: si registra solo come b e si collega ad a, mai come a', async () => {
+    const t = prepara('b');
+    await avvio();
+    expect(t.peers.map((p) => p.id)).toEqual([`${BASE}-b`]);
+    t.ultimo().g.aperto();
+    expect(t.s.ruolo).toBe('b');
+    expect(t.ultimo().connessioni.map((c) => c.peer)).toEqual([`${BASE}-a`]);
+    // b non accetta connessioni in ingresso
+    const x = new ConnFinta(`${BASE}-a`);
+    t.ultimo().g.connessione(x);
+    expect(x.chiusa).toBe(true);
+  });
+
+  it('ruolo b, a assente: riprova a collegarsi senza rifare il peer né diventare a', async () => {
+    const t = prepara('b');
+    await avvio();
+    const pb = t.ultimo();
+    pb.g.aperto();
+    pb.g.errore('peer-unavailable');
+    expect(pb.distrutto).toBe(false);
+    await vi.advanceTimersByTimeAsync(RITENTA_MS);
+    expect(t.peers).toHaveLength(1);
+    expect(pb.connessioni).toHaveLength(2);
+    expect(pb.connessioni[1].peer).toBe(`${BASE}-a`);
+  });
+
+  it('posto occupato (un mio altro dispositivo): in-attesa "occupata", riprova ogni 10 s, mai l\'altro posto', async () => {
+    for (const r of ['a', 'b'] as const) {
+      const t = prepara(r);
+      await avvio();
+      t.ultimo().g.errore('unavailable-id');
+      expect(t.ultimo().distrutto).toBe(true);
+      expect(t.s.stato).toBe('in-attesa');
+      expect(t.stati[t.stati.length - 1]).toEqual(['in-attesa', 'occupata']);
+      await vi.advanceTimersByTimeAsync(OCCUPATA_RITENTA_MS - 1);
+      expect(t.peers).toHaveLength(1);
+      await vi.advanceTimersByTimeAsync(1);
+      expect(t.peers.map((p) => p.id)).toEqual([`${BASE}-${r}`, `${BASE}-${r}`]);
+      t.ultimo().g.aperto();
+      expect(t.s.ruolo).toBe(r);
+      t.s.chiudi();
+    }
+  });
+
+  it('ruolo b connesso: se la connessione cade riprova verso a restando b', async () => {
+    const t = prepara('b');
+    await avvio();
+    const pb = t.ultimo();
+    pb.g.aperto();
+    pb.connessioni[0].apri();
+    expect(t.s.stato).toBe('connesso');
+    pb.connessioni[0].chiudi();
+    expect(t.s.stato).toBe('in-attesa');
+    await vi.advanceTimersByTimeAsync(RITENTA_MS);
+    expect(t.peers).toHaveLength(1);
+    expect(pb.connessioni).toHaveLength(2);
   });
 });
 

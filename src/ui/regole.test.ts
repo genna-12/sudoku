@@ -184,8 +184,12 @@ describe('giardino e storia', () => {
   it('tappa più alta raggiunta e non vista; la tappa di Semina la racconta la scena', () => {
     expect(tappaDaMostrare(0, [])?.chiave).toBe('semino-0');
     expect(tappaDaMostrare(3, [])?.chiave).toBe('semino-3');
-    expect(tappaDaMostrare(3, ['semino-3'])?.chiave).toBe('semino-2');
-    expect(tappaDaMostrare(SEMINA_SBLOCCATA_A, ['semino-4'])?.chiave).not.toBe(CHIAVE_SBLOCCO);
+    // la storia non torna indietro: le tappe saltate non si recuperano
+    expect(tappaDaMostrare(3, ['semino-3'])).toBeNull();
+    // vittoria a 4 seguita subito da "nuova", poi il 5° fiore: dopo la scena NON "Semino si sente solo"
+    expect(tappaDaMostrare(SEMINA_SBLOCCATA_A, [CHIAVE_SBLOCCO])).toBeNull();
+    expect(tappaDaMostrare(SEMINA_SBLOCCATA_A, [])).toBeNull();
+    expect(tappaDaMostrare(SEMINA_SBLOCCATA_A + 1, [CHIAVE_SBLOCCO])?.chiave).toBe('semino-6');
     expect(scenaDaMostrare(SEMINA_SBLOCCATA_A - 1, [])).toBe(false);
     expect(scenaDaMostrare(SEMINA_SBLOCCATA_A, [])).toBe(true);
     expect(scenaDaMostrare(SEMINA_SBLOCCATA_A + 3, [CHIAVE_SBLOCCO])).toBe(false);

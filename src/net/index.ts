@@ -60,8 +60,8 @@ const creaPeer: CreaPeer = (id, g) => {
   };
 };
 
-export const apriStanza: ApriStanza = (frase, nome, statoIniziale) => {
-  const s = creaStanza({ frase, nome, statoIniziale, creaPeer, log });
+export const apriStanza: ApriStanza = (frase, nome, statoIniziale, ruolo) => {
+  const s = creaStanza({ frase, nome, statoIniziale, creaPeer, log, ruolo });
 
   // su telefono: tornando in primo piano (o online) si verifica subito la connessione
   const suVisibilita = () => {

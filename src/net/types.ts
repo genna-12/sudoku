@@ -3,7 +3,9 @@ import type { Contatori, StatoPartita, VoceStorico } from '../stato/types';
 
 export type StatoConnessione = 'connessione' | 'in-attesa' | 'connesso' | 'errore';
 
-export type Messaggio =
+/** `inoltrato`: messaggio passato da una stanza all'altra (coppia ↔ personale); `evento`, `cursore`
+ *  e `frase` con questo segno non si inoltrano di nuovo. */
+export type Messaggio = (
   | { t: 'ciao'; nome: string; stato: StatoPartita | null; ts: number; storico?: VoceStorico[]; azzerato?: number }
   | { t: 'stato'; stato: StatoPartita }
   /** `azzerato`: Date.now() dell'ultimo "ricomincia da zero"; le voci con iniziata < azzerato si scartano ovunque */
@@ -16,7 +18,8 @@ export type Messaggio =
   /** evento di gioco da mostrare all'altro (mossa brillante, regalo, ecc.) */
   | { t: 'evento'; tipo: string; idx?: number; testo?: string }
   | { t: 'ping' }
-  | { t: 'pong' };
+  | { t: 'pong' }
+) & { inoltrato?: true };
 
 export interface EventiStanza {
   stato: (s: StatoConnessione, dettaglio?: string) => void;
@@ -34,5 +37,16 @@ export interface Stanza {
   chiudi(): void;
 }
 
-/** Apre (o raggiunge) la stanza derivata dalla frase segreta. */
-export type ApriStanza = (frase: string, nome: string, statoIniziale: () => StatoPartita | null) => Stanza;
+/**
+ * Apre (o raggiunge) la stanza derivata dalla frase segreta.
+ * `ruolo`: posto fisso nella stanza (stanza di coppia = ruolo di gioco, Semino 'a', Semina 'b'):
+ * mi registro solo come `-<ruolo>` e mi collego all'altro; se il posto è preso da un altro mio
+ * dispositivo lo stato è 'in-attesa' con dettaglio 'occupata' e si riprova ogni 10 s.
+ * Senza `ruolo` (stanza personale): primo libero fra `a` e `b`.
+ */
+export type ApriStanza = (
+  frase: string,
+  nome: string,
+  statoIniziale: () => StatoPartita | null,
+  ruolo?: 'a' | 'b',
+) => Stanza;

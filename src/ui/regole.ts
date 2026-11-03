@@ -12,7 +12,7 @@ import {
 import { LIVELLI, valutaMossa } from '../engine';
 import type { Griglia, Livello, Modalita, Puzzle, Valutazione } from '../engine';
 import { FRASI, SEMINA_SBLOCCATA_A, STORIA_EXTRA, STORIA_SEMINO, VOCE } from '../config/frasi';
-import type { ChiParla } from '../config/frasi';
+import type { ChiParla, FraseConAccessorio } from '../config/frasi';
 import { chiaveTappa } from '../stato/archivio';
 import type { Contatori, Giocatore, StatoPartita, VoceStorico } from '../stato';
 
@@ -182,15 +182,18 @@ export const STORIA: ReadonlyArray<(typeof STORIA_SEMINO)[number]> = [...STORIA_
   (x, y) => x.partite - y.partite,
 );
 
-/** La tappa più alta raggiunta (partite ≤ fiori) e non ancora vista; null se non ce n'è. */
+/**
+ * La tappa corrente (la più alta con partite ≤ fiori), se non ancora vista; null altrimenti.
+ * Le tappe più vecchie saltate (più fiori arrivati insieme, vittoria seguita subito da "nuova",
+ * dispositivo nuovo) non si recuperano: la storia non torna mai indietro (es. Semino "solo" a 4
+ * dopo l'arrivo di Semina). Se la tappa corrente è quella di Semina la racconta la scena.
+ */
 export function tappaDaMostrare(fiori: number, viste: readonly string[]): Tappa | null {
-  const visto = new Set(viste);
   let scelta: Tappa | null = null;
   for (const t of STORIA) {
-    const chiave = chiaveTappa(t.chi, t.partite);
-    if (chiave === CHIAVE_SBLOCCO) continue; // la racconta la scena di sblocco
-    if (t.partite <= fiori && !visto.has(chiave) && (!scelta || t.partite >= scelta.partite)) scelta = { ...t, chiave };
+    if (t.partite <= fiori && (!scelta || t.partite >= scelta.partite)) scelta = { ...t, chiave: chiaveTappa(t.chi, t.partite) };
   }
+  if (!scelta || scelta.chiave === CHIAVE_SBLOCCO || viste.includes(scelta.chiave)) return null;
   return scelta;
 }
 
@@ -239,15 +242,26 @@ export function fraseMascotte(
   s: Sostituzioni,
   caso: () => number = Math.random,
 ): string {
-  const voce = VOCE[chi]?.[categoria];
+  const voce = VOCE[chi]?.[categoria]?.map(testoDi);
   const lista = voce && voce.length && caso() < 0.5 ? voce : FRASI[categoria];
   return scegliFrase(lista, ultima, s, caso);
 }
 
 /** Chiacchiera a caso del personaggio (stringa vuota se non ne ha). */
 export function chiacchiera(chi: ChiParla, ultima: string, s: Sostituzioni, caso: () => number = Math.random): string {
-  const lista = VOCE[chi]?.chiacchiere ?? [];
+  const lista = (VOCE[chi]?.chiacchiere ?? []).map(testoDi);
   return lista.length ? scegliFrase(lista, ultima, s, caso) : '';
+}
+
+/** Testo di una frase che può portare un accessorio (T2b: l'accessorio lo usa la UI). */
+export function testoDi(f: FraseConAccessorio): string {
+  return typeof f === 'string' ? f : f.testo;
+}
+
+/** Accessorio associato a un testo di chiacchiera, se c'è. */
+export function accessorioDi(chi: ChiParla, testo: string): string | undefined {
+  for (const f of VOCE[chi]?.chiacchiere ?? []) if (typeof f !== 'string' && f.testo === testo) return f.accessorio;
+  return undefined;
 }
 
 /** Eventi a cui le mascotte reagiscono. */

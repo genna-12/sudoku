@@ -14,6 +14,10 @@ export const PING_MANCATI_MAX = 3;
 export const TIMEOUT_CONNESSIONE_MS = 10000;
 /** Al ritorno in primo piano: tempo concesso al partner per rispondere al ping. */
 export const PROVA_PRIMO_PIANO_MS = 3000;
+/** Posto fisso già preso (un altro mio dispositivo è nella stanza): si riprova ogni tanto. */
+export const OCCUPATA_RITENTA_MS = 10000;
+/** Dettaglio dello stato quando il mio posto fisso è occupato (la UI lo riconosce). */
+export const DETTAGLIO_OCCUPATA = 'occupata';
 
 // ---------- id della stanza ----------
 
@@ -76,6 +80,12 @@ export interface OpzioniStanza {
   nome: string;
   statoIniziale: () => StatoPartita | null;
   creaPeer: CreaPeer;
+  /**
+   * Posto fisso nella stanza (stanza di coppia: il ruolo di gioco). Se dato mi registro solo come
+   * `-<ruolo>`; se è occupato c'è già un altro mio dispositivo: 'in-attesa'/'occupata', riprovo.
+   * Senza: prima `a`, poi `b` (stanza personale).
+   */
+  ruolo?: 'a' | 'b';
   deriva?: (frase: string) => Promise<string>;
   webrtcDisponibile?: () => boolean;
   log?: (...a: unknown[]) => void;
@@ -105,6 +115,8 @@ export function creaStanza(o: OpzioniStanza): StanzaInterna {
     partner: new Set(),
   };
 
+  const fisso = o.ruolo;
+  const primo: 'a' | 'b' = fisso ?? 'a';
   let ruolo: 'a' | 'b' | null = null;
   let stato: StatoConnessione = 'connessione';
   let dettaglio: string | undefined;
@@ -185,7 +197,7 @@ export function creaStanza(o: OpzioniStanza): StanzaInterna {
     emettiStato('errore', msg);
   }
 
-  /** Distrugge il peer e riparte da `a` dopo `ms`. */
+  /** Distrugge il peer e riparte da `a` (o dal posto fisso) dopo `ms`. */
   function ricomincia(ms: number) {
     if (chiuso) return;
     chiudiPendente();
@@ -194,7 +206,23 @@ export function creaStanza(o: OpzioniStanza): StanzaInterna {
     log(ms ? `riconnessione fra ${ms / 1000} s` : 'riconnessione subito');
     timerRitenta = setTimeout(() => {
       timerRitenta = undefined;
-      registra('a');
+      registra(primo);
+    }, ms);
+  }
+
+  function peerVivo(): boolean {
+    return registrato && !!peer && !peer.distrutto && !peer.disconnesso;
+  }
+
+  /** Posto fisso `b` ancora registrato: si riprova a raggiungere `a` senza rifare il peer. */
+  function ritentaVersoA(ms: number) {
+    if (chiuso) return;
+    chiudiPendente();
+    clearTimeout(timerRitenta);
+    timerRitenta = setTimeout(() => {
+      timerRitenta = undefined;
+      if (peerVivo()) connettiAdA();
+      else registra('b');
     }, ms);
   }
 
@@ -238,7 +266,16 @@ export function creaStanza(o: OpzioniStanza): StanzaInterna {
   function gestisciErrore(tipo: string, messaggio?: string) {
     switch (tipo) {
       case 'unavailable-id':
-        if (!registrato && tentato === 'a') {
+        if (fisso && !registrato) {
+          log(`posto ${fisso} occupato: un altro mio dispositivo è nella stanza`);
+          distruggiPeer();
+          clearTimeout(timerRitenta);
+          emettiStato('in-attesa', DETTAGLIO_OCCUPATA);
+          timerRitenta = setTimeout(() => {
+            timerRitenta = undefined;
+            registra(fisso);
+          }, OCCUPATA_RITENTA_MS);
+        } else if (!registrato && tentato === 'a') {
           log('a occupato: divento b');
           registra('b');
         } else if (!conn) {
@@ -248,7 +285,10 @@ export function creaStanza(o: OpzioniStanza): StanzaInterna {
         return;
       case 'peer-unavailable':
         log('a non risponde');
-        ricomincia(RITENTA_MS);
+        if (fisso === 'b' && peerVivo()) {
+          emettiStato('in-attesa', 'aspetto il partner');
+          ritentaVersoA(RITENTA_MS);
+        } else ricomincia(RITENTA_MS);
         return;
       case 'browser-incompatible':
         fatale('Questo browser non supporta le connessioni dirette (WebRTC). Prova con Chrome, Safari o Firefox aggiornati.');
@@ -279,7 +319,8 @@ export function creaStanza(o: OpzioniStanza): StanzaInterna {
   }
 
   function ingresso(c: ConnMinima) {
-    if (base === null || c.peer !== idPer(base, 'b')) {
+    // si accetta solo l'altro posto (a riceve da b)
+    if (base === null || ruolo !== 'a' || c.peer !== idPer(base, 'b')) {
       log('connessione rifiutata da', c.peer);
       c.chiudi();
       return;
@@ -308,7 +349,10 @@ export function creaStanza(o: OpzioniStanza): StanzaInterna {
           clearTimeout(timerTimeout);
           timerTimeout = undefined;
           // per b una connessione fallita prima di aprirsi vuol dire ricominciare
-          if (tentato === 'b' && !conn) ricomincia(RITENTA_MS);
+          if (tentato === 'b' && !conn) {
+            if (fisso === 'b' && peerVivo()) ritentaVersoA(RITENTA_MS);
+            else ricomincia(RITENTA_MS);
+          }
         } else if (c === conn) {
           perdita('connessione chiusa');
         }
@@ -389,7 +433,8 @@ export function creaStanza(o: OpzioniStanza): StanzaInterna {
       return;
     }
     emettiStato('in-attesa', 'riconnessione…');
-    ricomincia(RITENTA_MS);
+    if (fisso === 'b' && peerVivo()) ritentaVersoA(RITENTA_MS);
+    else ricomincia(RITENTA_MS);
   }
 
   function primoPiano() {
@@ -406,8 +451,12 @@ export function creaStanza(o: OpzioniStanza): StanzaInterna {
       }, PROVA_PRIMO_PIANO_MS);
       return;
     }
-    const aspettaBene = tentato === 'a' && registrato && peer && !peer.distrutto && !peer.disconnesso;
-    if (aspettaBene) return;
+    if (tentato === 'a' && peerVivo()) return;
+    if (fisso === 'b' && peerVivo()) {
+      log('primo piano: riprovo subito a raggiungere a');
+      ritentaVersoA(0);
+      return;
+    }
     log('primo piano: ritento subito');
     ricomincia(0);
   }
@@ -459,7 +508,7 @@ export function creaStanza(o: OpzioniStanza): StanzaInterna {
     if (chiuso) return;
     base = b;
     log(`stanza ${b}`);
-    registra('a');
+    registra(primo);
   });
 
   return stanza;

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { Messaggio, StatoConnessione } from '../net';
 import type { StatoPartita } from '../stato';
+import { ruoloDiNome } from '../config/giocatori';
 import { useStanza } from './useStanza';
 import type { Io } from './useStanza';
 
@@ -24,10 +25,14 @@ export function useRete(
   io: Io | null,
   gestori: { statoCorrente: () => StatoPartita | null; messaggio: (m: Messaggio, da: Origine) => void },
 ) {
-  const coppia = useStanza(io?.frase ?? null, io?.nome ?? null, {
-    statoCorrente: gestori.statoCorrente,
-    messaggio: (m) => gestori.messaggio(m, 'coppia'),
-  });
+  // stanza di coppia a posti per profilo: Semino è sempre `-a`, Semina `-b`; un mio secondo
+  // dispositivo trova il posto occupato ('occupata') e gioca tramite la stanza personale
+  const coppia = useStanza(
+    io?.frase ?? null,
+    io?.nome ?? null,
+    { statoCorrente: gestori.statoCorrente, messaggio: (m) => gestori.messaggio(m, 'coppia') },
+    io ? ruoloDiNome(io.nome) : undefined,
+  );
   const personale = useStanza(io ? chiavePersonale(io) : null, io?.nome ?? null, {
     statoCorrente: gestori.statoCorrente,
     messaggio: (m) => gestori.messaggio(m, 'personale'),

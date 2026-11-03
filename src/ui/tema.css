@@ -739,6 +739,8 @@ input:focus-visible {
   box-shadow: var(--ombra);
   -webkit-user-select: none;
   user-select: none;
+  /* iOS: tenere premuta una cella non apre il fumetto di sistema */
+  -webkit-touch-callout: none;
 }
 .griglia-linee {
   position: absolute;

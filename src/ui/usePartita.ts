@@ -81,9 +81,15 @@ export function usePartita(opzioni: Opzioni) {
     setNPassi(0);
   }, []);
 
+  /**
+   * Celle che non danno più punti: quelle già giuste quando si vede la partita (anche dopo un reload,
+   * da chiunque o da un regalo) e quelle diventate giuste dopo. Cancellare e riscrivere non paga due volte.
+   */
   function celleContate(p: StatoPartita): Set<number> {
     if (contate.current.seed !== p.puzzle.seed) contate.current = { seed: p.puzzle.seed, celle: new Set() };
-    return contate.current.celle;
+    const set = contate.current.celle;
+    for (const k in p.celle) if (p.celle[k].v !== 0 && p.celle[k].v === p.puzzle.soluzione[Number(k)]) set.add(Number(k));
+    return set;
   }
 
   function mieiContatori(p: StatoPartita): Contatori | undefined {
@@ -125,6 +131,7 @@ export function usePartita(opzioni: Opzioni) {
       o.current.invia({ t: 'contatori', da: o.current.mioRuolo, contatori: c });
     }
     const fin = n;
+    if (fin) celleContate(fin);
     o.current.modifica((a) => {
       let b = a;
       if (a.partita && !stessoPuzzle(a.partita, fin) && partitaToccata(a.partita)) b = aggiornaStorico(b, a.partita);
@@ -293,11 +300,14 @@ export function usePartita(opzioni: Opzioni) {
     return true;
   }
 
-  function riceviContatori(m: Extract<Messaggio, { t: 'contatori' }>) {
+  /** true se ha cambiato la partita (solo allora si inoltra all'altra stanza). */
+  function riceviContatori(m: Extract<Messaggio, { t: 'contatori' }>): boolean {
     const mia = o.current.ref.current.partita;
-    if (!mia || !m.contatori) return;
+    if (!mia || !m.contatori) return false;
     const n = applica(mia, { tipo: 'contatori', da: m.da, contatori: m.contatori });
-    if (n !== mia) imposta(n);
+    if (n === mia) return false;
+    imposta(n);
+    return true;
   }
 
   function tick() {

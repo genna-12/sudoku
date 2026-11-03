@@ -1,6 +1,6 @@
 // Operazioni sull'archivio fatte dal menù della Home: profilo, esporta/importa, azzeramenti.
 // Pure (nessun DOM): le usa App, le provano i test.
-import { profiloDiNome } from '../config/giocatori';
+import { PROFILI, profiloDiNome } from '../config/giocatori';
 import type { Profilo } from '../config/giocatori';
 import { aggiornaStorico, applicaAzzeramento, migra, unisciStoricoRemoto } from '../stato/archivio';
 import type { Archivio } from '../stato/archivio';
@@ -10,6 +10,11 @@ import { partitaToccata } from './regole';
 export function ioDaArchivio(a: Archivio): { nome: string; frase: string } | null {
   if (!a.io || !a.io.frase) return null;
   return { nome: profiloDiNome(a.io.nome).nome, frase: a.io.frase };
+}
+
+/** Il nome salvato è già un profilo (scelto all'Ingresso di T2), non un nome libero di T1 da confermare. */
+export function profiloConfermato(a: Archivio): boolean {
+  return !!a.io && PROFILI.some((p) => p.nome === a.io!.nome);
 }
 
 export function altroProfilo(p: Profilo): string {
