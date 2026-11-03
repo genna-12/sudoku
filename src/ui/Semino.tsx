@@ -20,6 +20,8 @@ export const SEMINO_UMORI = [
   'regalo',
   'saluta',
   'dorme',
+  'arrabbiato',
+  'euforico',
 ] as const;
 export type SeminoUmore = (typeof SEMINO_UMORI)[number];
 export type SeminoStadio = 0 | 1 | 2 | 3 | 4;
@@ -36,6 +38,8 @@ const NOMI_UMORE: Record<SeminoUmore, string> = {
   regalo: 'con un regalo',
   saluta: 'che saluta',
   dorme: 'che dorme',
+  arrabbiato: 'arrabbiato',
+  euforico: 'euforico',
 };
 const NOMI_STADIO = ['seme', 'germoglio', 'fogliolina', 'pianta', 'fiore'] as const;
 
@@ -235,7 +239,29 @@ const BOCCA = {
   piccola: <ellipse cx={50} cy={80.6} rx={1.5} ry={1.1} className="s-pieno" />,
   onda: <path d="M45.6 81.4 q1.1 -1.8 2.2 0 t2.2 0 t2.2 0 t2.2 0" className="s-linea s-sottile" />,
   giu: <path d="M45.2 83 Q50 78.6 54.8 83" className="s-linea" />,
+  broncio: <path d="M44.6 83.4 L47.4 81.2 L50 82.6 L52.6 81.2 L55.4 83.4" className="s-linea" />,
 };
+
+/** segno di rabbia "a croce" dei fumetti */
+function rabbia(x: number, y: number) {
+  const r = 4.6;
+  return (
+    <path
+      d={`M${x - 1.2} ${y - r} Q${x - 1.2} ${y - 1.2} ${x - r} ${y - 1.2} M${x + 1.2} ${y - r} Q${x + 1.2} ${y - 1.2} ${x + r} ${y - 1.2} M${x - 1.2} ${y + r} Q${x - 1.2} ${y + 1.2} ${x - r} ${y + 1.2} M${x + 1.2} ${y + r} Q${x + 1.2} ${y + 1.2} ${x + r} ${y + 1.2}`}
+      className="s-rabbia-segno"
+    />
+  );
+}
+
+/** sbuffo di fumo */
+function nuvoletta(x: number, y: number) {
+  return (
+    <path
+      d={`M${x - 5} ${y + 2} a2.6 2.6 0 0 1 1.4 -4.6 a3.2 3.2 0 0 1 5.6 -1 a2.6 2.6 0 0 1 3.4 3.4 a2.2 2.2 0 0 1 -1 4.2 Z`}
+      className="s-nuvola"
+    />
+  );
+}
 
 function goccia(x: number, y: number) {
   return (
@@ -377,6 +403,35 @@ function Faccia({ umore, chi }: { umore: SeminoUmore; chi: SeminoChi }) {
           <text x={82} y={31} className="s-z s-z3" style={{ animationDelay: '1.6s' }}>
             Z
           </text>
+        </g>
+      );
+      break;
+    case 'arrabbiato':
+      occhi = occhiOvali(3, 3.6, 0, 1.4);
+      bocca = BOCCA.broncio;
+      guance = 's-guance s-guance-rabbia';
+      extra = (
+        <g>
+          <path d="M34.6 62 L45 66" className="s-linea" />
+          <path d="M55 66 L65.4 62" className="s-linea" />
+          {/* segno di rabbia, dalla parte libera dal fiocco */}
+          <g className="s-rabbia">{rabbia(lei ? 29 : 71, 53)}</g>
+          <g className="s-fumo">{nuvoletta(17, 50)}</g>
+          <g className="s-fumo" style={{ animationDelay: '150ms' }}>
+            {nuvoletta(lei ? 86 : 84, lei ? 64 : 46)}
+          </g>
+        </g>
+      );
+      break;
+    case 'euforico':
+      occhi = OCCHI_X.map((x) => <path key={x} d={stella5(x, OCCHI_Y, 4.3)} className="s-stella" />);
+      bocca = BOCCA.grande;
+      guance = 's-guance s-guance-forti';
+      extra = (
+        <g>
+          <path d={stella4(15, 58, 4)} className="s-scintilla" style={{ animationDelay: '0ms' }} />
+          <path d={stella4(86, 62, 4.4)} className="s-scintilla" style={{ animationDelay: '300ms' }} />
+          <path d={stella4(22, 40, 2.8)} className="s-scintilla" style={{ animationDelay: '450ms' }} />
         </g>
       );
       break;

@@ -86,6 +86,22 @@
 .semino .s-guance-forti {
   opacity: 0.95;
 }
+.semino .s-guance-rabbia {
+  fill: #ff4d3d;
+  opacity: 0.85;
+}
+.semino .s-rabbia-segno {
+  fill: none;
+  stroke: #ff4d3d;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+}
+.semino .s-nuvola {
+  fill: #dfe3d6;
+  stroke: var(--semino-tratto);
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+}
 .semino .s-tratteggio {
   stroke: #d8574a;
   stroke-width: 1.2;
@@ -330,6 +346,35 @@
 .semino .semino-r-saluta {
   animation: semino-r-saluta var(--semino-durata) ease-in-out;
 }
+.semino .semino-r-arrabbiato {
+  animation: semino-r-arrabbiato var(--semino-durata) ease-out;
+}
+.semino .semino-r-euforico {
+  animation: semino-r-euforico 820ms ease-in-out;
+}
+/* foglie: tremano di rabbia, sventolano di gioia (il <g> della pianta dentro .semino-crescita) */
+.semino-u-arrabbiato .semino-crescita > g,
+.semino-u-euforico .semino-crescita > g {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+.semino-u-arrabbiato .semino-crescita > g {
+  animation: semino-r-trema 90ms linear 6 alternate;
+}
+.semino-u-euforico .semino-crescita > g {
+  animation: semino-r-sventola 205ms ease-in-out 4 alternate;
+}
+.semino .s-rabbia,
+.semino .s-fumo {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+}
+.semino .s-rabbia {
+  animation: semino-r-pulsa 300ms ease-in-out 2 alternate;
+}
+.semino .s-fumo {
+  animation: semino-r-fumo 700ms ease-out both;
+}
 .semino .semino-r-dorme {
   animation: semino-r-dorme 3.4s ease-in-out infinite;
 }
@@ -428,6 +473,74 @@
   }
   70% {
     transform: rotate(2deg);
+  }
+}
+@keyframes semino-r-arrabbiato {
+  18% {
+    transform: translateY(2px) scale(1.08, 0.88);
+  }
+  34% {
+    transform: translateX(-3px) scale(1.04, 0.94);
+  }
+  50% {
+    transform: translateX(3px) scale(1.04, 0.94);
+  }
+  66% {
+    transform: translateX(-2px) scale(1.02, 0.97);
+  }
+  82% {
+    transform: translateX(1px);
+  }
+}
+@keyframes semino-r-euforico {
+  12% {
+    transform: scale(1.08, 0.9);
+  }
+  28% {
+    transform: translateY(-12px) scale(0.95, 1.07) rotate(-4deg);
+  }
+  44% {
+    transform: translateY(0) scale(1.09, 0.89);
+  }
+  62% {
+    transform: translateY(-12px) scale(0.95, 1.07) rotate(4deg);
+  }
+  80% {
+    transform: translateY(0) scale(1.06, 0.93);
+  }
+}
+@keyframes semino-r-trema {
+  from {
+    transform: rotate(-4deg);
+  }
+  to {
+    transform: rotate(4deg);
+  }
+}
+@keyframes semino-r-sventola {
+  from {
+    transform: rotate(-9deg) scale(1.03);
+  }
+  to {
+    transform: rotate(9deg) scale(1.03);
+  }
+}
+@keyframes semino-r-pulsa {
+  to {
+    transform: scale(1.3);
+  }
+}
+@keyframes semino-r-fumo {
+  from {
+    transform: translateY(4px) scale(0.2);
+    opacity: 0;
+  }
+  35% {
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-3px) scale(1);
+    opacity: 0.9;
   }
 }
 @keyframes semino-r-dorme {
