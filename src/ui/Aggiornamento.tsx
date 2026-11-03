@@ -55,7 +55,16 @@ export function BannerAggiornamento() {
         disabled={inCorso}
         onClick={() => {
           setInCorso(true);
-          aggiorna().catch(() => window.location.reload());
+          // ricarica quando il nuovo service worker prende il controllo; in ogni caso entro 4 s
+          let fatto = false;
+          const ricarica = () => {
+            if (fatto) return;
+            fatto = true;
+            window.location.reload();
+          };
+          navigator.serviceWorker?.addEventListener('controllerchange', ricarica, { once: true });
+          window.setTimeout(ricarica, 4000);
+          aggiorna().catch(ricarica);
         }}
       >
         {inCorso ? 'Aggiorno…' : 'Aggiorna'}

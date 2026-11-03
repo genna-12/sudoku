@@ -44,7 +44,9 @@ export default defineConfig({
           { src: 'icona-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
-      workbox: { globPatterns: ['**/*.{js,css,html,svg,png,woff2}'] },
+      // clientsClaim: il service worker nuovo prende in carico subito le pagine aperte dopo "Aggiorna";
+      // skipWaiting resta false: aspetta il tocco sul bottone (registerType 'prompt').
+      workbox: { globPatterns: ['**/*.{js,css,html,svg,png,woff2}'], clientsClaim: true, skipWaiting: false, cleanupOutdatedCaches: true },
     }),
   ],
   test: { environment: 'node' },
