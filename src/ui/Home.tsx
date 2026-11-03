@@ -12,6 +12,7 @@ import type { Giocatore, StatoPartita } from '../stato';
 import { MenuHome } from './MenuHome';
 import { SemiTitolo } from './Icone';
 import type { Tema } from './MenuHome';
+import type { InfoSync } from './useSync';
 import { aCasoDiverso, accessoriSbloccati, accessorioPermesso, presenzaBlu } from './regole';
 import type { Tappa } from './regole';
 import { ELEMENTI_SCENA, Scena } from './Scena';
@@ -58,6 +59,9 @@ interface Props {
   onImporta: (testo: string) => void;
   onCancellaPartita: () => void;
   onRicomincia: () => void;
+  /** memoria condivisa (Worker): stato per il menù */
+  sync?: InfoSync;
+  onSincronizza?: () => void;
   onContinua: () => void;
   onNuova: (m: Modalita, l: Livello) => void;
   onGiardino: () => void;
@@ -119,6 +123,8 @@ export function Home(p: Props) {
           onImporta={p.onImporta}
           onCancellaPartita={p.onCancellaPartita}
           onRicomincia={p.onRicomincia}
+          sync={p.sync}
+          onSincronizza={p.onSincronizza}
         />
       </header>
 

@@ -2,6 +2,7 @@ import { REGISTRO } from '../net';
 import { useRef, useState, useEffect } from 'react';
 import type { ChangeEvent } from 'react';
 import { IconaMenu } from './Icone';
+import type { InfoSync } from './useSync';
 
 export type Tema = 'auto' | 'scuro' | 'chiaro';
 const TEMI: Array<{ id: Tema; nome: string }> = [
@@ -24,6 +25,17 @@ interface Props {
   onImporta: (testo: string) => void;
   onCancellaPartita: () => void;
   onRicomincia: () => void;
+  sync?: InfoSync;
+  onSincronizza?: () => void;
+}
+
+function testoSync(s: InfoSync | undefined): string {
+  if (!s || s.stato === 'spenta') return 'non configurata';
+  if (s.stato === 'errore') return 'errore (riprovo)';
+  if (s.stato === 'in-corso') return 'sincronizzo…';
+  if (!s.ultimo) return 'in attesa';
+  const d = new Date(s.ultimo);
+  return `sincronizzata alle ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 }
 
 type Conferma = null | 'cancella' | 'ricomincia-1' | 'ricomincia-2';
@@ -149,6 +161,14 @@ export function MenuHome(p: Props) {
                 onChange={scegliFile}
               />
             </label>
+            <p className="menu-voce menu-sync" data-testid="sync-stato">
+              <span>Memoria condivisa: {testoSync(p.sync)}</span>
+            </p>
+            {p.sync && p.sync.stato !== 'spenta' && p.onSincronizza && (
+              <button className="menu-voce" data-testid="sync-ora" onClick={p.onSincronizza} disabled={p.sync.stato === 'in-corso'}>
+                Sincronizza ora
+              </button>
+            )}
             <p className="menu-sezione">Per ripartire</p>
             {p.inCorso && (
               <button className="menu-voce" onClick={() => {

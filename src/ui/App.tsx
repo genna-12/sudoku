@@ -57,6 +57,7 @@ import { ScenaSblocco } from './ScenaSblocco';
 import { Toasts, useBattute, useToasts } from './Toasts';
 import type { Tono } from './Toasts';
 import { useArchivio } from './useArchivio';
+import { useSync } from './useSync';
 import { useMascotte, useOgniTanto, useUltimeFrasi } from './useMascotte';
 import { usePartita } from './usePartita';
 import type { Reazione } from './usePartita';
@@ -480,6 +481,8 @@ export function App() {
   }
 
   const rete = useRete(io, { statoCorrente: () => ref.current.partita, messaggio: suMessaggio });
+  // memoria condivisa (Worker): un terzo "dispositivo" che passa dallo stesso merge; nulla va al P2P
+  const sync = useSync({ archivio, ref, modifica, frase: io?.frase ?? null, riceviPartita: (p) => gioco.riceviStato(p) });
   const { connessione } = rete;
   useEffect(() => {
     inviaRef.current = rete.invia;
@@ -665,6 +668,7 @@ export function App() {
       return;
     }
     modifica(() => r.archivio);
+    sync.sincronizzaOra();
     mostra({ tipo: 'banner', testo: r.importate === 1 ? 'Importata 1 partita' : `Importate ${r.importate} partite` });
   }
 
@@ -723,6 +727,8 @@ export function App() {
           onImporta={importaMemoria}
           onCancellaPartita={cancellaInCorso}
           onRicomincia={ricominciaDaZero}
+          sync={sync}
+          onSincronizza={sync.sincronizzaOra}
           onContinua={() => setSchermata('partita')}
           onNuova={(m, l) => conConferma(() => iniziaNuova(m, l))}
           onGiardino={() => setSchermata('giardino')}
