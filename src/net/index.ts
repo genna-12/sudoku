@@ -6,7 +6,18 @@ import type { ApriStanza } from './types';
 
 export type { Messaggio, Stanza, StatoConnessione } from './types';
 
-const log = (...a: unknown[]) => console.log('[stanza]', ...a);
+/** Ultime righe di log, leggibili dal menù Diagnostica (anche sul telefono, senza console). */
+export const REGISTRO: string[] = [];
+const MAX_REGISTRO = 80;
+function ora(): string {
+  const d = new Date();
+  return [d.getHours(), d.getMinutes(), d.getSeconds()].map((n) => String(n).padStart(2, '0')).join(':');
+}
+const log = (...a: unknown[]) => {
+  console.log('[stanza]', ...a);
+  REGISTRO.push(`${ora()} ${a.map((x) => (typeof x === 'string' ? x : JSON.stringify(x))).join(' ')}`);
+  if (REGISTRO.length > MAX_REGISTRO) REGISTRO.splice(0, REGISTRO.length - MAX_REGISTRO);
+};
 
 /** Server PeerJS: quello pubblico di default, oppure uno locale via variabili VITE_PEER_*. */
 function opzioniPeer(): PeerOptions {
@@ -31,6 +42,9 @@ function adattaConn(c: DataConnection): ConnMinima {
     invia: (d) => c.send(d),
     chiudi: () => c.close(),
     ascolta(g) {
+      // stato ICE: dice se il P2P passa davvero (connected/completed) o si ferma (failed → TURN non raggiunto)
+      const pc = (c as unknown as { peerConnection?: RTCPeerConnection }).peerConnection;
+      pc?.addEventListener('iceconnectionstatechange', () => log('ice', c.peer.slice(-2), pc.iceConnectionState));
       c.on('open', () => g.aperta());
       c.on('data', (d) => g.dati(d));
       c.on('close', () => g.chiusa());

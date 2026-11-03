@@ -1,4 +1,5 @@
-import { useRef, useState } from 'react';
+import { REGISTRO } from '../net';
+import { useRef, useState, useEffect } from 'react';
 import type { ChangeEvent } from 'react';
 import { IconaMenu } from './Icone';
 
@@ -26,6 +27,37 @@ interface Props {
 }
 
 type Conferma = null | 'cancella' | 'ricomincia-1' | 'ricomincia-2';
+
+/** Registro della rete (stanze, ICE), per capire dal telefono perché non ci si collega. */
+function Diagnostica() {
+  const [aperta, setAperta] = useState(false);
+  const [, ridisegna] = useState(0);
+  useEffect(() => {
+    if (!aperta) return;
+    const t = window.setInterval(() => ridisegna((n) => n + 1), 1000);
+    return () => window.clearInterval(t);
+  }, [aperta]);
+  const testo = REGISTRO.join('\n');
+  return (
+    <div className="menu-sezione">
+      <button className="menu-voce" type="button" onClick={() => setAperta((v) => !v)} aria-expanded={aperta}>
+        Diagnostica rete {aperta ? '▴' : '▾'}
+      </button>
+      {aperta && (
+        <>
+          <pre className="diagnostica" data-testid="diagnostica">{testo || 'nessun evento ancora'}</pre>
+          <button
+            className="menu-voce"
+            type="button"
+            onClick={() => navigator.clipboard?.writeText(testo).catch(() => {})}
+          >
+            Copia il registro
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
 
 /** Menù ⋯ della Home: impostazioni, memoria (esporta/importa) e, in fondo, le cancellazioni. */
 export function MenuHome(p: Props) {
@@ -219,6 +251,7 @@ export function MenuHome(p: Props) {
               </>
             )}
             </div>
+            <Diagnostica />
             <p className="menu-versione" data-testid="versione">versione {__APP_VERSIONE__}</p>
           </div>
         </div>
