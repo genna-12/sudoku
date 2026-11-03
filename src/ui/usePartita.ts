@@ -14,9 +14,11 @@ import {
   conQuotaBlu,
   celleCompletate,
   conBonusVittoria,
+  contatoriVuoti,
   esitoMossa,
   mascotteDi,
   partitaToccata,
+  regaliBonusDi,
   stessoPuzzle,
   umoreEvento,
   usaRegalo,
@@ -40,6 +42,8 @@ export interface Effetti {
   vibra: (schema: number | number[]) => void;
   /** la partita è appena diventata "finita" (qui o dal partner) */
   vittoria: () => void;
+  /** suggerimenti regalati dagli sblocchi, appena accreditati alla partita nuova */
+  regaliGiardino?: (n: number) => void;
 }
 
 interface Opzioni {
@@ -235,12 +239,31 @@ export function usePartita(opzioni: Opzioni) {
     return true;
   }
 
+  /**
+   * I suggerimenti regalati dagli sblocchi del giardino (archivio.regaliBonus) vanno ai miei
+   * contatori della partita appena iniziata, una volta sola.
+   */
+  function accreditaRegaliGiardino() {
+    const a = o.current.ref.current;
+    const n = regaliBonusDi(a.regaliBonus);
+    const p = a.partita;
+    if (!n || !p || p.finita) return;
+    const base = mieiContatori(p) ?? contatoriVuoti();
+    const c: Contatori = { ...base, regaliDisponibili: base.regaliDisponibili + n, ts: tsContatori(p) };
+    const mio = o.current.mioRuolo;
+    o.current.modifica((x) => ({ ...x, regaliBonus: 0 }));
+    imposta(applica(p, { tipo: 'contatori', da: mio, contatori: c }));
+    o.current.invia({ t: 'contatori', da: mio, contatori: c });
+    o.current.effetti.regaliGiardino?.(n);
+  }
+
   function iniziaNuova(m: Modalita, l: Livello) {
     const st = nuovaPartita(generaPuzzle(m, l, Date.now()));
     imposta(st);
     azzeraPassi();
     erroriDiFila.current = 0;
     o.current.invia({ t: 'nuova', stato: st });
+    accreditaRegaliGiardino();
   }
 
   /** Riprende un germoglio: diventa la partita più recente (così l'altro la accetta) e si manda come `nuova`. */
@@ -251,6 +274,7 @@ export function usePartita(opzioni: Opzioni) {
     azzeraPassi();
     erroriDiFila.current = 0;
     o.current.invia({ t: 'nuova', stato: st });
+    accreditaRegaliGiardino();
     return true;
   }
 
@@ -288,6 +312,9 @@ export function usePartita(opzioni: Opzioni) {
     imposta(s);
     azzeraPassi();
     erroriDiFila.current = 0;
+    // dopo l'inoltro della `nuova` all'altra stanza (il chiamante la inoltra subito dopo): i miei
+    // contatori non devono arrivare al mio altro dispositivo prima della partita a cui appartengono
+    queueMicrotask(accreditaRegaliGiardino);
     return 'nuova';
   }
 

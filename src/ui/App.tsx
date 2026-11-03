@@ -4,12 +4,15 @@ import type { CSSProperties } from 'react';
 import { CARATTERE, FRASI } from '../config/frasi';
 import type { ChiParla } from '../config/frasi';
 import { dormePerOrario } from '../config/sonno';
+import { giornoSpeciale } from '../config/storia';
+import type { Battuta, Sblocco } from '../config/storia';
 import { COLORI_RUOLO, PROFILI, nomeVisibile, profiloDiNome } from '../config/giocatori';
 import type { Livello, Modalita } from '../engine';
 import type { Messaggio } from '../net';
 import type { VoceStorico } from '../stato';
 import type { Archivio } from '../stato/archivio';
 import { unisciStoricoRemoto } from '../stato/archivio';
+import { AnnuncioSblocco } from './AnnuncioSblocco';
 import { Giardino } from './Giardino';
 import type { Arrivo, Lampo } from './Griglia';
 import { Home } from './Home';
@@ -22,19 +25,25 @@ import {
   CHIAVE_SBLOCCO,
   SOLLETICO_OGNI_MS,
   accessorioDi,
+  accessorioPermesso,
   bonusVittoria,
   chiacchiera,
   daRimandare,
   fioriDi,
   fraseMascotte,
   fraseSonno,
+  frasiInvio,
   mascotteDi,
   presenzaBlu,
+  regaliBonusDi,
+  sblocchiNuovi,
   scegliFrase,
   scenaDaMostrare,
   seminaSbloccata,
   solletico,
+  sorpresaDaMostrare,
   sostituisci,
+  stessiVisti,
   tappaDaMostrare,
   umoreEvento,
   vociCambiate,
@@ -44,7 +53,7 @@ import { ScenaSblocco } from './ScenaSblocco';
 import { Toasts, useBattute, useToasts } from './Toasts';
 import type { Tono } from './Toasts';
 import { useArchivio } from './useArchivio';
-import { useMascotte, useOgniTanto } from './useMascotte';
+import { useMascotte, useOgniTanto, useUltimeFrasi } from './useMascotte';
 import { usePartita } from './usePartita';
 import type { Reazione } from './usePartita';
 import { useRete } from './useRete';
@@ -81,6 +90,8 @@ export function App() {
   const sbloccata = seminaSbloccata(fiori) && archivio.tappeViste.includes(CHIAVE_SBLOCCO);
   const nomeMio = nomeVisibile(profilo, sbloccata);
   const nomePartner = nomeVisibile(profiloPartner, sbloccata);
+  // giorno del mare / della montagna: solo dopo l'arrivo di Semina (le chiacchiere parlano di lei)
+  const giorno = sbloccata ? giornoSpeciale(new Date()) : null;
   const { mostraErrori, vibrazione } = archivio.impostazioni;
   const partita = archivio.partita;
 
@@ -99,14 +110,17 @@ export function App() {
   const [chiacchieraOra, setChiacchieraOra] = useState<Chiacchiera | null>(null);
   const [tappaHome, setTappaHome] = useState<Tappa | null>(null);
   const [solleticoOra, setSolleticoOra] = useState<Chiacchiera | null>(null);
+  const [annuncio, setAnnuncio] = useState<Sblocco[] | null>(null);
+  const [sorpresa, setSorpresa] = useState<{ iniziata: number; battute: Battuta[] } | null>(null);
+  const { ultime, ricorda } = useUltimeFrasi();
   const { attivi, mostra } = useToasts();
   const { battuta, dici } = useBattute();
   const { mascotte, reagisci, sveglia } = useMascotte();
 
   // valori letti dai gestori di rete (sempre gli ultimi)
-  const vivi = useRef({ nomeMio, nomePartner, sbloccata, mioRuolo, schermata, mostraErrori, vibrazione, mascotte });
+  const vivi = useRef({ nomeMio, nomePartner, sbloccata, mioRuolo, schermata, mostraErrori, vibrazione, mascotte, fiori, giorno });
   useEffect(() => {
-    vivi.current = { nomeMio, nomePartner, sbloccata, mioRuolo, schermata, mostraErrori, vibrazione, mascotte };
+    vivi.current = { nomeMio, nomePartner, sbloccata, mioRuolo, schermata, mostraErrori, vibrazione, mascotte, fiori, giorno };
   });
   const ultimaFrase = useRef('');
   const ultimoEvento = useRef(0);
@@ -145,17 +159,21 @@ export function App() {
     reale: profilo.nomeReale,
     realePartner: profiloPartner.nomeReale,
   });
-  const frase = (c: CategoriaFrase, chi: ChiParla, n?: number) => {
-    // svegliata nelle sue ore di sonno: una volta su due parla del sonno
-    const assonnata = dormePerOrario(chi) && Math.random() < 0.5;
-    const t = assonnata ? fraseSonno(chi, ultimaFrase.current) : fraseMascotte(c, chi, ultimaFrase.current, sost(n));
+  // ogni scelta evita le ultime frasi della sua categoria (memoria) e l'ultima detta in assoluto
+  const evita = (categoria: string) => [...ultime(categoria), ultimaFrase.current];
+  const usata = (categoria: string, t: string) => {
+    ricorda(categoria, t);
     ultimaFrase.current = t;
     return t;
   };
+  const frase = (c: CategoriaFrase, chi: ChiParla, n?: number) => {
+    // svegliata nelle sue ore di sonno: una volta su due parla del sonno
+    if (dormePerOrario(chi) && Math.random() < 0.5) return usata('sonno', fraseSonno(chi, evita('sonno')));
+    return usata(c, fraseMascotte(c, chi, evita(c), sost(n), Math.random, vivi.current.fiori));
+  };
   const fraseSemplice = (c: CategoriaFrase) => {
-    const t = scegliFrase(FRASI[c], ultimaFrase.current, sost());
-    ultimaFrase.current = t;
-    return t;
+    const lista = c === 'invio' ? frasiInvio(vivi.current.fiori) : FRASI[c];
+    return usata(c, scegliFrase(lista, evita(c), sost()));
   };
 
   // --- reazioni delle mascotte (generate qui o arrivate dall'altro: si mostrano uguali) ------
@@ -176,7 +194,10 @@ export function App() {
   }
 
   function mostraChiacchiera(chi: ChiParla, testo: string) {
-    setChiacchieraOra({ id: Date.now(), chi, testo, accessorio: accessorioDi(chi, testo) });
+    // l'accessorio della frase solo se è già sbloccato e del suo carattere (in partita sono separati)
+    const v = vivi.current;
+    const accessorio = accessorioPermesso(chi, accessorioDi(chi, testo), v.fiori, { giorno: v.giorno });
+    setChiacchieraOra({ id: Date.now(), chi, testo, accessorio });
     window.clearTimeout(timerChiacchiera.current);
     timerChiacchiera.current = window.setTimeout(() => setChiacchieraOra(null), DURATA_CHIACCHIERA_MS);
   }
@@ -229,6 +250,8 @@ export function App() {
     const testo = typeof m.testo === 'string' ? m.testo.slice(0, 200) : '';
     const idx = typeof m.idx === 'number' && m.idx >= 0 && m.idx <= 80 ? m.idx : undefined;
     if (categoria === 'chiacchiera') ultimaChiacchieraRicevuta.current = Date.now();
+    // anche le frasi dell'altro dispositivo entrano nella memoria: non le ripeto subito
+    if (testo) ricorda(categoria === 'chiacchiera' ? 'chiacchiere' : categoria, testo);
     const delPartner = da === 'coppia' || !!m.inoltrato;
     mostraReazione({ chi, umore: umore || 'neutro', categoria: categoria as Reazione['categoria'], testo, idx }, delPartner);
     if (delPartner && DA_APPLAUSO.has(categoria)) {
@@ -244,8 +267,9 @@ export function App() {
     if (ora - u.ts < SOLLETICO_OGNI_MS) return;
     const v = vivi.current;
     if (!v.sbloccata && chi !== 'semino') return;
-    const r = solletico(chi, u.umore, u.testo, sost());
-    if (dormePerOrario(chi) && Math.random() < 0.5) r.testo = fraseSonno(chi, u.testo);
+    const r = solletico(chi, u.umore, [...ultime('solletico'), u.testo], sost());
+    if (dormePerOrario(chi) && Math.random() < 0.5) r.testo = fraseSonno(chi, [...ultime('sonno'), u.testo]);
+    ricorda('solletico', r.testo);
     ultimoSolletico.current = { ts: ora, umore: r.umore, testo: r.testo };
     const reazione: Reazione = { chi, umore: r.umore, categoria: 'solletico', testo: r.testo };
     mostraReazione(reazione, false);
@@ -269,6 +293,11 @@ export function App() {
         inviaReazione(r);
       },
       lampo: (centro, celle) => setLampo({ id: Date.now(), centro, celle }),
+      regaliGiardino: (n) =>
+        annuncia(n === 1 ? 'Regalo del giardino: un suggerimento in più' : `Regalo del giardino: ${n} suggerimenti in più`, {
+          categoria: 'regalo',
+          inPartita: true,
+        }),
       vibra: (schema) => {
         if (vivi.current.vibrazione) navigator.vibrate?.(schema);
       },
@@ -276,6 +305,13 @@ export function App() {
         const p = ref.current.partita;
         if (!p) return;
         setVittoriaChiusa(null);
+        // sorpresa di questo numero di fiori: una volta per dispositivo (segnata subito come vista)
+        const a = ref.current;
+        const s = sorpresaDaMostrare(fioriDi(a.storico), a.tappeViste, vivi.current.sbloccata);
+        if (s) {
+          setSorpresa({ iniziata: p.iniziata, battute: s.battute });
+          modifica((x) => (x.tappeViste.includes(s.chiave) ? x : { ...x, tappeViste: [...x.tappeViste, s.chiave] }));
+        }
         reagisci(vivi.current.sbloccata ? mascotteDi(vivi.current.mioRuolo) : 'semino', umoreEvento('semino', 'vittoria'));
         // la frase la sceglie chi ha messo l'ultima cella; se non arriva, la scelgo io
         window.setTimeout(() => {
@@ -464,6 +500,18 @@ export function App() {
     modifica((a) => (a.tappeViste.includes(k) ? a : { ...a, tappeViste: [...a.tappeViste, k] }));
   }, [tappaHome, modifica]);
 
+  // entrando nella Home: gli sblocchi nuovi per questo dispositivo (annuncio dell'ultima soglia, i
+  // suoi regali messi da parte per la prossima partita, tutti segnati come visti)
+  useEffect(() => {
+    if (!chiaveHome) return;
+    const a = ref.current;
+    const n = sblocchiNuovi(fioriDi(a.storico), a.sbloccatiVisti);
+    if (n.annuncio.length) setAnnuncio(n.annuncio);
+    if (n.regali || !stessiVisti(a.sbloccatiVisti, n.visti)) {
+      modifica((x) => ({ ...x, sbloccatiVisti: n.visti, regaliBonus: regaliBonusDi(x.regaliBonus) + n.regali }));
+    }
+  }, [chiaveHome, ref, modifica]);
+
   function fineScena() {
     modifica((a) => (a.tappeViste.includes(CHIAVE_SBLOCCO) ? a : { ...a, tappeViste: [...a.tappeViste, CHIAVE_SBLOCCO] }));
     reagisci('semino', 'felice');
@@ -473,16 +521,16 @@ export function App() {
   // --- chiacchiere: ogni 40–60 s, mai sopra la storia, in partita solo dopo 45 s di quiete ------
   useOgniTanto(!!io && (schermata === 'home' || schermata === 'partita'), () => {
     const ora = Date.now();
-    if (tappaHome || scena || vittoriaAperta) return;
+    if (tappaHome || scena || vittoriaAperta || annuncio) return;
     if (vivi.current.schermata === 'partita' && ora - ultimoEvento.current < SILENZIO_PARTITA_MS) return;
     if (connessione === 'connesso' && ora - ultimaChiacchieraRicevuta.current < RISPETTA_CHIACCHIERA_MS) return;
     const chi: ChiParla = vivi.current.sbloccata ? prossimaChi.current : 'semino';
     prossimaChi.current = chi === 'semino' ? 'semina' : 'semino';
     // chi dorme non chiacchiera
     if (vivi.current.mascotte[chi].umore === 'dorme') return;
-    const testo = chiacchiera(chi, ultimaFrase.current, sost());
+    const testo = chiacchiera(chi, evita('chiacchiere'), sost(), Math.random, { fiori: vivi.current.fiori, giorno: vivi.current.giorno });
     if (!testo) return;
-    ultimaFrase.current = testo;
+    usata('chiacchiere', testo);
     const r: Reazione = { chi, umore: CARATTERE[chi].umoreBase, categoria: 'chiacchiera', testo };
     mostraReazione(r, false);
     inviaReazione(r);
@@ -598,6 +646,7 @@ export function App() {
           generando={generando}
           fiori={fiori}
           sbloccata={sbloccata}
+          giorno={giorno}
           tappa={tappaHome}
           onChiudiTappa={() => setTappaHome(null)}
           chiacchiera={chiacchieraOra}
@@ -625,6 +674,7 @@ export function App() {
           storico={archivio.storico}
           inCorso={partita && !partita.finita ? `${partita.puzzle.modalita}-${partita.puzzle.seed}` : null}
           sbloccata={sbloccata}
+          bluPresenza={blu}
           mascotte={mascotte}
           solletico={solleticoOra}
           onSolletico={onSolletico}
@@ -675,11 +725,17 @@ export function App() {
           puntiMiei={partita.contatori?.[mioRuolo]?.punti ?? 0}
           puntiSuoi={partita.contatori?.[altro(mioRuolo)]?.punti ?? 0}
           bonus={bonusVittoria(partita.secondi)}
+          fiori={fiori}
+          bluPresenza={blu}
+          sorpresa={sorpresa && sorpresa.iniziata === partita.iniziata ? sorpresa.battute : null}
           onNuova={() => iniziaNuova(partita.puzzle.modalita, partita.puzzle.livello)}
           onChiudi={() => setVittoriaChiusa(partita.iniziata)}
         />
       )}
       {scena && <ScenaSblocco onFine={fineScena} />}
+      {annuncio && schermata === 'home' && !scena && (
+        <AnnuncioSblocco sblocchi={annuncio} fiori={fiori} bluPresenza={blu} onChiudi={() => setAnnuncio(null)} />
+      )}
       <Toasts attivi={attivi} />
     </div>
   );

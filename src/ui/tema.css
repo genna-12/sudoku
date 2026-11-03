@@ -3070,3 +3070,243 @@ input:focus-visible {
 .pianta.pianta-germoglio {
   box-shadow: none;
 }
+
+/* ---------- T3: il giardino dietro le schermate, gli sblocchi, le sorprese ----------
+   La Scena (Scena.tsx) è sfondo: in Home dietro l'intestazione, nel Giardino in testa, nella
+   vittoria come striscia di prato su cui stanno le mascotte. Nessuna cornice: il cielo è lo stesso
+   della pagina, l'elemento nuovo entra da solo. */
+.app {
+  overflow-x: clip;
+}
+
+/* Home: il giardino dietro titolo e mascotte, a tutta larghezza, sfuma nel fondo */
+.home {
+  position: relative;
+  isolation: isolate;
+}
+.home-scena {
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  left: 50%;
+  width: 100vw;
+  translate: -50% 0;
+  opacity: 0.9;
+}
+
+/* fumetto del narratore (tappe con chi: 'nessuno'): nessuno parla, tratteggiato, senza coda */
+.fumetto--narra {
+  border-style: dashed;
+  --fumetto-accento: var(--linea-forte);
+  font-style: italic;
+}
+.fumetto--narra::before {
+  display: none;
+}
+.home-eroe.parla-nessuno .semino {
+  opacity: 0.88;
+}
+
+/* Giardino: la scena in testa, a filo dei bordi */
+.giardino-scena {
+  width: calc(100% + 32px);
+  margin: calc(-1 * var(--s2)) -16px 0;
+}
+.giardino-scena-vuota ~ .giardino .giardino-vuoto {
+  position: relative;
+  margin-top: -96px;
+}
+
+/* annuncio di uno sblocco */
+.annuncio {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: var(--s4);
+  background: color-mix(in srgb, var(--fondo) 78%, transparent);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  animation: dissolvi 0.3s ease both;
+}
+.annuncio-carta {
+  width: min(100%, 400px);
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  background: var(--carta);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-foglia);
+  box-shadow: var(--ombra);
+  animation: atterra 0.5s 0.08s var(--molla) both;
+  outline: none;
+}
+.annuncio-cielo {
+  background: linear-gradient(to bottom, var(--cielo), var(--fondo) 70%, var(--fondo-2));
+  border-bottom: 1px solid var(--linea);
+}
+.annuncio-corpo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  padding: var(--s4) var(--s6) var(--s6);
+}
+.annuncio-titolo {
+  margin: 0;
+  font-size: 27px;
+  line-height: 1.04;
+  font-weight: 850;
+  letter-spacing: -0.015em;
+  --casl: 1;
+  text-wrap: balance;
+}
+.annuncio-descrizione {
+  margin: 0;
+  font-size: 15.5px;
+  line-height: 1.4;
+  color: var(--tenue);
+  --casl: 1;
+  text-wrap: pretty;
+}
+.annuncio-regali {
+  display: grid;
+  gap: var(--s3);
+  margin: var(--s2) 0 var(--s3);
+  padding: var(--s3) 0 0;
+  border-top: 1px solid var(--linea);
+  list-style: none;
+}
+.annuncio-regali li {
+  --c: var(--linea-forte);
+  display: grid;
+  grid-template-columns: 12px 1fr;
+  column-gap: var(--s3);
+  font-size: 14.5px;
+  line-height: 1.3;
+}
+/* un seme per riga: oro il suggerimento; frasi e accessori col colore di chi li porta (crema se di tutti e due) */
+.annuncio-regali li::before {
+  content: '';
+  grid-row: span 2;
+  width: 10px;
+  height: 10px;
+  margin-top: 4px;
+  border-radius: 50% 50% 50% 2px;
+  background: var(--c);
+}
+.annuncio-regali li[data-tipo='regalo'] {
+  --c: var(--oro);
+}
+.annuncio-regali li[data-chi='entrambi'] {
+  --c: var(--testo);
+}
+.annuncio-regali li[data-chi='semino'] {
+  --c: var(--verde);
+}
+.annuncio-regali li[data-chi='semina'] {
+  --c: var(--blu);
+}
+.annuncio-regali b {
+  font-weight: 650;
+}
+.annuncio-regali span {
+  grid-column: 2;
+  font-size: 13.5px;
+  color: var(--tenue);
+}
+
+/* vittoria: una striscia di giardino in testa alla carta, le mascotte ci stanno sopra */
+.vittoria-carta {
+  overflow: hidden;
+  padding-top: 0;
+}
+.vittoria-cielo {
+  margin: 0 -24px;
+  background: linear-gradient(to bottom, var(--cielo), var(--fondo) 80%);
+  border-bottom: 1px solid var(--linea);
+}
+.vittoria-carta .vittoria-mascotte {
+  margin: -66px auto 8px;
+}
+
+/* sorpresa: una battuta per tocco al posto della frase, poi la frase */
+.sorpresa {
+  --c: var(--verde-inchiostro);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s1);
+  justify-content: center;
+  width: 100%;
+  min-height: 150px;
+  margin: 0 0 var(--s4);
+  padding: var(--s3) var(--s4);
+  border: 1.5px solid color-mix(in srgb, var(--c) 70%, var(--linea));
+  border-radius: 22px;
+  background: var(--carta-2);
+  color: var(--inchiostro);
+  font: inherit;
+  cursor: pointer;
+  animation: fumetto-entra 0.32s var(--molla) both;
+  transform-origin: 50% 0;
+}
+.sorpresa-semina {
+  --c: var(--blu-inchiostro);
+}
+.sorpresa-nessuno {
+  --c: var(--linea-forte);
+  border-style: dashed;
+}
+.sorpresa-chi {
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--c);
+}
+.sorpresa-testo {
+  font-size: 19px;
+  line-height: 1.25;
+  font-weight: 650;
+  --casl: 1;
+  text-wrap: balance;
+}
+.sorpresa-nessuno .sorpresa-testo {
+  font-style: italic;
+  font-weight: 420;
+  color: var(--tenue);
+}
+.sorpresa-avanti {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  margin-top: var(--s1);
+  font-size: 12.5px;
+  color: var(--tenue);
+}
+.sorpresa-passi {
+  display: inline-flex;
+  gap: 4px;
+}
+.sorpresa-passi i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--linea-forte);
+}
+.sorpresa-passi i.fatto {
+  background: var(--c);
+}
+/* chi non parla nella sorpresa resta un passo indietro */
+.vittoria-carta.parla-semino .semino-coppia-lei,
+.vittoria-carta.parla-semina .semino-coppia-lui,
+.vittoria-carta.parla-nessuno .semino {
+  opacity: 0.82;
+  transition: opacity 0.3s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .annuncio,
+  .annuncio-carta,
+  .sorpresa {
+    animation: none;
+  }
+}

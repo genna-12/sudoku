@@ -5,15 +5,19 @@ import type { Livello, Modalita } from '../engine';
 import { SEMINA_SBLOCCATA_A } from '../config/frasi';
 import type { ChiParla } from '../config/frasi';
 import { LIVELLI_PARAMETRI } from '../config/livelli';
+import { GIORNI_SPECIALI, elementiSbloccati } from '../config/storia';
+import type { GiornoSpeciale } from '../config/storia';
 import type { StatoConnessione } from '../net';
 import type { Giocatore, StatoPartita } from '../stato';
 import { MenuHome } from './MenuHome';
 import { SemiTitolo } from './Icone';
 import type { Tema } from './MenuHome';
-import { aCasoDiverso, presenzaBlu } from './regole';
+import { aCasoDiverso, accessoriSbloccati, accessorioPermesso, presenzaBlu } from './regole';
 import type { Tappa } from './regole';
+import { ELEMENTI_SCENA, Scena } from './Scena';
 import { ACCESSORI_DI, Semino, SeminoCoppia, SeminoPianta } from './Semino';
-import { accessorioValido, chiIndossa } from './useMascotte';
+import type { Accessorio } from './Semino';
+import { accessorioValido } from './useMascotte';
 import type { Indossati, Mascotte } from './useMascotte';
 import { CHIAVI, leggi, scrivi, tempo, testoConnessione } from './util';
 
@@ -36,6 +40,8 @@ interface Props {
   generando: boolean;
   fiori: number;
   sbloccata: boolean;
+  /** giorno del mare / della montagna (solo dopo l'arrivo di Semina), o null */
+  giorno: GiornoSpeciale | null;
   tappa: Tappa | null;
   onChiudiTappa: () => void;
   chiacchiera: Chiacchiera | null;
@@ -73,7 +79,16 @@ export function Home(p: Props) {
   }
 
   return (
-    <main className="schermata home" data-testid="home">
+    <main className="schermata home" data-testid="home" data-giorno={p.giorno ?? undefined}>
+      <Scena
+        className="home-scena"
+        elementi={elementiSbloccati(p.fiori)}
+        fiori={p.fiori}
+        bluPresenza={presenzaBlu(p.fiori, p.sbloccata)}
+        altezza={220}
+        sfuma
+        nuovi={inEvidenza(p)}
+      />
       <header className="home-testa">
         <Pallino connessione={p.connessione} partner={p.partnerNome} occupata={p.occupata} />
         {p.personaleConnesso && (
@@ -185,17 +200,50 @@ export function Home(p: Props) {
 
 const RIPOSO_MS = 60000;
 
+/** Elementi della scena da far entrare di nuovo: quello della tappa aperta, o quello del giorno speciale. */
+function inEvidenza(p: Pick<Props, 'tappa' | 'giorno' | 'fiori'>): string[] | undefined {
+  const scena = (x: string) => (ELEMENTI_SCENA as readonly string[]).includes(x);
+  const visibili = elementiSbloccati(p.fiori);
+  if (p.tappa) {
+    const k = [p.tappa.scena, p.tappa.sblocca?.tipo === 'elemento' ? p.tappa.sblocca.id : undefined].filter(
+      (x): x is string => !!x && scena(x) && visibili.includes(x),
+    );
+    return k.length ? k : undefined;
+  }
+  const g = p.giorno ? GIORNI_SPECIALI[p.giorno].scena : '';
+  return g && visibili.includes(g) ? [g] : undefined;
+}
+
+/** Gli accessori che ciascuno può mettersi a riposo: i suoi, già sbloccati; Semina al mare in coppia anche la tavola. */
+function poolRiposo(chi: ChiParla, fiori: number, coppia: boolean, giorno: GiornoSpeciale | null): Accessorio[] {
+  const suoi = accessoriSbloccati(ACCESSORI_DI[chi], fiori);
+  if (chi === 'semina' && accessorioPermesso('semina', 'surf', fiori, { inCoppia: coppia, giorno })) return [...suoi, 'surf'];
+  return suoi;
+}
+
 /**
  * A riposo (nessun fumetto aperto) ogni 60 s circa una mascotte cambia accessorio a caso fra i
- * suoi; prima dello sblocco solo Semino. Si alternano.
+ * suoi (solo quelli sbloccati); prima dello sblocco solo Semino. Si alternano. Nei giorni speciali
+ * si parte con gli accessori a tema.
  */
-function useAccessoriRiposo(attivo: boolean, sbloccata: boolean): Indossati {
-  const [{ indossati }, setStato] = useState<{ indossati: Indossati; giri: number }>({ indossati: {}, giri: 0 });
+function useAccessoriRiposo(attivo: boolean, sbloccata: boolean, fiori: number, giorno: GiornoSpeciale | null): Indossati {
+  const [{ indossati }, setStato] = useState<{ indossati: Indossati; giri: number }>(() => {
+    if (!giorno) return { indossati: {}, giri: 0 };
+    const tema = GIORNI_SPECIALI[giorno].accessori;
+    const o = { inCoppia: sbloccata, giorno };
+    return {
+      indossati: {
+        semino: accessorioValido(accessorioPermesso('semino', tema.semino, fiori, o)),
+        semina: accessorioValido(accessorioPermesso('semina', tema.semina, fiori, o)),
+      },
+      giri: 0,
+    };
+  });
   // il ritmo non riparte a ogni fumetto (le chiacchiere arrivano più spesso di 60 s): se allo
   // scadere c'è un fumetto aperto, si riprova poco dopo
-  const vivo = useRef({ attivo, sbloccata });
+  const vivo = useRef({ attivo, sbloccata, fiori, giorno });
   useEffect(() => {
-    vivo.current = { attivo, sbloccata };
+    vivo.current = { attivo, sbloccata, fiori, giorno };
   });
   useEffect(() => {
     let t = 0;
@@ -206,7 +254,8 @@ function useAccessoriRiposo(attivo: boolean, sbloccata: boolean): Indossati {
         const scelta = Math.random();
         setStato(({ indossati: x, giri }) => {
           const chi: ChiParla = v.sbloccata && giri % 2 ? 'semina' : 'semino';
-          return { indossati: { ...x, [chi]: aCasoDiverso(ACCESSORI_DI[chi], x[chi], () => scelta) }, giri: giri + 1 };
+          const pool = poolRiposo(chi, v.fiori, v.sbloccata, v.giorno);
+          return { indossati: { ...x, [chi]: aCasoDiverso(pool, x[chi], () => scelta) }, giri: giri + 1 };
         });
         prossimo(RIPOSO_MS * (0.9 + Math.random() * 0.2));
       }, ms);
@@ -217,25 +266,46 @@ function useAccessoriRiposo(attivo: boolean, sbloccata: boolean): Indossati {
   return sbloccata ? indossati : { semino: indossati.semino };
 }
 
+/** Accessori della tappa aperta: `accessorio` a chi parla (con 'entrambi': a Semino), `accessorioSemina` a lei. */
+function accessoriTappa(t: Tappa, fiori: number, coppia: boolean): Indossati {
+  const o = { inCoppia: coppia };
+  const out: Indossati = {};
+  const lui = t.chi === 'semina' ? undefined : t.accessorio;
+  const lei = t.chi === 'semina' ? t.accessorio : t.chi === 'entrambi' ? t.accessorioSemina : undefined;
+  if (t.chi !== 'nessuno') {
+    const a = accessorioValido(accessorioPermesso('semino', lui, fiori, o));
+    if (a) out.semino = a;
+    const b = accessorioValido(accessorioPermesso('semina', lei, fiori, o));
+    if (b) out.semina = b;
+  }
+  return out;
+}
+
 /** Le mascotte con il loro fumetto: solletico, storia (se c'è una tappa nuova), chiacchiere o un saluto. */
 function Eroe(p: Props) {
   const stadio = Math.min(4, p.fiori);
   const tappa = p.tappa;
   const sol = p.solletico;
-  const parla: ChiParla | 'entrambi' = sol ? sol.chi : tappa ? tappa.chi : p.chiacchiera ? p.chiacchiera.chi : 'semino';
+  const parla: ChiParla | 'entrambi' | 'nessuno' = sol ? sol.chi : tappa ? tappa.chi : p.chiacchiera ? p.chiacchiera.chi : 'semino';
   const coppia = p.sbloccata;
-  const riposo = useAccessoriRiposo(!sol && !tappa && !p.chiacchiera, coppia);
+  const riposo = useAccessoriRiposo(!sol && !tappa && !p.chiacchiera, coppia, p.fiori, p.giorno);
   // l'accessorio della frase aperta (storia o chiacchiera) lo indossa chi parla; il solletico non lo toglie
-  const daFrase = accessorioValido(tappa ? tappa.accessorio : !sol ? p.chiacchiera?.accessorio : undefined);
   const indossati: Indossati = { ...riposo };
-  if (daFrase) indossati[chiIndossa(daFrase, tappa ? tappa.chi : (p.chiacchiera?.chi ?? 'semino'))] = daFrase;
-  const variante = parla === 'semina' ? ' fumetto--semina' : parla === 'entrambi' ? ' fumetto--entrambi' : '';
+  if (tappa) Object.assign(indossati, accessoriTappa(tappa, p.fiori, coppia));
+  else if (!sol && p.chiacchiera) {
+    const a = accessorioValido(p.chiacchiera.accessorio);
+    if (a) indossati[p.chiacchiera.chi] = a;
+  }
+  const variante =
+    parla === 'semina' ? ' fumetto--semina' : parla === 'entrambi' ? ' fumetto--entrambi' : parla === 'nessuno' ? ' fumetto--narra' : '';
+  const giorno = p.giorno ? GIORNI_SPECIALI[p.giorno] : null;
   const saluto =
     p.fiori === 0
       ? `Ciao ${p.nome}. Il giardino aspetta il primo fiore.`
-      : `Ciao ${p.nome}. Nel giardino ${p.fiori === 1 ? 'c’è 1 fiore' : `ci sono ${p.fiori} fiori`}.`;
+      : giorno
+        ? `${giorno.nome}. ${giorno.descrizione}`
+        : `Ciao ${p.nome}. Nel giardino ${p.fiori === 1 ? 'c’è 1 fiore' : `ci sono ${p.fiori} fiori`}.`;
   const m = p.mascotte;
-
   return (
     <section className={`home-eroe parla-${parla}`} aria-live="polite">
       <span className="home-mascotte">
@@ -268,7 +338,7 @@ function Eroe(p: Props) {
       ) : tappa ? (
         <button key={tappa.chiave} className={`fumetto fumetto-storia${variante}`} onClick={p.onChiudiTappa}>
           {tappa.testo}
-          <span className="fumetto-firma">{firma(tappa.chi)}, tocca per chiudere</span>
+          <span className="fumetto-firma">{firma(tappa.chi) ? `${firma(tappa.chi)}, tocca per chiudere` : 'tocca per chiudere'}</span>
         </button>
       ) : p.chiacchiera ? (
         <p key={p.chiacchiera.id} className={`fumetto${variante}`}>
@@ -286,8 +356,8 @@ function solo(p: Pick<Props, 'fiori' | 'sbloccata'>): boolean {
   return !p.sbloccata && p.fiori === SEMINA_SBLOCCATA_A - 1;
 }
 
-function firma(chi: ChiParla | 'entrambi'): string {
-  return chi === 'entrambi' ? 'Semino e Semina' : chi === 'semina' ? 'Semina' : 'Semino';
+function firma(chi: ChiParla | 'entrambi' | 'nessuno'): string {
+  return chi === 'nessuno' ? '' : chi === 'entrambi' ? 'Semino e Semina' : chi === 'semina' ? 'Semina' : 'Semino';
 }
 
 export function Pallino({

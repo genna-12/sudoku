@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import type { ChiParla } from '../config/frasi';
 import { LIVELLI_PARAMETRI } from '../config/livelli';
+import { elementiSbloccati } from '../config/storia';
 import type { VoceStorico } from '../stato';
 import type { Chiacchiera } from './Home';
-import { aCasoDiverso, numeriFiori, quotaBluFiore, statistiche } from './regole';
+import { aCasoDiverso, accessoriSbloccati, numeriFiori, quotaBluFiore, statistiche } from './regole';
+import { Scena } from './Scena';
 import { ACCESSORI_DI, Semino, SeminoPianta, stadioDaCrescita } from './Semino';
 import type { Mascotte } from './useMascotte';
 import { IconaIndietro } from './Icone';
@@ -18,6 +20,8 @@ interface Props {
   /** id della partita aperta adesso (non si "riprende" quella in corso) */
   inCorso: string | null;
   sbloccata: boolean;
+  /** presenza del blu (0..1) per il chiarore della scena */
+  bluPresenza: number;
   mascotte: Mascotte;
   solletico: Chiacchiera | null;
   onSolletico: (chi: ChiParla) => void;
@@ -31,9 +35,10 @@ export function Giardino(p: Props) {
   const numeri = numeriFiori(p.storico);
   // le mascotte in testa al giardino, ciascuna con un accessorio a caso (fisso per questa visita)
   const [accessori] = useState(() => ({
-    semino: aCasoDiverso(ACCESSORI_DI.semino, undefined),
-    semina: aCasoDiverso(ACCESSORI_DI.semina, undefined),
+    semino: aCasoDiverso(accessoriSbloccati(ACCESSORI_DI.semino, st.fiori), undefined),
+    semina: aCasoDiverso(accessoriSbloccati(ACCESSORI_DI.semina, st.fiori), undefined),
   }));
+  const vuoto = p.storico.length === 0;
   const chi: ChiParla[] = p.sbloccata ? ['semino', 'semina'] : ['semino'];
   const stadio = Math.min(4, st.fiori);
   return (
@@ -73,6 +78,15 @@ export function Giardino(p: Props) {
           )}
         </span>
       </header>
+
+      <Scena
+        className={`giardino-scena${vuoto ? ' giardino-scena-vuota' : ''}`}
+        elementi={elementiSbloccati(st.fiori)}
+        fiori={st.fiori}
+        bluPresenza={p.bluPresenza}
+        altezza={180}
+        sfuma={vuoto}
+      />
 
       {p.storico.length > 0 && (
         <section className="giardino-totali" aria-label="Il vostro giardino in numeri">

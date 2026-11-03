@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { BONUS_VITTORIA, PENALITA_ERRORE, PUNTI, PUNTI_CRESCITA_PIENA, PUNTI_PER_REGALO, bonusTempo } from '../config/punteggio';
-import { FRASI, SEMINA_SBLOCCATA_A, VOCE } from '../config/frasi';
+import { FRASI, FRASI_EXTRA, SEMINA_SBLOCCATA_A, VOCE, VOCE_SUGGERIMENTO } from '../config/frasi';
+import { GIORNI_SPECIALI, SBLOCCHI, SORPRESE } from '../config/storia';
 import { generaPuzzle } from '../engine';
 import type { Puzzle, Valutazione } from '../engine';
 import { applica, griglia, nuovaPartita, voceStorico } from '../stato';
@@ -19,6 +20,17 @@ import {
   solletico,
   STORIA,
   celleCompletate,
+  accessoriSbloccati,
+  accessorioPermesso,
+  chiacchiera,
+  chiaveSblocco,
+  frasiDisponibili,
+  frasiInvio,
+  regaliBonusDi,
+  ricorda,
+  sblocchiNuovi,
+  sorpresaDaMostrare,
+  stessiVisti,
   conBonusVittoria,
   conRegali,
   contatoriVuoti,
@@ -223,8 +235,10 @@ describe('frasi', () => {
     const s = { nome: 'a', io: 'b' };
     expect(VOCE.semina.brillante).toContain(fraseMascotte('brillante', 'semina', '', s, () => 0.1));
     expect(FRASI.brillante as readonly string[]).toContain(fraseMascotte('brillante', 'semina', '', s, () => 0.9));
-    // categoria senza voce propria: sempre FRASI
-    expect(FRASI.suggerimento as readonly string[]).toContain(fraseMascotte('suggerimento', 'semino', '', s, () => 0.1));
+    // il suggerimento ha la sua voce per personaggio (VOCE_SUGGERIMENTO), altrimenti FRASI
+    expect(VOCE_SUGGERIMENTO.semino).toContain(fraseMascotte('suggerimento', 'semino', '', s, () => 0.1));
+    expect(VOCE_SUGGERIMENTO.semina).toContain(fraseMascotte('suggerimento', 'semina', '', s, () => 0.1));
+    expect(FRASI.suggerimento as readonly string[]).toContain(fraseMascotte('suggerimento', 'semina', '', s, () => 0.9));
   });
   it('umori: Semina euforica e arrabbiata, Semino no', () => {
     expect(umoreEvento('semina', 'brillante')).toBe('euforico');
@@ -376,5 +390,158 @@ describe('nomi veri e accessori nelle frasi', () => {
     if (!conAcc || typeof conAcc === 'string') throw new Error('nessuna chiacchiera con accessorio');
     expect(accessorioDi('semino', conAcc.testo)).toBe(conAcc.accessorio);
     expect(accessorioDi('semino', 'una frase che non esiste')).toBeUndefined();
+  });
+});
+
+// --- T3b ----------------------------------------------------------------------
+
+describe('pacchetti di frasi', () => {
+  const testi = (l: ReturnType<typeof frasiDisponibili>) => l.map((f) => (typeof f === 'string' ? f : f.testo));
+  const stagno = FRASI_EXTRA.find((p) => p.partite === 8 && p.chi === 'semino' && p.categoria === 'chiacchiere')!;
+  const stagnoTesto = typeof stagno.frasi[0] === 'string' ? stagno.frasi[0] : stagno.frasi[0].testo;
+
+  it('si aggiungono alla voce solo da quella soglia, del personaggio giusto', () => {
+    const base = VOCE.semino.chiacchiere.length;
+    expect(frasiDisponibili('chiacchiere', 'semino', 7)).toHaveLength(base);
+    expect(testi(frasiDisponibili('chiacchiere', 'semino', 8))).toContain(stagnoTesto);
+    expect(frasiDisponibili('chiacchiere', 'semino', 8)).toHaveLength(base + stagno.frasi.length);
+    expect(testi(frasiDisponibili('chiacchiere', 'semina', 8))).not.toContain(stagnoTesto);
+  });
+
+  it("i pacchetti di 'entrambi' valgono per tutti e due; l'invio cresce coi fiori", () => {
+    const vittoria40 = FRASI_EXTRA.find((p) => p.chi === 'entrambi' && p.categoria === 'vittoria')!;
+    const t = typeof vittoria40.frasi[2] === 'string' ? vittoria40.frasi[2] : vittoria40.frasi[2].testo;
+    for (const chi of ['semino', 'semina'] as const) {
+      expect(testi(frasiDisponibili('vittoria', chi, 39))).not.toContain(t);
+      expect(testi(frasiDisponibili('vittoria', chi, 40))).toContain(t);
+    }
+    expect(frasiInvio(0)).toEqual([...FRASI.invio]);
+    expect(frasiInvio(12).length).toBeGreaterThan(FRASI.invio.length);
+  });
+
+  it('chiacchiera e accessorioDi conoscono pacchetti e giorni speciali', () => {
+    // caso 0.99: niente frasi speciali; la lista con il pacchetto contiene la frase dello stagno
+    const s = { nome: 'a', io: 'b' };
+    const viste = new Set<string>();
+    for (let i = 0; i < 400; i++) viste.add(chiacchiera('semino', '', s, casoDa(i), { fiori: 8 }));
+    expect(viste.has(stagnoTesto)).toBe(true);
+    const conAcc = stagno.frasi.find((f) => typeof f !== 'string');
+    if (!conAcc || typeof conAcc === 'string') throw new Error('nessuna frase con accessorio');
+    expect(accessorioDi('semino', conAcc.testo)).toBe(conAcc.accessorio);
+    const mare = GIORNI_SPECIALI.mare.chiacchiere.semino.find((f) => typeof f !== 'string');
+    if (!mare || typeof mare === 'string') throw new Error('nessuna frase del mare con accessorio');
+    expect(accessorioDi('semino', mare.testo)).toBe(mare.accessorio);
+    // giorno speciale: con caso basso la chiacchiera viene da quelle dedicate
+    const speciali = GIORNI_SPECIALI.montagna.chiacchiere.semina.map((f) => (typeof f === 'string' ? f : f.testo));
+    expect(speciali).toContain(chiacchiera('semina', '', s, () => 0.1, { fiori: 10, giorno: 'montagna' }));
+  });
+});
+
+describe('accessori sbloccati', () => {
+  it('surf da 15 fiori, cavallo da 30', () => {
+    expect(accessoriSbloccati(['occhiali', 'surf'], 14)).toEqual(['occhiali']);
+    expect(accessoriSbloccati(['occhiali', 'surf'], 15)).toEqual(['occhiali', 'surf']);
+    expect(accessoriSbloccati(['corona', 'cavallo'], 29)).toEqual(['corona']);
+    expect(accessoriSbloccati(['corona', 'cavallo'], 30)).toEqual(['corona', 'cavallo']);
+  });
+  it('Semino mai in montagna; Semina col surf solo in coppia nel giorno del mare', () => {
+    expect(accessorioPermesso('semino', 'montagna', 99)).toBeUndefined();
+    expect(accessorioPermesso('semino', 'cavallo', 99)).toBeUndefined();
+    expect(accessorioPermesso('semino', 'surf', 14)).toBeUndefined();
+    expect(accessorioPermesso('semino', 'surf', 15)).toBe('surf');
+    expect(accessorioPermesso('semina', 'surf', 20)).toBeUndefined();
+    expect(accessorioPermesso('semina', 'surf', 20, { inCoppia: true, giorno: 'montagna' })).toBeUndefined();
+    expect(accessorioPermesso('semina', 'surf', 20, { inCoppia: true, giorno: 'mare' })).toBe('surf');
+    expect(accessorioPermesso('semina', 'surf', 10, { inCoppia: true, giorno: 'mare' })).toBeUndefined();
+    expect(accessorioPermesso('semina', 'cavallo', 29)).toBeUndefined();
+    expect(accessorioPermesso('semina', 'montagna', 0)).toBe('montagna');
+  });
+});
+
+describe('sblocchi nuovi', () => {
+  const chiavi = (n: number) => SBLOCCHI.filter((s) => s.partite <= n).map((s) => chiaveSblocco(s.sblocco));
+
+  it('niente da annunciare a 0 fiori', () => {
+    expect(sblocchiNuovi(0, undefined)).toEqual({ annuncio: [], regali: 0, visti: [] });
+  });
+
+  it('una soglia nuova: annuncio con i suoi regali', () => {
+    const n = sblocchiNuovi(8, chiavi(7));
+    expect(n.annuncio.map((s) => s.id)).toEqual(['stagno', 'semino-chiacchiere-8', 'semina-chiacchiere-8']);
+    expect(n.regali).toBe(0);
+    expect(n.visti).toEqual(chiavi(8));
+    const m = sblocchiNuovi(10, chiavi(8));
+    expect(m.annuncio.map((s) => s.tipo)).toEqual(['elemento', 'regalo']);
+    expect(m.regali).toBe(1);
+  });
+
+  it('più soglie insieme: solo l’ultima, tutte segnate viste; poi più niente', () => {
+    const n = sblocchiNuovi(13, []);
+    expect(n.annuncio.map((s) => s.id)).toEqual(['cassetta', 'entrambi-invio-12']);
+    expect(n.regali).toBe(0);
+    expect(sblocchiNuovi(13, n.visti).annuncio).toEqual([]);
+    expect(stessiVisti(n.visti, sblocchiNuovi(13, n.visti).visti)).toBe(true);
+  });
+
+  it('dopo un "ricomincia" le chiavi oltre i fiori si dimenticano', () => {
+    const n = sblocchiNuovi(0, chiavi(20));
+    expect(n.visti).toEqual([]);
+    expect(stessiVisti(chiavi(20), n.visti)).toBe(false);
+    expect(sblocchiNuovi(1, n.visti).regali).toBe(1);
+  });
+
+  it('valori strani nell’archivio', () => {
+    expect(sblocchiNuovi(1, 'boh').annuncio.length).toBe(2);
+    expect(regaliBonusDi(undefined)).toBe(0);
+    expect(regaliBonusDi(-3)).toBe(0);
+    expect(regaliBonusDi(2.7)).toBe(2);
+  });
+});
+
+describe('sorprese alla vittoria', () => {
+  const dopoSemina = ['semina-5'];
+  it('la scena del numero di fiori raggiunto, una volta', () => {
+    const s = sorpresaDaMostrare(10, dopoSemina, true);
+    expect(s?.chiave).toBe('sorpresa-10');
+    expect(s?.battute).toBe(SORPRESE.find((x) => x.partite === 10)?.battute);
+    expect(sorpresaDaMostrare(10, [...dopoSemina, 'sorpresa-10'], true)).toBeNull();
+    expect(sorpresaDaMostrare(11, dopoSemina, true)).toBeNull();
+  });
+  it('mai prima che Semina sia arrivata qui, mai sopra la sua scena', () => {
+    expect(sorpresaDaMostrare(10, [], false)).toBeNull();
+    expect(sorpresaDaMostrare(SEMINA_SBLOCCATA_A, [], true)).toBeNull();
+  });
+});
+
+describe('memoria delle ultime frasi', () => {
+  it('ricorda le ultime 8, senza doppioni', () => {
+    let m: string[] = [];
+    for (let i = 0; i < 12; i++) m = ricorda(m, `f${i}`);
+    expect(m).toEqual(['f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'f10', 'f11']);
+    expect(ricorda(['a', 'b'], 'a')).toEqual(['b', 'a']);
+    expect(ricorda(['a'], '')).toEqual(['a']);
+  });
+
+  it('una frase non torna prima di 8 altre (lista lunga)', () => {
+    const lista = Array.from({ length: 20 }, (_, i) => `frase ${i}`);
+    const caso = casoDa(3);
+    let m: string[] = [];
+    for (let i = 0; i < 300; i++) {
+      const f = scegliFrase(lista, m, { nome: '', io: '' }, caso);
+      expect(m).not.toContain(f);
+      m = ricorda(m, f);
+    }
+  });
+
+  it('lista corta: evita quante più recenti può, mai l’ultima', () => {
+    const lista = ['a', 'b', 'c'];
+    const caso = casoDa(5);
+    let m: string[] = [];
+    for (let i = 0; i < 100; i++) {
+      const f = scegliFrase(lista, m, { nome: '', io: '' }, caso);
+      if (m.length >= 2) expect(m.slice(-2)).not.toContain(f);
+      m = ricorda(m, f);
+    }
+    expect(scegliFrase(['solo'], ['solo'], { nome: '', io: '' })).toBe('solo');
   });
 });

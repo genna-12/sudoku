@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { CARATTERE } from '../config/frasi';
 import { SECONDI_PRIMA_DI_DORMIRE, dormePerOrario } from '../config/sonno';
-import { attenuaUmore } from './regole';
+import { MEMORIA_FRASI, attenuaUmore, ricorda } from './regole';
 import type { ChiParla } from '../config/frasi';
 import { ACCESSORI, ACCESSORI_DI, SEMINO_UMORI } from './Semino';
 import type { Accessorio, SeminoUmore } from './Semino';
@@ -141,4 +141,19 @@ export function useOgniTanto(attivo: boolean, genera: () => void) {
     prossimo();
     return () => window.clearTimeout(t);
   }, [attivo]);
+}
+
+/**
+ * Memoria delle ultime frasi usate per categoria (MEMORIA_FRASI per categoria, le più recenti in
+ * fondo): le scelte le evitano. Dura quanto l'app aperta; ci finiscono anche le frasi arrivate
+ * dall'altro dispositivo.
+ */
+export function useUltimeFrasi() {
+  const memoria = useRef(new Map<string, string[]>());
+  const ultime = useCallback((categoria: string): readonly string[] => memoria.current.get(categoria) ?? [], []);
+  const ricordaFrase = useCallback((categoria: string, testo: string) => {
+    if (!testo) return;
+    memoria.current.set(categoria, ricorda(memoria.current.get(categoria) ?? [], testo, MEMORIA_FRASI));
+  }, []);
+  return { ultime, ricorda: ricordaFrase };
 }
