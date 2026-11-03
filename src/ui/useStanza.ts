@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { apriStanza } from '../net';
+import { caricaIce } from '../net/ice';
 import type { Messaggio, Stanza, StatoConnessione } from '../net';
 import type { StatoPartita } from '../stato';
 
@@ -27,10 +28,14 @@ export function useStanza(chiave: string | null, nome: string | null, gestori: G
     if (!chiave || !nome) return;
     let stanza: Stanza | null = null;
     let spegni: (() => void)[] = [];
+    let chiuso = false;
     // Apertura rimandata di un giro: in StrictMode il primo mount viene smontato subito,
-    // così non si registra (e libera) un ID PeerJS a vuoto.
-    const avvio = window.setTimeout(() => {
-      const s = apriStanza(chiave, nome, () => gestoriRef.current.statoCorrente(), ruolo);
+    // così non si registra (e libera) un ID PeerJS a vuoto. Prima si caricano i server ICE
+    // (TURN di Cloudflare dal Worker, max 4 s, poi statici).
+    const avvio = window.setTimeout(async () => {
+      const ice = await caricaIce();
+      if (chiuso) return;
+      const s = apriStanza(chiave, nome, () => gestoriRef.current.statoCorrente(), ruolo, ice);
       stanza = s;
       stanzaRef.current = s;
       setConnessione(s.stato);
@@ -43,6 +48,7 @@ export function useStanza(chiave: string | null, nome: string | null, gestori: G
       ];
     }, 0);
     return () => {
+      chiuso = true;
       window.clearTimeout(avvio);
       spegni.forEach((f) => f());
       stanza?.chiudi();

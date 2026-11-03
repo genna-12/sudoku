@@ -2,10 +2,57 @@
 // Memoria condivisa: una chiave per coppia (hash della frase), un JSON per valore.
 // GET  /archivio/:chiave      → { valore: <json> | null, aggiornato: <ms> | null }
 // PUT  /archivio/:chiave      → salva il JSON del body (max 512 KB); risponde { ok: true, aggiornato }
+// GET  /ice                  → { iceServers: [...] } con credenziali TURN di Cloudflare Realtime (24 h),
+//                               oppure { iceServers: null, motivo } se i secrets mancano o Cloudflare non risponde.
 // Nessuna autenticazione oltre alla chiave: chi conosce la frase conosce la stanza, come nel gioco.
 
 export interface Env {
   ARCHIVI: KVNamespace;
+  /** secrets (wrangler secret put): chiave TURN di Realtime → TURN e il suo token API */
+  TURN_KEY_ID?: string;
+  TURN_API_TOKEN?: string;
+}
+
+interface ServerIce {
+  urls: string | string[];
+  username?: string;
+  credential?: string;
+}
+
+const TTL_TURN_S = 86400;
+const CACHE_ICE_MS = 60 * 60 * 1000;
+/** cache del modulo (vive finché l'isolate resta caldo): le credenziali durano 24 h, si rinnovano ogni ora */
+let cacheIce: { server: ServerIce[]; scade: number } | null = null;
+
+/** La porta 53 è bloccata dai browser (la doc Cloudflare consiglia di toglierla per non aspettare il timeout). */
+function senzaPorta53(s: ServerIce): ServerIce | null {
+  const lista = (Array.isArray(s.urls) ? s.urls : [s.urls]).filter((u) => !/:53(\?|$)/.test(u));
+  return lista.length ? { ...s, urls: lista } : null;
+}
+
+async function serverIce(env: Env): Promise<{ iceServers: ServerIce[] | null; motivo?: string }> {
+  if (!env.TURN_KEY_ID || !env.TURN_API_TOKEN) return { iceServers: null, motivo: 'secrets TURN mancanti' };
+  if (cacheIce && cacheIce.scade > Date.now()) return { iceServers: cacheIce.server };
+  try {
+    const r = await fetch(
+      `https://rtc.live.cloudflare.com/v1/turn/keys/${env.TURN_KEY_ID}/credentials/generate-ice-servers`,
+      {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${env.TURN_API_TOKEN}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ttl: TTL_TURN_S }),
+      },
+    );
+    if (!r.ok) return { iceServers: null, motivo: `cloudflare ${r.status}` };
+    const corpo = (await r.json()) as { iceServers?: ServerIce[] | ServerIce };
+    const grezzi = Array.isArray(corpo.iceServers) ? corpo.iceServers : corpo.iceServers ? [corpo.iceServers] : [];
+    const turn = grezzi.map(senzaPorta53).filter((s): s is ServerIce => s !== null);
+    if (!turn.length) return { iceServers: null, motivo: 'risposta senza iceServers' };
+    const server: ServerIce[] = [{ urls: 'stun:stun.l.google.com:19302' }, ...turn];
+    cacheIce = { server, scade: Date.now() + CACHE_ICE_MS };
+    return { iceServers: server };
+  } catch (e) {
+    return { iceServers: null, motivo: `errore rete: ${(e as Error).message}` };
+  }
 }
 
 const MAX_BYTES = 512 * 1024;
@@ -34,6 +81,10 @@ export default {
   async fetch(req: Request, env: Env): Promise<Response> {
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors(req) });
     const url = new URL(req.url);
+    if (url.pathname === '/ice') {
+      if (req.method !== 'GET') return json(req, { errore: 'metodo non ammesso' }, 405);
+      return json(req, await serverIce(env));
+    }
     const m = url.pathname.match(/^\/archivio\/([a-f0-9]{20,64})$/);
     if (!m) return json(req, { errore: 'percorso sconosciuto' }, 404);
     const chiave = m[1];

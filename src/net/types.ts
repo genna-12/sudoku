@@ -43,10 +43,13 @@ export interface Stanza {
  * mi registro solo come `-<ruolo>` e mi collego all'altro; se il posto è preso da un altro mio
  * dispositivo lo stato è 'in-attesa' con dettaglio 'occupata' e si riprova ogni 10 s.
  * Senza `ruolo` (stanza personale): primo libero fra `a` e `b`.
+ * `ice`: server STUN/TURN da usare (da `caricaIce()` in net/ice.ts: TURN di Cloudflare via Worker);
+ * senza, i server statici di config/ice.ts.
  */
 export type ApriStanza = (
   frase: string,
   nome: string,
   statoIniziale: () => StatoPartita | null,
   ruolo?: 'a' | 'b',
+  ice?: { server: RTCIceServer[]; fonte: 'cloudflare' | 'statico' },
 ) => Stanza;

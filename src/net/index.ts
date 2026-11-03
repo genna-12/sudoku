@@ -20,10 +20,10 @@ const log = (...a: unknown[]) => {
 };
 
 /** Server PeerJS: quello pubblico di default, oppure uno locale via variabili VITE_PEER_*. */
-function opzioniPeer(): PeerOptions {
+function opzioniPeer(iceServers: RTCIceServer[]): PeerOptions {
   const env = import.meta.env;
   const host = env.VITE_PEER_HOST as string | undefined;
-  const base: PeerOptions = { config: { iceServers: ICE_SERVERS }, debug: 1 };
+  const base: PeerOptions = { config: { iceServers }, debug: 1 };
   if (!host) return base;
   return {
     ...base,
@@ -42,9 +42,9 @@ function adattaConn(c: DataConnection): ConnMinima {
     invia: (d) => c.send(d),
     chiudi: () => c.close(),
     ascolta(g) {
-      // stato ICE: dice se il P2P passa davvero (connected/completed) o si ferma (failed → TURN non raggiunto)
-      const pc = (c as unknown as { peerConnection?: RTCPeerConnection }).peerConnection;
-      pc?.addEventListener('iceconnectionstatechange', () => log('ice', c.peer.slice(-2), pc.iceConnectionState));
+      // stato ICE: dice se il P2P passa davvero (connected/completed) o si ferma (failed → TURN non raggiunto).
+      // Evento di PeerJS: vale anche per le connessioni in uscita, dove peerConnection non esiste ancora qui.
+      c.on('iceStateChanged', (st) => log('ice', c.peer.slice(-2), st));
       c.on('open', () => g.aperta());
       c.on('data', (d) => g.dati(d));
       c.on('close', () => g.chiusa());
@@ -56,8 +56,8 @@ function adattaConn(c: DataConnection): ConnMinima {
   };
 }
 
-const creaPeer: CreaPeer = (id, g) => {
-  const p = new Peer(id, opzioniPeer());
+const creaPeerCon = (iceServers: RTCIceServer[]): CreaPeer => (id, g) => {
+  const p = new Peer(id, opzioniPeer(iceServers));
   p.on('open', () => g.aperto());
   p.on('error', (e) => g.errore(e.type, e.message));
   p.on('connection', (c) => g.connessione(adattaConn(c)));
@@ -74,7 +74,9 @@ const creaPeer: CreaPeer = (id, g) => {
   };
 };
 
-export const apriStanza: ApriStanza = (frase, nome, statoIniziale, ruolo) => {
+export const apriStanza: ApriStanza = (frase, nome, statoIniziale, ruolo, ice) => {
+  log(ice?.fonte === 'cloudflare' ? `ice: cloudflare (${ice.server.length} server)` : 'ice: statico');
+  const creaPeer = creaPeerCon(ice?.server ?? ICE_SERVERS);
   const s = creaStanza({ frase, nome, statoIniziale, creaPeer, log, ruolo });
 
   // su telefono: tornando in primo piano (o online) si verifica subito la connessione
