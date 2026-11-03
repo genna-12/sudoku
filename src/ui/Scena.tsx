@@ -6,6 +6,7 @@
 //   - un elemento nuovo (mai visto su questo dispositivo, o comparso mentre la scena è montata) entra con un fade/scale
 //   - festa: i fuochi d'artificio partono (se sbloccati) e l'arcobaleno si accende
 //   - sfuma: in basso sfuma nel fondo della pagina (per la Home)
+//   - figli: slot sul prato (x relativa al centro, y=0 al suolo PRATO_Y) per le mascotte del Giardino
 // Colori dal tema (--verde, --blu, --fondo, --testo…) con fallback; tinte della scena in scena.css.
 import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import './scena.css';
@@ -31,6 +32,8 @@ export const ELEMENTI_SCENA = [
 export type ElementoScena = (typeof ELEMENTI_SCENA)[number];
 
 const H = 220;
+/** il suolo dello slot `figli`: sul prato, davanti alla collina e dietro l'aiuola in primo piano */
+export const PRATO_Y = 188;
 const ORIZZONTE = 142;
 const CHIAVE_VISTI = 'sudoku-scena-visti';
 
@@ -300,6 +303,8 @@ interface Props {
   sfuma?: boolean;
   /** forza quali elementi animare in entrata (default: quelli mai visti su questo dispositivo) */
   nuovi?: readonly string[];
+  /** cose in piedi sul prato (es. le mascotte): origine al centro del prato, y = 0 al suolo (PRATO_Y), unità del viewBox */
+  figli?: ReactNode;
   className?: string;
   style?: CSSProperties;
 }
@@ -312,6 +317,7 @@ export function Scena({
   festa = false,
   sfuma = false,
   nuovi: nuoviForzati,
+  figli,
   className,
   style,
 }: Props) {
@@ -534,7 +540,7 @@ export function Scena({
       className={`sc-scena${sfuma ? ' sc-sfuma' : ''}${festa ? ' sc-festa' : ''}${className ? ` ${className}` : ''}`}
       viewBox={`${f1(sx)} 0 ${f1(W)} ${H}`}
       preserveAspectRatio="xMidYMax slice"
-      role="img"
+      role={figli ? 'group' : 'img'}
       aria-label={descrizione(elementi, fiori)}
       style={{ height: altezza, '--sc-p': `${p}%`, ...style } as CSSProperties}
     >
@@ -622,6 +628,12 @@ export function Scena({
         </g>,
       )}
       {el('cassetta', <Cassetta x={-72} y={203} />)}
+
+      {figli && (
+        <g className="sc-figli" transform={`translate(0 ${PRATO_Y})`}>
+          {figli}
+        </g>
+      )}
 
       {/* l'aiuola in primo piano */}
       <path d="M-58 222 C-56 210 -46 204 -20 203.4 C6 203 26 206 36 222Z" className="sc-aiuola" />

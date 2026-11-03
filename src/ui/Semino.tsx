@@ -8,12 +8,19 @@
 //   - onSolletico: la rende toccabile (role=button), tremolio di 250 ms e poi la callback
 //   - sguardo: {x, y} in -1..1 (es. la cella selezionata rispetto alla mascotte): gli occhi ci guardano
 //   - attenuato: reazioni al 60% (di notte)
+// Vita (sempre, tranne che dorme; con reduced-motion solo il battito di ciglia lento):
+//   respiro e fronda che ondeggia (CSS, sfasati per istanza), ciglia ogni 2–6 s, sguardo che vaga ogni
+//   5–9 s, una micro-azione ogni 25–50 s (Semina ×1,4). Timer fermi a pagina nascosta.
+//   - parla (+ frase): bocca a tre forme e cenni; entrata: 'salto' | 'sbuca'; seguiPuntatore (desktop);
+//     azione {tipo, id, verso}: micro-azione da fuori; tenuto premuto > 600 ms: soffio
 // <SeminoPianta stadio fiorita colore | quotaBlu chi /> pianta statica per il giardino.
 // <SeminoCoppia stadio umore accessorioSemino accessorioSemina onSolletico /> i due vicini.
 import {
   useEffect,
   useId,
   useRef,
+  useState,
+  useSyncExternalStore,
   type CSSProperties,
   type KeyboardEvent,
   type PointerEvent,
@@ -291,7 +298,25 @@ const BOCCA = {
   onda: <path d="M45.6 81.4 q1.1 -1.8 2.2 0 t2.2 0 t2.2 0 t2.2 0" className="s-linea s-sottile" />,
   giu: <path d="M45.2 83 Q50 78.6 54.8 83" className="s-linea" />,
   broncio: <path d="M44.6 83.4 L47.4 81.2 L50 82.6 L52.6 81.2 L55.4 83.4" className="s-linea" />,
+  sbadiglio: (
+    <g>
+      <ellipse cx={50} cy={82.4} rx={4.4} ry={5.6} className="s-pieno" />
+      <ellipse cx={50} cy={85.6} rx={2.6} ry={1.6} className="s-lingua" />
+    </g>
+  ),
 };
+
+/** bocca che parla: tre forme, ne mostra una alla volta (data-b, cambiato da Semino senza re-render) */
+const BOCCA_PARLA = (
+  <g className="s-bocca-parla" data-b="1">
+    <path d="M46 79.4 Q50 81.4 54 79.4 Q53 83 50 83 Q47 83 46 79.4Z" className="s-pieno" />
+    {BOCCA.aperta}
+    <ellipse cx={50} cy={81.6} rx={2.3} ry={2.7} className="s-pieno" />
+  </g>
+);
+
+/** gesti delle micro-azioni che cambiano il disegno (braccia, occhi, bocca) */
+export type SeminoGesto = 'sbadiglio' | 'stiracchia' | 'gratta' | 'saluta';
 
 /** segno di rabbia "a croce" dei fumetti */
 function rabbia(x: number, y: number) {
@@ -345,7 +370,19 @@ function spostaOcchi(sguardo: { x: number; y: number } | undefined): [number, nu
   return [Math.round(x * 2 * 100) / 100, Math.round(y * 1.5 * 100) / 100];
 }
 
-function Faccia({ umore, chi, sguardo }: { umore: SeminoUmore; chi: SeminoChi; sguardo?: { x: number; y: number } }) {
+function Faccia({
+  umore,
+  chi,
+  sguardo,
+  gesto,
+  parla,
+}: {
+  umore: SeminoUmore;
+  chi: SeminoChi;
+  sguardo?: { x: number; y: number };
+  gesto?: SeminoGesto | null;
+  parla?: boolean;
+}) {
   const lei = chi === 'semina';
   let occhi: ReactNode;
   let bocca: ReactNode;
@@ -504,20 +541,44 @@ function Faccia({ umore, chi, sguardo }: { umore: SeminoUmore; chi: SeminoChi; s
       bocca = BOCCA.sorriso;
   }
 
+  // micro-azioni: sbadiglio (occhi chiusi, bocca larga), braccia per stiracchiarsi, grattarsi, salutare
+  let braccia: ReactNode = null;
+  if (gesto === 'sbadiglio' && umore !== 'dorme') {
+    occhi = occhiArchi(false);
+    bocca = BOCCA.sbadiglio;
+    chiusi = true;
+  } else if (gesto === 'stiracchia') {
+    braccia = (
+      <g className="s-gesto">
+        {braccio('M24.5 78 Q16 66 19 53', 's-braccio-sx')}
+        {braccio('M75.5 78 Q84 66 81 53', 's-braccio-dx')}
+      </g>
+    );
+  } else if (gesto === 'gratta') {
+    braccia = <g className="s-gesto">{braccio(lei ? 'M24.5 79 Q12 70 22 58' : 'M75.5 79 Q88 70 78 58', lei ? 's-gratta s-gratta-sx' : 's-gratta')}</g>;
+  } else if (gesto === 'saluta' && umore !== 'saluta' && umore !== 'dorme') {
+    braccia = <g className="s-gesto">{braccio('M75.5 79 Q84 75 86.5 64', 's-mano')}</g>;
+  }
+  if (parla && umore !== 'dorme' && gesto !== 'sbadiglio') bocca = BOCCA_PARLA;
+
   // dormendo non si guarda niente
   const [dx, dy] = umore === 'dorme' ? [0, 0] : spostaOcchi(sguardo);
   return (
     <>
       <ellipse cx={31.5} cy={79.2} rx={4.4} ry={2.6} className={guance} />
       <ellipse cx={68.5} cy={79.2} rx={4.4} ry={2.6} className={guance} />
-      <g className="semino-sguardo" style={{ transform: dx || dy ? `translate(${dx}px, ${dy}px)` : 'none' }}>
-        <g className="semino-occhi">
-          {occhi}
-          {lei && ciglia(chiusi)}
+      {/* semino-punta: sguardo che vaga o segue il puntatore (variabili sul <svg>) */}
+      <g className="semino-punta">
+        <g className="semino-sguardo" style={{ transform: dx || dy ? `translate(${dx}px, ${dy}px)` : 'none' }}>
+          <g className="semino-occhi">
+            {occhi}
+            {lei && ciglia(chiusi)}
+          </g>
         </g>
       </g>
       {bocca}
       {extra}
+      {braccia}
     </>
   );
 }
@@ -919,11 +980,93 @@ function useSolletico(onSolletico: (() => void) | undefined, bersaglio: RefObjec
   };
 }
 
+/* ------------------------------------------------------------ vita */
+
+/** micro-azioni: quelle a caso di riposo, più quelle chieste da fuori (`azione`) */
+export type SeminoAzione =
+  | 'sbadiglio'
+  | 'stiracchia'
+  | 'gratta'
+  | 'guarda-intorno'
+  | 'saltello'
+  | 'saluta'
+  | 'salta-verso';
+const AZIONI_RIPOSO: SeminoAzione[] = ['sbadiglio', 'stiracchia', 'gratta', 'guarda-intorno', 'saltello'];
+export type SeminoEntrata = 'salto' | 'sbuca' | 'nessuna';
+
+/** umori con gli occhi aperti e tondi: solo questi battono le ciglia */
+const OCCHI_APERTI = new Set<SeminoUmore>(['neutro', 'sorpreso', 'imbarazzato', 'preoccupato', 'regalo', 'saluta', 'arrabbiato']);
+
+function hash(t: string) {
+  let h = 2166136261;
+  for (let i = 0; i < t.length; i++) h = Math.imul(h ^ t.charCodeAt(i), 16777619);
+  return h >>> 0;
+}
+/** pseudo-caso con seme (mulberry32): ogni istanza ha la sua fase */
+function casoDa(seme: number) {
+  let a = seme || 1;
+  return () => {
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+const MEDIA_RIDOTTO = '(prefers-reduced-motion: reduce)';
+function iscriviRidotto(cb: () => void) {
+  const m = typeof matchMedia === 'function' ? matchMedia(MEDIA_RIDOTTO) : null;
+  m?.addEventListener?.('change', cb);
+  return () => m?.removeEventListener?.('change', cb);
+}
+function useRidotto() {
+  return useSyncExternalStore(
+    iscriviRidotto,
+    () => typeof matchMedia === 'function' && matchMedia(MEDIA_RIDOTTO).matches,
+    () => false,
+  );
+}
+
+/** chiama `fn` a intervalli casuali in [min, max] ms finché `attivo`; a pagina nascosta si ferma */
+function useRitmo(attivo: boolean, min: number, max: number, caso: () => number, fn: () => void) {
+  const ref = useRef(fn);
+  useEffect(() => {
+    ref.current = fn;
+  });
+  useEffect(() => {
+    if (!attivo) return;
+    let t = 0;
+    const ferma = () => {
+      window.clearTimeout(t);
+      t = 0;
+    };
+    const prossimo = () => {
+      ferma();
+      if (typeof document !== 'undefined' && document.hidden) return;
+      t = window.setTimeout(() => {
+        ref.current();
+        prossimo();
+      }, min + caso() * (max - min));
+    };
+    const vista = () => (document.hidden ? ferma() : prossimo());
+    document.addEventListener('visibilitychange', vista);
+    prossimo();
+    return () => {
+      ferma();
+      document.removeEventListener('visibilitychange', vista);
+    };
+  }, [attivo, min, max, caso]);
+}
+
+function anima(el: Element | null | undefined, kf: Keyframe[], opz: KeyframeAnimationOptions) {
+  if (el && typeof (el as Element & { animate?: unknown }).animate === 'function') el.animate(kf, opz);
+}
+
 interface Props {
   stadio?: number;
   umore?: SeminoUmore;
   accessorio?: Accessorio;
-  /** rende la mascotte toccabile: tremolio di 250 ms e poi la callback */
+  /** rende la mascotte toccabile: tremolio di 250 ms e poi la callback; tenendo premuto > 600 ms, il soffio */
   onSolletico?: () => void;
   /** lato in px (default 96) */
   taglia?: number;
@@ -934,6 +1077,16 @@ interface Props {
   sguardo?: { x: number; y: number };
   /** reazioni al 60% (di notte) */
   attenuato?: boolean;
+  /** il suo fumetto è aperto: la bocca si muove (per un tempo legato a `frase`, se c'è) e la testa annuisce */
+  parla?: boolean;
+  /** il testo detto: decide quanto dura il parlato e lo fa ripartire quando cambia */
+  frase?: string;
+  /** come arriva al mount: saltello dal suo lato o sbuca dal basso */
+  entrata?: SeminoEntrata;
+  /** su desktop gli occhi (e un filo la testa) seguono il puntatore quando è vicino */
+  seguiPuntatore?: boolean;
+  /** micro-azione chiesta da fuori: cambia `id` per farla partire; `verso` per salta-verso (+1 a destra) */
+  azione?: { tipo: SeminoAzione; id: number | string; verso?: 1 | -1 };
   className?: string;
   style?: CSSProperties;
 }
@@ -948,20 +1101,65 @@ export function Semino({
   impulso,
   sguardo,
   attenuato,
+  parla,
+  frase,
+  entrata = 'nessuna',
+  seguiPuntatore,
+  azione,
   className,
   style,
 }: Props) {
   const s = limita(stadio);
   const id = useId().replace(/:/g, '');
+  const svg = useRef<SVGSVGElement>(null);
   const reazione = useRef<SVGGElement>(null);
   const tremolio = useRef<SVGGElement>(null);
+  const azioneG = useRef<SVGGElement>(null);
+  const terra = useRef<SVGEllipseElement>(null);
   const tocca = useSolletico(onSolletico, tremolio);
   const lei = chi === 'semina';
   const accento = lei ? 'var(--semino-blu)' : 'var(--semino-verde)';
   const alzata = accessorio ? (ALZATA[accessorio] ?? 0) : 0;
+  const ridotto = useRidotto();
+  const dorme = umore === 'dorme';
+  // Semina più vivace: tutto il suo ritmo ×1,4
+  const f = lei ? 1.4 : 1;
+
+  const [caso] = useState(() => casoDa(hash(`${chi}-${id}`)));
+  const [fasi] = useState(() => ({ r: (caso() * 3.2).toFixed(2), f: (caso() * 4).toFixed(2) }));
+  const [gesto, setGesto] = useState<SeminoGesto | null>(null);
+  const [parlando, setParlando] = useState(false);
+  const [soffio, setSoffio] = useState(false);
+  const timerGesto = useRef(0);
+  const timerVari = useRef<number[]>([]);
+  const cambio = useRef(0);
+  const vicino = useRef(false);
+  const occupato = useRef(false);
+  occupato.current = parlando || !!gesto || soffio;
+
+  const dopo = (ms: number, fn: () => void) => {
+    timerVari.current.push(window.setTimeout(fn, ms));
+  };
+  useEffect(
+    () => () => {
+      window.clearTimeout(timerGesto.current);
+      timerVari.current.forEach((t) => window.clearTimeout(t));
+    },
+    [],
+  );
+  const mostraGesto = (g: SeminoGesto, ms: number) => {
+    setGesto(g);
+    window.clearTimeout(timerGesto.current);
+    timerGesto.current = window.setTimeout(() => setGesto(null), ms);
+  };
+  const vars = (v: Record<string, string>) => {
+    const e = svg.current;
+    if (e) for (const k in v) e.style.setProperty(k, v[k]);
+  };
 
   // stesso umore ma nuovo impulso: riavvia solo le animazioni di reazione
   useEffect(() => {
+    cambio.current = Date.now();
     const g = reazione.current;
     if (!g || impulso === undefined || typeof g.getAnimations !== 'function') return;
     for (const a of g.getAnimations({ subtree: true })) {
@@ -973,21 +1171,277 @@ export function Semino({
     }
   }, [impulso]);
 
+  /** le micro-azioni: corpo con WAAPI sul gruppo .semino-azione, disegno col gesto */
+  const esegui = (tipo: SeminoAzione, verso: 1 | -1 = 1) => {
+    if (ridotto) return;
+    const g = azioneG.current;
+    const t = terra.current;
+    switch (tipo) {
+      case 'saltello': {
+        const salto = [
+          { transform: 'none' },
+          { transform: 'scale(1.07, 0.92)', offset: 0.18 },
+          { transform: 'translateY(-8px) scale(0.96, 1.05)', offset: 0.48 },
+          { transform: 'scale(1.05, 0.95)', offset: 0.8 },
+          { transform: 'none' },
+        ];
+        const ombra = [{ transform: 'none' }, { transform: 'scale(0.7)', opacity: 0.6, offset: 0.48 }, { transform: 'none' }];
+        anima(g, salto, { duration: 380, easing: 'ease-in-out', iterations: lei ? 2 : 1 });
+        anima(t, ombra, { duration: 380, iterations: lei ? 2 : 1 });
+        break;
+      }
+      case 'salta-verso': {
+        const v = verso * 11;
+        anima(
+          g,
+          [
+            { transform: 'none' },
+            { transform: 'scale(1.06, 0.92)', offset: 0.1 },
+            { transform: `translate(${v / 2}px, -9px) rotate(${verso * 6}deg)`, offset: 0.3 },
+            { transform: `translate(${v}px, 0) scale(1.06, 0.94)`, offset: 0.48 },
+            { transform: `translate(${v}px, 0)`, offset: 0.62 },
+            { transform: `translate(${v / 2}px, -6px) rotate(${-verso * 4}deg)`, offset: 0.8 },
+            { transform: 'scale(1.04, 0.96)', offset: 0.93 },
+            { transform: 'none' },
+          ],
+          { duration: 1100, easing: 'ease-in-out' },
+        );
+        anima(
+          t,
+          [
+            { transform: 'none' },
+            { transform: `translateX(${v / 2}px) scale(0.7)`, offset: 0.3 },
+            { transform: `translateX(${v}px)`, offset: 0.48 },
+            { transform: `translateX(${v}px)`, offset: 0.62 },
+            { transform: `translateX(${v / 2}px) scale(0.75)`, offset: 0.8 },
+            { transform: 'none' },
+          ],
+          { duration: 1100, easing: 'ease-in-out' },
+        );
+        mostraGesto('saluta', 1200);
+        break;
+      }
+      case 'saluta':
+        mostraGesto('saluta', 1250);
+        anima(g, [{ transform: 'none' }, { transform: 'rotate(-4deg)', offset: 0.3 }, { transform: 'rotate(2deg)', offset: 0.7 }, { transform: 'none' }], {
+          duration: 1200,
+          easing: 'ease-in-out',
+        });
+        break;
+      case 'sbadiglio':
+        mostraGesto('sbadiglio', 1400);
+        anima(
+          g,
+          [{ transform: 'none' }, { transform: 'scale(0.98, 1.06) rotate(-2deg)', offset: 0.45 }, { transform: 'scale(0.99, 1.04)', offset: 0.75 }, { transform: 'none' }],
+          { duration: 1400, easing: 'ease-in-out' },
+        );
+        break;
+      case 'stiracchia':
+        mostraGesto('stiracchia', 950);
+        anima(g, [{ transform: 'none' }, { transform: 'scale(0.95, 1.09)', offset: 0.45 }, { transform: 'scale(1.03, 0.97)', offset: 0.8 }, { transform: 'none' }], {
+          duration: 950,
+          easing: 'ease-in-out',
+        });
+        break;
+      case 'gratta':
+        mostraGesto('gratta', 1150);
+        anima(g, [{ transform: 'none' }, { transform: `rotate(${lei ? 4 : -4}deg)`, offset: 0.2 }, { transform: `rotate(${lei ? 4 : -4}deg)`, offset: 0.85 }, { transform: 'none' }], {
+          duration: 1150,
+          easing: 'ease-in-out',
+        });
+        break;
+      case 'guarda-intorno': {
+        vars({ '--vx': '-2px', '--vy': '0px' });
+        dopo(650, () => vars({ '--vx': '2px' }));
+        dopo(1350, () => vars({ '--vx': '0px' }));
+        anima(g, [{ transform: 'none' }, { transform: 'rotate(-3deg)', offset: 0.3 }, { transform: 'rotate(3deg)', offset: 0.7 }, { transform: 'none' }], {
+          duration: 1600,
+          easing: 'ease-in-out',
+        });
+        break;
+      }
+    }
+  };
+
+  // 1. battito di ciglia a intervalli casuali (lento con reduced-motion: è l'unica cosa che resta)
+  useRitmo(!dorme && OCCHI_APERTI.has(umore), ridotto ? 5000 : 2000 / f, ridotto ? 9000 : 6000 / f, caso, () => {
+    const occhi = svg.current?.querySelector('.semino-occhi');
+    const kf = [{ transform: 'none' }, { transform: 'scaleY(0.1)', offset: 0.45 }, { transform: 'none' }];
+    anima(occhi, kf, { duration: ridotto ? 260 : 150, easing: 'ease-in-out', iterations: !ridotto && caso() < 0.18 ? 2 : 1 });
+  });
+
+  // sguardo che vaga, quando non c'è uno sguardo esplicito né il puntatore vicino
+  const vaga = !ridotto && !dorme && !sguardo;
+  useRitmo(vaga, 5000 / f, 9000 / f, caso, () => {
+    if (vicino.current || gesto) return;
+    if (caso() < 0.4) return vars({ '--vx': '0px', '--vy': '0px' });
+    const a = caso() * Math.PI * 2;
+    const k = 0.5 + caso() * 0.5;
+    vars({ '--vx': `${(Math.cos(a) * 2 * k).toFixed(2)}px`, '--vy': `${(Math.sin(a) * 1.4 * k).toFixed(2)}px` });
+  });
+  useEffect(() => {
+    if (!vaga) vars({ '--vx': '0px', '--vy': '0px' });
+  }, [vaga]);
+
+  // ogni 25–50 s (Semina più spesso) una micro-azione a caso, mai durante una reazione o il parlato
+  useRitmo(!ridotto && !dorme && !parla, 25000 / f, 50000 / f, caso, () => {
+    if (occupato.current || Date.now() - cambio.current < 2500) return;
+    esegui(AZIONI_RIPOSO[Math.floor(caso() * AZIONI_RIPOSO.length)]);
+  });
+
+  // micro-azione chiesta da fuori (Giardino)
+  const idAzione = azione?.id;
+  useEffect(() => {
+    if (idAzione === undefined || !azione || dorme || occupato.current) return;
+    esegui(azione.tipo, azione.verso);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idAzione]);
+
+  // 4. sonno: ogni tanto un sospiro; al risveglio ci si stiracchia
+  useRitmo(!ridotto && dorme, 9000, 16000, caso, () => {
+    anima(
+      azioneG.current,
+      [{ transform: 'none' }, { transform: 'scale(1.04, 1.08)', offset: 0.4 }, { transform: 'scale(0.98, 0.95)', offset: 0.75 }, { transform: 'none' }],
+      { duration: 1500, easing: 'ease-in-out' },
+    );
+  });
+  const prima = useRef(umore);
+  useEffect(() => {
+    if (prima.current === 'dorme' && umore !== 'dorme') esegui('stiracchia');
+    prima.current = umore;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [umore]);
+
+  // 2. parlato: dura quanto la frase (o finché `parla`), bocca a tre forme e cenni della testa
+  useEffect(() => {
+    if (!parla || dorme || ridotto) {
+      setParlando(false);
+      return;
+    }
+    setParlando(true);
+    const durata = frase ? Math.min(5200, Math.max(1100, 700 + frase.length * 48)) : 8000;
+    const t = window.setTimeout(() => setParlando(false), durata);
+    return () => window.clearTimeout(t);
+  }, [parla, frase, dorme, ridotto]);
+  useEffect(() => {
+    if (!parlando) return;
+    let t = 0;
+    let b = 1;
+    let n = 0;
+    const passo = () => {
+      const bocca = svg.current?.querySelector<SVGGElement>('.s-bocca-parla');
+      if (bocca) {
+        let nb = b;
+        while (nb === b) nb = Math.floor(caso() * 3);
+        b = nb;
+        bocca.dataset.b = String(b);
+      }
+      if (++n % 3 === 0 && caso() < 0.75) {
+        const verso = caso() < 0.5 ? -1 : 1;
+        anima(azioneG.current, [{ transform: 'none' }, { transform: `rotate(${verso * 2.4}deg) translateY(-1.2px)` }, { transform: 'none' }], {
+          duration: 260,
+          easing: 'ease-in-out',
+        });
+      }
+      t = window.setTimeout(passo, 120 + caso() * 100);
+    };
+    passo();
+    return () => window.clearTimeout(t);
+  }, [parlando, caso]);
+
+  // 5. puntatore: su desktop gli occhi lo seguono entro ~200 px, la testa si inclina un filo
+  useEffect(() => {
+    if (!seguiPuntatore || ridotto || typeof matchMedia !== 'function' || !matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    let fotogramma = 0;
+    let ultimo: { x: number; y: number } | null = null;
+    const azzera = () => {
+      if (!vicino.current) return;
+      vicino.current = false;
+      vars({ '--px': '0px', '--py': '0px', '--pr': '0deg' });
+    };
+    const calcola = () => {
+      fotogramma = 0;
+      const e = svg.current;
+      if (!e || !ultimo) return;
+      const r = e.getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height * 0.71;
+      const dx = ultimo.x - cx;
+      const dy = ultimo.y - cy;
+      const d = Math.hypot(dx, dy);
+      if (d > 200 + r.width / 2) return azzera();
+      vicino.current = true;
+      const k = Math.min(1, d / 60) / (d || 1);
+      vars({
+        '--px': `${(dx * k * 2).toFixed(2)}px`,
+        '--py': `${(dy * k * 1.5).toFixed(2)}px`,
+        '--pr': `${(Math.max(-1, Math.min(1, dx / 200)) * 4).toFixed(2)}deg`,
+      });
+    };
+    const muovi = (ev: globalThis.PointerEvent) => {
+      if (ev.pointerType !== 'mouse') return;
+      ultimo = { x: ev.clientX, y: ev.clientY };
+      if (!fotogramma) fotogramma = requestAnimationFrame(calcola);
+    };
+    window.addEventListener('pointermove', muovi, { passive: true });
+    document.documentElement.addEventListener('pointerleave', azzera);
+    return () => {
+      cancelAnimationFrame(fotogramma);
+      window.removeEventListener('pointermove', muovi);
+      document.documentElement.removeEventListener('pointerleave', azzera);
+      azzera();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seguiPuntatore, ridotto]);
+
+  // soffio: tenuto premuto più di 600 ms, si sorprende e la foglia si piega; torna al rilascio
+  const tieni = useRef(0);
+  const giu = (e: PointerEvent<SVGSVGElement>) => {
+    tocca(e);
+    if (!e.isPrimary) return;
+    window.clearTimeout(tieni.current);
+    tieni.current = window.setTimeout(() => setSoffio(true), 600);
+  };
+  const su = () => {
+    window.clearTimeout(tieni.current);
+    if (soffio) dopo(350, () => setSoffio(false));
+  };
+  useEffect(() => () => window.clearTimeout(tieni.current), []);
+
+  const umoreVisto: SeminoUmore = soffio && !dorme ? 'sorpreso' : umore;
   const nome = lei ? 'Semina' : 'Semino';
   const descrizione = `${nome}, ${NOMI_STADIO[s]}, ${NOMI_UMORE[umore] ?? umore}${accessorio ? `, ${NOMI_ACCESSORIO[accessorio]}` : ''}`;
   const toccabile = !!onSolletico;
+  const classi = [
+    'semino',
+    `semino-${chi}`,
+    `semino-u-${umoreVisto}`,
+    toccabile && 'semino-toccabile',
+    attenuato && 'semino-attenuato',
+    entrata !== 'nessuna' && `semino-entra-${entrata}`,
+    soffio && 'semino-soffio',
+    parlando && 'semino-parla',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
   return (
     <svg
-      className={`semino semino-${chi} semino-u-${umore}${toccabile ? ' semino-toccabile' : ''}${attenuato ? ' semino-attenuato' : ''}${className ? ` ${className}` : ''}`}
+      ref={svg}
+      className={classi}
       width={taglia}
       height={taglia}
       viewBox="0 0 100 100"
       role={toccabile ? 'button' : 'img'}
       tabIndex={toccabile ? 0 : undefined}
       aria-label={toccabile ? `fai il solletico a ${nome}` : descrizione}
-      onPointerDown={toccabile ? tocca : undefined}
+      onPointerDown={toccabile ? giu : undefined}
+      onPointerUp={toccabile ? su : undefined}
+      onPointerCancel={toccabile ? su : undefined}
+      onPointerLeave={toccabile ? su : undefined}
+      onContextMenu={toccabile ? (e) => e.preventDefault() : undefined}
       onKeyDown={toccabile ? tocca : undefined}
-      style={style}
+      style={{ '--fase-r': `-${fasi.r}s`, '--fase-f': `-${fasi.f}s`, '--lato': lei ? 1 : -1, ...style } as CSSProperties}
     >
       {toccabile && <title>{descrizione}</title>}
       <defs>
@@ -995,46 +1449,54 @@ export function Semino({
           <path d={CORPO[chi]} />
         </clipPath>
       </defs>
-      <ellipse cx={50} cy={96.5} rx={24} ry={2.6} className="s-terra" />
-      <g className="semino-idle">
-        <g ref={tremolio} className="semino-tremolio">
-          <g ref={reazione} className={`semino-reazione semino-r-${umore}`}>
-            <g transform={lei ? 'translate(100 0) scale(-1 1)' : undefined}>
-              <g
-                className="semino-alzata"
-                style={{ transform: alzata ? `translateY(${-alzata}px) scale(0.9)` : 'none' }}
-              >
-                <g key={s} className="semino-crescita">
-                  <Pianta stadio={s} colore={accento} chi={chi} />
+      <ellipse ref={terra} cx={50} cy={96.5} rx={24} ry={2.6} className="s-terra" />
+      <g className="semino-entrata">
+        <g ref={azioneG} className="semino-azione">
+          <g className="semino-inclina">
+            <g className="semino-idle">
+              <g ref={tremolio} className="semino-tremolio">
+                <g ref={reazione} className={`semino-reazione semino-r-${umoreVisto}`}>
+                  <g transform={lei ? 'translate(100 0) scale(-1 1)' : undefined}>
+                    <g
+                      className="semino-alzata"
+                      style={{ transform: alzata ? `translateY(${-alzata}px) scale(0.9)` : 'none' }}
+                    >
+                      <g key={s} className="semino-crescita">
+                        <g className="semino-fronda">
+                          <Pianta stadio={s} colore={accento} chi={chi} />
+                        </g>
+                      </g>
+                    </g>
+                  </g>
+                  {accessorio && (
+                    <g key={`d-${accessorio}`} className="s-accessorio">
+                      <AccessorioDietro a={accessorio} />
+                    </g>
+                  )}
+                  <path d={CORPO[chi]} className="s-corpo" />
+                  <g clipPath={`url(#corpo-${id})`}>
+                    <ellipse cx={62} cy={92} rx={34} ry={15} className="s-ombra" />
+                    <ellipse cx={33} cy={60} rx={4} ry={7.5} transform="rotate(30 33 60)" className="s-riflesso" />
+                  </g>
+                  <path d={CUCITURA[chi]} className="s-cucitura" />
+                  <path d={CORPO[chi]} className="s-contorno" />
+                  {accessorio && (
+                    <g key={`t-${accessorio}`} className="s-accessorio s-accessorio-testa">
+                      <AccessorioTesta a={accessorio} chi={chi} />
+                    </g>
+                  )}
+                  {lei && <Fiocco />}
+                  <g key={umoreVisto} className="semino-faccia">
+                    <Faccia umore={umoreVisto} chi={chi} sguardo={sguardo} gesto={gesto} parla={parlando} />
+                  </g>
+                  {accessorio && (
+                    <g key={`f-${accessorio}`} className="s-accessorio">
+                      <AccessorioDavanti a={accessorio} chi={chi} stadio={s} id={id} />
+                    </g>
+                  )}
                 </g>
               </g>
             </g>
-            {accessorio && (
-              <g key={`d-${accessorio}`} className="s-accessorio">
-                <AccessorioDietro a={accessorio} />
-              </g>
-            )}
-            <path d={CORPO[chi]} className="s-corpo" />
-            <g clipPath={`url(#corpo-${id})`}>
-              <ellipse cx={62} cy={92} rx={34} ry={15} className="s-ombra" />
-              <ellipse cx={33} cy={60} rx={4} ry={7.5} transform="rotate(30 33 60)" className="s-riflesso" />
-            </g>
-            <path d={CUCITURA[chi]} className="s-cucitura" />
-            <path d={CORPO[chi]} className="s-contorno" />
-            {accessorio && (
-              <g key={`t-${accessorio}`} className="s-accessorio s-accessorio-testa">
-                <AccessorioTesta a={accessorio} chi={chi} />
-              </g>
-            )}
-            {lei && <Fiocco />}
-            <g key={umore} className="semino-faccia">
-              <Faccia umore={umore} chi={chi} sguardo={sguardo} />
-            </g>
-            {accessorio && (
-              <g key={`f-${accessorio}`} className="s-accessorio">
-                <AccessorioDavanti a={accessorio} chi={chi} stadio={s} id={id} />
-              </g>
-            )}
           </g>
         </g>
       </g>
@@ -1109,8 +1571,18 @@ export function SeminoCoppia({
   impulso,
   sguardo,
   attenuato,
+  parla,
+  frase,
+  entrata,
+  seguiPuntatore,
   className,
 }: {
+  /** chi dei due ha il fumetto aperto */
+  parla?: SeminoChi | 'entrambi' | null;
+  frase?: string;
+  /** Semino arriva col saltello; Semina, se c'è un'entrata, sbuca */
+  entrata?: SeminoEntrata;
+  seguiPuntatore?: boolean;
   stadio?: number;
   umore?: SeminoUmore;
   /** se diverso da quello di Semino */
@@ -1139,6 +1611,10 @@ export function SeminoCoppia({
         impulso={impulso}
         sguardo={sguardo}
         attenuato={attenuato}
+        parla={parla === 'semino' || parla === 'entrambi'}
+        frase={frase}
+        entrata={entrata}
+        seguiPuntatore={seguiPuntatore}
         className="semino-coppia-lui"
       />
       <Semino
@@ -1151,6 +1627,10 @@ export function SeminoCoppia({
         impulso={impulso}
         sguardo={sguardo}
         attenuato={attenuato}
+        parla={parla === 'semina' || parla === 'entrambi'}
+        frase={frase}
+        entrata={entrata && entrata !== 'nessuna' ? 'sbuca' : entrata}
+        seguiPuntatore={seguiPuntatore}
         className="semino-coppia-lei"
       />
     </span>

@@ -24,6 +24,8 @@ interface Props {
   guarda: { r: number; c: number } | null;
   /** fumetto di chi parla: copre per un attimo la barra, accanto alla sua mascotte */
   fumetto: ReactNode;
+  /** chi ha il fumetto aperto e cosa dice: la sua mascottina muove la bocca */
+  parla?: { chi: ChiParla; testo: string } | null;
 }
 
 /**
@@ -96,8 +98,10 @@ function Mascottina({
   indossati,
   onSolletico,
   sguardo,
+  parla,
 }: {
   sguardo?: CSSProperties;
+  parla?: { chi: ChiParla; testo: string } | null;
   chi: ChiParla;
   stadio: number;
   mascotte: Mascotte;
@@ -126,6 +130,8 @@ function Mascottina({
         accessorio={indossati[chi]}
         onSolletico={() => onSolletico(chi)}
         taglia={44}
+        parla={parla?.chi === chi}
+        frase={parla?.chi === chi ? parla.testo : undefined}
       />
     </span>
   );

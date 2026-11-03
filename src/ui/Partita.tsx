@@ -258,6 +258,7 @@ export function Partita(p: Props) {
               onRegalo={() => setRegaloAttivo((a) => !a)}
               guarda={guarda}
               fumetto={!desktop && detto ? <FumettoPartita detto={detto} destra={!!destra && detto.chi === destra} /> : null}
+              parla={!desktop && detto ? { chi: detto.chi, testo: detto.testo } : null}
             />
           </div>
           <Griglia
@@ -455,6 +456,8 @@ function PannelloMascotte(p: {
               accessorio={p.indossati[c]}
               onSolletico={() => p.onSolletico(c)}
               taglia={96}
+              parla={d?.chi === c}
+              frase={d?.chi === c ? d.testo : undefined}
             />
           </span>
         ))}

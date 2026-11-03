@@ -307,6 +307,8 @@ function Eroe(p: Props) {
         ? `${giorno.nome}. ${giorno.descrizione}`
         : `Ciao ${p.nome}. Nel giardino ${p.fiori === 1 ? 'c’è 1 fiore' : `ci sono ${p.fiori} fiori`}.`;
   const m = p.mascotte;
+  // chi ha il fumetto aperto muove la bocca per il tempo della frase
+  const frase = sol?.testo ?? tappa?.testo ?? p.chiacchiera?.testo ?? saluto;
   return (
     <section className={`home-eroe parla-${parla}`} aria-live="polite">
       <span className="home-mascotte">
@@ -320,6 +322,10 @@ function Eroe(p: Props) {
             accessorioSemina={indossati.semina}
             onSolletico={p.onSolletico}
             taglia={72}
+            parla={parla === 'nessuno' ? null : parla}
+            frase={frase}
+            entrata="salto"
+            seguiPuntatore
           />
         ) : (
           <Semino
@@ -329,6 +335,10 @@ function Eroe(p: Props) {
             accessorio={indossati.semino}
             onSolletico={() => p.onSolletico('semino')}
             taglia={92}
+            parla={parla === 'semino' || parla === 'entrambi'}
+            frase={frase}
+            entrata="salto"
+            seguiPuntatore
           />
         )}
       </span>

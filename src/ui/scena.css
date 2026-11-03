@@ -519,3 +519,8 @@
     opacity: 0.85;
   }
 }
+
+/* lo slot sul prato (mascotte del Giardino): toccabile anche se la scena non lo è */
+.sc-figli {
+  pointer-events: auto;
+}

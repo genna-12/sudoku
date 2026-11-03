@@ -25,10 +25,14 @@ export function Ingresso({
   const pronto = !!profilo && frase.trim().length >= 4;
   const [manca, setManca] = useState(false);
   const campo = useRef<HTMLInputElement>(null);
+  // questo browser ricorda già l'altro profilo: prima di sostituirlo, un avviso (mai al primo ingresso)
+  const ricordato = iniziale ? profiloDiNome(iniziale.nome) : null;
+  const [avviso, setAvviso] = useState(false);
 
   function invia(e: FormEvent) {
     e.preventDefault();
-    if (pronto && profilo) onEntra({ nome: profilo.nome, frase: frase.trim() });
+    if (pronto && profilo && ricordato && ricordato.id !== profilo.id) setAvviso(true);
+    else if (pronto && profilo) onEntra({ nome: profilo.nome, frase: frase.trim() });
     else if (profilo) {
       // colore scelto ma frase troppo corta: si va al campo e lo si dice
       setManca(true);
@@ -94,6 +98,32 @@ export function Ingresso({
           {profilo ? `Entra come ${nomeVisibile(profilo, sbloccata)}` : 'Scegli chi sei'}
         </button>
       </form>
+
+      {avviso && profilo && ricordato && (
+        <div className="foglio-velo" onPointerDown={(e) => e.target === e.currentTarget && setAvviso(false)}>
+          <div className="foglio" role="alertdialog" aria-modal="true" aria-labelledby="avviso-profilo-titolo" data-testid="avviso-profilo">
+            <div className="foglio-passo">
+              <h2 id="avviso-profilo-titolo">Questo browser ricorda già {nomeVisibile(ricordato, sbloccata)}</h2>
+              <p>
+                Per provare in due da un solo computer usa una finestra in incognito o un altro browser: così le due
+                memorie restano separate.
+              </p>
+              <div className="foglio-azioni">
+                <button className="bottone" data-testid="avviso-profilo-annulla" onClick={() => setAvviso(false)}>
+                  Annulla
+                </button>
+                <button
+                  className="bottone primario"
+                  data-testid="avviso-profilo-entra"
+                  onClick={() => onEntra({ nome: profilo.nome, frase: frase.trim() })}
+                >
+                  Entra comunque come {nomeVisibile(profilo, sbloccata)}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ChiParla } from '../config/frasi';
 import { LIVELLI_PARAMETRI } from '../config/livelli';
 import { elementiSbloccati } from '../config/storia';
@@ -7,6 +7,7 @@ import type { Chiacchiera } from './Home';
 import { aCasoDiverso, accessoriSbloccati, numeriFiori, quotaBluFiore, statistiche } from './regole';
 import { Scena } from './Scena';
 import { ACCESSORI_DI, Semino, SeminoPianta, stadioDaCrescita } from './Semino';
+import type { SeminoAzione } from './Semino';
 import type { Mascotte } from './useMascotte';
 import { IconaIndietro } from './Icone';
 import { tempo } from './util';
@@ -41,6 +42,7 @@ export function Giardino(p: Props) {
   const vuoto = p.storico.length === 0;
   const chi: ChiParla[] = p.sbloccata ? ['semino', 'semina'] : ['semino'];
   const stadio = Math.min(4, st.fiori);
+  const gesto = useGestiGiardino(!vuoto, chi);
   return (
     <main className="schermata giardino-schermata">
       <header className="barra">
@@ -53,40 +55,66 @@ export function Giardino(p: Props) {
             {st.fiori === 1 ? '1 fiore' : `${st.fiori} fiori`}, {st.germogli === 1 ? '1 germoglio' : `${st.germogli} germogli`}
           </span>
         </div>
-        <span className="giardino-mascotte" data-testid="giardino-mascotte" hidden={p.storico.length === 0}>
-          {chi.map((c) => (
-            <Semino
-              key={c}
-              chi={c}
-              stadio={stadio}
-              umore={p.mascotte[c].umore}
-              impulso={p.mascotte[c].impulso}
-              accessorio={accessori[c]}
-              onSolletico={() => p.onSolletico(c)}
-              taglia={52}
-            />
-          ))}
-          {p.solletico && (
-            <span
-              key={p.solletico.id}
-              className={`fumetto fumetto-giu fumetto-solletico giardino-fumetto${p.solletico.chi === 'semina' ? ' fumetto--semina' : ''}`}
-              role="status"
-              data-testid="fumetto-solletico"
-            >
-              {p.solletico.testo}
-            </span>
-          )}
-        </span>
       </header>
 
-      <Scena
-        className={`giardino-scena${vuoto ? ' giardino-scena-vuota' : ''}`}
-        elementi={elementiSbloccati(st.fiori)}
-        fiori={st.fiori}
-        bluPresenza={p.bluPresenza}
-        altezza={180}
-        sfuma={vuoto}
-      />
+      {/* le mascotte stanno in piedi sul prato della scena; il fumetto del solletico nel cielo */}
+      <div className={`giardino-scena${vuoto ? ' giardino-scena-vuota' : ''}`} style={{ position: 'relative' }}>
+        <Scena
+          elementi={elementiSbloccati(st.fiori)}
+          fiori={st.fiori}
+          bluPresenza={p.bluPresenza}
+          altezza={180}
+          sfuma={vuoto}
+          figli={
+            vuoto ? null : (
+              <g data-testid="giardino-mascotte">
+                {chi.map((c) => {
+                  const x = chi.length > 1 ? (c === 'semino' ? -32 : 30) : -6;
+                  return (
+                    <g key={c} transform={`translate(${x - TAGLIA_PRATO / 2} ${-TAGLIA_PRATO})`}>
+                      <Semino
+                        chi={c}
+                        stadio={stadio}
+                        umore={p.mascotte[c].umore}
+                        impulso={p.mascotte[c].impulso}
+                        accessorio={accessori[c]}
+                        onSolletico={() => p.onSolletico(c)}
+                        taglia={TAGLIA_PRATO}
+                        entrata="salto"
+                        seguiPuntatore
+                        parla={p.solletico?.chi === c}
+                        frase={p.solletico?.chi === c ? p.solletico.testo : undefined}
+                        azione={gesto?.chi === c ? gesto : undefined}
+                      />
+                    </g>
+                  );
+                })}
+              </g>
+            )
+          }
+        />
+        {p.solletico && !vuoto && (
+          <span
+            key={p.solletico.id}
+            className={`fumetto fumetto-giu fumetto-solletico${p.solletico.chi === 'semina' ? ' fumetto--semina' : ''}`}
+            role="status"
+            data-testid="fumetto-solletico"
+            style={{
+              position: 'absolute',
+              zIndex: 20,
+              top: 10,
+              left: 16,
+              right: 16,
+              marginInline: 'auto',
+              width: 'max-content',
+              maxWidth: 'min(80%, 300px)',
+              fontSize: 14,
+            }}
+          >
+            {p.solletico.testo}
+          </span>
+        )}
+      </div>
 
       {p.storico.length > 0 && (
         <section className="giardino-totali" aria-label="Il vostro giardino in numeri">
@@ -130,9 +158,12 @@ export function Giardino(p: Props) {
               impulso={p.mascotte.semino.impulso}
               onSolletico={() => p.onSolletico('semino')}
               taglia={112}
+              parla
+              frase={p.solletico?.testo ?? INVITO}
+              seguiPuntatore
             />
             <p className="fumetto fumetto-giu giardino-invito">
-              {p.solletico?.testo ?? 'Qui non c’è ancora niente. Ogni partita pianta un seme: finitela insieme e fiorisce.'}
+              {p.solletico?.testo ?? INVITO}
             </p>
             <button className="bottone primario" onClick={p.onEsci}>
               Scegli la prima partita
@@ -152,6 +183,47 @@ export function Giardino(p: Props) {
       </div>
     </main>
   );
+}
+
+const INVITO = 'Qui non c’è ancora niente. Ogni partita pianta un seme: finitela insieme e fiorisce.';
+
+/** lato delle mascotte sul prato, in unità della scena (220 = altezza) */
+const TAGLIA_PRATO = 64;
+
+/**
+ * Ogni 20–40 s una delle due mascotte sul prato fa un saltello verso l'altra o saluta (da sola:
+ * saltello o saluto). Fermo a pagina nascosta.
+ */
+function useGestiGiardino(attivo: boolean, chi: ChiParla[]) {
+  const [gesto, setGesto] = useState<{ chi: ChiParla; tipo: SeminoAzione; id: number; verso: 1 | -1 } | null>(null);
+  const due = chi.length > 1;
+  useEffect(() => {
+    if (!attivo) return;
+    let t = 0;
+    const prossimo = () => {
+      window.clearTimeout(t);
+      if (document.hidden) return;
+      t = window.setTimeout(
+        () => {
+          const c = chi[Math.floor(Math.random() * chi.length)];
+          const r = Math.random();
+          const tipo: SeminoAzione = due ? (r < 0.55 ? 'salta-verso' : 'saluta') : r < 0.5 ? 'saltello' : 'saluta';
+          setGesto((g) => ({ chi: c, tipo, id: (g?.id ?? 0) + 1, verso: c === 'semino' ? 1 : -1 }));
+          prossimo();
+        },
+        20000 + Math.random() * 20000,
+      );
+    };
+    const vista = () => (document.hidden ? window.clearTimeout(t) : prossimo());
+    document.addEventListener('visibilitychange', vista);
+    prossimo();
+    return () => {
+      window.clearTimeout(t);
+      document.removeEventListener('visibilitychange', vista);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [attivo, due]);
+  return gesto;
 }
 
 function Pianta({

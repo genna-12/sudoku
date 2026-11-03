@@ -67,6 +67,9 @@ export function Vittoria({
     solletico?.chi === 'semina' ? mascotte.semina.umore : battuta?.chi === 'semina' ? umoreValido(battuta.umore) : umoreValido('euforico');
   const elementi = elementiSbloccati(fiori);
   const parla = battuta ? ` parla-${battuta.chi}` : '';
+  // chi parla adesso (solletico o battuta della sorpresa): la sua bocca si muove
+  const voce = solletico ?? (battuta && (battuta.chi === 'semino' || battuta.chi === 'semina') ? battuta : null);
+  const chiParla = voce ? (voce.chi as ChiParla) : null;
   return (
     <div className="vittoria" role="dialog" aria-modal="true" aria-label="Partita vinta">
       <div className="coriandoli" aria-hidden="true">
@@ -87,6 +90,9 @@ export function Vittoria({
               taglia={92}
               impulso={solletico ? `s${solletico.id}` : battuta ? `b${passo}` : 'vittoria'}
               onSolletico={onSolletico}
+              parla={chiParla}
+              frase={voce?.testo}
+              seguiPuntatore
             />
           ) : (
             <Semino
@@ -95,6 +101,9 @@ export function Vittoria({
               impulso={solletico ? `s${solletico.id}` : 'vittoria'}
               onSolletico={() => onSolletico('semino')}
               taglia={112}
+              parla={chiParla === 'semino'}
+              frase={voce?.testo}
+              seguiPuntatore
             />
           )}
           {solletico && (
