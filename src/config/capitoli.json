@@ -1,0 +1,5101 @@
+[
+ {
+  "_sorgente_sha256": "2e745d4c1610824942be564b8c9bc1b46c6ed7009509c2077fc11f2649fc25ac",
+  "_nota": "generato da controlla.py: non modificare a mano"
+ },
+ {
+  "fiore": 0,
+  "luogo": "aiuola",
+  "titolo": "Ciao",
+  "vestiti": {},
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Il sasso è rotolato laggiù. Lo lascio lì: da terra si vede tutto."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Un'aiuola. In mezzo, un seme verde grande come un'unghia."
+   },
+   {
+    "chi": "semino",
+    "umore": "saluta",
+    "testo": "Ciao. Sono Semino."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Sono piccolo. Se risolvete i sudoku in due, cresco. Promesso."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino sale su un sasso per sembrare più alto. Il sasso rotola."
+   },
+   {
+    "chi": "semino",
+    "umore": "imbarazzato",
+    "testo": "Da qui vi vedo meglio."
+   },
+   {
+    "chi": "semino",
+    "umore": "felice",
+    "testo": "Genna. Mati. Cominciate pure, io sto qui."
+   }
+  ]
+ },
+ {
+  "fiore": 1,
+  "luogo": "aiuola",
+  "titolo": "Fiore 1",
+  "vestiti": {},
+  "entra": null,
+  "elemento": "primo fiore",
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Fiore 1 mi batte di due dita. Ho ricontrollato stanotte: sempre due."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Accanto a Semino è spuntato un fiore. È più alto di lui."
+   },
+   {
+    "chi": "semino",
+    "umore": "sorpreso",
+    "testo": "Oh."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Ti chiamo Fiore 1. Il nome è provvisorio."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino si mette dritto contro il gambo e segna l'altezza con un'unghia."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Mi batte di due dita. Per adesso."
+   },
+   {
+    "chi": "semino",
+    "umore": "felice",
+    "testo": "Il due arriva quando volete voi. Io faccio la guardia."
+   }
+  ]
+ },
+ {
+  "fiore": 2,
+  "luogo": "aiuola",
+  "titolo": "Il fruscio",
+  "vestiti": {},
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Stanotte ho lasciato lo schermo acceso verso l'aiuola. Per il vento."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Notte. L'unica luce è lo schermo di Semino."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Riga tre, colonna sette... un cinque."
+   },
+   {
+    "chi": "narra",
+    "testo": "Dall'altra parte dell'aiuola, un fruscio."
+   },
+   {
+    "chi": "semino",
+    "umore": "sorpreso",
+    "testo": "Chi è?"
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Misuro."
+   },
+   {
+    "chi": "semino",
+    "umore": "preoccupato",
+    "testo": "Foglia ferma. Vento zero. Quindi è il vento."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Giro lo schermo di là. Così c'è luce."
+   }
+  ]
+ },
+ {
+  "fiore": 3,
+  "luogo": "aiuola",
+  "titolo": "Non era il vento",
+  "vestiti": {},
+  "entra": null,
+  "elemento": "sentiero",
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Due biscotti al bordo dell'aiuola. Per correttezza."
+  },
+  "battute": [
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Un biscotto. Al bordo. Per il vento."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino lo appoggia e va a dormire. Mattina."
+   },
+   {
+    "chi": "semino",
+    "umore": "sorpreso",
+    "testo": "Sparito."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Il vento non mangia. Il vento sposta."
+   },
+   {
+    "chi": "narra",
+    "testo": "Cerca il biscotto in tutta l'aiuola. Trova delle briciole, e un sentiero di briciole."
+   },
+   {
+    "chi": "semino",
+    "umore": "felice",
+    "testo": "Stasera ne metto due. Uno per il vento, uno per chi se lo mangia."
+   }
+  ]
+ },
+ {
+  "fiore": 4,
+  "luogo": "aiuola",
+  "titolo": "Una riga a metà",
+  "vestiti": {},
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Ho lasciato una riga a metà. Non è pigrizia."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Semino da solo davanti alla griglia. Mette un numero. Poi un altro."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Riga chiusa."
+   },
+   {
+    "chi": "narra",
+    "testo": "Guarda la riga chiusa per un po'."
+   },
+   {
+    "chi": "semino",
+    "umore": "preoccupato",
+    "testo": "Non mi è piaciuta."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Questa la lascio a metà. Per chiunque passi."
+   },
+   {
+    "chi": "semino",
+    "umore": "saluta",
+    "testo": "Dai... ne facciamo un altro? In due."
+   }
+  ]
+ },
+ {
+  "fiore": 5,
+  "luogo": "aiuola",
+  "titolo": "Il fruscio ha un nome",
+  "vestiti": {},
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "I biscotti li ho finiti io. Il vento non c'entrava niente."
+  },
+  "battute": [
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Cinque fiori. Il giardino è grande, adesso."
+   },
+   {
+    "chi": "narra",
+    "testo": "Fruscio. Più vicino delle altre notti."
+   },
+   {
+    "chi": "semino",
+    "umore": "sorpreso",
+    "testo": "Il fruscio. È qui, è qui dietro..."
+   },
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "CIAO. Sono Semina. I biscotti erano buonissimi."
+   },
+   {
+    "chi": "semino",
+    "umore": "imbarazzato",
+    "testo": "Erano due."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Uno per sera. Vi guardavo da un pezzo: aspettavo che il giardino fosse grande per due."
+   },
+   {
+    "chi": "semino",
+    "umore": "imbarazzato",
+    "testo": "Ehm. Ciao. Io sono Semino. Prima qui c'ero solo io."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Lo so. Ti ho sentito. Da adesso le righe le chiudiamo in due."
+   },
+   {
+    "chi": "narra",
+    "testo": "Il verde è Semino. La blu è Semina. Siete voi, da sempre."
+   },
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "E adesso... giochiamo!"
+   }
+  ]
+ },
+ {
+  "fiore": 6,
+  "luogo": "giardino",
+  "titolo": "Buongiorno e buonanotte",
+  "vestiti": {
+   "semino": "occhiali",
+   "semina": "corona"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Fiore 3 adesso si chiama Gino. Ho aggiornato l'elenco."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Alba. Semina passa in rassegna l'aiuola."
+   },
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "Buongiorno Gino. Buongiorno Pina. Buongiorno... Tullio."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino arriva dal sentiero con gli occhi mezzi chiusi."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Buonanotte."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Buongiorno."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Quello è Fiore 3."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Si chiama Gino."
+   },
+   {
+    "chi": "semino",
+    "umore": "dorme",
+    "testo": "Gino."
+   }
+  ]
+ },
+ {
+  "fiore": 7,
+  "luogo": "giardino",
+  "titolo": "Il posto preferito",
+  "vestiti": {
+   "semino": "occhiali",
+   "semina": "corona"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Ho disegnato delle onde nella terra. Stanno ferme. È il loro unico difetto."
+  },
+  "battute": [
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Il tuo posto preferito?"
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Il mare. Il tuo?"
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Indovina."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Il mare."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "La montagna."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semina disegna una montagna nella terra, col dito. Semino, sotto, disegna le onde. Nessuno parla."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Andiamo a mangiare?"
+   },
+   {
+    "chi": "narra",
+    "testo": "Si alzano. Sopra la montagna e sopra le onde resta l'impronta di un piede."
+   }
+  ]
+ },
+ {
+  "fiore": 8,
+  "luogo": "giardino",
+  "titolo": "Lo stagno",
+  "vestiti": {
+   "semino": "occhiali",
+   "semina": "corona"
+  },
+  "entra": null,
+  "elemento": "stagno",
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "La palla regge Gianfranca. Il collaudo continua."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "In fondo al giardino è spuntato uno stagno. Semino ci tira la palla, per vedere se galleggia."
+   },
+   {
+    "chi": "semino",
+    "umore": "felice",
+    "testo": "Galleggia. Test superato."
+   },
+   {
+    "chi": "semina",
+    "umore": "preoccupato",
+    "testo": "Lì ci abitano delle rane."
+   },
+   {
+    "chi": "semino",
+    "umore": "sorpreso",
+    "testo": "Da quando?"
+   },
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "Da adesso. ORNELLA. Bubi. E la piccola è Gianfranca."
+   },
+   {
+    "chi": "semino",
+    "umore": "imbarazzato",
+    "testo": "Ornella. Bubi. Gianfranca. Errore mio, non si ripete."
+   },
+   {
+    "chi": "narra",
+    "testo": "La palla gira piano in mezzo allo stagno. Gianfranca ci sale sopra."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Portata: una rana."
+   }
+  ]
+ },
+ {
+  "fiore": 9,
+  "luogo": "giardino",
+  "titolo": "Il patto delle ore",
+  "vestiti": {
+   "semino": "occhiali",
+   "semina": "corona"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "Alle sei c'era una sveglia che suonava da un'ora. Lui dormiva sulla j."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Sera. Semino al PC. Semina ha già un occhio chiuso."
+   },
+   {
+    "chi": "semina",
+    "umore": "dorme",
+    "testo": "Il giardino lo apro io. Alle sei."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Io lo chiudo alle quattro. Giro delle aiuole, schermo spento."
+   },
+   {
+    "chi": "semina",
+    "umore": "dorme",
+    "testo": "E dalle quattro alle sei?"
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Il giardino si arrangia."
+   },
+   {
+    "chi": "semina",
+    "umore": "dorme",
+    "testo": "Gino no."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Sveglia alle cinque. Giro di controllo."
+   },
+   {
+    "chi": "narra",
+    "testo": "Alle quattro e dieci Semino dorme sulla tastiera. Sullo schermo, una riga di j. La sveglia aspetta le cinque."
+   }
+  ]
+ },
+ {
+  "fiore": 10,
+  "luogo": "giardino",
+  "titolo": "Fischio",
+  "vestiti": {
+   "semino": "occhiali",
+   "semina": "animale"
+  },
+  "entra": "fischio",
+  "elemento": "merlo",
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "Fischio è puntuale una volta al giorno. Alle quattro."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Un merlo sul ramo sopra l'aiuola. Fischia, si ferma, si gratta, fischia. Mai a tempo."
+   },
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "FISCHIO. Si chiama Fischio."
+   },
+   {
+    "chi": "semino",
+    "umore": "preoccupato",
+    "testo": "Sto valutando le opzioni. Merlo 1.0, per ora."
+   },
+   {
+    "chi": "fischio",
+    "testo": "Fischio va bene. Ho da fare, ciao. No, resto."
+   },
+   {
+    "chi": "semino",
+    "umore": "dorme",
+    "testo": "Io dormo dalle quattro. Lui fischia dalle sei. Sul mio cuscino."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Fischio. Dalle quattro alle sei il giardino lo guardi tu. Ti pago in briciole."
+   },
+   {
+    "chi": "fischio",
+    "testo": "Briciole. Si può. Vado. Cioè, alle quattro."
+   },
+   {
+    "chi": "narra",
+    "testo": "Alle quattro in punto, dal ramo, un fischio. Uno solo, a tempo."
+   }
+  ]
+ },
+ {
+  "fiore": 11,
+  "luogo": "giardino",
+  "titolo": "Pasta",
+  "vestiti": {
+   "semino": "occhiali",
+   "semina": "corona"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Il dito sta bene. Lo controllo ogni tanto, per scrupolo."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Semino cucina su un fuoco di rametti. Tocca il bordo della pentola e ritira la mano."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Pasta al pomodoro. Niente di che."
+   },
+   {
+    "chi": "semina",
+    "umore": "estasiato",
+    "testo": "Mmf. La più buona della mia vita."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Su un campione di sei fiori."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Bastano."
+   },
+   {
+    "chi": "semino",
+    "umore": "imbarazzato",
+    "testo": "Ho deciso di crederci."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semina vede il dito rosso. Ci soffia sopra, due volte, e torna al piatto. Semino si guarda il dito."
+   }
+  ]
+ },
+ {
+  "fiore": 12,
+  "luogo": "giardino",
+  "titolo": "La cassetta",
+  "vestiti": {
+   "semino": "occhiali",
+   "semina": "animale"
+  },
+  "entra": null,
+  "elemento": "cassetta",
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "La lettera arriva domani. Ho lasciato lo sportello aperto, per farla entrare."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "In fondo al sentiero è spuntata una cassetta della posta. Ha lo sportello che cigola."
+   },
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "Qui dentro finiscono TUTTE le frasi che vi mandate, giganti. Le leggo io."
+   },
+   {
+    "chi": "semino",
+    "umore": "sorpreso",
+    "testo": "Tutte?"
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Non spio. Le innaffio."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Allora imbuco questa. È per te."
+   },
+   {
+    "chi": "semina",
+    "umore": "sorpreso",
+    "testo": "Siamo a due metri."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Così ti arriva domani."
+   },
+   {
+    "chi": "narra",
+    "testo": "Prima di sera Semina apre lo sportello sei volte. La sesta cigola di più."
+   }
+  ]
+ },
+ {
+  "fiore": 13,
+  "luogo": "giardino",
+  "titolo": "Forse",
+  "vestiti": {
+   "semino": "occhiali",
+   "semina": "corona"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "Io ho detto forse. Lui l'ha scritto su un sasso."
+  },
+  "battute": [
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Domanda tecnica. Vuoi stare nella stessa aiuola?"
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Forse."
+   },
+   {
+    "chi": "semino",
+    "umore": "felice",
+    "testo": "Secondo i miei calcoli, da un semino forse vuol dire sì."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Forse."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Bastoncino. Radice mia, radice tua. Quaranta centimetri."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Sono tanti?"
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Sono quaranta."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino scrive 40 su un sasso piatto e lo pianta a metà strada, tra le due radici."
+   }
+  ]
+ },
+ {
+  "fiore": 14,
+  "luogo": "giardino",
+  "titolo": "Un centimetro",
+  "vestiti": {
+   "semino": "occhiali",
+   "semina": "animale"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "Trentanove è un bel numero. Più bello di quaranta, non so perché."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Alba. Semino dorme. Semina tira le sue radici di un centimetro, verso quelle di lui."
+   },
+   {
+    "chi": "semina",
+    "umore": "imbarazzato",
+    "testo": "Non diteglielo."
+   },
+   {
+    "chi": "narra",
+    "testo": "Pomeriggio. Semino rimisura col bastoncino. Si ferma. Rimisura."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Trentanove."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Ripasso il nove due volte. Se piove, resta."
+   }
+  ]
+ },
+ {
+  "fiore": 15,
+  "luogo": "mare",
+  "titolo": "Onde",
+  "vestiti": {
+   "semino": "surf",
+   "semina": "paglia"
+  },
+  "entra": null,
+  "elemento": "mare",
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Sulla sabbia c'è il sasso di Semina. Ci passo vicino con la palla, piano."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Il mare è arrivato fino in fondo al giardino. Semino è già in acqua, con la palla."
+   },
+   {
+    "chi": "semino",
+    "umore": "euforico",
+    "testo": "Onde vere. Una ogni otto secondi."
+   },
+   {
+    "chi": "semina",
+    "umore": "sorpreso",
+    "testo": "Si muove tutto."
+   },
+   {
+    "chi": "semino",
+    "umore": "felice",
+    "testo": "È il bello."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semina tira fuori dalla tasca un sasso del giardino. Lo posa sulla sabbia."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Così c'è qualcosa di fermo."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Quella arriva lunga."
+   },
+   {
+    "chi": "semina",
+    "umore": "arrabbiato",
+    "testo": "È bagnato. È... bagnato."
+   }
+  ]
+ },
+ {
+  "fiore": 16,
+  "luogo": "mare",
+  "titolo": "La tavola",
+  "vestiti": {
+   "semino": "surf",
+   "semina": "paglia"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Con la tavola al guinzaglio non si cade. Si va pochissimo, però."
+  },
+  "battute": [
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Piedi a quaranta centimetri. Guarda avanti."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semina cade. Risale. Cade. Risale. La terza volta cade la tavola, e lei resta in piedi nell'acqua."
+   },
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "STO IN PIEDI."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Senza tavola."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Il mare mi piace."
+   },
+   {
+    "chi": "semino",
+    "umore": "sorpreso",
+    "testo": "Da quando?"
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Da quando c'è la tavola."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semina, dalla riva, tiene la tavola per la cinghia. Sulla tavola, in acqua, c'è Semino."
+   }
+  ]
+ },
+ {
+  "fiore": 17,
+  "luogo": "mare",
+  "titolo": "Pinza",
+  "vestiti": {
+   "semino": "surf",
+   "semina": "paglia"
+  },
+  "entra": "pinza",
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Ho camminato di lato tutto il pomeriggio. L'alluce è ancora mio, credo."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Semino esce dall'acqua. Dall'alluce gli pende un granchio."
+   },
+   {
+    "chi": "semino",
+    "umore": "sorpreso",
+    "testo": "Ho un granchio. Attaccato."
+   },
+   {
+    "chi": "pinza",
+    "testo": "Così non te ne vai."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Non me ne stavo andando."
+   },
+   {
+    "chi": "pinza",
+    "testo": "Lo dicono tutti. Tengo io."
+   },
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "SI CHIAMA PINZA."
+   },
+   {
+    "chi": "pinza",
+    "testo": "Tengo anche quello. Di qua."
+   },
+   {
+    "chi": "narra",
+    "testo": "Pinza parte di lato e non molla l'alluce. Semino, per stargli dietro, va di lato anche lui."
+   }
+  ]
+ },
+ {
+  "fiore": 18,
+  "luogo": "mare",
+  "titolo": "La riva",
+  "vestiti": {
+   "semino": "surf",
+   "semina": "paglia"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Ho contato novantadue onde. La novantatreesima non l'ho vista."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Semina cammina lungo la riva. Si allontana."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Dove vai?"
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "A vedere una cosa. Non so quale."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino sulla tavola. Conta le onde a bassa voce. Semina è un puntino."
+   },
+   {
+    "chi": "pinza",
+    "testo": "Dove va?"
+   },
+   {
+    "chi": "semino",
+    "umore": "preoccupato",
+    "testo": "Novantadue. A vedere una cosa."
+   },
+   {
+    "chi": "pinza",
+    "testo": "E tu?"
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Io giro la tavola di là. Senza remare."
+   }
+  ]
+ },
+ {
+  "fiore": 19,
+  "luogo": "mare",
+  "titolo": "La conchiglia",
+  "vestiti": {
+   "semino": "surf",
+   "semina": "paglia"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "La conchiglia è bucata. Suona lo stesso."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Semina torna. Ha una conchiglia in mano. La posa accanto alla tavola."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Cos'è?"
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Una conchiglia. È bucata."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Fa il rumore del mare."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Siamo al mare."
+   },
+   {
+    "chi": "semino",
+    "umore": "sorpreso",
+    "testo": "Appunto."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Per dopo."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino entra in acqua con la conchiglia all'orecchio. Sente il mare due volte."
+   }
+  ]
+ },
+ {
+  "fiore": 20,
+  "luogo": "mare",
+  "titolo": "Venti stelle",
+  "vestiti": {
+   "semino": "surf",
+   "semina": "paglia"
+  },
+  "entra": null,
+  "elemento": "stelle",
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Stanotte ho contato quaranta stelle. Venti erano sue."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Notte sulla spiaggia. In cielo sono uscite venti stelle, una per fiore."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Una. Due."
+   },
+   {
+    "chi": "semina",
+    "umore": "dorme",
+    "testo": "Tre..."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Le conto io anche per lei. Quattro."
+   },
+   {
+    "chi": "pinza",
+    "testo": "Io arrivo a quattro. Il resto lo tengo a mente."
+   },
+   {
+    "chi": "narra",
+    "testo": "Pinza si addormenta con le chele aperte. Semino continua, a bassa voce."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Venti. Adesso le sue. Una."
+   }
+  ]
+ },
+ {
+  "fiore": 21,
+  "luogo": "mare",
+  "titolo": "Quattordici granchi",
+  "vestiti": {
+   "semino": "palla",
+   "semina": "paglia"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "C'è un Semino Due, sulla scogliera. Io resto la versione 1.0."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Semina sulla scogliera, in mezzo ai granchi. Ne prende uno alla volta e gli dà un nome."
+   },
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "UGO. Rita. Pancrazio. Bombo. Lilli. E questo è Zeffirino."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Quattordici."
+   },
+   {
+    "chi": "pinza",
+    "testo": "Quindici. Con me."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Vado a tirare la palla."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Aspetta. Questo si chiama Semino Due."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Ah."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino tira la palla contro un'onda. L'onda gliela riporta. La tira di nuovo."
+   }
+  ]
+ },
+ {
+  "fiore": 22,
+  "luogo": "mare",
+  "titolo": "La toppa",
+  "vestiti": {
+   "semino": "palla",
+   "semina": "paglia"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "La palla adesso pende a sinistra. Ho corretto il tiro di dieci gradi."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "La palla rotola verso l'acqua. Pinza la blocca con tutte e due le chele."
+   },
+   {
+    "chi": "pinza",
+    "testo": "Presa. Così non rotola via."
+   },
+   {
+    "chi": "pinza",
+    "testo": "Adesso fa pffff."
+   },
+   {
+    "chi": "semino",
+    "umore": "preoccupato",
+    "testo": "Due buchi. Diametro: una chela."
+   },
+   {
+    "chi": "pinza",
+    "testo": "La tenevo forte."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Ha una cicatrice. Sembra un pirata."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Nastro. Due giri. Tenuta stagna, forse."
+   },
+   {
+    "chi": "narra",
+    "testo": "La palla rattoppata torna in acqua. Galleggia storta, dalla parte della toppa."
+   }
+  ]
+ },
+ {
+  "fiore": 23,
+  "luogo": "mare",
+  "titolo": "L'ombra al muretto",
+  "vestiti": {
+   "semino": "surf",
+   "semina": "paglia"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "L'ombra è arrivata al muretto un minuto dopo di me. L'ho aspettata."
+  },
+  "battute": [
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Vado agli scogli. Torno quando l'ombra arriva al muretto."
+   },
+   {
+    "chi": "narra",
+    "testo": "Disegna una freccia nella sabbia, dall'ombrellone al muretto. Semino prende la tavola ed entra in acqua."
+   },
+   {
+    "chi": "pinza",
+    "testo": "Una. Due."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Pinza."
+   },
+   {
+    "chi": "pinza",
+    "testo": "Centododici."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Non te l'ho chiesto."
+   },
+   {
+    "chi": "pinza",
+    "testo": "Le tengo io. Tu rema."
+   },
+   {
+    "chi": "narra",
+    "testo": "L'ombra dell'ombrellone tocca il muretto. Sul muretto c'è Semina, coi piedi pieni di sabbia."
+   }
+  ]
+ },
+ {
+  "fiore": 24,
+  "luogo": "mare",
+  "titolo": "La settima",
+  "vestiti": {
+   "semino": "surf",
+   "semina": "paglia"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "La settima era l'ottava. Ho ricontrollato: avevo contato anche la schiuma."
+  },
+  "battute": [
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Questa è muta. Quella bucata suona."
+   },
+   {
+    "chi": "semino",
+    "umore": "sorpreso",
+    "testo": "Perché quella bucata?"
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Dal buco entra il mare."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Adesso io. Le onde arrivano a gruppi. La settima è la grossa."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semina conta le onde sulle dita. L'ottava la prende in pieno."
+   },
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "LA SETTIMA."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Era l'ottava."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semina, zuppa, si mette la conchiglia bucata all'orecchio. Scuote la testa e ci riprova."
+   }
+  ]
+ },
+ {
+  "fiore": 25,
+  "luogo": "mare",
+  "titolo": "Acqua che non sta ferma",
+  "vestiti": {
+   "semino": "palla",
+   "semina": "paglia"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "Ho ancora la sabbia in un orecchio. Non la tolgo. Niente."
+  },
+  "battute": [
+   {
+    "chi": "semina",
+    "umore": "arrabbiato",
+    "testo": "Ho la sabbia nelle orecchie. Nelle orecchie."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "In montagna hai i sassi nelle scarpe."
+   },
+   {
+    "chi": "semina",
+    "umore": "arrabbiato",
+    "testo": "I sassi stanno fermi."
+   },
+   {
+    "chi": "semino",
+    "umore": "arrabbiato",
+    "testo": "La montagna è una salita senza onde."
+   },
+   {
+    "chi": "semina",
+    "umore": "arrabbiato",
+    "testo": "Il mare è acqua che non sta ferma."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semina va a dormire alle dieci, dal lato degli scogli. Semino alle quattro, dal lato dell'acqua."
+   },
+   {
+    "chi": "pinza",
+    "testo": "Io sto qui. Di lato."
+   },
+   {
+    "chi": "narra",
+    "testo": "Pinza resta in mezzo, sulla sabbia, sveglio. Una chela verso gli scogli, una verso l'acqua."
+   }
+  ]
+ },
+ {
+  "fiore": 26,
+  "luogo": "mare",
+  "titolo": "La tavola sul muretto",
+  "vestiti": {
+   "semino": "surf",
+   "semina": "paglia"
+  },
+  "entra": null,
+  "elemento": "tavola",
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Sulla tavola c'è una montagna graffiata. In acqua fa meno attrito, secondo me."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Mattina. Semino porta la tavola fino al muretto e la appoggia lì, dritta."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Resta qui. Così pensi al mare."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Mh."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semina prende un sasso appuntito. Sulla tavola graffia una montagna. Poi, sotto, un'onda."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Era nuova, la tavola."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "L'onda è venuta piccola."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Undici centimetri."
+   }
+  ]
+ },
+ {
+  "fiore": 27,
+  "luogo": "mare",
+  "titolo": "Una chela sola",
+  "vestiti": {
+   "semino": "surf",
+   "semina": "paglia"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "La cinghia dello zaino è rotta. La sistemo in salita. Pare che ci sia una salita."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Si parte. Pinza si aggrappa alla cinghia dello zaino di Semino, con tutte e due le chele. Crac."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Prova con una chela sola."
+   },
+   {
+    "chi": "pinza",
+    "testo": "Tiene. Oh."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Pinza. Tu stai qui. Torniamo."
+   },
+   {
+    "chi": "pinza",
+    "testo": "Quando?"
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Quando l'ombra..."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Ci sono i giorni, Pinza. Sono tanti."
+   },
+   {
+    "chi": "narra",
+    "testo": "Pinza scende sul muretto, accanto alla tavola. Saluta con la chela libera. L'altra tiene il muretto."
+   }
+  ]
+ },
+ {
+  "fiore": 28,
+  "luogo": "montagna",
+  "titolo": "Lo zaino",
+  "vestiti": {
+   "semino": "zaino-storto",
+   "semina": "montagna"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Nello zaino c'è una conchiglia. Non so a cosa serva, lassù."
+  },
+  "battute": [
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Fermo. Hai lo zaino storto."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Pende di dodici gradi. È voluto."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semina tira le cinghie e lo raddrizza. Semino dà un colpo di spalla: torna storto."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Così so che è il mio."
+   },
+   {
+    "chi": "semina",
+    "umore": "sorpreso",
+    "testo": "Ci sono due zaini su tutta la montagna."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "C'è l'ascensore?"
+   },
+   {
+    "chi": "narra",
+    "testo": "Semina parte. Semino infila la conchiglia bucata nello zaino e le va dietro, storto, in salita."
+   }
+  ]
+ },
+ {
+  "fiore": 29,
+  "luogo": "montagna",
+  "titolo": "Ogni dieci passi",
+  "vestiti": {
+   "semino": "zaino-storto",
+   "semina": "montagna"
+  },
+  "entra": null,
+  "elemento": "montagna",
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Sulla mappa ho segnato le pause panorama. Quarantuno. Tutte necessarie."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Salita. Semino si ferma ogni dieci passi. A ogni curva, Semina lo aspetta seduta su un sasso."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Pausa panorama."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Tieni tu la mappa."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Secondo la mappa siamo a 1.312 metri."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Secondo me abbiamo fame."
+   },
+   {
+    "chi": "narra",
+    "testo": "In cima. Stendono la mappa sull'erba e ci mettono sopra i panini."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Valeva la fatica?"
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Una volta. Hai messo la marmellata sul sentiero."
+   }
+  ]
+ },
+ {
+  "fiore": 30,
+  "luogo": "montagna",
+  "titolo": "Nuvola",
+  "vestiti": {
+   "semino": "zaino-storto",
+   "semina": "cavallo"
+  },
+  "entra": "nuvola",
+  "elemento": "cavallino",
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "Nuvola non conosce il \"dai\". Io lo dico lo stesso, ogni tanto."
+  },
+  "battute": [
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "UNA CAVALLA. Si chiama Nuvola. VIENI."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "La vedo. Benissimo. Da qui."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Dai, Nuvola. Dai."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Non si muove. Neanche un orecchio."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Nuvola, avanti."
+   },
+   {
+    "chi": "narra",
+    "testo": "Nuvola fa tre passi e si ferma col muso sulla spalla di Semina."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Comandi precisi. Mi piace."
+   },
+   {
+    "chi": "narra",
+    "testo": "Nuvola gira la testa verso Semino e sbuffa. Il berretto troppo grande gli si alza e ricade."
+   }
+  ]
+ },
+ {
+  "fiore": 31,
+  "luogo": "montagna",
+  "titolo": "Quattro secondi",
+  "vestiti": {
+   "semino": "zaino-storto",
+   "semina": "cavallo"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Record personale a cavallo: tre secondi e mezzo. Lei dice quattro."
+  },
+  "battute": [
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Sali. Nuvola, ferma."
+   },
+   {
+    "chi": "semino",
+    "umore": "preoccupato",
+    "testo": "Sono su. Uno, due, tre, quat..."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino è nell'erba. Nuvola sbuffa dal naso, a scatti, e non smette."
+   },
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "QUATTRO SECONDI."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Tre e mezzo. Il quattro l'ho detto in volo."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Adesso ti segue."
+   },
+   {
+    "chi": "narra",
+    "testo": "Nuvola gli tocca lo zaino col muso e lo raddrizza. Semino lo rimette storto con una mano."
+   }
+  ]
+ },
+ {
+  "fiore": 32,
+  "luogo": "montagna",
+  "titolo": "Il temporale",
+  "vestiti": {
+   "semino": "zaino-storto",
+   "semina": "montagna"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Stamattina sereno dappertutto. Tranne in un punto."
+  },
+  "battute": [
+   {
+    "chi": "semino",
+    "umore": "felice",
+    "testo": "Buongiorno. Le dieci e cinque. I cinque minuti sono passati, più o meno."
+   },
+   {
+    "chi": "narra",
+    "testo": "Sopra la testa di Semina c'è una nuvoletta grigia. Nuvola, accanto a lei, non muove la coda."
+   },
+   {
+    "chi": "semina",
+    "umore": "arrabbiato",
+    "testo": "Niente."
+   },
+   {
+    "chi": "semino",
+    "umore": "sorpreso",
+    "testo": "Non ho chiesto niente."
+   },
+   {
+    "chi": "semino",
+    "umore": "preoccupato",
+    "testo": "Che c'è? Sei arrabbiata? È per l'alba?"
+   },
+   {
+    "chi": "semina",
+    "umore": "arrabbiato",
+    "testo": "Nuvola. Su."
+   },
+   {
+    "chi": "narra",
+    "testo": "Nuvola parte. La nuvoletta, grande il doppio, sale col sentiero. Lo zaino di lei resta per terra."
+   }
+  ]
+ },
+ {
+  "fiore": 33,
+  "luogo": "montagna",
+  "titolo": "Sotto la roccia",
+  "vestiti": {
+   "semino": "zaino-storto",
+   "semina": "montagna"
+  },
+  "entra": "nonnacapra",
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "In cima c'era un fiore solo. Adesso sta in uno zaino storto."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Semino non la segue. Ricuce lo zaino di lei sotto una roccia. Arriva una capra vecchissima. Mastica."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Ago. Filo. Tre punti."
+   },
+   {
+    "chi": "nonnacapra",
+    "testo": "Piove?"
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Sopra di lei."
+   },
+   {
+    "chi": "nonnacapra",
+    "testo": "Passa. Da queste parti passa sempre. Venti minuti, più o meno."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semina scende dal sentiero con un fiore di cima. Lo infila nello zaino storto di lui."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Il tuo è storto."
+   },
+   {
+    "chi": "semino",
+    "umore": "felice",
+    "testo": "Lo so."
+   }
+  ]
+ },
+ {
+  "fiore": 34,
+  "luogo": "montagna",
+  "titolo": "La carrucola",
+  "vestiti": {
+   "semino": "zaino-storto",
+   "semina": "montagna"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "Ho chiesto cosa c'era scritto sul biglietto. Nonna Capra ha masticato."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Alla baita. Da una ruota che cigola parte una corda che scende fino a valle. Nonna Capra mastica."
+   },
+   {
+    "chi": "semina",
+    "umore": "sorpreso",
+    "testo": "Dove va la corda?"
+   },
+   {
+    "chi": "nonnacapra",
+    "testo": "Dal Mulo. Quarant'anni a ottobre."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "E non vi vedete?"
+   },
+   {
+    "chi": "nonnacapra",
+    "testo": "Lo vedo. Dalla carrucola arriva anche la faccia, se la mandi."
+   },
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "SI MUOVE."
+   },
+   {
+    "chi": "narra",
+    "testo": "Sale un secchio con un pane. Nonna Capra mette al suo posto un formaggio e un biglietto piegato. Il secchio scende."
+   }
+  ]
+ },
+ {
+  "fiore": 35,
+  "luogo": "montagna",
+  "titolo": "Due sentieri",
+  "vestiti": {
+   "semino": "zaino-storto",
+   "semina": "cavallo"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "Sul sentiero lungo ci sono quarantadue sassi. Li ha contati lui, piano."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Un bivio, due cartelli. Sopra Semina c'è ancora una nuvoletta, piccola come una noce."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Lungo o corto?"
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Lungo."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Ok. Ci vediamo su."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Vieni?"
+   },
+   {
+    "chi": "semino",
+    "umore": "sorpreso",
+    "testo": "Sul lungo?"
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Sul lungo si cammina piano."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino appende lo zaino storto alla sella di Nuvola. Tre ombre sul sentiero lungo, una con lo zaino."
+   }
+  ]
+ },
+ {
+  "fiore": 36,
+  "luogo": "montagna",
+  "titolo": "L'alba, una volta",
+  "vestiti": {
+   "semino": "zaino-storto",
+   "semina": "cavallo"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "L'alba dura undici minuti. Il resto del giorno l'ho dormito."
+  },
+  "battute": [
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "È l'ora."
+   },
+   {
+    "chi": "semino",
+    "umore": "dorme",
+    "testo": "Cinque minu..."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino si alza lo stesso. Si siedono su un sasso. Il sole esce da dietro la cima."
+   },
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "ECCOLO."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Ok."
+   },
+   {
+    "chi": "semina",
+    "umore": "regalo",
+    "testo": "Tieni il cappello. Per il sole."
+   },
+   {
+    "chi": "narra",
+    "testo": "Mezzogiorno. Semino dorme nel prato col cappello di Semina sulla faccia. Nuvola gli sta di fianco, sveglia."
+   }
+  ]
+ },
+ {
+  "fiore": 37,
+  "luogo": "montagna",
+  "titolo": "Il sasso di quota",
+  "vestiti": {
+   "semino": "zaino-storto",
+   "semina": "montagna"
+  },
+  "entra": null,
+  "elemento": "sasso di quota",
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Nello zaino c'è un sasso di quota. Adesso pende dall'altra parte."
+  },
+  "battute": [
+   {
+    "chi": "semina",
+    "umore": "regalo",
+    "testo": "Un sasso di quota. Per il muretto."
+   },
+   {
+    "chi": "semino",
+    "umore": "sorpreso",
+    "testo": "Quello del mare?"
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Quello con la tavola."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino apre lo zaino storto, prende la conchiglia bucata e la mette in cima all'ometto di sassi."
+   },
+   {
+    "chi": "nonnacapra",
+    "testo": "Quella conchiglia dura meno di me."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Facciamo a gara."
+   },
+   {
+    "chi": "narra",
+    "testo": "Il vento gira. Semino gira la conchiglia col buco controvento. Fischia."
+   }
+  ]
+ },
+ {
+  "fiore": 38,
+  "luogo": "montagna",
+  "titolo": "Il cappello capovolto",
+  "vestiti": {
+   "semino": "zaino-storto",
+   "semina": "montagna"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "Il tè caldo era giusto. Quello freddo non l'ha bevuto nessuno."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Baita. Il cappello di Semina è sul tavolo, capovolto. Semino lo guarda e mette su l'acqua."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Una calda. Una fredda."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Quella che fuma."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Io mi siedo di là. Questa sedia balla."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semina beve fino in fondo. Poi allunga una mano e gira il cappello."
+   }
+  ]
+ },
+ {
+  "fiore": 39,
+  "luogo": "montagna",
+  "titolo": "Letto male",
+  "vestiti": {
+   "semino": "zaino-storto",
+   "semina": "cavallo"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Nuovo dato: pigne in fila vuol dire sonno. Ho aggiornato l'elenco."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Sul prato, Semina mette in fila le pigne. È la terza volta che le rifà."
+   },
+   {
+    "chi": "semino",
+    "umore": "preoccupato",
+    "testo": "Tre volte. Secondo i miei calcoli, è grave."
+   },
+   {
+    "chi": "semino",
+    "umore": "regalo",
+    "testo": "Tè della pace. Caldo."
+   },
+   {
+    "chi": "semina",
+    "umore": "sorpreso",
+    "testo": "Ho sonno."
+   },
+   {
+    "chi": "semino",
+    "umore": "imbarazzato",
+    "testo": "Ah."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Coperta, allora."
+   },
+   {
+    "chi": "narra",
+    "testo": "Nuvola sbadiglia. Dormono in tre sotto la coperta, che ne copre due e mezzo. Il mezzo è Nuvola."
+   }
+  ]
+ },
+ {
+  "fiore": 40,
+  "luogo": "montagna",
+  "titolo": "La canzone della capra",
+  "vestiti": {
+   "semino": "zaino-storto",
+   "semina": "montagna"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "La canzone della capra la so tutta. Le parole no."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Sera. Nonna Capra canta verso la valle, malissimo. Da giù risponde una campanella."
+   },
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "LALALÀ. Le parole non le so."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Uno, due. Uno, due. Siete partite al due."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Come si chiama?"
+   },
+   {
+    "chi": "nonnacapra",
+    "testo": "Da quaranta inverni. Il titolo deve ancora arrivare."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino batte il bastone su un sasso, a tempo. Da giù, la campanella. Due volte."
+   }
+  ]
+ },
+ {
+  "fiore": 41,
+  "luogo": "montagna",
+  "titolo": "In discesa",
+  "vestiti": {
+   "semino": "zaino-storto",
+   "semina": "montagna"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "Lui il nodo non lo tocca. Lo guarda, ogni tanto, dalla cerniera."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Si parte. Nonna Capra è sulla porta della baita. Mastica un pezzo di corda."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Una cosa che ti è piaciuta. Una."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Il sasso che fa eco. Quello dopo la curva."
+   },
+   {
+    "chi": "semina",
+    "umore": "sorpreso",
+    "testo": "Solo quello?"
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Risponde sempre. Anche alle tre di notte. Ho controllato."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Del mare: il rumore nella conchiglia."
+   },
+   {
+    "chi": "nonnacapra",
+    "testo": "È la corda della carrucola. Il nodo tiene. Se lo stringi troppo non si scioglie più."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino infila la corda nello zaino storto. Il nodo entra per ultimo."
+   }
+  ]
+ },
+ {
+  "fiore": 42,
+  "luogo": "montagna",
+  "titolo": "Nuvola resta",
+  "vestiti": {
+   "semino": "zaino-storto",
+   "semina": "cavallo"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Lo zaino è dritto da stamattina. Non è grave."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Il prato finisce dove cominciano gli alberi. Nuvola è ancora dietro di loro."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Nuvola. Resta."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Comando preciso."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Taci."
+   },
+   {
+    "chi": "narra",
+    "testo": "Nuvola fa un passo, raddrizza col muso lo zaino di Semino e torna sulla linea degli alberi. Lui non lo tocca."
+   }
+  ]
+ },
+ {
+  "fiore": 43,
+  "luogo": "bosco",
+  "titolo": "L'ora in mezzo",
+  "vestiti": {
+   "semino": "lanterna",
+   "semina": "lucciola"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Ore 19:40: lei ancora sveglia, io già sveglio. Me lo segno."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Bosco, crepuscolo. Semino ha la lanterna in mano, spenta."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Sei sveglio?"
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "È presto."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Io sono ancora sveglia."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "È tardi."
+   },
+   {
+    "chi": "narra",
+    "testo": "Si siedono su un tronco. Arrivano le lucciole, una alla volta. La lanterna resta spenta."
+   }
+  ]
+ },
+ {
+  "fiore": 44,
+  "luogo": "bosco",
+  "titolo": "Gufo",
+  "vestiti": {
+   "semino": "lanterna",
+   "semina": "lucciola"
+  },
+  "entra": "gufo",
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Il gufo dice tre parole alla volta. Massimo. Ho contato."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Notte fonda. Semino al PC su un ceppo. Sul ramo sopra di lui, due occhi gialli."
+   },
+   {
+    "chi": "gufo",
+    "testo": "Anche tu?"
+   },
+   {
+    "chi": "semino",
+    "umore": "sorpreso",
+    "testo": "Sveglio? Fino alle tre e mezza."
+   },
+   {
+    "chi": "gufo",
+    "testo": "Fischio. Lo conosci?"
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Il merlo. Fischia alle quattro in punto. Tu?"
+   },
+   {
+    "chi": "gufo",
+    "testo": "Lo conosco. Mai visto."
+   },
+   {
+    "chi": "gufo",
+    "testo": "Stesso ramo."
+   },
+   {
+    "chi": "narra",
+    "testo": "Prima dell'alba Gufo posa una piuma sul ramo. Poi se ne va, senza girarsi."
+   }
+  ]
+ },
+ {
+  "fiore": 45,
+  "luogo": "bosco",
+  "titolo": "Lo stesso ramo",
+  "vestiti": {
+   "semino": "lanterna",
+   "semina": "lucciola"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "Ho lasciato una bacca rossa sul ramo basso. Non so per chi, di preciso."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Alba. Sul ramo basso c'è una piuma grigia. Semina la guarda senza toccarla."
+   },
+   {
+    "chi": "fischio",
+    "testo": "Fiù. Buongiorno. Quella è del gufo. Ho fretta."
+   },
+   {
+    "chi": "semina",
+    "umore": "sorpreso",
+    "testo": "Da quanto la lascia?"
+   },
+   {
+    "chi": "fischio",
+    "testo": "Da sempre."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "E non vi siete mai visti?"
+   },
+   {
+    "chi": "fischio",
+    "testo": "Lui dorme quando canto. Fiù. Vado."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semina posa una bacca rossa accanto alla piuma. Fischio riparte, in ritardo su qualcosa."
+   }
+  ]
+ },
+ {
+  "fiore": 46,
+  "luogo": "bosco",
+  "titolo": "Oggi no",
+  "vestiti": {
+   "semino": "lanterna",
+   "semina": "lucciola"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "La corona è rimasta su quel ramo. Da lassù vede il fango."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Semina è seduta nel fango fino alla vita. La sua corona di foglie è rimasta su un ramo, in alto."
+   },
+   {
+    "chi": "semina",
+    "umore": "arrabbiato",
+    "testo": "Oggi no."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Ho un bastone. Un metro e venti."
+   },
+   {
+    "chi": "semina",
+    "umore": "arrabbiato",
+    "testo": "No."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino posa il bastone e si siede nel fango accanto a lei. Ciac. Accende la lanterna."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Le lucciole non vengono."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Lucciole zero. Lanterna una."
+   }
+  ]
+ },
+ {
+  "fiore": 47,
+  "luogo": "bosco",
+  "titolo": "La riga",
+  "vestiti": {
+   "semino": "lanterna",
+   "semina": "lucciola"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Il bug della riga 212 l'ho risolto. Il tasto invio adesso fa luce."
+  },
+  "battute": [
+   {
+    "chi": "semino",
+    "umore": "arrabbiato",
+    "testo": "Si è spento. E adesso: errore alla riga 212."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Vieni a vedere le lucciole?"
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Torno quando finisce questa riga."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Quella con l'errore?"
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Quella. Ancora nove caratteri."
+   },
+   {
+    "chi": "narra",
+    "testo": "Nove caratteri dopo, Semino chiude lo schermo e va a sedersi sul tronco accanto a lei."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Sono andate a dormire."
+   },
+   {
+    "chi": "narra",
+    "testo": "Quando riapre il PC, sul tasto invio c'è la lucciola di Semina. Accesa."
+   }
+  ]
+ },
+ {
+  "fiore": 48,
+  "luogo": "bosco",
+  "titolo": "Sei mini",
+  "vestiti": {
+   "semino": "lanterna",
+   "semina": "lucciola"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Ho cercato \"sei mini\" sul dizionario. Non c'è. Lo diciamo lo stesso."
+  },
+  "battute": [
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "UN FUNGO. Alto un'unghia. Sei mini."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Sei? Ne vedo uno."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Ah, quello. Lo dicono anche Genna e Mati."
+   },
+   {
+    "chi": "semina",
+    "umore": "sorpreso",
+    "testo": "Cosa vuol dire?"
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Boh."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semina lo dice alla lanterna. Poi a Semino, a un centimetro dal naso."
+   },
+   {
+    "chi": "semino",
+    "umore": "imbarazzato",
+    "testo": "Io sono nella media."
+   },
+   {
+    "chi": "gufo",
+    "testo": "Sei mini."
+   }
+  ]
+ },
+ {
+  "fiore": 49,
+  "luogo": "bosco",
+  "titolo": "Una cosa al giorno",
+  "vestiti": {
+   "semino": "lanterna",
+   "semina": "lucciola"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "Sul tronco c'è una luna storta. Era così, dice lui."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Crepuscolo. Semino arriva al tronco con un foglio piegato. Semina con una foglia chiusa a cucchiaio."
+   },
+   {
+    "chi": "semino",
+    "umore": "regalo",
+    "testo": "Stanotte, alle tre."
+   },
+   {
+    "chi": "semina",
+    "umore": "regalo",
+    "testo": "Stamattina, alle sei e mezza."
+   },
+   {
+    "chi": "narra",
+    "testo": "Li aprono sul tronco. Una luna a matita, un po' storta. Una goccia di rugiada, ferma nella foglia."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "È storta."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Era storta."
+   }
+  ]
+ },
+ {
+  "fiore": 50,
+  "luogo": "bosco",
+  "titolo": "Fuochi",
+  "vestiti": {
+   "semino": "lanterna",
+   "semina": "lucciola"
+  },
+  "entra": null,
+  "elemento": "fuochi",
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "Fischio è offeso col cielo. Dice che stasera ha cantato fuori orario."
+  },
+  "battute": [
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Angolo sessanta gradi. Scoppia fra tre secondi."
+   },
+   {
+    "chi": "semina",
+    "umore": "festa",
+    "testo": "AAAAH."
+   },
+   {
+    "chi": "fischio",
+    "testo": "Sono le nove di sera. Chi canta alle nove di sera?"
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Erano quattro secondi. Correggo."
+   },
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "ANCORA."
+   },
+   {
+    "chi": "narra",
+    "testo": "Gufo si tappa le orecchie con le ali. Poi anche gli occhi."
+   },
+   {
+    "chi": "narra",
+    "testo": "BUM."
+   }
+  ]
+ },
+ {
+  "fiore": 51,
+  "luogo": "bosco",
+  "titolo": "Posta",
+  "vestiti": {
+   "semino": "lanterna",
+   "semina": "lucciola"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "Il disegno del Mulo l'ho appeso al tronco. A testa in giù, credo."
+  },
+  "battute": [
+   {
+    "chi": "fischio",
+    "testo": "Fiù. Posta dalla montagna. Di corsa."
+   },
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "È di Nonna Capra. C'È UN DISEGNO."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "È un mulo. Credo. Ha cinque zampe."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "È il Mulo. La quinta è la coda."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Rispondo io. \"Cara Nonna Capra, il Mulo è venuto benissimo.\""
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Aggiungi: P.S. Il nodo tiene."
+   },
+   {
+    "chi": "narra",
+    "testo": "Fischio prende la lettera nel becco e parte verso la valle. Torna indietro. Riparte verso la montagna."
+   }
+  ]
+ },
+ {
+  "fiore": 52,
+  "luogo": "bosco",
+  "titolo": "Al buio",
+  "vestiti": {
+   "semino": "lanterna",
+   "semina": "lucciola"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Stanotte il sentiero l'ha fatto un altro. Io tenevo un'ala."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Notte. La lanterna fa ffft e si spegne."
+   },
+   {
+    "chi": "semino",
+    "umore": "preoccupato",
+    "testo": "Il sentiero era a quaranta gradi. Poi due curve. Poi..."
+   },
+   {
+    "chi": "semino",
+    "umore": "preoccupato",
+    "testo": "Non vedo."
+   },
+   {
+    "chi": "gufo",
+    "testo": "Lo so. Dammi la mano."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Io mi tengo allo zaino."
+   },
+   {
+    "chi": "semino",
+    "umore": "sorpreso",
+    "testo": "È dritto."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Si tiene meglio."
+   },
+   {
+    "chi": "narra",
+    "testo": "In fila al buio: Gufo davanti, poi Semino, poi Semina attaccata allo zaino dritto."
+   }
+  ]
+ },
+ {
+  "fiore": 53,
+  "luogo": "bosco",
+  "titolo": "Due letti",
+  "vestiti": {
+   "semino": "lanterna",
+   "semina": "lucciola"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "Alle sei il tronco era vuoto. Ci sono entrata. Era ancora tiepido."
+  },
+  "battute": [
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Io dormo nel tronco cavo. Una piazza, legno massiccio."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Io nel muschio. Alle dieci in punto."
+   },
+   {
+    "chi": "narra",
+    "testo": "Le quattro. Semino esce dal tronco col cuscino e si sdraia sul muschio, accanto a lei."
+   },
+   {
+    "chi": "gufo",
+    "testo": "Come noi."
+   },
+   {
+    "chi": "narra",
+    "testo": "Le sei. Semina si sveglia, vede il tronco vuoto e ci si infila."
+   },
+   {
+    "chi": "fischio",
+    "testo": "Peggio. Fiù."
+   },
+   {
+    "chi": "semino",
+    "umore": "dorme",
+    "testo": "Muschio."
+   },
+   {
+    "chi": "semina",
+    "umore": "dorme",
+    "testo": "Tronco."
+   }
+  ]
+ },
+ {
+  "fiore": 54,
+  "luogo": "bosco",
+  "titolo": "Verso le luci",
+  "vestiti": {
+   "semino": "lanterna",
+   "semina": "lucciola"
+  },
+  "entra": null,
+  "elemento": "lanterna",
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Ho una piuma da consegnare. Il destinatario è sempre di corsa."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Fine del bosco. Laggiù, le luci di una città. Gufo è sull'ultimo ramo."
+   },
+   {
+    "chi": "gufo",
+    "testo": "Per Fischio."
+   },
+   {
+    "chi": "semino",
+    "umore": "sorpreso",
+    "testo": "Una piuma. Non lo vedrai mai?"
+   },
+   {
+    "chi": "gufo",
+    "testo": "Arriva lo stesso."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "La lanterna la lascio qui. In città la luce c'è già."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino mette la piuma nello zaino. Sull'ultimo ramo, dietro di loro, la lanterna resta accesa."
+   }
+  ]
+ },
+ {
+  "fiore": 55,
+  "luogo": "citta",
+  "titolo": "Le luci",
+  "vestiti": {
+   "semino": "chitarra",
+   "semina": "giacca"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "Il tram delle due si chiama Fieno. Quello delle due e venti non l'ho ancora conosciuto."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Notte in città. Semino cammina sicuro, la chitarra a tracolla. Semina ha gli occhiali da sole."
+   },
+   {
+    "chi": "semino",
+    "umore": "felice",
+    "testo": "Forno a destra, apre alle quattro. Poi tre lampioni rotti e il ponte."
+   },
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "QUELL'INSEGNA FA LE ONDE."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Farmacia. Di notte ne restano aperte due."
+   },
+   {
+    "chi": "semino",
+    "umore": "sorpreso",
+    "testo": "Perché gli occhiali da sole?"
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Luci."
+   },
+   {
+    "chi": "narra",
+    "testo": "Arriva un tram. Semina gli va incontro piano e gli porge il palmo aperto, all'altezza del muso."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Questo si chiama Fieno."
+   }
+  ]
+ },
+ {
+  "fiore": 56,
+  "luogo": "citta",
+  "titolo": "Grillo",
+  "vestiti": {
+   "semino": "chitarra",
+   "semina": "giacca"
+  },
+  "entra": "grillo",
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "La giacca di Semina ha un bottone in meno. So dov'è."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Sotto un portico un grillo suona per chi passa. Semino si ferma. Ha la chitarra sulla schiena."
+   },
+   {
+    "chi": "grillo",
+    "testo": "Suoni?"
+   },
+   {
+    "chi": "semino",
+    "umore": "imbarazzato",
+    "testo": "Un po'."
+   },
+   {
+    "chi": "grillo",
+    "testo": "Allora suona. Il portico regge due chitarre."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Stasera la porto solo a spasso."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino lascia una moneta nella custodia. Grillo attacca. Semina balla, in ritardo con tutti e due i piedi."
+   },
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "NON HO MONETE. HO UN BOTTONE."
+   },
+   {
+    "chi": "grillo",
+    "testo": "Una moneta e un bottone. Piazza buona."
+   }
+  ]
+ },
+ {
+  "fiore": 57,
+  "luogo": "citta",
+  "titolo": "Il palco",
+  "vestiti": {
+   "semino": "chitarra",
+   "semina": "giacca"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Al secondo giro ho sbagliato un re. Nessuno in particolare dice che non si sentiva."
+  },
+  "battute": [
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "C'È SCRITTO \"CHI VUOLE\"."
+   },
+   {
+    "chi": "semino",
+    "umore": "preoccupato",
+    "testo": "Ho letto. Sono undici minuti che leggo."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semina gli sfila lo zaino dalle spalle e lo spinge su per i tre gradini del palco."
+   },
+   {
+    "chi": "semino",
+    "umore": "imbarazzato",
+    "testo": "Allora. Questa è per nessuno in particolare."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Ok."
+   },
+   {
+    "chi": "narra",
+    "testo": "Suona. In prima fila Semina tiene lo zaino di lui sulle ginocchia, dritto, con tutte e due le mani."
+   }
+  ]
+ },
+ {
+  "fiore": 58,
+  "luogo": "citta",
+  "titolo": "Cinque minuti",
+  "vestiti": {
+   "semino": "chitarra",
+   "semina": "giacca"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Ho una foglia con scritto tram. La tengo sotto il mouse."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Notte. Semino scrive un programma. Semina, sulla sedia accanto, guarda i tram che passano sotto la finestra."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Sei mini?"
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Cinque minuti."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Sei, cinque. Stai scendendo."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Mh."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino alza la testa alle tre e dieci. La sedia è vuota. Sulla tastiera c'è una foglia con scritto \"tram\"."
+   }
+  ]
+ },
+ {
+  "fiore": 59,
+  "luogo": "citta",
+  "titolo": "Quaranta vasche",
+  "vestiti": {
+   "semino": "chitarra",
+   "semina": "giacca"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "Stanotte Semino ha fatto quaranta vasche. Le ho contate io, quindi sono quaranta."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Piscina, di notte. Semino fa vasche. Semina, seduta sul bordo coi piedi in acqua, conta ad alta voce."
+   },
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "Diciannove. VENTI. Trenta. QUARANTA."
+   },
+   {
+    "chi": "semino",
+    "umore": "felice",
+    "testo": "Quaranta. Allora ho finito."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Tirala a me. Piano."
+   },
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "PIANO."
+   },
+   {
+    "chi": "narra",
+    "testo": "La palla scavalca il cancello. Uno che passa la rimanda dentro di collo. Rotola fino al bordo, toppa in su."
+   }
+  ]
+ },
+ {
+  "fiore": 60,
+  "luogo": "citta",
+  "titolo": "La finestra",
+  "vestiti": {
+   "semino": "chitarra",
+   "semina": "giacca"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "Sul vetro di quella finestra c'è ancora il mio naso. Prima o poi passo a riprenderlo."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Una finestra accesa a pianterreno: provette, un microscopio, un camice su una sedia. Semina ci schiaccia il naso."
+   },
+   {
+    "chi": "semina",
+    "umore": "estasiato",
+    "testo": "Io lì dentro guarderei le cose piccole."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Quanto piccole?"
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Che non le vedi."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Ah."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino attraversa a passo svelto. Dall'altro marciapiede guarda la finestra. Sul vetro, il tondo di un naso."
+   }
+  ]
+ },
+ {
+  "fiore": 61,
+  "luogo": "citta",
+  "titolo": "Venti minuti",
+  "vestiti": {
+   "semino": "chitarra",
+   "semina": "giacca"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Il timer diceva venti. Ho chiuso a diciannove."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Dopo la finestra. Semino apre il PC e mette un timer: 20:00."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Venti minuti."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Ok."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Vado a guardare i tram. Dal davanzale."
+   },
+   {
+    "chi": "narra",
+    "testo": "Il timer arriva a zero. Semino chiude lo schermo e si siede accanto a lei. Niente parole."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Diciannove."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Erano venti."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Hai chiuso prima."
+   }
+  ]
+ },
+ {
+  "fiore": 62,
+  "luogo": "citta",
+  "titolo": "La piazza di Grillo",
+  "vestiti": {
+   "semino": "chitarra",
+   "semina": "giacca"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Il plettro di Grillo è giallo, un po' mangiato su un lato. Non l'ho ancora usato."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Mattina presto. Grillo chiude la custodia: dentro, la moneta e il bottone. Semino ha le mani in tasca."
+   },
+   {
+    "chi": "grillo",
+    "testo": "Vado dove c'è la mia piazza."
+   },
+   {
+    "chi": "semina",
+    "umore": "sorpreso",
+    "testo": "Quale?"
+   },
+   {
+    "chi": "grillo",
+    "testo": "Lo saprò quando ci suono."
+   },
+   {
+    "chi": "semina",
+    "umore": "preoccupato",
+    "testo": "E chi lasci qui?"
+   },
+   {
+    "chi": "grillo",
+    "testo": "Nessuno. Per questo parto."
+   },
+   {
+    "chi": "narra",
+    "testo": "Grillo mette nel palmo di Semino un plettro giallo e gira l'angolo. La custodia sparisce per ultima."
+   }
+  ]
+ },
+ {
+  "fiore": 63,
+  "luogo": "citta",
+  "titolo": "Fuori tempo",
+  "vestiti": {
+   "semino": "chitarra",
+   "semina": "giacca"
+  },
+  "entra": null,
+  "elemento": "chitarra",
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "La canzone non ha ancora un titolo. Ha un due sbagliato, però. Sempre lo stesso."
+  },
+  "battute": [
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Uno, due, tre, quattro. Si entra sul quattro."
+   },
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "LA LA LAAA."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Eri partita al due."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "È venuta bene."
+   },
+   {
+    "chi": "fischio",
+    "testo": "Fi-fiu, fiu. Ritornello. Scappo, ho posta."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Fuori tempo in tre. Io tengo il quattro."
+   },
+   {
+    "chi": "narra",
+    "testo": "Più tardi, dalla doccia, la canzone senza titolo a squarciagola. Parte sul due."
+   }
+  ]
+ },
+ {
+  "fiore": 64,
+  "luogo": "citta",
+  "titolo": "Il piccione",
+  "vestiti": {
+   "semino": "chitarra",
+   "semina": "giacca"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "Semino Tre ha scritto una riga di g. Sei mini, gli ho detto. Semino dice che compila."
+  },
+  "battute": [
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "UN PICCIONE. HA UNA ZAMPA ROSA E UNA GRIGIA."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino non stacca gli occhi dallo schermo. Alza un dito."
+   },
+   {
+    "chi": "semino",
+    "umore": "festa",
+    "testo": "Tiriri-tìn."
+   },
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "LO PORTO DENTRO."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "No."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Si chiama Semino Tre."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Sul tasto invio no."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino Tre si sistema sulla tastiera. Sul tasto invio."
+   }
+  ]
+ },
+ {
+  "fiore": 65,
+  "luogo": "citta",
+  "titolo": "La locandina",
+  "vestiti": {
+   "semino": "chitarra",
+   "semina": "giacca"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "La locandina è piegata male. Se la apro si strappa, quindi non la apro."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Su un muro, tra un trasloco e un corso di tuba: SEMINO, CHITARRRA, PALCO DI CHI VUOLE. Ieri sera."
+   },
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "SEI TU. Sei tu sul muro."
+   },
+   {
+    "chi": "semino",
+    "umore": "imbarazzato",
+    "testo": "Con tre erre."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "La stacco."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "È abusivo."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Anche il concerto era."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Si piega in quattro. Lungo le righe."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semina la piega in otto, storta, con un angolo che avanza. La infila nello zaino, il suo."
+   }
+  ]
+ },
+ {
+  "fiore": 66,
+  "luogo": "citta",
+  "titolo": "Quanto lontana",
+  "vestiti": {
+   "semino": "chitarra",
+   "semina": "giacca"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "Semino ha allungato una cinghia sola dello zaino. L'altra dice che va bene così."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Ultimo lampione della città. Semina si gira a guardare le luci, poi la strada che sale."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Se la piazza fosse lontana?"
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Quanto lontana?"
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Non lo so ancora."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino si toglie lo zaino, allunga una cinghia sola e se lo rimette. Storto. Dietro, la stazione è un puntino."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Ti si è storto."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Dodici gradi."
+   }
+  ]
+ },
+ {
+  "fiore": 67,
+  "luogo": "cucina",
+  "titolo": "La cucina",
+  "vestiti": {
+   "semino": "cuoco",
+   "semina": "grembiule"
+  },
+  "entra": null,
+  "elemento": "casetta",
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Sul cappello da cuoco c'è una mano di farina. Non lo lavo: è catalogata."
+  },
+  "battute": [
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "UNA CUCINA. CON DUE FINESTRE."
+   },
+   {
+    "chi": "semino",
+    "umore": "felice",
+    "testo": "Una sul mare, una sulla montagna. Il fornello è mio."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semina impasta e semina farina dappertutto. Semino le va dietro con lo straccio, a un metro e mezzo."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Pulito qui. Pulito qui. Pulito..."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Bello pulito. Impasto lì."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Secondo i miei calcoli siamo pari."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semina gli dà due colpetti sul cappello. Sul bianco resta una mano di farina."
+   }
+  ]
+ },
+ {
+  "fiore": 68,
+  "luogo": "cucina",
+  "titolo": "Briciola",
+  "vestiti": {
+   "semino": "cuoco",
+   "semina": "grembiule"
+  },
+  "entra": "briciola",
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Briciola pesa tre chili e mezzo. Li ho sentiti tutti, per un minuto."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Un gatto entra dalla finestra del mare, si siede sulle gambe di Semino, sta lì un minuto. Poi esce dall'altra."
+   },
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "BRICIOLA. Si chiama Briciola."
+   },
+   {
+    "chi": "semino",
+    "umore": "preoccupato",
+    "testo": "Dove va?"
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Torna."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Come lo sai?"
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "È un gatto."
+   },
+   {
+    "chi": "narra",
+    "testo": "Briciola rientra dalla finestra della montagna e si acciambella sulle gambe di Semina. Semino si guarda le ginocchia."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Le mie erano già calde."
+   }
+  ]
+ },
+ {
+  "fiore": 69,
+  "luogo": "cucina",
+  "titolo": "Il cuscino",
+  "vestiti": {
+   "semino": "cuoco",
+   "semina": "grembiule"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "La pianta sul tavolo beve tè. Il nome non gliel'ho ancora dato."
+  },
+  "battute": [
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Leggo un po'. Io e il libro."
+   },
+   {
+    "chi": "semino",
+    "umore": "felice",
+    "testo": "Tè. Lo lascio qui."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Di nuovo io. Coperta, nel caso."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Ultima cosa. A che pagina sei?"
+   },
+   {
+    "chi": "narra",
+    "testo": "Il cuscino vola contro il muro. Semina esce di corsa. Torna col fiatone e una pianta strappata al marciapiede."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Per il tavolo."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino la innaffia col tè. Il cuscino resta per terra."
+   }
+  ]
+ },
+ {
+  "fiore": 70,
+  "luogo": "cucina",
+  "titolo": "Due tazze",
+  "vestiti": {
+   "semino": "cuoco",
+   "semina": "grembiule"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "Stamattina Briciola aveva i baffi al tè. La pianta è rimasta a secco."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Mattina. Il cuscino è tornato sul divano. Semino posa sul tavolo due tazze: una fuma, una no."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Mh."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Mh."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semina prende quella che fuma. Briciola infila il muso nell'altra. Quando lo tira fuori, sul bordo resta un baffo."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Quella era della pianta."
+   }
+  ]
+ },
+ {
+  "fiore": 71,
+  "luogo": "cucina",
+  "titolo": "Il sasso capovolto",
+  "vestiti": {
+   "semino": "cuoco",
+   "semina": "grembiule"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Ho contato le finestre della casetta: due. Ho ricontato: due."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Sul tavolo, il sasso di quota, capovolto. Semino lo gira piano e si siede dall'altra parte. Il tè si fredda."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "È per la finestra."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Quale? Qui ce ne sono due."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Quella."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino annuisce. Briciola sale sul tavolo e si struscia contro il sasso dritto."
+   }
+  ]
+ },
+ {
+  "fiore": 72,
+  "luogo": "cucina",
+  "titolo": "Mezzogiorno",
+  "vestiti": {
+   "semino": "cuoco",
+   "semina": "grembiule"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "Mi sono svegliata a mezzogiorno. Fischio dice che all'alba non c'era nessuno."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Mezzogiorno. Sul divano dormono Semino, Semina e, in mezzo, Briciola a pancia in su."
+   },
+   {
+    "chi": "semina",
+    "umore": "dorme",
+    "testo": "Che ore sono?"
+   },
+   {
+    "chi": "semino",
+    "umore": "dorme",
+    "testo": "Dodici e zero zero."
+   },
+   {
+    "chi": "semina",
+    "umore": "dorme",
+    "testo": "Non l'avevo mai fatto."
+   },
+   {
+    "chi": "semino",
+    "umore": "dorme",
+    "testo": "Mh. Il gatto sì."
+   },
+   {
+    "chi": "narra",
+    "testo": "Nessuno si alza. Sull'orologio della cucina le due lancette stanno una sopra l'altra."
+   }
+  ]
+ },
+ {
+  "fiore": 73,
+  "luogo": "cucina",
+  "titolo": "Pasta fredda",
+  "vestiti": {
+   "semino": "cuoco",
+   "semina": "grembiule"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "Semino adesso si alza alle cinque. L'ho detto a Fischio. Non ci credeva."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Le sei. Sul tavolo un piatto di pasta e un biglietto. Semino dorme sul ricettario, col cappello da cuoco in testa."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "\"Sveglia alle cinque. Pasta. Buona alba.\""
+   },
+   {
+    "chi": "semina",
+    "umore": "estasiato",
+    "testo": "Si è alzato alle cinque."
+   },
+   {
+    "chi": "semino",
+    "umore": "dorme",
+    "testo": "...scolare alle tre e quaranta..."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "È fredda."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semina la mangia tutta, fino all'ultima foglia di basilico. Lascia la forchetta di traverso sul piatto vuoto."
+   }
+  ]
+ },
+ {
+  "fiore": 74,
+  "luogo": "cucina",
+  "titolo": "Sabato",
+  "vestiti": {
+   "semino": "cuoco",
+   "semina": "grembiule"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "Sabato è di Semino, dalle nove sue. Ho chiesto: sono le undici."
+  },
+  "battute": [
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Domenica vado a cavallo da sola."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Ok."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Sabato è tuo. Dalle nove."
+   },
+   {
+    "chi": "semino",
+    "umore": "sorpreso",
+    "testo": "Dalle nove di mattina?"
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Delle nove tue."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino scrive sul frigo, grande: 9 (MIE). Briciola si siede lì davanti e lo fissa, la coda attorno alle zampe."
+   }
+  ]
+ },
+ {
+  "fiore": 75,
+  "luogo": "cucina",
+  "titolo": "Il cassetto",
+  "vestiti": {
+   "semino": "cuoco",
+   "semina": "grembiule"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Nel cassetto delle posate c'è una cosa che non è una posata. La lascio lì."
+  },
+  "battute": [
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Piscina no. Oggi è domenica."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Già."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino apre il cassetto delle posate. In fondo, tra due tappi, c'è il fiore di cima, secco. Lo guarda."
+   },
+   {
+    "chi": "semino",
+    "umore": "felice",
+    "testo": "Ok. Buona cavalcata."
+   },
+   {
+    "chi": "narra",
+    "testo": "Chiude il cassetto col fianco ed esce con la palla sotto il braccio."
+   }
+  ]
+ },
+ {
+  "fiore": 76,
+  "luogo": "cucina",
+  "titolo": "La porta",
+  "vestiti": {
+   "semino": "cuoco",
+   "semina": "grembiule"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "La porta della cucina resta aperta di un palmo. Ci passa un gatto e un po' d'aria."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Sera. Briciola dorme su Semino, poi su Semina, poi scende e si siede davanti alla porta."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Dove..."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino apre. Briciola esce. Lui lascia la porta socchiusa di un palmo e torna al divano."
+   },
+   {
+    "chi": "semina",
+    "umore": "dorme",
+    "testo": "È uscita?"
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "La coda no."
+   }
+  ]
+ },
+ {
+  "fiore": 77,
+  "luogo": "cucina",
+  "titolo": "La lettera",
+  "vestiti": {
+   "semino": "cuoco",
+   "semina": "grembiule"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Briciola ha un posto nuovo per dormire. È piatto e fa rumore di carta."
+  },
+  "battute": [
+   {
+    "chi": "fischio",
+    "testo": "Posta. Viene dall'altra parte della montagna. Vado, vado."
+   },
+   {
+    "chi": "semina",
+    "umore": "sorpreso",
+    "testo": "Per me?"
+   },
+   {
+    "chi": "narra",
+    "testo": "Semina legge. Piega il foglio in quattro e lo infila sotto il piatto. Fuori resta un angolo."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Chi scrive?"
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "È finito il latte."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Lo prendo io. Due litri."
+   },
+   {
+    "chi": "narra",
+    "testo": "Briciola salta sul tavolo e si siede sull'angolo della lettera."
+   }
+  ]
+ },
+ {
+  "fiore": 78,
+  "luogo": "cucina",
+  "titolo": "Due biglietti",
+  "vestiti": {
+   "semino": "cuffie",
+   "semina": "camice"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "Il mio biglietto aveva il retro bianco. Adesso c'è un cavallo."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Semino posa sul tavolo due biglietti del treno. Su uno è stampato anche il ritorno."
+   },
+   {
+    "chi": "semina",
+    "umore": "sorpreso",
+    "testo": "Due?"
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Vengo fino alla stazione di là. Quattro ore e dodici minuti."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "E poi?"
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Poi torno. C'è la pianta da innaffiare."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "C'è l'ascensore?"
+   },
+   {
+    "chi": "semino",
+    "umore": "felice",
+    "testo": "C'è il treno. È un ascensore sdraiato."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semina prende il biglietto senza ritorno. Lo gira e guarda il retro. È bianco."
+   }
+  ]
+ },
+ {
+  "fiore": 79,
+  "luogo": "lontano",
+  "titolo": "Il finestrino",
+  "vestiti": {
+   "semino": "cuffie",
+   "semina": "camice"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": "treno",
+  "eco": {
+   "chi": "semino",
+   "testo": "Sul treno c'è un finestrino pulito solo in quarantun punti. Li ho ripassati io."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Treno. Semina alita sul finestrino e ci disegna col dito un cerchio pieno di puntini."
+   },
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "GIRA FORTISSIMO. Le cose pesanti vanno in fondo, le leggere restano su."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Come si chiama?"
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Centrifuga."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Cen-trì-fuga."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "È una parola sola."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Cen-trì-fuga. Me la segno."
+   },
+   {
+    "chi": "narra",
+    "testo": "Il vetro si asciuga e i puntini spariscono. Semino li ripassa col dito, uno per uno."
+   }
+  ]
+ },
+ {
+  "fiore": 80,
+  "luogo": "lontano",
+  "titolo": "La piazza",
+  "vestiti": {
+   "semino": "cuffie",
+   "semina": "camice"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": "piazza",
+  "eco": {
+   "chi": "semina",
+   "testo": "Nella tasca del camice c'è una cosa piccola e a punta. Non è un'ape."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Una piazza con una fontana storta. In mezzo, Grillo suona per un piccione e una signora."
+   },
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "GRILLO."
+   },
+   {
+    "chi": "grillo",
+    "testo": "Voi due. Qui la fontana tiene il tempo, si suona bene."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "È questa? La tua piazza."
+   },
+   {
+    "chi": "grillo",
+    "testo": "Per adesso. Domani c'è il mercato e mi tocca l'angolo del pesce."
+   },
+   {
+    "chi": "grillo",
+    "testo": "Il plettro ce l'hai ancora?"
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Ce l'ha lei."
+   },
+   {
+    "chi": "narra",
+    "testo": "Grillo riattacca dal ritornello. Semina tiene una mano in tasca e non la tira fuori."
+   }
+  ]
+ },
+ {
+  "fiore": 81,
+  "luogo": "lontano",
+  "titolo": "Il vetrino",
+  "vestiti": {
+   "semino": "cuffie",
+   "semina": "camice"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": "laboratorio",
+  "eco": {
+   "chi": "semino",
+   "testo": "Al ventesimo passo mi sono girato. La finestra era grande come un francobollo."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Semina entra nel laboratorio. Dietro il vetro mette il plettro di Grillo sotto un vetrino e ci avvicina la faccia."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino alza le nocche verso il vetro. Le abbassa. Si gira verso la strada."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Uno. Due. Tre. Al dieci mi giro."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Dieci. Al venti."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Una mela, per favore. Quella con la foglia."
+   },
+   {
+    "chi": "semino",
+    "umore": "felice",
+    "testo": "La foglia la lasci attaccata. Deve viaggiare."
+   }
+  ]
+ },
+ {
+  "fiore": 82,
+  "luogo": "cucina",
+  "titolo": "La sera storta",
+  "vestiti": {
+   "semino": "cuffie"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "Mi è arrivato un foglio con un 408 cerchiato. L'ho appeso lo stesso."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Crepuscolo. Fischio atterra sul tavolo di Semino con un fazzoletto. Dentro, un vetrino rotto in due."
+   },
+   {
+    "chi": "fischio",
+    "testo": "Da lei. Taglia. Ha detto: è andata così."
+   },
+   {
+    "chi": "semino",
+    "umore": "preoccupato",
+    "testo": "Tutto il giorno?"
+   },
+   {
+    "chi": "fischio",
+    "testo": "Dalle sei. Tu cosa le mandi?"
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Questo. Riga quattrocentootto. Non va da stamattina."
+   },
+   {
+    "chi": "fischio",
+    "testo": "Un foglio con un numero. Bello. Vado."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino appoggia i due mezzi vetrini sul foglio, sopra il 408."
+   }
+  ]
+ },
+ {
+  "fiore": 83,
+  "luogo": "montagna",
+  "titolo": "Il fuoco acceso",
+  "vestiti": {
+   "semino": "cuffie"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Ho calato un formaggio per quaranta palmi di corda. Giù, dal camino, usciva fumo."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Sulla strada del ritorno, la baita. Nonna Capra mastica accanto alla carrucola. Nel secchio, un formaggio."
+   },
+   {
+    "chi": "nonnacapra",
+    "testo": "D'inverno scendo io. D'estate sale lui, che ha le ginocchia buone."
+   },
+   {
+    "chi": "semino",
+    "umore": "sorpreso",
+    "testo": "E qual è casa?"
+   },
+   {
+    "chi": "nonnacapra",
+    "testo": "Quella dove c'è il fuoco acceso."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "E se è acceso in due posti?"
+   },
+   {
+    "chi": "nonnacapra",
+    "testo": "Allora siamo ricchi. Molla la corda. Piano."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino cala il secchio e conta i palmi. A quaranta la corda si allenta."
+   }
+  ]
+ },
+ {
+  "fiore": 84,
+  "luogo": "lontano",
+  "titolo": "La lettera del Mulo",
+  "vestiti": {
+   "semino": "cuffie"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": "treno",
+  "eco": {
+   "chi": "semino",
+   "testo": "Il Mulo scrive tre righe. Io ne ho scritte undici e ne ho cancellate otto."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Treno. Fischio infila una busta dal finestrino e riparte. Al posto della firma c'è uno zoccolo."
+   },
+   {
+    "chi": "mulo",
+    "testo": "La capra russa."
+   },
+   {
+    "chi": "mulo",
+    "testo": "Mandami il formaggio."
+   },
+   {
+    "chi": "mulo",
+    "testo": "Il nodo è buono."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Il formaggio è già partito. Quaranta palmi."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino tira fuori dallo zaino il pezzo di corda col nodo e lo lega alla cinghia."
+   }
+  ]
+ },
+ {
+  "fiore": 85,
+  "luogo": "cucina",
+  "titolo": "Una riga a metà (di nuovo)",
+  "vestiti": {
+   "semino": "cuoco"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Briciola ha messo la zampa sulla casella giusta. Un sette. Sei mini, le ho detto."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Cucina, porta socchiusa. Semino innaffia la pianta sul tavolo. Due dita d'acqua, non di più."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Riga uno, chiusa. Riga due, chiusa."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Questa la lascio a metà. Per chiunque passi."
+   },
+   {
+    "chi": "narra",
+    "testo": "Briciola entra dalla porta, attraversa il tavolo e si ferma con una zampa sulla riga a metà."
+   }
+  ]
+ },
+ {
+  "fiore": 86,
+  "luogo": "cucina",
+  "titolo": "Torna (per un po')",
+  "vestiti": {
+   "semino": "cuffie",
+   "semina": "camice"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Avevo un elenco di sette cose. Gliene dico una al giorno, così durano."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Semina sulla porta, il camice stropicciato, le occhiaie fino al mento. Semino ha in mano un foglio scritto fitto."
+   },
+   {
+    "chi": "semino",
+    "umore": "felice",
+    "testo": "Ho sette cose. La uno è Briciola, la due è la pianta, la tre..."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Ciao."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Mi siedo un attimo."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Siediti. La tre era lunga."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Tieni. Era l'ultima al bar della stazione."
+   },
+   {
+    "chi": "narra",
+    "testo": "Una mela. Semino tira fuori dalla tasca la sua, con la foglia, un po' raggrinzita. Le mette vicine."
+   }
+  ]
+ },
+ {
+  "fiore": 87,
+  "luogo": "cucina",
+  "titolo": "Una brutta e una bella",
+  "vestiti": {
+   "semino": "cuffie",
+   "semina": "camice"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "La centrifuga che cammina adesso si chiama Ugo. In laboratorio non lo sa nessuno."
+  },
+  "battute": [
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Una brutta e una bella. Brutta: la centrifuga."
+   },
+   {
+    "chi": "semino",
+    "umore": "sorpreso",
+    "testo": "Che ha fatto?"
+   },
+   {
+    "chi": "semina",
+    "umore": "arrabbiato",
+    "testo": "Si è sbilanciata. Ha camminato per mezzo laboratorio."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Brutta mia: la cen-trì-fuga."
+   },
+   {
+    "chi": "semina",
+    "umore": "sorpreso",
+    "testo": "Tu non c'eri."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Appunto."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semina ride col bicchiere in mano e se lo rovescia sul camice."
+   },
+   {
+    "chi": "narra",
+    "testo": "Sotto il piatto c'è ancora la lettera. Briciola ci dorme sopra."
+   }
+  ]
+ },
+ {
+  "fiore": 88,
+  "luogo": "cucina",
+  "titolo": "La cartina",
+  "vestiti": {
+   "semino": "cuffie",
+   "semina": "camice"
+  },
+  "entra": null,
+  "elemento": "cartina",
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "La cartina ha due strade e una puntina. La puntina l'ho messa storta."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Un foglio sul tavolo. Lei disegna una montagna e passa la matita. Lui, sotto, le onde. Due strade."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Questa è la mia. Fino al quattordici marzo."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Dal quindici, la mia. Novantadue giorni."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Poi a me."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Poi a me."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "E dopo ancora?"
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Chi perde al sudoku."
+   },
+   {
+    "chi": "narra",
+    "testo": "La cartina va sopra la griglia, con una puntina. La matita resta sul tavolo, dalla parte di lui."
+   }
+  ]
+ },
+ {
+  "fiore": 89,
+  "luogo": "cucina",
+  "titolo": "Quello che non lascio",
+  "vestiti": {
+   "semino": "cuffie",
+   "semina": "camice"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "La montagna non si è spostata. L'ho controllato stamattina dalla finestra."
+  },
+  "battute": [
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Una cosa che non lasci. Una sola."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Il mare."
+   },
+   {
+    "chi": "semina",
+    "umore": "sorpreso",
+    "testo": "E la musica?"
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "La musica viene. Sta in una custodia. Tu?"
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Le cose piccole."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "E la montagna?"
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "La montagna resta lì."
+   },
+   {
+    "chi": "narra",
+    "testo": "Sulla cartina nessuno scrive niente. La matita è rotolata dalla parte di lei."
+   }
+  ]
+ },
+ {
+  "fiore": 90,
+  "luogo": "lontano",
+  "titolo": "Il nodo",
+  "vestiti": {
+   "semino": "cuffie",
+   "semina": "camice"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": "stazione",
+  "eco": {
+   "chi": "semino",
+   "testo": "Il nodo tiene. Lo controllo una volta al giorno, con un dito solo."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Stazione. Semina prende il nodo sulla cinghia di Semino e tira. Il nodo tiene."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Non stringerlo."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Lo so."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Le cuffie le hai?"
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Al collo."
+   },
+   {
+    "chi": "narra",
+    "testo": "Il treno parte. Semino si mette le cuffie. Sul tetto dell'ultimo vagone c'è Fischio, girato dalla parte sbagliata."
+   }
+  ]
+ },
+ {
+  "fiore": 91,
+  "luogo": "giardino",
+  "titolo": "Il giardino cresciuto",
+  "vestiti": {
+   "semino": "occhiali"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Ho fatto l'inventario del giardino. Tutto al suo posto, tranne lo stagno."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Semino al cancello del giardino. Sulla cassetta c'è la locandina, piegata in otto, attaccata storta."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Tavola, ok. Lanterna, ok. Stagno: più grande."
+   },
+   {
+    "chi": "semino",
+    "umore": "sorpreso",
+    "testo": "Locandina. Questa non c'era."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Radici: trentanove."
+   },
+   {
+    "chi": "narra",
+    "testo": "Non sposta niente. Appoggia il bastoncino al sasso col 39."
+   }
+  ]
+ },
+ {
+  "fiore": 92,
+  "luogo": "giardino",
+  "titolo": "Pinza arriva",
+  "vestiti": {
+   "semino": "palla"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Pinza ha tenuto il secchio con una chela per tutto il viaggio. Il secchio è intero."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Fischio atterra di traverso con un secchio appeso alle zampe. Dal bordo spunta una chela. Una sola."
+   },
+   {
+    "chi": "fischio",
+    "testo": "Consegna. Pesa. Vado."
+   },
+   {
+    "chi": "semino",
+    "umore": "sorpreso",
+    "testo": "Pinza."
+   },
+   {
+    "chi": "pinza",
+    "testo": "Arrivo subito. Vado di qua."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Da quando sei in viaggio?"
+   },
+   {
+    "chi": "pinza",
+    "testo": "Da adesso. L'ombra è arrivata al muretto, no?"
+   },
+   {
+    "chi": "narra",
+    "testo": "Pinza sale di lato sul muretto, accanto alla tavola. Saluta con la chela libera."
+   }
+  ]
+ },
+ {
+  "fiore": 93,
+  "luogo": "giardino",
+  "titolo": "La posta",
+  "vestiti": {
+   "semino": "occhiali"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "La quarta lettera è un cavallo. O un cane alto. Ho deciso cavallo."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "La cassetta è piena. Lettere di Semina, una al giorno. Fischio le ha messe in fila."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Uno: \"sei mini\". Due: \"oggi no\"."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Tre: una foglia secca. Ha il segno tondo di una goccia."
+   },
+   {
+    "chi": "semino",
+    "umore": "felice",
+    "testo": "Quattro: un cavallo. Credo. Cinque: \"sei mini\"."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino scrive un numero solo, 39. Piega il foglio in otto e lo imbuca."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Così le arriva domani."
+   }
+  ]
+ },
+ {
+  "fiore": 94,
+  "luogo": "giardino",
+  "titolo": "Nuvola a valle",
+  "vestiti": {
+   "semino": "occhiali"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "Nuvola ha trovato una cosa storta: la puntina della cartina. Adesso è dritta."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Dal sentiero scendono Nonna Capra e Nuvola. La capra mastica. Nuvola ha un secchio appeso al collo."
+   },
+   {
+    "chi": "nonnacapra",
+    "testo": "È inverno, scendo. Qui si sta: poco vento, e l'erba è bassa."
+   },
+   {
+    "chi": "semino",
+    "umore": "felice",
+    "testo": "Un tè? Ne ho uno caldo e uno freddo."
+   },
+   {
+    "chi": "nonnacapra",
+    "testo": "Caldo. Il freddo dallo alla cavalla."
+   },
+   {
+    "chi": "narra",
+    "testo": "Nuvola gira intorno a Semino e cerca lo zaino col muso. È appeso alla porta, dritto."
+   },
+   {
+    "chi": "nuvola",
+    "testo": "Fff."
+   }
+  ]
+ },
+ {
+  "fiore": 95,
+  "luogo": "giardino",
+  "titolo": "Torna",
+  "vestiti": {
+   "semino": "occhiali",
+   "semina": "corona"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "Trentotto. Sei mini, ha detto lui. Parlava delle radici, credo."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Semina al cancello, lo zaino in spalla. Dalla cerniera esce una manica del camice."
+   },
+   {
+    "chi": "semina",
+    "umore": "sorpreso",
+    "testo": "Hai spostato lo stagno?"
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "È cresciuto."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Dammi il bastoncino. Trentanove. Come nella lettera."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Trentotto. Va tenuto dritto."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Non le ho spostate io."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Io neanche."
+   },
+   {
+    "chi": "narra",
+    "testo": "Semino cancella il 39 dal sasso e scrive 38. La porta della casetta è socchiusa."
+   }
+  ]
+ },
+ {
+  "fiore": 96,
+  "luogo": "giardino",
+  "titolo": "Stesso ramo, stessa ora",
+  "vestiti": {
+   "semino": "lanterna",
+   "semina": "lucciola"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "Fischio e Gufo si sono visti. Stamattina il ramo era uguale."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Crepuscolo. Sul ramo sopra la cassetta c'è Fischio. Accanto si posa Gufo."
+   },
+   {
+    "chi": "fischio",
+    "testo": "Ah. Ciao."
+   },
+   {
+    "chi": "gufo",
+    "testo": "Ciao."
+   },
+   {
+    "chi": "semina",
+    "umore": "sorpreso",
+    "testo": "Si parlano?"
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Fischio due parole. Gufo una."
+   },
+   {
+    "chi": "fischio",
+    "testo": "Bel ramo."
+   },
+   {
+    "chi": "gufo",
+    "testo": "Lo conosco."
+   },
+   {
+    "chi": "narra",
+    "testo": "Gufo lascia una piuma, Fischio una bacca. Volano via da due parti. Sul ramo restano la piuma e la bacca."
+   }
+  ]
+ },
+ {
+  "fiore": 97,
+  "luogo": "giardino",
+  "titolo": "Grillo passa",
+  "vestiti": {
+   "semino": "chitarra",
+   "semina": "giacca"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "Grillo dice che al nord la cantano partendo al due. Ho fatto scuola."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Grillo al cancello, la custodia aperta per terra. Suona la canzone senza titolo. Semina attacca al due."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Al due."
+   },
+   {
+    "chi": "semina",
+    "umore": "arrabbiato",
+    "testo": "Mi viene così."
+   },
+   {
+    "chi": "grillo",
+    "testo": "In una piazza a nord la cantano tutti al due. Credo sia colpa vostra."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "E il titolo?"
+   },
+   {
+    "chi": "grillo",
+    "testo": "Dopo."
+   },
+   {
+    "chi": "narra",
+    "testo": "Nella custodia, sopra le monete, Briciola dorme arrotolata."
+   }
+  ]
+ },
+ {
+  "fiore": 98,
+  "luogo": "giardino",
+  "titolo": "La terza strada",
+  "vestiti": {
+   "semino": "occhiali",
+   "semina": "corona"
+  },
+  "entra": null,
+  "elemento": "arcobaleno",
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "La terza strada passa dallo stagno. Ho già preso le misure per il ponte."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "La cartina è appesa alla casetta. Sopra le due strade ce n'è una terza, a matita rossa."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "È storta."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "È una strada."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "Passa in mezzo allo stagno."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Ci va un ponte. Due metri e mezzo."
+   },
+   {
+    "chi": "semina",
+    "umore": "euforico",
+    "testo": "ARCOBALENO. Un piede nel mare e uno sulla montagna."
+   },
+   {
+    "chi": "narra",
+    "testo": "Rientrano. La matita rossa è sul tavolo, in mezzo."
+   }
+  ]
+ },
+ {
+  "fiore": 99,
+  "luogo": "giardino",
+  "titolo": "L'ora",
+  "vestiti": {
+   "semino": "occhiali",
+   "semina": "animale"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semino",
+   "testo": "La toppa sulla palla regge da settantasette fiori."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Crepuscolo. Ci sono tutti. Briciola dorme sulla schiena di Nuvola, Nonna Capra mastica la tovaglia."
+   },
+   {
+    "chi": "nonnacapra",
+    "testo": "Domani piove. O no."
+   },
+   {
+    "chi": "grillo",
+    "testo": "Qualcuno mi dà un la?"
+   },
+   {
+    "chi": "fischio",
+    "testo": "Eccolo. Era un si. Più o meno."
+   },
+   {
+    "chi": "gufo",
+    "testo": "Buono."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "La pasta è fredda. Alle sette era calda."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Fredda è più buona."
+   },
+   {
+    "chi": "narra",
+    "testo": "La palla rattoppata rotola giù dal muretto. Pinza la riporta di lato, con una chela sola, e la lascia tra i due."
+   }
+  ]
+ },
+ {
+  "fiore": 100,
+  "luogo": "giardino",
+  "titolo": "Cento",
+  "vestiti": {
+   "semino": "occhiali",
+   "semina": "corona"
+  },
+  "entra": null,
+  "elemento": null,
+  "fondale": null,
+  "eco": {
+   "chi": "semina",
+   "testo": "Al bordo dell'aiuola ci sono due biscotti. Non li tocco. Sono per il vento."
+  },
+  "battute": [
+   {
+    "chi": "narra",
+    "testo": "Crepuscolo nel giardino. I due davanti all'aiuola, il bastoncino in mano a lui."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Cento."
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Non contiamo più i fiori. Contiamo le sere."
+   },
+   {
+    "chi": "semina",
+    "umore": "neutro",
+    "testo": "E le radici? Quanto?"
+   },
+   {
+    "chi": "semino",
+    "umore": "neutro",
+    "testo": "Non l'ho misurato."
+   },
+   {
+    "chi": "semina",
+    "umore": "felice",
+    "testo": "Genna. Mati. Il resto lo scrivete voi."
+   },
+   {
+    "chi": "semino",
+    "umore": "felice",
+    "testo": "Un numero alla volta."
+   },
+   {
+    "chi": "narra",
+    "testo": "Appoggia il bastoncino alla cassetta della posta. Al bordo dell'aiuola, due biscotti."
+   }
+  ]
+ }
+]

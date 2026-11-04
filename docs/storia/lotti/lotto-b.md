@@ -102,8 +102,9 @@
 - semina (neutro): È l'ora.
 - semino (dorme): Cinque minu...
 - narra: Semino si alza lo stesso. Si siedono su un sasso. Il sole esce da dietro la cima.
+- semina (euforico): ECCOLO.
 - semino (neutro): Ok.
-- semina (neutro): Ok.
+- semina (regalo): Tieni il cappello. Per il sole.
 - narra: Mezzogiorno. Semino dorme nel prato col cappello di Semina sulla faccia. Nuvola gli sta di fianco, sveglia.
 
 ## 37 · montagna · Il sasso di quota
@@ -136,7 +137,7 @@
 @elemento:
 @eco: semino: Nuovo dato: pigne in fila vuol dire sonno. Ho aggiornato l'elenco.
 - narra: Sul prato, Semina mette in fila le pigne. È la terza volta che le rifà.
-- semino (preoccupato): Tre volte. Secondo i miei calcoli è arrabbiata.
+- semino (preoccupato): Tre volte. Secondo i miei calcoli, è grave.
 - semino (regalo): Tè della pace. Caldo.
 - semina (sorpreso): Ho sonno.
 - semino (imbarazzato): Ah.
@@ -178,7 +179,7 @@
 - semina (neutro): Nuvola. Resta.
 - semino (neutro): Comando preciso.
 - semina (neutro): Taci.
-- narra: Nuvola fa un passo e col muso raddrizza lo zaino di Semino. Lui non lo tocca. Lei torna sulla linea degli alberi.
+- narra: Nuvola fa un passo, raddrizza col muso lo zaino di Semino e torna sulla linea degli alberi. Lui non lo tocca.
 
 ## 43 · bosco · L'ora in mezzo
 @vestiti: semino=lanterna semina=lucciola
@@ -251,13 +252,13 @@
 @entra:
 @elemento:
 @eco: semino: Ho cercato "sei mini" sul dizionario. Non c'è. Lo diciamo lo stesso.
-- semina (euforico): Guarda che fungo. Alto un'unghia. Sei mini.
-- semino (neutro): Lo dicono anche Genna e Mati.
+- semina (euforico): UN FUNGO. Alto un'unghia. Sei mini.
+- semino (neutro): Sei? Ne vedo uno.
+- semino (neutro): Ah, quello. Lo dicono anche Genna e Mati.
 - semina (sorpreso): Cosa vuol dire?
 - semino (neutro): Boh.
-- semina (felice): La lanterna: sei mini. Tu: sei mini.
-- semino (neutro): La lanterna è di serie. Io sono nella media.
-- semino (neutro): Buonanotte, Gufo.
+- narra: Semina lo dice alla lanterna. Poi a Semino, a un centimetro dal naso.
+- semino (imbarazzato): Io sono nella media.
 - gufo: Sei mini.
 
 ## 49 · bosco · Una cosa al giorno
@@ -282,7 +283,7 @@
 - fischio: Sono le nove di sera. Chi canta alle nove di sera?
 - semino (neutro): Erano quattro secondi. Correggo.
 - semina (euforico): ANCORA.
-- narra: Gufo si tappa le orecchie con le ali.
+- narra: Gufo si tappa le orecchie con le ali. Poi anche gli occhi.
 - narra: BUM.
 
 ## 51 · bosco · Posta
@@ -310,7 +311,7 @@
 - semina (neutro): Io mi tengo allo zaino.
 - semino (sorpreso): È dritto.
 - semina (neutro): Si tiene meglio.
-- narra: In fila al buio: Gufo, Semino, Semina. Nessuno conta i passi.
+- narra: In fila al buio: Gufo davanti, poi Semino, poi Semina attaccata allo zaino dritto.
 
 ## 53 · bosco · Due letti
 @vestiti: semino=lanterna semina=lucciola
