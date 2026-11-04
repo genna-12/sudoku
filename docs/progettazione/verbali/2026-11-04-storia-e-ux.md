@@ -57,3 +57,9 @@ Lunghezza (partite per serata, serate a settimana); quanto "vera" deve essere la
 - Gli arretrati possono essere lunghi per chi ha già molti fiori (migrazione): accettato, con bottone in Home per leggerli quando si vuole.
 - La ricerca sulle coppie ha fonti solide solo in parte ([C] da riverificare prima di citarle fuori dal progetto).
 - Le stime in righe dei fondali e dei secondari sono della chat UX: da verificare al primo lotto di T5.
+
+## Esito della sessione (chiusura, notte)
+- Scritto: bibbia, guida ai dialoghi, scaletta (101 voci), capitoli.md (101 capitoli, 715 battute) con script di controllo e JSON; studio UX; spec T5/T6/T7; ADR 001-005; ricerche; BUSSOLA, STATO, PASSAGGIO; CLAUDE.md, ROADMAP, HANDOFF aggiornati.
+- Metodo: scaletta e capitoli chiave scritti dalla chat (Fable); 4 scrittori Opus a lotti; 4 revisori Opus separati con checklist (toccati 25 capitoli su 89, nessuno riscritto da capo); rilettura integrale finale della chat con ritocchi (32, 66, 97, luoghi dell'atto 7, "sei mini" a 6 capitoli).
+- Revisione avversaria delle spec: 7 bloccanti integrati (Worker fa PUT e non unisce; migrazione da non riapplicare; visti per ruolo e per era; azzeramento ricevuto; regali una volta sola; stato derivato invece di evento; E2E da riscrivere).
+- Giudizi onesti dei revisori da tenere a mente: atto 8 quasi senza attrito; 43 e 45 tiepidi; 91 e 93 elenchi; contare come gag da dosare. Si valuta dopo la lettura in gioco.

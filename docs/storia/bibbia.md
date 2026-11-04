@@ -118,6 +118,19 @@ Chi scrive aggiorna questa tabella. Un oggetto si paga 3-10 capitoli dopo, in un
 | la mela | 81 | 86 |
 | la cartina a due strade | 88 | 98 (la terza strada) |
 | la porta socchiusa | 76 | 85, 95 |
+| (aggiunti dagli scrittori) le rane Ornella, Bubi, Gianfranca; "Gino no" | 8, 9 | 95 (lo stagno cresciuto) |
+| i granchi battezzati; "Semino Due", "Semino Tre" (il piccione) | 21, 64 | eco |
+| l'ombrellone e la freccia nella sabbia | 23 | 92 |
+| la marmellata sulla mappa; 1.312 metri | 29 | — |
+| "cinque minuti, più o meno" / "venti minuti, più o meno" | 32, 33 | 61 |
+| la sedia che balla; il tè della pace | 38, 39 | 70, 94 (tè caldo e freddo) |
+| il bottone della giacca nella custodia di Grillo; il plettro giallo | 56, 62 | 80, 81 |
+| il tram Fieno | 55 | eco |
+| "9 (MIE)" sul frigo | 74 | — |
+| la riga 408; la centrifuga Ugo | 82, 87 | eco |
+| la puntina storta; la matita rossa | 88, 98 | 94, 98 |
+
+Regola per il lettore dei capitoli: in scena c'è al massimo un secondario alla volta, l'ultimo che ha parlato (così a 53 Gufo e Fischio non si vedono mai insieme); fa eccezione il 99, dove ci sono tutti.
 
 ## 8. Gag che tornano (con variazione)
 - Lo zaino storto: lei lo raddrizza, lui lo rimette storto; Nuvola lo raddrizza col muso; a 42 lui lo lascia dritto; a 94 è già dritto.

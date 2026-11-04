@@ -1,35 +1,32 @@
-# Handoff (03/11/2026, mattina)
+# Handoff (04/11/2026, notte)
 
 ## Stato
-Dopo la notte: test cieco (17 correzioni), nomi veri Genna/Mati, aggiornamento PWA con bottone, versione e diagnostica rete nel menù, mascotte vive, Home al riavvio, IndexedDB + storage persistente, **memoria condivisa via Worker Cloudflare** (worker/ deployato da Genna su https://sudoku-coppia.gennari-lorenzo05.workers.dev, KV `ARCHIVI`). 245 test, 4 E2E + 1 con Worker finto.
-T1–T3 chiusi e deployati su https://genna-12.github.io/sudoku/ (branch `main`). 223 test unitari e 4 E2E (due-client, personale, tre-dispositivi, sblocco-semina) verdi. Repo sul PC in C:\dev\sudoku (pull fatto a fine sessione). Report completo per Genna: docs/REPORT-notte-03-11.md.
+Progettazione chiusa (chat PROG · Sudoku · storia e UX · 04/11, Fable): storia nuova in 101 capitoli (`docs/storia/`), bibbia, guida ai dialoghi, scaletta, `src/config/capitoli.json` generato; specifiche T5 (`docs/specs/traguardo.md`), T6, T7; studio UX (`docs/design/studio-ux.md`); ADR 001-005 e ricerche in `docs/storico/`; BUSSOLA in `docs/progettazione/`. Codice applicativo invariato dal 25078f4 (T1-T3 deployati, 245 test, E2E verdi). Branch `main`, tutto pushato.
 
 ## Prossimo passo
-T4 collaudo reale: Genna e Mati giocano dal telefono; raccogliere bug ed esiti (lista "Da Genna"), poi correggere. Se il P2P non passa sulle reti mobili: scrivere il relay WebSocket Python sul PC (nuova spec).
+T5 — la storia a capitoli, da `docs/specs/traguardo.md`, nell'ordine: (1) dati, regole, archivio v2, sync con test; (2) `CapitoloScena`, fondali, flusso dopo la vittoria; (3) secondari, diario, eco, due E2E nuovi. Prima di iniziare: leggere BUSSOLA.md e rispondere alle domande di `docs/progettazione/PASSAGGIO.md`.
 
 ## In sospeso
-- Nessuna decisione aperta. Splash iOS non fatte (troppe immagini).
+- Genna deve approvare la BUSSOLA e leggere i capitoli (almeno 0-27) prima che la lead li metta in gioco; correzioni in `capitoli.md` + rigenerare il JSON.
+- T4 collaudo reale (4G, iPhone) non fatto: va in parallelo; i bug di rete hanno la precedenza.
 
 ## Da Genna
-0. RISOLTO 15:45: PC ↔ telefono in 4G non si collegavano perché il TURN gratuito Open Relay non era raggiungibile (nessun evento ICE). Ora TURN di Cloudflare Realtime nel Worker (`GET /ice`, secrets TURN_KEY_ID/TURN_API_TOKEN messi da Genna con wrangler): registro telefono `ice: cloudflare (8 server)` → `ice -a connected`. Resta da fare la prova pulita PC=Genna, telefono=Mati, poi la partita vera con Mati.
-1. Riaprire l'app di ieri su entrambi i telefoni: nessuna scena/tappa ripetuta, al massimo un annuncio.
-2. Telefono + telefono, stessa frase: connessione, mosse e reazioni identiche sui due lati, fumetti mai sulla griglia.
-3. PC + telefono tuoi insieme: "sei già collegato da un altro dispositivo" ma le mosse si vedono.
-4. 5° fiore: scena di Semina su entrambi, poi nomi Semino/Semina; "Nuova" premuto insieme → stessa griglia e regalo presente.
-5. iPhone: note tenendo premuto, doppio tocco, niente zoom, vibrazione, esporta/importa memoria.
-6. Leggere le frasi e la storia in gioco: cosa togliere/aggiungere (file in src/config).
+1. Leggere `docs/storia/bibbia.md` e `capitoli.md`; dire cosa suona falso o troppo spiegato (numero di capitolo).
+2. Ok alla BUSSOLA (docs/progettazione/BUSSOLA.md) e ai 5 ADR.
+3. Sul PC: `git pull` in C:\dev\sudoku. La cartella `C:\dev\_tools` non era collegata alla sessione: nessun uso di coda/esecutore; i push sono partiti dal cloud.
+4. Prova reale PC=Genna, telefono=Mati (dal HANDOFF precedente), quando possibile.
 
 ## Attenzione
-- Il connettore Cloudflare del Project è di un CLIENTE: mai usarlo (errore del 03/11, annotato). Tutto Cloudflare passa da wrangler sul PC di Genna.
-- Il Worker non è raggiungibile dal cloud (proxy): i test della sync e di /ice usano fetch finto. Il Worker serve anche le credenziali TURN (src/net/ice.ts, fallback ai server statici di src/config/ice.ts).
-- Il browser integrato della chat (Claude) resta loggato come un profilo e occupa un posto nella stanza: chiuderlo prima delle prove di Genna.
-- Il server PeerJS pubblico e l'API Pages non sono raggiungibili dal cloud: E2E con `npx peerjs` locale e `VITE_PEER_*`; Pages si gestisce dal sito GitHub.
-- Semina prima di 5 fiori non deve MAI comparire (sorpresa): ogni modifica a Home/Ingresso/Vittoria va controllata con `sbloccata=false`.
-- Ruolo di gioco dal profilo (Verde=a, Blu=b), mai dal ruolo di rete. Posti per profilo nella stanza di coppia.
-- Tappe della storia: viste per numero di fiori (qualunque personaggio), chiavi stabili; aggiungere tappe non richiede migrazioni; `migra` conserva i campi sconosciuti dell'archivio.
-- Palette e regole colore in docs/design/studio-ui.md: verde e blu nei dettagli, mai a blocchi.
-- Semino.tsx e Scena.tsx sono grandi (SVG): modifiche con un agente dedicato e screenshot.
+- Il repo è PUBBLICO: niente parole personali nei file (ADR 005); il materiale sta nel Project Claude (`claude/storia-materiale-riservato.md`).
+- Il Worker NON unisce: fa PUT, l'unione è nel client (`sync.ts`); `payloadDa` oggi butta i campi sconosciuti (spec T5 "Archivio e sync" dice come cambiarlo).
+- `tappeViste` era unito per coppia: non ripetere l'errore con `capitoliVisti` (per ruolo, per era).
+- Lo script `scripts/storia/controlla.py` non scrive il JSON se ci sono errori; i testi si cambiano solo in `capitoli.md`.
+- Semina mai prima del fiore 5: vale anche per eco, vestiti e diario (rilettura dei capitoli 0-4 senza di lei).
+- Il connettore Cloudflare del Project è di un cliente: mai usarlo. Il browser integrato della chat occupa un posto nella stanza P2P.
+- `Semino.tsx` e `Scena.tsx` sono grandi: modifiche con agente dedicato e screenshot.
+- Fonti [C] della ricerca sulle coppie non riaperte: non citarle fuori dal progetto senza verifica.
 
 ## Chat
-- Questa: LEAD · Sudoku · MVP · 03/11 (chiusa, ha coperto T1–T3 in una notte su richiesta di Genna).
-- Altre attive: nessuna.
+- Questa: PROG · Sudoku · storia e UX · 04/11 (chiusa).
+- Da aprire: LEAD · Sudoku · T5 capitoli · gg/mm (Opus), con "riprendi".
+- Altre attive: nessuna. La LEAD · Sudoku · MVP · 03/11 si può eliminare.
