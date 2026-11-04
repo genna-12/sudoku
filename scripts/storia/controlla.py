@@ -194,9 +194,12 @@ def main():
         for a in avvisi:
             print("avviso", a)
     print(f"{len(capitoli)} capitoli, {sum(len(c['battute']) for c in capitoli)} battute, {len(errori)} errori, {len(avvisi)} avvisi")
-    if args.json or (not errori and args.da is None):
+    if errori:
+        print("JSON non scritto: ci sono errori")
+    elif args.json or args.da is None:
         out = Path(args.json) if args.json else Path(args.file).with_suffix(".json")
-        pulito = []
+        import hashlib
+        pulito = [{"_sorgente_sha256": hashlib.sha256(testo.encode("utf-8")).hexdigest(), "_nota": "generato da controlla.py: non modificare a mano"}]
         for c in capitoli:
             d = {k: v for k, v in c.items() if not k.startswith("_")}
             d["battute"] = [{k: v for k, v in b.items() if not k.startswith("_") and v is not None} for b in c["battute"]]

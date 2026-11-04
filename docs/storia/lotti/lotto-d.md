@@ -59,12 +59,13 @@
 @vestiti: semino=cuffie semina=camice
 @entra:
 @elemento:
-@eco: semino: Da tredici passi una finestra è grande come un francobollo.
-- narra: Il laboratorio ha una finestra sulla strada. Semina entra. Semino resta sul marciapiede.
-- narra: Dietro il vetro, Semina mette il plettro di Grillo sotto un vetrino. Ci avvicina la faccia.
-- semino (sorpreso): Oh.
-- semino (neutro): Dodici passi. Tredici.
+@eco: semino: Al ventesimo passo mi sono girato. La finestra era grande come un francobollo.
+- narra: Semina entra nel laboratorio. Dietro il vetro mette il plettro di Grillo sotto un vetrino e ci avvicina la faccia.
+- narra: Semino alza le nocche verso il vetro. Le abbassa. Si gira verso la strada.
+- semino (neutro): Uno. Due. Tre. Al dieci mi giro.
+- semino (neutro): Dieci. Al venti.
 - semino (neutro): Una mela, per favore. Quella con la foglia.
+- semino (felice): La foglia la lasci attaccata. Deve viaggiare.
 
 ## 82 · lontano · La sera storta
 @vestiti: semino=cuffie
@@ -77,20 +78,20 @@
 - fischio: Dalle sei. Tu cosa le mandi?
 - semino (neutro): Questo. Riga quattrocentootto. Non va da stamattina.
 - fischio: Un foglio con un numero. Bello. Vado.
-- narra: Semino mette i due mezzi vetrini accanto alla tastiera, uno vicino all'altro.
+- narra: Semino appoggia i due mezzi vetrini sul foglio, sopra il 408.
 
 ## 83 · lontano · Il fuoco acceso
 @vestiti: semino=cuffie
 @entra:
 @elemento:
-@eco: semino: Ho calato una capra per quaranta palmi di corda. Giù, dal camino, usciva fumo.
-- narra: La baita. Nonna Capra è seduta dentro il secchio della carrucola, un formaggio in grembo. Mastica.
-- nonnacapra: Scendo. D'inverno sto giù. D'estate sale lui, che ha le ginocchia buone.
+@eco: semino: Ho calato un formaggio per quaranta palmi di corda. Giù, dal camino, usciva fumo.
+- narra: Sulla strada del ritorno, la baita. Nonna Capra mastica accanto alla carrucola. Nel secchio, un formaggio.
+- nonnacapra: D'inverno scendo io. D'estate sale lui, che ha le ginocchia buone.
 - semino (sorpreso): E qual è casa?
 - nonnacapra: Quella dove c'è il fuoco acceso.
 - semino (neutro): E se è acceso in due posti?
 - nonnacapra: Allora siamo ricchi. Molla la corda. Piano.
-- narra: Semino molla la corda e conta i palmi. A quaranta la corda si allenta.
+- narra: Semino cala il secchio e conta i palmi. A quaranta la corda si allenta.
 
 ## 84 · lontano · La lettera del Mulo
 @vestiti: semino=cuffie
@@ -101,7 +102,7 @@
 - mulo: La capra russa.
 - mulo: Mandami il formaggio.
 - mulo: Il nodo è buono.
-- semino (neutro): Il formaggio è sotto la capra.
+- semino (neutro): Il formaggio è già partito. Quaranta palmi.
 - narra: Semino tira fuori dallo zaino il pezzo di corda col nodo e lo lega alla cinghia.
 
 ## 85 · lontano · Una riga a metà (di nuovo)
@@ -123,7 +124,7 @@
 - semino (felice): Ho sette cose. La uno è Briciola, la due è la pianta, la tre...
 - semina (neutro): Ciao.
 - semina (neutro): Mi siedo un attimo.
-- semino (neutro): Siediti. Le sette cose stanno nel foglio, non scappano.
+- semino (neutro): Siediti. La tre era lunga.
 - semina (neutro): Tieni. Era l'ultima al bar della stazione.
 - narra: Una mela. Semino tira fuori dalla tasca la sua, con la foglia, un po' raggrinzita. Le mette vicine.
 
@@ -146,12 +147,12 @@
 @entra:
 @elemento: cartina
 @eco: semino: La cartina ha due strade e una puntina. La puntina l'ho messa storta.
-- narra: Un foglio sul tavolo. Lei disegna una montagna, lui sotto le onde. Da lì partono due strade.
+- narra: Un foglio sul tavolo. Lei disegna una montagna e passa la matita. Lui, sotto, le onde. Due strade.
 - semina (neutro): Questa è la mia. Fino al quattordici marzo.
 - semino (neutro): Dal quindici, la mia. Novantadue giorni.
-- semina (neutro): Poi passa a me.
-- semino (neutro): Poi a me. A turni.
-- semina (felice): E chi comincia?
+- semina (neutro): Poi a me.
+- semino (neutro): Poi a me.
+- semina (felice): E dopo ancora?
 - semino (neutro): Chi perde al sudoku.
 - narra: La cartina va sopra la griglia, con una puntina. La matita resta sul tavolo, dalla parte di lui.
 
@@ -179,7 +180,7 @@
 - semina (neutro): Lo so.
 - semina (neutro): Le cuffie le hai?
 - semino (neutro): Al collo.
-- narra: Il treno parte. Semino si mette le cuffie. Sul tetto dell'ultimo vagone c'è Fischio. Diventa un puntino.
+- narra: Il treno parte. Semino si mette le cuffie. Sul tetto dell'ultimo vagone c'è Fischio, girato dalla parte sbagliata.
 
 ## 91 · giardino · Il giardino cresciuto
 @vestiti: semino=occhiali
@@ -223,7 +224,7 @@
 @elemento:
 @eco: semino: Nuvola ha trovato una cosa storta: la puntina della cartina. Adesso è dritta.
 - narra: Dal sentiero scendono Nonna Capra e Nuvola. La capra mastica. Nuvola ha un secchio appeso al collo.
-- nonnacapra: Qui si sta. Poco vento, e l'erba è bassa.
+- nonnacapra: È inverno, scendo. Qui si sta: poco vento, e l'erba è bassa.
 - semino (felice): Un tè? Ne ho uno caldo e uno freddo.
 - nonnacapra: Caldo. Il freddo dallo alla cavalla.
 - narra: Nuvola gira intorno a Semino e cerca lo zaino col muso. È appeso alla porta, dritto.

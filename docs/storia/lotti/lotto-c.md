@@ -45,7 +45,7 @@
 @entra:
 @elemento:
 @eco: semino: Ho una foglia con scritto tram. La tengo sotto il mouse.
-- narra: Notte. Semino scrive un programma. Semina, sulla sedia accanto, conta i tram che passano sotto la finestra.
+- narra: Notte. Semino scrive un programma. Semina, sulla sedia accanto, guarda i tram che passano sotto la finestra.
 - semina (neutro): Sei mini?
 - semino (neutro): Cinque minuti.
 - semina (felice): Sei, cinque. Stai scendendo.
@@ -81,14 +81,13 @@
 @entra:
 @elemento:
 @eco: semino: Il plettro di Grillo è giallo, un po' mangiato su un lato. Non l'ho ancora usato.
-- narra: Mattina presto. Grillo chiude la custodia. Dentro ci sono ancora la moneta e il bottone.
+- narra: Mattina presto. Grillo chiude la custodia: dentro, la moneta e il bottone. Semino ha le mani in tasca.
 - grillo: Vado dove c'è la mia piazza.
-- semino (neutro): Quale?
+- semina (sorpreso): Quale?
 - grillo: Lo saprò quando ci suono.
 - semina (preoccupato): E chi lasci qui?
-- grillo: Nessuno. Ho una custodia sola.
-- grillo: Tieni. Io ne ho due.
-- narra: Semino si guarda il plettro nel palmo. Grillo gira l'angolo, e la custodia sparisce per ultima.
+- grillo: Nessuno. Per questo parto.
+- narra: Grillo mette nel palmo di Semino un plettro giallo e gira l'angolo. La custodia sparisce per ultima.
 
 ## 63 · citta · Fuori tempo
 @vestiti: semino=chitarra semina=giacca
@@ -99,7 +98,7 @@
 - semina (euforico): LA LA LAAA.
 - semino (neutro): Eri partita al due.
 - semina (felice): È venuta bene.
-- fischio: Fiu fi-fiu. Il ritornello lo faccio io, dal filo del tram. Poi scappo, ho posta.
+- fischio: Fi-fiu, fiu. Ritornello. Scappo, ho posta.
 - semino (neutro): Fuori tempo in tre. Io tengo il quattro.
 - narra: Più tardi, dalla doccia, la canzone senza titolo a squarciagola. Parte sul due.
 
@@ -153,7 +152,7 @@
 - semino (felice): Una sul mare, una sulla montagna. Il fornello è mio.
 - narra: Semina impasta e semina farina dappertutto. Semino le va dietro con lo straccio, a un metro e mezzo.
 - semino (neutro): Pulito qui. Pulito qui. Pulito...
-- semina (neutro): Lì no. Lì ci sono appena passata.
+- semina (felice): Bello pulito. Impasto lì.
 - semino (neutro): Secondo i miei calcoli siamo pari.
 - narra: Semina gli dà due colpetti sul cappello. Sul bianco resta una mano di farina.
 
@@ -240,7 +239,6 @@
 - semina (felice): Sabato è tuo. Dalle nove.
 - semino (sorpreso): Dalle nove di mattina?
 - semina (felice): Delle nove tue.
-- semino (felice): Le mie nove arrivano verso le undici.
 - narra: Semino scrive sul frigo, grande: 9 (MIE). Briciola si siede lì davanti e lo fissa, la coda attorno alle zampe.
 
 ## 75 · cucina · Il cassetto
@@ -263,4 +261,4 @@
 - semino (neutro): Dove...
 - narra: Semino apre. Briciola esce. Lui lascia la porta socchiusa di un palmo e torna al divano.
 - semina (dorme): È uscita?
-- semino (neutro): La coda è già rientrata. Il resto arriva.
+- semino (neutro): La coda no.
