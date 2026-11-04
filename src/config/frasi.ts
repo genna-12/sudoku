@@ -2,7 +2,7 @@
 // {nome} = nome del partner, {io} = il tuo nome, {n} = numero (serie), {reale} = il nome vero di chi
 // gioca (Genna / Mati), {realePartner} = il nome vero dell'altro. Nelle VOCE i nomi veri sono scritti
 // direttamente: Semino parla di Genna e a Genna, Semina di Mati e a Mati.
-// La storia completa (tappe, sblocchi del giardino, sorprese, giorni speciali) è in ./storia.ts.
+// Pacchetti di frasi e giorni speciali in ./storia.ts; luoghi, vestiti e ricordi del giardino in ./luoghi.ts.
 
 export const FRASI = {
   /** cella giusta semplice (compare circa 1 volta su 4) */
@@ -1375,3 +1375,76 @@ export const FRASI_EXTRA: Array<{ partite: number; chi: ChiParla | 'entrambi'; c
     ],
   },
 ];
+
+/**
+ * Chiacchiere dei luoghi del viaggio (bibbia §5) che non hanno un giorno speciale: entrano nelle
+ * chiacchiere solite quando il luogo è visitato (primo capitolo dell'atto letto) e una di queste
+ * accompagna la prima volta che un vestito del luogo compare in Home. Mare e montagna usano quelle
+ * di GIORNI_SPECIALI (storia.ts). Niente parole-tema, niente morali (docs/storia/guida-dialoghi.md).
+ */
+export const CHIACCHIERE_LUOGO: Record<'bosco' | 'citta' | 'cucina' | 'lontano', Record<ChiParla, FraseConAccessorio[]>> = {
+  bosco: {
+    semino: [
+      { testo: 'lanterna accesa. Autonomia stimata: sei ore. Il bosco ne dura dodici.', accessorio: 'lanterna' },
+      { testo: 'ho contato le lucciole: quarantuno. Poi una si è spenta e ho ricominciato.', accessorio: 'lanterna' },
+      'c\'è un gufo che mi fissa da venti minuti. Io fisso lui. Pareggio.',
+      { testo: 'al crepuscolo i numeri del sudoku si leggono peggio. Alzo la lanterna.', accessorio: 'lanterna' },
+      'Semina dice che il bosco a quest\'ora fa un rumore preciso. Io sento solo il mio stomaco.',
+    ],
+    semina: [
+      { testo: 'ho una lucciola sulla corona. Si chiama Lina. Il nome l\'ha scelto lei.', accessorio: 'lucciola' },
+      'nel bosco a quest\'ora ogni foglia fa un verso. Li conosco quasi tutti.',
+      { testo: 'Semino tiene la lanterna troppo alta. Io al buio ci vedo, dai.', accessorio: 'lucciola' },
+      'ho trovato un riccio! Dorme. Non lo sveglio, lo guardo dormire.',
+      { testo: 'il gufo ha detto "uh". Io ho detto "uh". Discorso chiuso, siamo d\'accordo.', accessorio: 'lucciola' },
+    ],
+  },
+  citta: {
+    semino: [
+      { testo: 'tre accordi e una piazza vuota. Secondo i miei calcoli il pubblico arriva al quarto.', accessorio: 'chitarra' },
+      { testo: 'ho accordato la chitarra col rumore del tram. È un la. Quasi.', accessorio: 'chitarra' },
+      'in città di notte i lampioni sono numerati. Il 14 è il mio preferito.',
+      { testo: 'canzone nuova: due strofe e un ritornello ancora vuoto. Ci lavoro dopo il sudoku.', accessorio: 'chitarra' },
+      'la pizza al taglio delle due di notte è la migliore. Fonte: io, alle due di notte.',
+    ],
+    semina: [
+      { testo: 'occhiali da sole di notte. Non vedo niente. Sto benissimo.', accessorio: 'giacca' },
+      { testo: 'giacca di jeans e passo veloce. In città si cammina così, l\'ho visto fare.', accessorio: 'giacca' },
+      'ho contato i gatti sui tetti: sette. Semino dice che due erano comignoli.',
+      'Semino suona sotto un lampione. Io tengo il cappello per le monete. Finora: un bottone.',
+      { testo: 'i piccioni di città sono maleducati. Li adoro uguale.', accessorio: 'giacca' },
+    ],
+  },
+  cucina: {
+    semino: [
+      { testo: 'sugo al minuto 42 di 90. Non si tocca. Ok, un cucchiaino.', accessorio: 'cuoco' },
+      { testo: 'ho pesato la farina: 500 grammi esatti. Semina ne ha messa un pugno. Il pugno ha vinto.', accessorio: 'cuoco' },
+      'due tazze sul tavolo. Una è sbeccata. È la mia, la riconosco dal bordo.',
+      { testo: 'ricetta del sudoku: nove righe, nove colonne, un pizzico di calma.', accessorio: 'cuoco' },
+      'il gatto si è seduto sul libro delle ricette. Cucino a memoria.',
+    ],
+    semina: [
+      { testo: 'ho la farina fino ai gomiti. Anche sul naso, dice Semino.', accessorio: 'grembiule' },
+      { testo: 'IMPASTO! Lo prendo a pugni. Lui lievita, quindi gli va bene.', accessorio: 'grembiule' },
+      'Semino fa il sugo da tre ore. Io ho apparecchiato. Siamo pari, dai.',
+      'il gatto dorme sulla sedia di Semino. Lui mangia in piedi. Nessuno lo sposta.',
+      { testo: 'biscotti a forma di capra. Uno è venuto un cavallo. Lo mangio per primo.', accessorio: 'grembiule' },
+    ],
+  },
+  lontano: {
+    semino: [
+      { testo: 'treno delle 7:12, carrozza 5, posto 54. Cuffie su. Il paesaggio va a 140 all\'ora.', accessorio: 'cuffie' },
+      { testo: 'ho una playlist da quattro ore per un viaggio da tre. Avanza un\'ora di musica.', accessorio: 'cuffie' },
+      'il biglietto del treno l\'ho piegato in otto. Adesso è un segnalibro per il sudoku.',
+      { testo: 'sul treno c\'è campo a tratti. Ho mappato le gallerie: undici.', accessorio: 'cuffie' },
+      'Semina ha mandato la foto di una provetta. Ho fatto zoom. È blu. Bella provetta.',
+    ],
+    semina: [
+      { testo: 'camice e occhiali da laboratorio. Il merlo non mi riconosce più.', accessorio: 'camice' },
+      { testo: 'ho guardato una cellula al microscopio. Si muoveva! Le ho dato un nome.', accessorio: 'camice' },
+      'Semino mi manda il viaggio in diretta: un palo, un campo, un palo.',
+      { testo: 'esperimento delle nove: aspettare. Esperimento delle dieci: aspettare meglio.', accessorio: 'camice' },
+      'in laboratorio c\'è una finestra. Ogni tanto ci passa un treno. Lo saluto.',
+    ],
+  },
+};

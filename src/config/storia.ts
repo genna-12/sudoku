@@ -1,5 +1,5 @@
-// Sblocchi del giardino (elementi, accessori, pacchetti di frasi), giorni speciali, peso delle eco.
-// Dati puri: tutto deriva dal numero di fiori (partite finite) e dalla data, nulla da migrare.
+// Pacchetti di frasi sbloccati coi fiori, giorni speciali, peso delle eco. Dati puri: tutto deriva dal
+// numero di fiori (partite finite) e dalla data, nulla da migrare. Vestiti e ricordi: config/luoghi.ts.
 // La storia vera e propria sono i capitoli (config/capitoli.ts, da docs/storia/capitoli.md).
 // Fatti vincolanti: Semino (Genna, verde) mare, surf, palla in acqua, PC, cucina, chitarra, notte;
 // la montagna lo stanca. Semina (Mati, blu) montagna, cavallo, animali, natura, alba, euforia,
@@ -7,73 +7,30 @@
 import type { ChiParla, FraseConAccessorio } from './frasi';
 
 export interface Sblocco {
-  tipo: 'elemento' | 'accessorio' | 'frasi';
-  /** elemento: id dell'elemento della scena; accessorio: id dell'accessorio; frasi: id del pacchetto */
+  /** solo pacchetti di frasi: elementi del giardino e vestiti vengono dai luoghi (config/luoghi.ts) */
+  tipo: 'frasi';
+  /** id del pacchetto */
   id: string;
   nome: string;
   descrizione: string;
 }
 
-// --- sblocchi del giardino (elementi della scena SVG) --------------------------------
-
-const E = {
-  fiore: { tipo: 'elemento', id: 'fiore', nome: 'Il primo fiore', descrizione: 'Il giardino comincia da qui.' },
-  sentiero: { tipo: 'elemento', id: 'sentiero', nome: 'Il sentiero', descrizione: 'Un sentierino di sassi bianchi che attraversa il giardino.' },
-  semina: { tipo: 'elemento', id: 'semina', nome: 'Semina', descrizione: 'La semina blu. Era qui da un pezzo, aspettava.' },
-  stagno: { tipo: 'elemento', id: 'stagno', nome: 'Lo stagno', descrizione: 'Piccolo, con le rane e la luna dentro.' },
-  merlo: { tipo: 'elemento', id: 'merlo', nome: 'Il merlo', descrizione: 'Il primo animale del giardino. Canta fuori tempo, come Semina.' },
-  cassetta: { tipo: 'elemento', id: 'cassetta', nome: 'La cassetta della posta', descrizione: 'Ci finiscono le frasi che vi mandate.' },
-  mare: { tipo: 'elemento', id: 'mare', nome: 'Il mare', descrizione: 'Onde in lontananza. Il posto di Semino.' },
-  montagna: { tipo: 'elemento', id: 'montagna', nome: 'La montagna', descrizione: 'Un profilo all\'orizzonte. Il posto di Semina.' },
-  stelle: { tipo: 'elemento', id: 'stelle', nome: 'Il cielo stellato', descrizione: 'Di notte ogni fiore è una stella.' },
-  tavola: { tipo: 'elemento', id: 'tavola', nome: 'La tavola da surf', descrizione: 'Appoggiata al muretto, con una montagna disegnata sopra.' },
-  cavallino: { tipo: 'elemento', id: 'cavallino', nome: 'Il cavallino', descrizione: 'Pascola nel prato e segue Semino ovunque.' },
-  casetta: { tipo: 'elemento', id: 'casetta', nome: 'La casetta', descrizione: 'Una finestra sul mare, una sulla montagna.' },
-  chitarra: { tipo: 'elemento', id: 'chitarra', nome: 'La chitarra', descrizione: 'Appesa alla casetta. La vostra canzone non ha ancora un titolo.' },
-  fuochi: { tipo: 'elemento', id: 'fuochi', nome: 'I fuochi d\'artificio', descrizione: 'Da adesso ogni vittoria ha i suoi fuochi.' },
-  arcobaleno: { tipo: 'elemento', id: 'arcobaleno', nome: 'L\'arcobaleno', descrizione: 'Un capo sul mare, uno sulla montagna.' },
-} satisfies Record<string, Sblocco>;
-
-// --- sblocchi --------------------------------------------------------------------------
-
 /**
- * Tutto ciò che si sblocca, per soglia di fiori (più voci per soglia). `frasi` → id del pacchetto =
- * `${chi}-${categoria}-${partite}` di FRASI_EXTRA. I regali (suggerimenti) vanno coi capitoli
- * (REGALI_A_CAPITOLO in ui/capitoli.ts).
+ * Pacchetti di frasi che si sbloccano coi fiori (più voci per soglia): id = `${chi}-${categoria}-${partite}`
+ * di FRASI_EXTRA. I regali (suggerimenti) vanno coi capitoli (REGALI_A_CAPITOLO in ui/capitoli.ts);
+ * ricordi del giardino e vestiti coi luoghi visitati (config/luoghi.ts).
  */
 export const SBLOCCHI: Array<{ partite: number; sblocco: Sblocco }> = [
-  { partite: 1, sblocco: E.fiore },
-  { partite: 3, sblocco: E.sentiero },
-  { partite: 5, sblocco: E.semina },
-  { partite: 8, sblocco: E.stagno },
   { partite: 8, sblocco: { tipo: 'frasi', id: 'semino-chiacchiere-8', nome: 'Le chiacchiere dello stagno', descrizione: 'Semino parla di rane, luna e palla che galleggia.' } },
   { partite: 8, sblocco: { tipo: 'frasi', id: 'semina-chiacchiere-8', nome: 'Gli abitanti dello stagno', descrizione: 'Semina presenta rane, libellule e un airone.' } },
-  { partite: 10, sblocco: E.merlo },
-  { partite: 12, sblocco: E.cassetta },
   { partite: 12, sblocco: { tipo: 'frasi', id: 'entrambi-invio-12', nome: 'Posta del giardino', descrizione: 'Nuove frasi da mandarvi.' } },
-  { partite: 15, sblocco: E.mare },
-  { partite: 15, sblocco: { tipo: 'accessorio', id: 'surf', nome: 'La tavola da surf', descrizione: 'Semino può portare la tavola da surf.' } },
-  { partite: 18, sblocco: E.montagna },
-  { partite: 20, sblocco: E.stelle },
   { partite: 20, sblocco: { tipo: 'frasi', id: 'semino-chiacchiere-20', nome: 'Discorsi notturni', descrizione: 'Semino e le stelle delle tre di notte.' } },
   { partite: 20, sblocco: { tipo: 'frasi', id: 'semina-chiacchiere-20', nome: 'Stelle all\'alba', descrizione: 'Semina saluta le stelle quando se ne vanno.' } },
-  { partite: 25, sblocco: E.tavola },
-  { partite: 30, sblocco: E.cavallino },
-  { partite: 30, sblocco: { tipo: 'accessorio', id: 'cavallo', nome: 'Il cavallino', descrizione: 'Semina può andare a cavallo nel giardino.' } },
   { partite: 30, sblocco: { tipo: 'frasi', id: 'semina-chiacchiere-30', nome: 'Storie di cavallino', descrizione: 'Semina racconta le giornate col cavallino.' } },
   { partite: 30, sblocco: { tipo: 'frasi', id: 'entrambi-serie-30', nome: 'Serie al galoppo', descrizione: 'Nuove frasi per le serie lunghe.' } },
-  { partite: 35, sblocco: E.casetta },
-  { partite: 40, sblocco: E.chitarra },
   { partite: 40, sblocco: { tipo: 'frasi', id: 'entrambi-vittoria-40', nome: 'La canzone della vittoria', descrizione: 'Vittorie con la chitarra.' } },
-  { partite: 50, sblocco: E.fuochi },
   { partite: 50, sblocco: { tipo: 'frasi', id: 'entrambi-brillante-50', nome: 'Mosse da fuochi d\'artificio', descrizione: 'Nuove frasi per le mosse brillanti.' } },
-  { partite: 60, sblocco: E.arcobaleno },
 ];
-
-/** Elementi del giardino visibili con questi fiori (id in ordine di comparsa). */
-export function elementiSbloccati(fiori: number): string[] {
-  return SBLOCCHI.filter((s) => s.sblocco.tipo === 'elemento' && s.partite <= fiori).map((s) => s.sblocco.id);
-}
 
 /** Quota delle chiacchiere in Home che ripetono l'eco di un capitolo già letto (circa 1 su 4). */
 export const QUOTA_ECO_CHIACCHIERE = 0.25;
@@ -92,7 +49,8 @@ function giornoDellAnno(d: Date): number {
   return Math.floor((d.getTime() - inizio.getTime()) / 86400000);
 }
 
-/** Giorno del mare / della montagna (deterministico dalla data locale, uguale sui due dispositivi), o null. */
+/** Giorno del mare / della montagna (deterministico dalla data locale, uguale sui due dispositivi), o null.
+ * Il luogo deve essere già visitato su questo dispositivo: lo filtra chi lo usa (App, con `luoghiVisitati`). */
 export function giornoSpeciale(d: Date = new Date()): GiornoSpeciale | null {
   const r = giornoDellAnno(d) % GIORNI_SPECIALI_OGNI;
   if (r === RESTO_MARE) return 'mare';
@@ -102,7 +60,8 @@ export function giornoSpeciale(d: Date = new Date()): GiornoSpeciale | null {
 
 /**
  * Giorni speciali: accessori a tema e chiacchiere dedicate (si usano al posto delle chiacchiere solite,
- * o in aggiunta). Semino non porta mai montagna/cavallo; Semina al mare c'è solo con Semino.
+ * o in aggiunta), solo se il luogo è già visitato da chi tiene il telefono (App, `luoghiVisitati`).
+ * Semino non porta mai montagna/cavallo; Semina al mare c'è solo con Semino.
  */
 export const GIORNI_SPECIALI: Record<
   GiornoSpeciale,

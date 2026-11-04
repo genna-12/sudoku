@@ -2,11 +2,11 @@
 // arrivo di Semina, eco in Home, regali. I fiori sono della coppia, i visti del giocatore (ruolo).
 import { CAPITOLI, SEMINA_ARRIVA_A, capitolo, chiaveCapitolo } from '../config/capitoli';
 import type { Capitolo } from '../config/capitoli';
-import { elementiSbloccati } from '../config/storia';
+import { ATTI, elementiSbloccati } from '../config/luoghi';
 import { normalizzaPrefisso, unisciVisti } from '../stato/archivio';
 import { presenzaBlu } from './regole';
 
-export { normalizzaPrefisso, unisciVisti };
+export { ATTI, normalizzaPrefisso, unisciVisti };
 
 export type Ruolo = 'a' | 'b';
 /** Per ruolo, sempre un prefisso `capitolo-0..k` (la coda è ordinata e si segna un capitolo alla volta). */
@@ -59,10 +59,11 @@ export interface GiardinoVisibile {
 /**
  * Il giardino su questo dispositivo (Home, Giardino, Vittoria, `--blu-presenza` dell'app): finché il
  * capitolo 5 non è visto da chi tiene il telefono niente tracce di Semina (né il tulipano `semina`, né
- * il blu oltre quello dell'ultimo capitolo letto, al massimo quello del 4). Gli altri elementi seguono i fiori.
+ * il blu oltre quello dell'ultimo capitolo letto, al massimo quello del 4). Gli altri elementi sono i
+ * ricordi dei capitoli letti (config/luoghi.ts), mai oltre i fiori (dopo un "ricomincia").
  */
 export function giardinoVisibile(fiori: number, visti: readonly string[]): GiardinoVisibile {
-  const elementi = elementiSbloccati(fiori);
+  const elementi = elementiSbloccati(Math.min(fiori, maxVisto(visti)));
   if (seminaSbloccata(fiori, visti)) return { elementi, bluPresenza: presenzaBlu(fiori, true) };
   const letti = Math.max(0, Math.min(fiori, maxVisto(visti), SEMINA_ARRIVA_A - 1));
   return { elementi: elementi.filter((e) => e !== 'semina'), bluPresenza: presenzaBlu(letti, false) };
@@ -109,19 +110,6 @@ export function ecoDi(visti: readonly string[], chi: 'semino' | 'semina'): strin
   const v = new Set(visti);
   return CAPITOLI.filter((c) => v.has(chiaveCapitolo(c.fiore)) && c.eco.chi === chi).map((c) => c.eco.testo);
 }
-
-/** Gli atti della storia (docs/storia/scaletta.md): primo capitolo e nome del luogo. */
-export const ATTI: ReadonlyArray<{ da: number; nome: string }> = [
-  { da: 0, nome: "L'aiuola" },
-  { da: 6, nome: 'Il giardino' },
-  { da: 15, nome: 'Il mare' },
-  { da: 28, nome: 'La montagna' },
-  { da: 43, nome: 'Il bosco' },
-  { da: 55, nome: 'La città' },
-  { da: 67, nome: 'La cucina' },
-  { da: 77, nome: 'Oltre la montagna' },
-  { da: 91, nome: 'Il ritorno' },
-];
 
 export interface AttoDiario {
   nome: string;

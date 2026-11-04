@@ -3,6 +3,7 @@ import { BONUS_VITTORIA, PENALITA_ERRORE, PUNTI, PUNTI_CRESCITA_PIENA, PUNTI_PER
 import { SEMINA_ARRIVA_A } from '../config/capitoli';
 import { FRASI, FRASI_EXTRA, VOCE, VOCE_SUGGERIMENTO } from '../config/frasi';
 import { GIORNI_SPECIALI, QUOTA_ECO_CHIACCHIERE, SBLOCCHI } from '../config/storia';
+import { luogoDelVestito } from '../config/luoghi';
 import { generaPuzzle } from '../engine';
 import type { Puzzle, Valutazione } from '../engine';
 import { applica, griglia, nuovaPartita, voceStorico } from '../stato';
@@ -21,6 +22,8 @@ import {
   celleCompletate,
   accessoriSbloccati,
   accessorioPermesso,
+  vestitiIniziali,
+  vestitiRiposo,
   chiacchiera,
   chiaveSblocco,
   frasiDisponibili,
@@ -286,7 +289,8 @@ describe('fiori del giardino', () => {
     const v = finita('x', 1, { quotaBlu: 1 });
     expect(quotaBluFiore(v, 1, false)).toBe(0);
     expect(quotaBluFiore(v, 3, false)).toBeCloseTo(0.25);
-    expect(quotaBluFiore(v, SEMINA_ARRIVA_A, false)).toBe(0.5);
+    // prima del capitolo 5 visto: al massimo il blu del quarto, mai metà e metà
+    expect(quotaBluFiore(v, SEMINA_ARRIVA_A, false)).toBeCloseTo(0.375);
     expect(quotaBluFiore(v, 1, true)).toBe(0);
     expect(quotaBluFiore(v, SEMINA_ARRIVA_A, true)).toBe(0.5);
   });
@@ -296,8 +300,9 @@ describe('fiori del giardino', () => {
     expect(quotaBluFiore(finita('x', 1, { quotaBlu: 0.8 }), n, true)).toBe(0.8);
     expect(quotaBluFiore(finita('x', 1, { quotaBlu: 0 }), n, true)).toBe(0);
     expect(quotaBluFiore(finita('x', 1), n, true)).toBe(0.5);
-    // Semina non ancora arrivata su questo dispositivo: niente fiori più blu che verdi
-    expect(quotaBluFiore(finita('x', 1, { quotaBlu: 0.9 }), n, false)).toBe(0.5);
+    // Semina non ancora arrivata su questo dispositivo: nessuna traccia oltre il quarto fiore
+    expect(quotaBluFiore(finita('x', 1, { quotaBlu: 0.9 }), n, false)).toBeCloseTo(0.375);
+    expect(quotaBluFiore(finita('x', 1, { quotaBlu: 0.9 }), 40, false)).toBeCloseTo(0.375);
   });
 
   it('i germogli restano neutri', () => {
@@ -420,24 +425,91 @@ describe('pacchetti di frasi', () => {
   });
 });
 
-describe('accessori sbloccati', () => {
-  it('surf da 15 fiori, cavallo da 30', () => {
-    expect(accessoriSbloccati(['occhiali', 'surf'], 14)).toEqual(['occhiali']);
-    expect(accessoriSbloccati(['occhiali', 'surf'], 15)).toEqual(['occhiali', 'surf']);
-    expect(accessoriSbloccati(['corona', 'cavallo'], 29)).toEqual(['corona']);
-    expect(accessoriSbloccati(['corona', 'cavallo'], 30)).toEqual(['corona', 'cavallo']);
+describe('vestiti dai luoghi visitati', () => {
+  const fino = (n: number) => Array.from({ length: n }, (_, k) => `capitolo-${k}`);
+  it('surf col primo capitolo del mare (15), cavallo col 30, animale col 10', () => {
+    expect(accessoriSbloccati(['occhiali', 'surf'], fino(15))).toEqual(['occhiali']);
+    expect(accessoriSbloccati(['occhiali', 'surf'], fino(16))).toEqual(['occhiali', 'surf']);
+    expect(accessoriSbloccati(['corona', 'animale'], fino(10))).toEqual(['corona']);
+    expect(accessoriSbloccati(['corona', 'animale'], fino(11))).toEqual(['corona', 'animale']);
+    expect(accessoriSbloccati(['montagna', 'cavallo'], fino(30))).toEqual(['montagna']);
+    expect(accessoriSbloccati(['montagna', 'cavallo'], fino(31))).toEqual(['montagna', 'cavallo']);
+    expect(accessoriSbloccati(['occhiali'], fino(6))).toEqual([]);
   });
   it('Semino mai in montagna; Semina col surf solo in coppia nel giorno del mare', () => {
-    expect(accessorioPermesso('semino', 'montagna', 99)).toBeUndefined();
-    expect(accessorioPermesso('semino', 'cavallo', 99)).toBeUndefined();
-    expect(accessorioPermesso('semino', 'surf', 14)).toBeUndefined();
-    expect(accessorioPermesso('semino', 'surf', 15)).toBe('surf');
-    expect(accessorioPermesso('semina', 'surf', 20)).toBeUndefined();
-    expect(accessorioPermesso('semina', 'surf', 20, { inCoppia: true, giorno: 'montagna' })).toBeUndefined();
-    expect(accessorioPermesso('semina', 'surf', 20, { inCoppia: true, giorno: 'mare' })).toBe('surf');
-    expect(accessorioPermesso('semina', 'surf', 10, { inCoppia: true, giorno: 'mare' })).toBeUndefined();
-    expect(accessorioPermesso('semina', 'cavallo', 29)).toBeUndefined();
-    expect(accessorioPermesso('semina', 'montagna', 0)).toBe('montagna');
+    expect(accessorioPermesso('semino', 'montagna', fino(101))).toBeUndefined();
+    expect(accessorioPermesso('semino', 'cavallo', fino(101))).toBeUndefined();
+    expect(accessorioPermesso('semino', 'zaino-storto', fino(101))).toBe('zaino-storto');
+    expect(accessorioPermesso('semino', 'surf', fino(15))).toBeUndefined();
+    expect(accessorioPermesso('semino', 'surf', fino(16))).toBe('surf');
+    expect(accessorioPermesso('semina', 'surf', fino(21))).toBeUndefined();
+    expect(accessorioPermesso('semina', 'surf', fino(21), { inCoppia: true, giorno: 'montagna' })).toBeUndefined();
+    expect(accessorioPermesso('semina', 'surf', fino(21), { inCoppia: true, giorno: 'mare' })).toBe('surf');
+    expect(accessorioPermesso('semina', 'surf', fino(11), { inCoppia: true, giorno: 'mare' })).toBeUndefined();
+    expect(accessorioPermesso('semina', 'cavallo', fino(30))).toBeUndefined();
+    expect(accessorioPermesso('semina', 'montagna', fino(28))).toBeUndefined();
+    expect(accessorioPermesso('semina', 'montagna', fino(29))).toBe('montagna');
+  });
+});
+
+describe('vestiti a riposo in Home', () => {
+  const fino = (n: number) => Array.from({ length: n }, (_, k) => `capitolo-${k}`);
+  /** numeri pseudo-casuali ripetibili */
+  const seme = (n: number) => {
+    let x = n * 9301 + 49297;
+    return () => ((x = (x * 9301 + 49297) % 233280) / 233280);
+  };
+  it('nell\'aiuola niente vestiti; prima di Semina solo Semino', () => {
+    expect(vestitiRiposo({ visti: fino(5), sbloccata: false, caso: seme(1) })).toEqual({});
+    expect(vestitiIniziali({ visti: fino(5), sbloccata: false })).toEqual({});
+    const v = vestitiRiposo({ visti: fino(20), sbloccata: false, caso: seme(2) });
+    expect(v.semina).toBeUndefined();
+    expect(['occhiali', 'surf', 'palla']).toContain(v.semino);
+  });
+  it('prima del capitolo 15 niente vestiti da mare', () => {
+    for (let i = 0; i < 200; i++) {
+      const v = vestitiRiposo({ visti: fino(15), sbloccata: true, caso: seme(i) });
+      expect(v.semino).toBe('occhiali');
+      expect(['corona', 'animale']).toContain(v.semina);
+    }
+  });
+  it('3 volte su 4 dello stesso luogo, solo vestiti dei luoghi visitati e permessi', () => {
+    let stesso = 0;
+    const n = 4000;
+    const caso = seme(7);
+    let prima = {};
+    for (let i = 0; i < n; i++) {
+      const v = vestitiRiposo({ visti: fino(60), sbloccata: true, prima, caso });
+      expect(v.semino && luogoDelVestito(v.semino)).toBeTruthy();
+      expect(['montagna', 'cavallo']).not.toContain(v.semino);
+      expect(v.semina).not.toBe('surf');
+      expect(['cuoco', 'grembiule', 'cuffie', 'camice']).not.toContain(v.semino);
+      expect(['cuoco', 'grembiule', 'cuffie', 'camice']).not.toContain(v.semina);
+      if (luogoDelVestito(v.semino!) === luogoDelVestito(v.semina!)) stesso++;
+      prima = v;
+    }
+    expect(stesso / n).toBeGreaterThan(0.7);
+    expect(stesso / n).toBeLessThan(0.8);
+  });
+  it('cambia luogo a ogni giro se ce n\'è più d\'uno', () => {
+    const caso = seme(3);
+    let prima = vestitiRiposo({ visti: fino(30), sbloccata: true, caso });
+    for (let i = 0; i < 50; i++) {
+      const v = vestitiRiposo({ visti: fino(30), sbloccata: true, prima, caso });
+      expect(luogoDelVestito(v.semino!)).not.toBe(luogoDelVestito(prima.semino!));
+      prima = v;
+    }
+  });
+  it('il surf di Semina solo in coppia nel giorno del mare', () => {
+    let surf = 0;
+    const caso = seme(5);
+    for (let i = 0; i < 400; i++) if (vestitiRiposo({ visti: fino(20), sbloccata: true, giorno: 'mare', caso }).semina === 'surf') surf++;
+    expect(surf).toBeGreaterThan(0);
+  });
+  it('si entra coi vestiti dell\'ultimo capitolo letto, o con quelli del giorno speciale', () => {
+    expect(vestitiIniziali({ visti: fino(16), sbloccata: true })).toEqual({ semino: 'surf', semina: 'paglia' });
+    expect(vestitiIniziali({ visti: fino(16), sbloccata: true, giorno: 'mare' })).toEqual({ semino: 'surf', semina: 'animale' });
+    expect(vestitiIniziali({ visti: fino(16), sbloccata: false })).toEqual({ semino: 'surf' });
   });
 });
 
@@ -448,7 +520,7 @@ describe('pacchetti di frasi nuovi (toast in Home)', () => {
     expect(frasiNuove(0, undefined, false)).toEqual({ nuove: [], visti: [] });
   });
 
-  it('solo i pacchetti di frasi si annunciano; elementi e accessori si segnano e basta', () => {
+  it('i pacchetti di frasi si annunciano una volta', () => {
     const n = frasiNuove(8, chiavi(7), true);
     expect(n.nuove.map((s) => s.id)).toEqual(['semino-chiacchiere-8', 'semina-chiacchiere-8']);
     expect(n.visti).toEqual(chiavi(8));

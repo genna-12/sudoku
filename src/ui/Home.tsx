@@ -14,10 +14,10 @@ import { SemiTitolo } from './Icone';
 import type { Tema } from './MenuHome';
 import type { InfoSync } from './useSync';
 import type { GiardinoVisibile } from './capitoli';
-import { aCasoDiverso, accessoriSbloccati, accessorioPermesso } from './regole';
+import { aCasoDiverso, vestitiIniziali, vestitiRiposo } from './regole';
+import type { VestitiRiposo } from './regole';
 import { ELEMENTI_SCENA, Scena } from './Scena';
-import { ACCESSORI_DI, Semino, SeminoCoppia, SeminoPianta } from './Semino';
-import type { Accessorio } from './Semino';
+import { Semino, SeminoCoppia, SeminoPianta } from './Semino';
 import { accessorioValido } from './useMascotte';
 import type { Indossati, Mascotte } from './useMascotte';
 import { CHIAVI, leggi, scrivi, tempo, testoConnessione } from './util';
@@ -45,8 +45,12 @@ interface Props {
   sbloccata: boolean;
   /** il giardino visibile su questo dispositivo (senza tracce di Semina prima del capitolo 5) */
   giardino: GiardinoVisibile;
-  /** giorno del mare / della montagna (solo dopo l'arrivo di Semina), o null */
+  /** giorno del mare / della montagna (solo dopo l'arrivo di Semina e col luogo visitato), o null */
   giorno: GiornoSpeciale | null;
+  /** capitoli letti da chi tiene il telefono: i vestiti vengono dai luoghi visitati */
+  visti: readonly string[];
+  /** la prima volta che un vestito compare in Home (per giocatore): chiacchiera del suo luogo */
+  onVestitoNuovo?: (chi: ChiParla, id: string) => void;
   /** capitoli in coda da leggere (0 = niente bottone) */
   daLeggere: number;
   onLeggi: () => void;
@@ -217,7 +221,10 @@ export function Home(p: Props) {
   );
 }
 
-const RIPOSO_MS = 60000;
+/** ogni quanto (±10%) cambiano i vestiti a riposo */
+const RIPOSO_MS = 90000;
+/** vestiti già comparsi in Home su questo dispositivo, per giocatore (`chi:id`) */
+const CHIAVE_VESTITI_VISTI = 'sudoku-vestiti-visti';
 
 /** Elemento della scena da far entrare di nuovo: quello del giorno speciale. */
 function inEvidenza(p: Pick<Props, 'giorno' | 'giardino'>): string[] | undefined {
@@ -226,56 +233,64 @@ function inEvidenza(p: Pick<Props, 'giorno' | 'giardino'>): string[] | undefined
   return g && visibili.includes(g) && (ELEMENTI_SCENA as readonly string[]).includes(g) ? [g] : undefined;
 }
 
-/** Gli accessori che ciascuno può mettersi a riposo: i suoi, già sbloccati; Semina al mare in coppia anche la tavola. */
-function poolRiposo(chi: ChiParla, fiori: number, coppia: boolean, giorno: GiornoSpeciale | null): Accessorio[] {
-  const suoi = accessoriSbloccati(ACCESSORI_DI[chi], fiori);
-  if (chi === 'semina' && accessorioPermesso('semina', 'surf', fiori, { inCoppia: coppia, giorno })) return [...suoi, 'surf'];
-  return suoi;
-}
+const stessi = (a: VestitiRiposo, b: VestitiRiposo) => a.semino === b.semino && a.semina === b.semina;
 
 /**
- * A riposo (nessun fumetto aperto) ogni 60 s circa una mascotte cambia accessorio a caso fra i
- * suoi (solo quelli sbloccati); prima dello sblocco solo Semino. Si alternano. Nei giorni speciali
- * si parte con gli accessori a tema.
+ * I vestiti a riposo in Home (docs/design/studio-ux.md §4): si entra con quelli dell'ultimo capitolo letto
+ * (o del giorno speciale); ogni ~90 s, mai con un fumetto aperto, cambiano tutti e due insieme fra quelli
+ * dei luoghi visitati (`vestitiRiposo`: 3 volte su 4 dello stesso luogo). Prima dell'arrivo di Semina
+ * solo Semino. La prima volta che un vestito compare qui (per giocatore) lo si dice a `onNuovo`.
  */
-function useAccessoriRiposo(attivo: boolean, sbloccata: boolean, fiori: number, giorno: GiornoSpeciale | null): Indossati {
-  const [{ indossati }, setStato] = useState<{ indossati: Indossati; giri: number }>(() => {
-    if (!giorno) return { indossati: {}, giri: 0 };
-    const tema = GIORNI_SPECIALI[giorno].accessori;
-    const o = { inCoppia: sbloccata, giorno };
-    return {
-      indossati: {
-        semino: accessorioValido(accessorioPermesso('semino', tema.semino, fiori, o)),
-        semina: accessorioValido(accessorioPermesso('semina', tema.semina, fiori, o)),
-      },
-      giri: 0,
-    };
-  });
-  // il ritmo non riparte a ogni fumetto (le chiacchiere arrivano più spesso di 60 s): se allo
+function useAccessoriRiposo(
+  attivo: boolean,
+  sbloccata: boolean,
+  visti: readonly string[],
+  giorno: GiornoSpeciale | null,
+  ruolo: Giocatore,
+  onNuovo?: (chi: ChiParla, id: string) => void,
+): Indossati {
+  const [indossati, setIndossati] = useState<VestitiRiposo>(() => vestitiIniziali({ visti, sbloccata, giorno }));
+  // il ritmo non riparte a ogni fumetto (le chiacchiere arrivano più spesso di 90 s): se allo
   // scadere c'è un fumetto aperto, si riprova poco dopo
-  const vivo = useRef({ attivo, sbloccata, fiori, giorno });
+  const vivo = useRef({ attivo, sbloccata, visti, giorno, indossati, onNuovo });
   useEffect(() => {
-    vivo.current = { attivo, sbloccata, fiori, giorno };
+    vivo.current = { attivo, sbloccata, visti, giorno, indossati, onNuovo };
   });
+  // un capitolo letto con la Home aperta (i visti sono un prefisso: basta la lunghezza): i suoi vestiti
+  useEffect(() => {
+    const v = vivo.current;
+    const dopo = vestitiIniziali({ visti: v.visti, sbloccata: v.sbloccata, giorno: v.giorno });
+    setIndossati((x) => (stessi(x, dopo) ? x : dopo));
+  }, [visti.length, sbloccata, giorno]);
   useEffect(() => {
     let t = 0;
     const prossimo = (ms: number) => {
       t = window.setTimeout(() => {
         const v = vivo.current;
         if (!v.attivo) return prossimo(5000);
-        const scelta = Math.random();
-        setStato(({ indossati: x, giri }) => {
-          const chi: ChiParla = v.sbloccata && giri % 2 ? 'semina' : 'semino';
-          const pool = poolRiposo(chi, v.fiori, v.sbloccata, v.giorno);
-          return { indossati: { ...x, [chi]: aCasoDiverso(pool, x[chi], () => scelta) }, giri: giri + 1 };
-        });
+        setIndossati(vestitiRiposo({ visti: v.visti, sbloccata: v.sbloccata, giorno: v.giorno, prima: v.indossati }));
         prossimo(RIPOSO_MS * (0.9 + Math.random() * 0.2));
       }, ms);
     };
     prossimo(RIPOSO_MS * (0.9 + Math.random() * 0.2));
     return () => window.clearTimeout(t);
   }, []);
-  return sbloccata ? indossati : { semino: indossati.semino };
+  // vestito mai comparso in Home per questo giocatore: si segna e, se nessun fumetto è aperto, una chiacchiera
+  useEffect(() => {
+    const chiave = `${CHIAVE_VESTITI_VISTI}-${ruolo}`;
+    const salvati = leggi<unknown>(chiave);
+    const giaVisti = new Set(Array.isArray(salvati) ? salvati.filter((x): x is string => typeof x === 'string') : []);
+    const chi: ChiParla[] = sbloccata ? ['semino', 'semina'] : ['semino'];
+    const nuovi = chi.filter((c) => indossati[c] && !giaVisti.has(`${c}:${indossati[c]}`));
+    if (!nuovi.length) return;
+    for (const c of nuovi) giaVisti.add(`${c}:${indossati[c]}`);
+    scrivi(chiave, [...giaVisti]);
+    const c = aCasoDiverso(nuovi, undefined)!;
+    if (vivo.current.attivo) vivo.current.onNuovo?.(c, indossati[c]!);
+  }, [indossati, sbloccata, ruolo]);
+  const out: Indossati = { semino: accessorioValido(indossati.semino) };
+  if (sbloccata) out.semina = accessorioValido(indossati.semina);
+  return out;
 }
 
 /** Le mascotte con il loro fumetto: solletico, chiacchiere (anche l'eco di un capitolo) o un saluto. */
@@ -284,7 +299,7 @@ function Eroe(p: Props) {
   const sol = p.solletico;
   const parla: ChiParla = sol ? sol.chi : p.chiacchiera ? p.chiacchiera.chi : 'semino';
   const coppia = p.sbloccata;
-  const riposo = useAccessoriRiposo(!sol && !p.chiacchiera, coppia, p.fiori, p.giorno);
+  const riposo = useAccessoriRiposo(!sol && !p.chiacchiera, coppia, p.visti, p.giorno, p.mioRuolo, p.onVestitoNuovo);
   // l'accessorio della chiacchiera aperta lo indossa chi parla; il solletico non lo toglie
   const indossati: Indossati = { ...riposo };
   if (!sol && p.chiacchiera) {

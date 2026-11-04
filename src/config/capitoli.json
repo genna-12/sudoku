@@ -1,6 +1,6 @@
 [
  {
-  "_sorgente_sha256": "b69d89b76a5e7b92cf83027cf7bd540e49b1654453df2a11634ca758d9241551",
+  "_sorgente_sha256": "743250c963b16bfe5da6f675316e17dbf1f304ab50326d903267ead921fe8ad4",
   "_nota": "generato da controlla.py: non modificare a mano"
  },
  {
@@ -3351,7 +3351,7 @@
    "semina": "giacca"
   },
   "entra": null,
-  "elemento": null,
+  "elemento": "locandina",
   "fondale": null,
   "eco": {
    "chi": "semina",

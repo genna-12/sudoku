@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { FRASI, FRASI_EXTRA, SONNO, VOCE, VOCE_SUGGERIMENTO } from './frasi';
 import type { ChiParla, FraseConAccessorio } from './frasi';
-import { GIORNI_SPECIALI, QUOTA_ECO_CHIACCHIERE, SBLOCCHI, elementiSbloccati, giornoSpeciale } from './storia';
+import { GIORNI_SPECIALI, QUOTA_ECO_CHIACCHIERE, SBLOCCHI, giornoSpeciale } from './storia';
 
 const testo = (f: FraseConAccessorio) => (typeof f === 'string' ? f : f.testo);
 const accessorio = (f: FraseConAccessorio) => (typeof f === 'string' ? undefined : f.accessorio);
@@ -15,14 +15,11 @@ const PRINCIPALI = [
 /** Semino non ama la montagna: la nomina solo per lamentarsene. */
 const montagnaOk = (t: string) => !/montagn/i.test(t) || /fatic|lament/i.test(t);
 
-// La storia sono i capitoli (config/capitoli.test.ts); qui restano sblocchi, pacchetti e giorni speciali.
-describe('sblocchi del giardino', () => {
-  it('elementi alle soglie di sempre (il panorama non cambia finché non c\'è T6), id unici', () => {
-    const soglie = [1, 3, 5, 8, 10, 12, 15, 18, 20, 25, 30, 35, 40, 50, 60];
-    const elementi = SBLOCCHI.filter((s) => s.sblocco.tipo === 'elemento');
-    expect(elementi.map((s) => s.partite)).toEqual(soglie);
-    expect(elementiSbloccati(9)).toEqual(['fiore', 'sentiero', 'semina', 'stagno']);
-    expect(elementiSbloccati(0)).toEqual([]);
+// La storia sono i capitoli (config/capitoli.test.ts), ricordi e vestiti i luoghi (config/luoghi.test.ts);
+// qui restano pacchetti di frasi e giorni speciali.
+describe('sblocchi (solo pacchetti di frasi)', () => {
+  it('id unici, solo frasi', () => {
+    expect(SBLOCCHI.every((s) => s.sblocco.tipo === 'frasi')).toBe(true);
     const ids = SBLOCCHI.map((s) => `${s.sblocco.tipo}:${s.sblocco.id}`);
     expect(new Set(ids).size).toBe(ids.length);
   });
@@ -35,7 +32,6 @@ describe('sblocchi del giardino', () => {
     const pacchetti = new Set(FRASI_EXTRA.map((p) => `${p.chi}-${p.categoria}-${p.partite}`));
     for (const s of SBLOCCHI.filter((x) => x.sblocco.tipo === 'frasi')) expect(pacchetti.has(s.sblocco.id), s.sblocco.id).toBe(true);
     for (const n of [8, 12, 20, 30, 40, 50]) expect(FRASI_EXTRA.some((p) => p.partite === n)).toBe(true);
-    expect(SBLOCCHI.find((s) => s.sblocco.tipo === 'accessorio' && s.sblocco.id === 'surf')?.partite).toBe(15);
   });
   it('le eco entrano nelle chiacchiere con peso basso (circa 1 su 4)', () => {
     expect(QUOTA_ECO_CHIACCHIERE).toBeGreaterThan(0);

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { CAPITOLI, SEMINA_ARRIVA_A, ULTIMO_CAPITOLO, chiaveCapitolo } from '../config/capitoli';
-import { elementiSbloccati } from '../config/storia';
+import { elementiSbloccati } from '../config/luoghi';
 import {
   REGALI_A_CAPITOLO,
   chiaveEco,
@@ -130,11 +130,21 @@ describe('regali', () => {
 });
 
 describe('giardinoVisibile (niente tracce di Semina prima del capitolo 5)', () => {
-  it('telefono nuovo con 6 fiori e nessun capitolo visto: niente tulipano, niente blu', () => {
+  it('telefono nuovo con 6 fiori e nessun capitolo visto: niente tulipano, niente blu, niente ricordi', () => {
     const g = giardinoVisibile(6, []);
-    expect(g.elementi).not.toContain('semina');
-    expect(g.elementi).toContain('sentiero');
+    expect(g.elementi).toEqual([]);
     expect(g.bluPresenza).toBe(0);
+    // i ricordi seguono i capitoli letti
+    expect(giardinoVisibile(6, fino(4)).elementi).toEqual(['fiore', 'sentiero']);
+  });
+
+  it('i ricordi seguono il capitolo più alto letto, mai oltre i fiori', () => {
+    expect(giardinoVisibile(40, fino(26)).elementi).not.toContain('surf');
+    expect(giardinoVisibile(40, fino(26)).elementi).toContain('mare');
+    expect(giardinoVisibile(40, fino(27)).elementi).toContain('surf');
+    expect(giardinoVisibile(40, fino(37)).elementi).not.toContain('sasso');
+    expect(giardinoVisibile(40, fino(38)).elementi).toContain('sasso');
+    expect(giardinoVisibile(20, fino(38)).elementi).toEqual(elementiSbloccati(20));
   });
 
   it('il blu segue i capitoli letti fino al 4, mai di più senza il 5', () => {
@@ -150,7 +160,7 @@ describe('giardinoVisibile (niente tracce di Semina prima del capitolo 5)', () =
 
   it('col capitolo 5 visto: tulipano e blu pieno', () => {
     const g = giardinoVisibile(6, fino(6));
-    expect(g.elementi).toEqual(elementiSbloccati(6));
+    expect(g.elementi).toEqual(elementiSbloccati(5));
     expect(g.elementi).toContain('semina');
     expect(g.bluPresenza).toBe(1);
   });

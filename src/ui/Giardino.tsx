@@ -21,6 +21,8 @@ interface Props {
   /** id della partita aperta adesso (non si "riprende" quella in corso) */
   inCorso: string | null;
   sbloccata: boolean;
+  /** capitoli letti da chi tiene il telefono (i vestiti vengono dai luoghi visitati) */
+  visti: readonly string[];
   /** elementi visibili della scena (senza il tulipano di Semina prima del capitolo 5) */
   elementi: readonly string[];
   /** presenza del blu (0..1) per il chiarore della scena */
@@ -40,10 +42,10 @@ interface Props {
 export function Giardino(p: Props) {
   const st = statistiche(p.storico);
   const numeri = numeriFiori(p.storico);
-  // le mascotte in testa al giardino, ciascuna con un accessorio a caso (fisso per questa visita)
+  // le mascotte in testa al giardino, ciascuna con un vestito a caso dei luoghi visitati (fisso per questa visita)
   const [accessori] = useState(() => ({
-    semino: aCasoDiverso(accessoriSbloccati(ACCESSORI_DI.semino, st.fiori), undefined),
-    semina: aCasoDiverso(accessoriSbloccati(ACCESSORI_DI.semina, st.fiori), undefined),
+    semino: aCasoDiverso(accessoriSbloccati(ACCESSORI_DI.semino, p.visti), undefined),
+    semina: aCasoDiverso(accessoriSbloccati(ACCESSORI_DI.semina, p.visti), undefined),
   }));
   const vuoto = p.storico.length === 0;
   const chi: ChiParla[] = p.sbloccata ? ['semino', 'semina'] : ['semino'];

@@ -7,6 +7,7 @@ import { dormePerOrario } from '../config/sonno';
 import { SEMINA_ARRIVA_A, capitolo as capitoloDi } from '../config/capitoli';
 import type { Capitolo } from '../config/capitoli';
 import { giornoSpeciale } from '../config/storia';
+import { luogoDelVestito, luoghiVisitati } from '../config/luoghi';
 import { COLORI_RUOLO, PROFILI, nomeVisibile, profiloDiNome } from '../config/giocatori';
 import type { Livello, Modalita } from '../engine';
 import type { Messaggio } from '../net';
@@ -34,6 +35,7 @@ import {
   fioriDi,
   fraseMascotte,
   fraseSonno,
+  frasiDelLuogo,
   frasiInvio,
   frasiNuove,
   mascotteDi,
@@ -44,6 +46,7 @@ import {
   solletico,
   sostituisci,
   stessiVisti,
+  testoDi,
   testoFrasiNuove,
   umoreEvento,
   vociCambiate,
@@ -112,8 +115,12 @@ export function App() {
   const sbloccata = seminaSbloccata(fiori, vistiMiei);
   const nomeMio = nomeVisibile(profilo, sbloccata);
   const nomePartner = nomeVisibile(profiloPartner, sbloccata);
+  // luoghi del viaggio già visitati da chi tiene il telefono (vestiti, chiacchiere dei luoghi)
+  const luoghi = useMemo(() => luoghiVisitati(vistiMiei), [vistiMiei]);
   // giorno del mare / della montagna: solo dopo l'arrivo di Semina (le chiacchiere parlano di lei)
-  const giorno = sbloccata ? giornoSpeciale(new Date()) : null;
+  // e solo se quel luogo è già stato visitato (prima il mare non c'è ancora)
+  const oggi = sbloccata ? giornoSpeciale(new Date()) : null;
+  const giorno = oggi && luoghi.includes(oggi) ? oggi : null;
   const { mostraErrori, vibrazione } = archivio.impostazioni;
   const partita = archivio.partita;
 
@@ -150,9 +157,9 @@ export function App() {
   const { mascotte, reagisci, sveglia } = useMascotte();
 
   // valori letti dai gestori di rete (sempre gli ultimi)
-  const vivi = useRef({ nomeMio, nomePartner, sbloccata, mioRuolo, schermata, mostraErrori, vibrazione, mascotte, fiori, giorno, vistiMiei });
+  const vivi = useRef({ nomeMio, nomePartner, sbloccata, mioRuolo, schermata, mostraErrori, vibrazione, mascotte, fiori, giorno, vistiMiei, luoghi });
   useEffect(() => {
-    vivi.current = { nomeMio, nomePartner, sbloccata, mioRuolo, schermata, mostraErrori, vibrazione, mascotte, fiori, giorno, vistiMiei };
+    vivi.current = { nomeMio, nomePartner, sbloccata, mioRuolo, schermata, mostraErrori, vibrazione, mascotte, fiori, giorno, vistiMiei, luoghi };
   });
   const ultimaFrase = useRef('');
   const ultimoEvento = useRef(0);
@@ -230,10 +237,10 @@ export function App() {
     } else mostra({ tipo: 'banner', testo, categoria: o.categoria });
   }
 
-  function mostraChiacchiera(chi: ChiParla, testo: string, o: { firma?: string; ms?: number } = {}) {
-    // l'accessorio della frase solo se è già sbloccato e del suo carattere (in partita sono separati)
+  function mostraChiacchiera(chi: ChiParla, testo: string, o: { firma?: string; ms?: number; accessorio?: string } = {}) {
+    // l'accessorio della frase solo se il suo luogo è visitato e se è del suo carattere (in partita sono separati)
     const v = vivi.current;
-    const accessorio = accessorioPermesso(chi, accessorioDi(chi, testo), v.fiori, { giorno: v.giorno });
+    const accessorio = o.accessorio ?? accessorioPermesso(chi, accessorioDi(chi, testo), v.vistiMiei, { giorno: v.giorno });
     setChiacchieraOra({ id: Date.now(), chi, testo, accessorio, firma: o.firma });
     window.clearTimeout(timerChiacchiera.current);
     timerChiacchiera.current = window.setTimeout(() => setChiacchieraOra(null), o.ms ?? DURATA_CHIACCHIERA_MS);
@@ -643,6 +650,19 @@ export function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chiaveHome]);
 
+  /** La prima volta che un vestito compare in Home (lo dice Home): una chiacchiera del suo luogo, con quel vestito. */
+  function vestitoNuovo(chi: ChiParla, id: string) {
+    const l = luogoDelVestito(id);
+    if (!l || (chi === 'semina' && !vivi.current.sbloccata)) return;
+    const tutte = senzaSemina(frasiDelLuogo(l, chi), vivi.current.sbloccata);
+    // meglio una frase che parla proprio di quel vestito, se c'è
+    const sue = tutte.filter((f) => typeof f !== 'string' && f.accessorio === id);
+    const lista = (sue.length ? sue : tutte).map(testoDi);
+    if (!lista.length) return;
+    const testo = usata('chiacchiere', scegliFrase(lista, evita('chiacchiere'), sost()));
+    mostraChiacchiera(chi, testo, { accessorio: id });
+  }
+
   // --- chiacchiere: ogni 40–60 s, mai sopra la storia, in partita solo dopo 45 s di quiete ------
   useOgniTanto(!!io && (schermata === 'home' || schermata === 'partita'), () => {
     const ora = Date.now();
@@ -660,6 +680,7 @@ export function App() {
       giorno: vivi.current.giorno,
       sbloccata: vivi.current.sbloccata,
       eco,
+      luoghi: vivi.current.luoghi,
     });
     if (!testo) return;
     usata('chiacchiere', testo);
@@ -806,6 +827,8 @@ export function App() {
           sbloccata={sbloccata}
           giardino={giardino}
           giorno={giorno}
+          visti={vistiMiei}
+          onVestitoNuovo={vestitoNuovo}
           daLeggere={coda.length}
           onLeggi={() => setLettore(apriLettore(fiori, vistiMiei, 'home', archivio.azzerato))}
           chiacchiera={chiacchieraOra}
@@ -835,6 +858,7 @@ export function App() {
           storico={archivio.storico}
           inCorso={partita && !partita.finita ? `${partita.puzzle.modalita}-${partita.puzzle.seed}` : null}
           sbloccata={sbloccata}
+          visti={vistiMiei}
           elementi={giardino.elementi}
           bluPresenza={blu}
           mascotte={mascotte}

@@ -443,6 +443,133 @@
   fill: var(--sc-blu);
 }
 
+/* ---------- ricordi dei luoghi (T6) ---------- */
+/* sasso di quota (montagna) */
+.sc-scena .sc-ombra {
+  fill: #000;
+  opacity: 0.18;
+}
+.sc-scena .sc-sasso-quota {
+  fill: color-mix(in oklab, #9a8f80, var(--sc-terra) 25%);
+}
+.sc-scena .sc-sasso-piccolo {
+  fill: color-mix(in oklab, #b3a898, var(--sc-terra) 20%);
+}
+.sc-scena .sc-sasso-crepa {
+  fill: none;
+  stroke: color-mix(in oklab, #9a8f80, #000 35%);
+  stroke-width: 0.5;
+  stroke-linecap: round;
+}
+.sc-scena .sc-sasso-luce {
+  fill: none;
+  stroke: color-mix(in oklab, var(--sc-testo) 50%, transparent);
+  stroke-width: 0.7;
+  stroke-linecap: round;
+}
+.sc-scena .sc-segnavia-bianco {
+  fill: #f6f1e6;
+}
+.sc-scena .sc-segnavia-rosso {
+  fill: #d8483a;
+}
+
+/* lanterna appesa (bosco): luce calda che respira piano */
+.sc-scena .sc-cordino-lanterna {
+  stroke: color-mix(in oklab, var(--sc-legno), var(--sc-testo) 25%);
+  stroke-width: 0.6;
+}
+.sc-scena .sc-lanterna-ferro {
+  fill: #2b2620;
+  stroke: #2b2620;
+  stroke-width: 0.6;
+  stroke-linejoin: round;
+}
+.sc-scena .sc-lanterna-vetro {
+  fill: color-mix(in oklab, var(--sc-oro), #fff 30%);
+  stroke: #2b2620;
+  stroke-width: 0.6;
+}
+.sc-scena .sc-lanterna-fiamma {
+  fill: #ff9a3c;
+}
+.sc-scena .sc-lanterna-griglia {
+  fill: none;
+  stroke: #2b2620;
+  stroke-width: 0.45;
+}
+.sc-scena .sc-lanterna-alone {
+  fill: #ffb347;
+  fill-opacity: 0.16;
+  opacity: 0.85;
+  mix-blend-mode: screen;
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: sc-lanterna-respira 4.2s ease-in-out infinite;
+}
+@keyframes sc-lanterna-respira {
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+/* locandina (città) */
+.sc-scena .sc-locandina {
+  fill: #f4ead2;
+}
+.sc-scena .sc-locandina-testa {
+  fill: color-mix(in oklab, var(--sc-blu) 75%, #10131c);
+}
+.sc-scena .sc-locandina-chitarra {
+  fill: #d9893e;
+}
+.sc-scena .sc-locandina-manico {
+  stroke: #5a3518;
+  stroke-width: 0.8;
+  stroke-linecap: round;
+}
+.sc-scena .sc-locandina-riga {
+  stroke: color-mix(in oklab, #3a2a18 60%, transparent);
+  stroke-width: 0.6;
+  stroke-linecap: round;
+}
+.sc-scena .sc-scotch {
+  fill: color-mix(in oklab, #fff8dc 70%, transparent);
+}
+
+/* cartina (oltre la montagna): due spilli, verde e blu, e la strada a puntini */
+.sc-scena .sc-cartina {
+  fill: #efe2c2;
+  stroke: color-mix(in oklab, #efe2c2, #000 30%);
+  stroke-width: 0.4;
+  stroke-linejoin: round;
+}
+.sc-scena .sc-cartina-piega {
+  fill: none;
+  stroke: color-mix(in oklab, #efe2c2, #000 20%);
+  stroke-width: 0.4;
+}
+.sc-scena .sc-cartina-percorso {
+  fill: none;
+  stroke: #b0472f;
+  stroke-width: 0.6;
+  stroke-dasharray: 0.4 1;
+  stroke-linecap: round;
+}
+.sc-scena .sc-cartina-monte {
+  fill: none;
+  stroke: color-mix(in oklab, #6f86aa, #000 20%);
+  stroke-width: 0.6;
+  stroke-linejoin: round;
+}
+.sc-scena .sc-spillo-verde {
+  fill: var(--sc-verde);
+}
+.sc-scena .sc-spillo-blu {
+  fill: var(--sc-blu);
+}
+
 /* ---------- fuochi (festa) ---------- */
 .sc-scena .sc-scoppio {
   stroke-width: 1.5;

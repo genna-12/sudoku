@@ -12,8 +12,10 @@ import {
 } from '../config/punteggio';
 import { LIVELLI, valutaMossa } from '../engine';
 import type { Griglia, Livello, Modalita, Puzzle, Valutazione } from '../engine';
-import { SEMINA_ARRIVA_A } from '../config/capitoli';
-import { FRASI, FRASI_EXTRA, SONNO, SONNO_MOSSA, VOCE, VOCE_SUGGERIMENTO } from '../config/frasi';
+import { SEMINA_ARRIVA_A, capitolo } from '../config/capitoli';
+import type { Luogo } from '../config/capitoli';
+import { CHIACCHIERE_LUOGO, FRASI, FRASI_EXTRA, SONNO, SONNO_MOSSA, VOCE, VOCE_SUGGERIMENTO } from '../config/frasi';
+import { attiVisitati, luogoDelVestito, vestitoArrivato } from '../config/luoghi';
 import { GIORNI_SPECIALI, QUOTA_ECO_CHIACCHIERE, SBLOCCHI } from '../config/storia';
 import type { GiornoSpeciale, Sblocco } from '../config/storia';
 import { ORARI_SONNO, dormePerOrario, seminaDormeTardiOggi } from '../config/sonno';
@@ -226,13 +228,15 @@ export function numeriFiori(storico: readonly VoceStorico[]): Map<string, number
  * Frazione di petali blu di un fiore (null per i germogli). I primi SEMINA_ARRIVA_A fiori seguono
  * la progressione verso Semina (1 = tutto verde … 5 = metà e metà) e restano così; dal successivo
  * conta chi ha fatto più punti in quella partita (`quotaBlu` salvata a fine partita; 0.5 se manca).
- * Prima che Semina sia arrivata su questo dispositivo, nessun fiore va oltre la metà.
+ * Prima che Semina sia arrivata su questo dispositivo (capitolo 5 visto) nessun fiore va oltre il
+ * blu del quarto: niente "metà e metà", che è il suo arrivo.
  */
 export function quotaBluFiore(voce: VoceGiardino, n: number, sbloccata: boolean): number | null {
   if (!voce.finita) return null;
   const k = SEMINA_ARRIVA_A;
-  if (n <= k) return k > 1 ? ((Math.max(1, n) - 1) / (k - 1)) * 0.5 : 0.5;
-  if (!sbloccata) return 0.5;
+  const verso = (m: number) => (k > 1 ? ((Math.max(1, m) - 1) / (k - 1)) * 0.5 : 0.5);
+  if (!sbloccata) return verso(Math.min(n, k - 1));
+  if (n <= k) return verso(n);
   const q = voce.quotaBlu;
   return typeof q === 'number' && Number.isFinite(q) ? Math.max(0, Math.min(1, q)) : 0.5;
 }
@@ -359,18 +363,38 @@ export function frasiInvio(fiori: number, sbloccata: boolean = arrivata(fiori)):
 /** Quanto spesso, nei giorni speciali, la chiacchiera viene da quelle dedicate. */
 export const QUOTA_CHIACCHIERE_SPECIALI = 0.6;
 
-/** Le chiacchiere di un personaggio: le sue, i pacchetti sbloccati e, nei giorni speciali, quelle dedicate. */
+/** Chiacchiere proprie dei luoghi (bosco, città, cucina, lontano) per i luoghi visitati. */
+function chiacchiereDeiLuoghi(chi: ChiParla, luoghi: readonly Luogo[]): FraseConAccessorio[] {
+  return luoghi.flatMap((l) => (l in CHIACCHIERE_LUOGO ? CHIACCHIERE_LUOGO[l as keyof typeof CHIACCHIERE_LUOGO][chi] : []));
+}
+
+/**
+ * Le chiacchiere di un luogo per la prima volta che un suo vestito compare in Home: mare e montagna
+ * dai giorni speciali (senza quelle che dicono "oggi"/"giorno": non è il giorno speciale), gli altri
+ * da CHIACCHIERE_LUOGO; il giardino non ne ha (lista vuota).
+ */
+export function frasiDelLuogo(luogo: Luogo, chi: ChiParla): FraseConAccessorio[] {
+  if (luogo === 'mare' || luogo === 'montagna')
+    return GIORNI_SPECIALI[luogo].chiacchiere[chi].filter((f) => !/\boggi\b|\bgiorno\b/i.test(testoDi(f)));
+  return chiacchiereDeiLuoghi(chi, [luogo]);
+}
+
+/**
+ * Le chiacchiere di un personaggio: le sue, i pacchetti sbloccati, quelle dei luoghi visitati e, nei
+ * giorni speciali, quelle dedicate.
+ */
 export function chiacchiereDi(
   chi: ChiParla,
   fiori: number,
   giorno: GiornoSpeciale | null = null,
   sbloccata: boolean = arrivata(fiori),
+  luoghi: readonly Luogo[] = [],
 ): {
   solite: FraseConAccessorio[];
   speciali: FraseConAccessorio[];
 } {
   return {
-    solite: frasiDisponibili('chiacchiere', chi, fiori, sbloccata),
+    solite: [...frasiDisponibili('chiacchiere', chi, fiori, sbloccata), ...senzaSemina(chiacchiereDeiLuoghi(chi, luoghi), sbloccata)],
     speciali: senzaSemina(giorno ? (GIORNI_SPECIALI[giorno]?.chiacchiere[chi] ?? []) : [], sbloccata),
   };
 }
@@ -384,14 +408,14 @@ export function chiacchiera(
   evita: string | readonly string[],
   s: Sostituzioni,
   caso: () => number = Math.random,
-  o: { fiori?: number; giorno?: GiornoSpeciale | null; sbloccata?: boolean; eco?: readonly string[] } = {},
+  o: { fiori?: number; giorno?: GiornoSpeciale | null; sbloccata?: boolean; eco?: readonly string[]; luoghi?: readonly Luogo[] } = {},
 ): string {
   const fiori = o.fiori ?? 0;
   const sbloccata = o.sbloccata ?? arrivata(fiori);
   // ogni tanto (QUOTA_ECO_CHIACCHIERE) torna l'eco di un capitolo già letto
   const eco = senzaSemina(o.eco ?? [], sbloccata);
   if (eco.length && caso() < QUOTA_ECO_CHIACCHIERE) return scegliFrase(eco, evita, s, caso);
-  const { solite, speciali } = chiacchiereDi(chi, fiori, o.giorno ?? null, sbloccata);
+  const { solite, speciali } = chiacchiereDi(chi, fiori, o.giorno ?? null, sbloccata, o.luoghi ?? []);
   const lista = (speciali.length && caso() < QUOTA_CHIACCHIERE_SPECIALI ? speciali : solite).map(testoDi);
   return lista.length ? scegliFrase(lista, evita, s, caso) : '';
 }
@@ -410,13 +434,14 @@ function modello(t: string): RegExp {
 /**
  * Accessorio associato a un testo di chiacchiera (già sostituito, anche arrivato dall'altro
  * dispositivo, che sostituisce coi suoi nomi), se c'è: cerca nelle sue chiacchiere, nei pacchetti
- * di FRASI_EXTRA (tutti: la disponibilità la decide `accessorioPermesso`) e nei giorni speciali.
+ * di FRASI_EXTRA (tutti: la disponibilità la decide `accessorioPermesso`), nei giorni speciali e nei luoghi.
  */
 export function accessorioDi(chi: ChiParla, testo: string): string | undefined {
   const fonti: FraseConAccessorio[] = [
     ...(VOCE[chi]?.chiacchiere ?? []),
     ...FRASI_EXTRA.filter((p) => p.chi === chi || p.chi === 'entrambi').flatMap((p) => p.frasi),
     ...Object.values(GIORNI_SPECIALI).flatMap((g) => g.chiacchiere[chi] ?? []),
+    ...Object.values(CHIACCHIERE_LUOGO).flatMap((l) => l[chi]),
   ];
   for (const f of fonti) {
     if (typeof f === 'string') continue;
@@ -425,37 +450,105 @@ export function accessorioDi(chi: ChiParla, testo: string): string | undefined {
   return undefined;
 }
 
-// --- sblocchi -----------------------------------------------------------------------
+// --- vestiti (dai luoghi visitati, config/luoghi.ts) -------------------------------------
 
-/** Accessori che si sbloccano coi fiori (id → soglia). Prima della soglia non si indossano. */
-const SOGLIA_ACCESSORIO: ReadonlyMap<string, number> = new Map(
-  SBLOCCHI.filter((s) => s.sblocco.tipo === 'accessorio').map((s) => [s.sblocco.id, s.partite]),
-);
-
-/** Gli accessori della lista già disponibili con questi fiori (quelli senza sblocco lo sono sempre). */
-export function accessoriSbloccati<T extends string>(lista: readonly T[], fiori: number): T[] {
-  return lista.filter((a) => (SOGLIA_ACCESSORIO.get(a) ?? 0) <= fiori);
+/** Gli accessori della lista già arrivati con questi capitoli visti (luogo visitato; animale e cavallo col loro capitolo). */
+export function accessoriSbloccati<T extends string>(lista: readonly T[], visti: readonly string[]): T[] {
+  return lista.filter((a) => vestitoArrivato(a, visti));
 }
 
 /** Accessori mai indossati: Semino non va in montagna né a cavallo; Semina il surf solo in coppia con lui. */
 const MAI: Record<ChiParla, readonly string[]> = { semino: ['montagna', 'cavallo'], semina: ['surf'] };
 
 /**
- * L'accessorio `a` (da una frase, una tappa, un giorno speciale) si può far indossare a `chi`?
- * No se non è ancora sbloccato o se non è del suo carattere; `inCoppia`: Semina accanto a Semino,
- * e nel giorno del mare può portare la tavola.
+ * L'accessorio `a` (da una frase, un capitolo, un giorno speciale) si può far indossare a `chi`?
+ * No se il suo luogo non è ancora visitato (capitoli `visti` di chi tiene il telefono) o se non è del
+ * suo carattere; `inCoppia`: Semina accanto a Semino, e nel giorno del mare può portare la tavola.
  */
 export function accessorioPermesso(
   chi: ChiParla,
   a: string | undefined,
-  fiori: number,
+  visti: readonly string[],
   o: { inCoppia?: boolean; giorno?: GiornoSpeciale | null } = {},
 ): string | undefined {
   if (!a) return undefined;
-  if ((SOGLIA_ACCESSORIO.get(a) ?? 0) > fiori) return undefined;
+  if (!vestitoArrivato(a, visti)) return undefined;
   const surfAlMare = chi === 'semina' && a === 'surf' && !!o.inCoppia && o.giorno === 'mare';
   if (MAI[chi].includes(a) && !surfAlMare) return undefined;
   return a;
+}
+
+export type VestitiRiposo = Partial<Record<ChiParla, string>>;
+
+/** Quante volte su 1 in Home si vestono tutti e due dello stesso luogo (il resto: misti). */
+export const QUOTA_STESSO_LUOGO = 0.75;
+
+interface OpzioniVestiti {
+  visti: readonly string[];
+  /** Semina c'è (capitolo 5 visto): prima solo Semino */
+  sbloccata: boolean;
+  giorno?: GiornoSpeciale | null;
+}
+
+/** I luoghi del viaggio visitati, ognuno coi vestiti che i due possono mettersi adesso (Semino almeno uno). */
+function guardaroba(o: OpzioniVestiti) {
+  const permesso = (chi: ChiParla, id: string) => !!accessorioPermesso(chi, id, o.visti, { inCoppia: o.sbloccata, giorno: o.giorno });
+  return attiVisitati(o.visti)
+    .filter((x) => !x.ritorno)
+    .map((x) => ({
+      luogo: x.luogo,
+      semino: x.vestiti.semino.filter((id) => permesso('semino', id)),
+      semina: o.sbloccata ? x.vestiti.semina.filter((id) => permesso('semina', id)) : [],
+    }))
+    .filter((g) => g.semino.length > 0);
+}
+
+/**
+ * Entrando in Home: nei giorni speciali gli accessori a tema, altrimenti i vestiti dell'ultimo capitolo
+ * letto (continuità con la scena appena vista), se permessi. Nell'aiuola niente.
+ */
+export function vestitiIniziali(o: OpzioniVestiti): VestitiRiposo {
+  const per = (chi: ChiParla, id: string | undefined) => accessorioPermesso(chi, id, o.visti, { inCoppia: o.sbloccata, giorno: o.giorno });
+  let ultimo = -1;
+  for (const k of o.visti) {
+    const m = /^capitolo-(\d+)$/.exec(k);
+    if (m) ultimo = Math.max(ultimo, Number(m[1]));
+  }
+  const fonte = o.giorno ? GIORNI_SPECIALI[o.giorno].accessori : (capitolo(ultimo)?.vestiti ?? {});
+  const out: VestitiRiposo = {};
+  const semino = per('semino', fonte.semino);
+  if (semino) out.semino = semino;
+  const semina = o.sbloccata ? per('semina', fonte.semina) : undefined;
+  if (semina) out.semina = semina;
+  return out;
+}
+
+/**
+ * Il cambio di vestiti a riposo in Home (tutti e due insieme): con probabilità QUOTA_STESSO_LUOGO un
+ * luogo solo per entrambi (diverso da quello di adesso se c'è altro), altrimenti misti (ognuno da un
+ * luogo diverso). Solo vestiti dei luoghi visitati e permessi; prima dell'arrivo di Semina solo Semino.
+ * `caso`: sorgente di numeri in [0,1) (iniettabile per i test).
+ */
+export function vestitiRiposo(o: OpzioniVestiti & { prima?: VestitiRiposo; caso?: () => number }): VestitiRiposo {
+  const caso = o.caso ?? Math.random;
+  const g = guardaroba(o);
+  if (!g.length) return {};
+  const prima = o.prima ?? {};
+  const luoghi = g.map((x) => x.luogo);
+  const adesso = luogoDelVestito(prima.semino ?? '');
+  const misti = o.sbloccata && g.length > 1 && caso() >= QUOTA_STESSO_LUOGO;
+  const l1 = aCasoDiverso(luoghi, adesso, caso)!;
+  const l2 = misti ? aCasoDiverso(luoghi.filter((l) => l !== l1), undefined, caso)! : l1;
+  const di = (l: Luogo) => g.find((x) => x.luogo === l)!;
+  const out: VestitiRiposo = {};
+  const semino = aCasoDiverso(di(l1).semino, prima.semino, caso);
+  if (semino) out.semino = semino;
+  if (o.sbloccata) {
+    const sue = di(l2).semina.length ? di(l2).semina : g.flatMap((x) => x.semina);
+    const semina = aCasoDiverso(sue, prima.semina, caso);
+    if (semina) out.semina = semina;
+  }
+  return out;
 }
 
 /** Chiave stabile di uno sblocco (gli id dei tipi diversi possono somigliarsi). */
@@ -476,16 +569,15 @@ function chiDelPacchetto(s: Sblocco): ChiParla | 'entrambi' {
 }
 
 /**
- * Pacchetti di frasi (SBLOCCHI di tipo `frasi`) nuovi su questo dispositivo: `partite ≤ fiori` e non
- * ancora visti. Gli altri sblocchi raggiunti si segnano e basta (elementi e accessori si vedono da sé).
+ * Pacchetti di frasi (SBLOCCHI) nuovi su questo dispositivo: `partite ≤ fiori` e non ancora visti.
  * Prima che Semina arrivi qui i pacchetti suoi aspettano (né annunciati né segnati). Le chiavi oltre i
- * fiori attuali (dopo un "ricomincia") si dimenticano.
+ * fiori attuali (dopo un "ricomincia") si dimenticano, e con loro quelle vecchie di elementi e accessori.
  */
 export function frasiNuove(fiori: number, visti: unknown, sbloccata: boolean): FrasiNuove {
   const prima = new Set(Array.isArray(visti) ? visti.filter((x): x is string => typeof x === 'string') : []);
-  const raggiunti = SBLOCCHI.filter((s) => s.partite <= fiori && (sbloccata || s.sblocco.tipo !== 'frasi' || chiDelPacchetto(s.sblocco) !== 'semina'));
+  const raggiunti = SBLOCCHI.filter((s) => s.partite <= fiori && (sbloccata || chiDelPacchetto(s.sblocco) !== 'semina'));
   return {
-    nuove: raggiunti.filter((s) => s.sblocco.tipo === 'frasi' && !prima.has(chiaveSblocco(s.sblocco))).map((s) => s.sblocco),
+    nuove: raggiunti.filter((s) => !prima.has(chiaveSblocco(s.sblocco))).map((s) => s.sblocco),
     visti: raggiunti.map((s) => chiaveSblocco(s.sblocco)),
   };
 }

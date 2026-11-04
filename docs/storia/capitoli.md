@@ -867,7 +867,7 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 ## 65 · citta · La locandina
 @vestiti: semino=chitarra semina=giacca
 @entra:
-@elemento:
+@elemento: locandina
 @eco: semina: La locandina è piegata male. Se la apro si strappa, quindi non la apro.
 - narra: Su un muro, tra un trasloco e un corso di tuba: SEMINO, CHITARRRA, PALCO DI CHI VUOLE. Ieri sera.
 - semina (euforico): SEI TU. Sei tu sul muro.

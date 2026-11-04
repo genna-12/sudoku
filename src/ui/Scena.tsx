@@ -1,5 +1,5 @@
-// Il giardino di sfondo: SVG panoramico con gli elementi sbloccati (id da elementiSbloccati in config/storia.ts).
-// <Scena elementi={elementiSbloccati(fiori)} fiori={fiori} bluPresenza={0..1} altezza={180} />
+// Il giardino di sfondo: SVG panoramico con i ricordi dei luoghi (id da elementiSbloccati in config/luoghi.ts).
+// <Scena elementi={elementiSbloccati(maxVisto)} fiori={fiori} bluPresenza={0..1} altezza={180} />
 //   - la larghezza del viewBox segue quella del contenitore (altezza fissa di 220 unità): il centro del
 //     giardino resta uguale, il mare si allarga a sinistra e la montagna a destra sugli schermi larghi
 //   - stelle = min(fiori, 60), in posizioni deterministiche (ognuna ha il suo indice: aggiungerne non sposta le altre)
@@ -11,7 +11,7 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import './scena.css';
 
-/** gli id che la scena sa disegnare (devono coprire gli elementi di SBLOCCHI) */
+/** gli id che la scena sa disegnare (devono coprire i ricordi degli ATTI in config/luoghi.ts) */
 export const ELEMENTI_SCENA = [
   'fiore',
   'sentiero',
@@ -20,13 +20,18 @@ export const ELEMENTI_SCENA = [
   'merlo',
   'cassetta',
   'mare',
-  'montagna',
   'stelle',
-  'tavola',
+  /** la tavola da surf sul muretto */
+  'surf',
+  'montagna',
   'cavallino',
-  'casetta',
-  'chitarra',
+  'sasso',
   'fuochi',
+  'lanterna',
+  'chitarra',
+  'locandina',
+  'casetta',
+  'cartina',
   'arcobaleno',
 ] as const;
 export type ElementoScena = (typeof ELEMENTI_SCENA)[number];
@@ -179,7 +184,7 @@ function Cavallino({ x, y }: { x: number; y: number }) {
 }
 
 /** la casetta: una finestra sul mare (sinistra), una sulla montagna (destra); (x, y) = centro della base */
-function Casetta({ x, y, chitarra }: { x: number; y: number; chitarra: ReactNode }) {
+function Casetta({ x, y, chitarra, cartina }: { x: number; y: number; chitarra: ReactNode; cartina?: ReactNode }) {
   return (
     <g transform={`translate(${x} ${y})`}>
       <rect x={14} y={-52} width={6} height={12} className="sc-camino" />
@@ -194,6 +199,7 @@ function Casetta({ x, y, chitarra }: { x: number; y: number; chitarra: ReactNode
       <path d="M10 -18.4 L13.4 -23.6 L15.4 -21 L16.6 -22.4 L19 -18.4" className="sc-finestra-segno" />
       <path d="M-5.5 0 V-17 Q0 -22 5.5 -17 V0Z" className="sc-porta" />
       <circle cx={3.2} cy={-8.4} r={0.9} className="sc-pomello" />
+      {cartina}
       {chitarra}
     </g>
   );
@@ -212,7 +218,7 @@ function ChitarraAppesa() {
 }
 
 /** cassetta della posta su un paletto, bandierina alzata e una lettera che spunta */
-function Cassetta({ x, y }: { x: number; y: number }) {
+function Cassetta({ x, y, locandina }: { x: number; y: number; locandina?: ReactNode }) {
   return (
     <g transform={`translate(${x} ${y})`}>
       <rect x={-1.4} y={-20} width={2.8} height={20} className="sc-paletto" />
@@ -222,6 +228,7 @@ function Cassetta({ x, y }: { x: number; y: number }) {
       <path d="M-4.2 -28.6 l1.2 1 l1.2 -1" className="sc-lettera-segno" />
       <path d="M9 -24 V-36" className="sc-asta" />
       <path d="M9 -36 H14.4 V-32.2 H9Z" className="sc-bandierina" />
+      {locandina}
     </g>
   );
 }
@@ -241,6 +248,74 @@ function TavolaMuretto({ x, y }: { x: number; y: number }) {
       {sassi.map((sx, i) => (
         <path key={sx} d={`M${sx} -11 V0 M${sx + 4.5} ${i % 2 ? -5.5 : -6} h${i % 2 ? 9 : -9}`} className="sc-muretto-fuga" />
       ))}
+    </g>
+  );
+}
+
+/** il sasso di quota sul muretto (montagna, 37): segnavia bianco e rosso e un sassolino in cima; (x, y) = appoggio */
+function SassoQuota({ x, y }: { x: number; y: number }) {
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      <ellipse cx={0.6} cy={0.2} rx={7.4} ry={1} className="sc-ombra" />
+      <path d="M-7 0 C-7.6 -2.2 -6 -4.6 -3.2 -5.4 L0.6 -6.2 C3.8 -6.4 6.6 -4.8 7.2 -2.2 C7.4 -1 7 0 6.2 0Z" className="sc-sasso-quota" />
+      <path d="M-5.4 -3.2 C-4.2 -4.6 -2 -5.2 0.6 -5.4" className="sc-sasso-luce" />
+      <path d="M2.6 -6 L3.6 -2.8 M-1.8 -0.4 L-0.8 -2.6" className="sc-sasso-crepa" />
+      {/* segnavia: bianco, rosso, bianco */}
+      <rect x={-3.6} y={-4.2} width={4.6} height={1} rx={0.3} className="sc-segnavia-bianco" />
+      <rect x={-3.6} y={-3.2} width={4.6} height={1} className="sc-segnavia-rosso" />
+      <rect x={-3.6} y={-2.2} width={4.6} height={1} rx={0.3} className="sc-segnavia-bianco" />
+      {/* l'ometto: un sassolino posato sopra, un po' di lato */}
+      <path d="M2.2 -6 C2 -7.6 3.4 -8.4 4.8 -8 C6 -7.6 6.2 -6.4 5.8 -5.7Z" className="sc-sasso-quota sc-sasso-piccolo" />
+    </g>
+  );
+}
+
+/** la lanterna appesa al ramo (bosco, 54): cordino, cappello, vetro acceso e un alone che respira; (x, y) = nodo sul ramo */
+function LanternaAppesa({ x, y }: { x: number; y: number }) {
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      <g className="sc-lanterna-alone">
+        <circle cx={0} cy={11.4} r={8.4} />
+        <circle cx={0} cy={11.4} r={5.6} />
+      </g>
+      <path d="M0 0 V4.4" className="sc-cordino-lanterna" />
+      <path d="M-1.6 4.4 A1.6 1.6 0 0 1 1.6 4.4" className="sc-lanterna-ferro" fill="none" />
+      <path d="M-3.4 6.8 L-1.6 4.8 H1.6 L3.4 6.8Z" className="sc-lanterna-ferro" />
+      <rect x={-2.8} y={6.8} width={5.6} height={8} rx={1} className="sc-lanterna-vetro" />
+      <ellipse cx={0} cy={11.6} rx={1} ry={1.8} className="sc-lanterna-fiamma" />
+      <path d="M-2.8 9.4 H2.8 M0 6.8 V14.8" className="sc-lanterna-griglia" />
+      <path d="M-3.4 14.8 H3.4 L2.4 16.4 H-2.4Z" className="sc-lanterna-ferro" />
+    </g>
+  );
+}
+
+/** la locandina legata al paletto della cassetta (città, 65): una chitarrina, due righe, lo scotch; coordinate della cassetta */
+function Locandina() {
+  return (
+    <g transform="translate(0 -11.6) rotate(-6)">
+      <rect x={-4.6} y={-5.6} width={9.2} height={11.6} rx={0.6} className="sc-locandina" />
+      <rect x={-4.6} y={-5.6} width={9.2} height={2.6} rx={0.6} className="sc-locandina-testa" />
+      {/* chitarrina */}
+      <path d="M-0.4 3.4 C-2.6 3.4 -2.8 1.2 -1.8 0.4 C-2.4 -0.6 -1.8 -2 -0.4 -2 C1 -2 1.6 -0.6 1 0.4 C2 1.2 1.8 3.4 -0.4 3.4Z" className="sc-locandina-chitarra" />
+      <path d="M-0.4 -2 L1.6 -4.6" className="sc-locandina-manico" />
+      <path d="M2.2 1.2 H3.6 M2.2 2.8 H3.4" className="sc-locandina-riga" />
+      {/* lo scotch in alto */}
+      <rect x={-2} y={-6.6} width={4} height={1.6} rx={0.3} transform="rotate(8)" className="sc-scotch" />
+    </g>
+  );
+}
+
+/** la cartina appesa al muro della casetta (oltre la montagna, 88): pieghe, un percorso a puntini fra due spilli; coordinate della casetta */
+function Cartina() {
+  return (
+    <g transform="translate(-15.4 -9.6) rotate(-3)">
+      <path d="M-6.6 -4.4 L-2.2 -5 L2.2 -4.4 L6.6 -5 V4.4 L2.2 5 L-2.2 4.4 L-6.6 5Z" className="sc-cartina" />
+      <path d="M-2.2 -5 V4.4 M2.2 -4.4 V5" className="sc-cartina-piega" />
+      <path d="M-4.2 2.6 C-2.6 0.4 -1 2.4 0.6 0.2 C1.8 -1.4 3 -0.6 4.2 -2.4" className="sc-cartina-percorso" />
+      <path d="M-5.6 -2.6 L-3.8 -3.8 L-2.6 -2.6" className="sc-cartina-monte" />
+      <circle cx={-4.2} cy={2.6} r={0.95} className="sc-spillo-verde" />
+      <circle cx={4.2} cy={-2.4} r={0.95} className="sc-spillo-blu" />
+      <circle cx={0} cy={-4.6} r={0.7} className="sc-chiodo" />
     </g>
   );
 }
@@ -289,7 +364,7 @@ function Scoppio({ x, y, r, i }: { x: number; y: number; r: number; i: number })
 /* ------------------------------------------------------------ scena */
 
 interface Props {
-  /** id degli elementi sbloccati (elementiSbloccati(fiori)); quelli sconosciuti si ignorano */
+  /** id dei ricordi visibili (elementiSbloccati(maxVisto) in config/luoghi.ts); quelli sconosciuti si ignorano */
   elementi: readonly string[];
   /** partite finite: decide il numero di stelle (al massimo 60) */
   fiori: number;
@@ -604,10 +679,20 @@ export function Scena({
       </g>
 
       {el('sentiero', <g>{sassi}</g>)}
-      {el('tavola', <TavolaMuretto x={f1(xTavola)} y={f1(yc(xTavola) + 6)} />)}
-      {el('casetta', <Casetta x={xCas} y={f1(yc(xCas) + 3)} chitarra={ha.has('chitarra') ? el('chitarra', <ChitarraAppesa />) : null} />)}
+      {el('surf', <TavolaMuretto x={f1(xTavola)} y={f1(yc(xTavola) + 6)} />)}
+      {el('sasso', <SassoQuota x={f1(xTavola + 13)} y={f1(yc(xTavola) + 6 - 11)} />)}
+      {el(
+        'casetta',
+        <Casetta
+          x={xCas}
+          y={f1(yc(xCas) + 3)}
+          chitarra={ha.has('chitarra') ? el('chitarra', <ChitarraAppesa />) : null}
+          cartina={el('cartina', <Cartina />)}
+        />,
+      )}
       {!ha.has('casetta') && el('chitarra', <g transform={`translate(${xAlbero - 4} ${f1(yAlbero - 18)})`}><ChitarraAppesa /></g>)}
       {el('fuochi', <Razzi x={f1(xRazzi)} y={f1(yc(xRazzi) + 6)} />)}
+      {el('lanterna', <LanternaAppesa x={xAlbero - 9} y={f1(yAlbero - 39.6)} />)}
       {el('merlo', <Merlo x={xAlbero - 18} y={f1(yAlbero - 44.6)} />)}
       {el('cavallino', <Cavallino x={46} y={f1(yc(46) + 22)} />)}
 
@@ -630,7 +715,7 @@ export function Scena({
           <ellipse cx={-110.2} cy={180.6} rx={1.1} ry={3} className="sc-tifa" />
         </g>,
       )}
-      {el('cassetta', <Cassetta x={-72} y={203} />)}
+      {el('cassetta', <Cassetta x={-72} y={203} locandina={el('locandina', <Locandina />)} />)}
 
       {figli && (
         <g className="sc-figli" transform={`translate(0 ${PRATO_Y})`}>
