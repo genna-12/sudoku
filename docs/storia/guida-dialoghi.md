@@ -66,7 +66,7 @@ Rispondi sì/no. Un "no" da 1 a 6 o un "sì" da 7 a 12 vuol dire: riscrivere.
 ```
 Regole del formato:
 - Titolo: `## N · luogo · Titolo` con N da 0 a 100 consecutivi, luogo tra `aiuola, giardino, mare, montagna, bosco, citta, cucina, lontano`.
-- `@vestiti:` chi indossa cosa in questo capitolo (ids della bibbia §5); `nessuno` se nudi. `@entra:` id del secondario che appare per la prima volta in questo capitolo, o vuoto. `@elemento:` ricordo del giardino che compare con questo capitolo, o vuoto. `@eco:` una riga `chi: testo` (≤ 90 caratteri), chi ∈ {semino, semina}; prima del 5 solo semino.
+- `@vestiti:` chi indossa cosa in questo capitolo (ids della bibbia §5); `nessuno` se nudi. `@entra:` id del secondario che appare per la prima volta in questo capitolo, o vuoto. `@elemento:` ricordo del giardino che compare con questo capitolo, o vuoto. `@fondale:` (opzionale) variante del fondale del luogo, es. `laboratorio`, `stazione`, `treno` per `lontano`, `baita` o `cima` per `montagna`; se manca vale il luogo. `@eco:` una riga `chi: testo` (≤ 90 caratteri), chi ∈ {semino, semina}; prima del 5 solo semino.
 - Battute: `- chi (umore): testo` per semino/semina (umore obbligatorio, dalla lista della bibbia §10); `- id: testo` per i secondari (fischio, pinza, nuvola, nonnacapra, gufo, grillo, briciola); `- mulo: testo` è una lettera; `- narra: testo` nota scenica.
 - Da 4 a 8 battute (le `narra` contano). Testo ≤ 110 caratteri, `narra` ≤ 120.
 - Niente altro markdown dentro il capitolo. Lo script `scripts/storia/controlla.py` verifica tutto questo e produce `capitoli.json`.

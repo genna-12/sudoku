@@ -13,6 +13,8 @@ Dopo T5 e T6. Base: `docs/progettazione/analisi/mascotte-e-ui.md` §4 (audit) e 
 8. **Testo minimo 12 px** (etichette secondarie e `.tasto-resto`).
 9. **La scena conosce l'ora**: prop `momento` ('alba'|'giorno'|'crepuscolo'|'notte') calcolata dall'ora locale (fasce in `config/sonno.ts`), che sovrascrive le `--sc-*`; il tema utente resta prioritario se è forzato.
 10. **Accessori visibili dove i personaggi sono grandi**: Ingresso, Vittoria, capitoli (già T5), Giardino.
+11. **Gesto indietro di Android**: oggi chiude la PWA. `pushState`/`popstate` per schermate e overlay (studio-ux §5 punto 4): indietro chiude il foglio o torna alla Home, mai fuori dall'app.
+12. (opzionale, tocca il contratto di rete `src/net/types.ts`, decisione della lead) campo `leggendo` nella presenza P2P per mostrare "Mati sta leggendo…" in Home.
 
 ## Fuori perimetro
 Suoni; splash iOS; riscrittura del cruscotto; qualunque libreria.

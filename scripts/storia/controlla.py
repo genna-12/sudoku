@@ -42,7 +42,7 @@ NERA = [
 ]
 
 RE_TITOLO = re.compile(r"^## (\d+) · ([a-z]+) · (.+)$")
-RE_META = re.compile(r"^@(vestiti|entra|elemento|eco):\s*(.*)$")
+RE_META = re.compile(r"^@(vestiti|entra|elemento|eco|fondale):\s*(.*)$")
 RE_BATTUTA = re.compile(r"^- ([a-z]+)(?: \(([a-z]+)\))?: (.*)$")
 
 
@@ -57,7 +57,7 @@ def parse(testo):
         m = RE_TITOLO.match(riga)
         if m:
             cap = {"fiore": int(m.group(1)), "luogo": m.group(2), "titolo": m.group(3).strip(),
-                   "vestiti": {}, "entra": None, "elemento": None, "eco": None, "battute": [], "_riga": n}
+                   "vestiti": {}, "entra": None, "elemento": None, "fondale": None, "eco": None, "battute": [], "_riga": n}
             capitoli.append(cap)
             continue
         if riga.startswith("#"):
@@ -81,6 +81,8 @@ def parse(testo):
                 cap["entra"] = v or None
             elif k == "elemento":
                 cap["elemento"] = v or None
+            elif k == "fondale":
+                cap["fondale"] = v or None
             elif k == "eco":
                 if v:
                     if ":" not in v:

@@ -18,10 +18,11 @@ Vite + React 19 + TypeScript, CSS puro, nessuna libreria UI. Tempo reale P2P con
 GitHub Pages dal repo `genna-12/sudoku`, workflow `.github/workflows/deploy.yml` a ogni push su `main`. Sito: https://genna-12.github.io/sudoku/
 
 ## Regole del progetto
-- Semplicità prima di tutto: niente router, store, librerie di animazione, ADR o storico. Decisioni in questo file.
-- Fatti sui personaggi (vincolanti): Semino = mare, surf, palla in acqua, PC/nerd, cucina, chitarra, notte; NON ama la montagna. Semina = montagna, cavallo, natura, animali, alba, euforica, ogni tanto arrabbiata; il mare le piace solo con Semino. A entrambi piace dormire.
-- Prima di 5 fiori Semina non esiste (sorpresa): niente nomi, niente mascotte, profili "Verde"/"Blu".
-- Tutto ciò che si sblocca deriva dal numero di fiori e dalla data: aggiungere tappe/sblocchi non richiede migrazioni; le chiavi delle tappe viste sono stabili (`chi-partite`).
+- Semplicità prima di tutto: niente router, store, librerie di animazione. Decisioni piccole in questo file; decisioni grosse in `docs/storico/adr/` (indice in `docs/storico/adr/README.md`); visione e glossario in `docs/progettazione/BUSSOLA.md` (si legge all'avvio).
+- Storia: `docs/storia/` (bibbia, guida ai dialoghi, scaletta, `capitoli.md` = fonte unica dei testi). I testi si cambiano lì e si rigenera `src/config/capitoli.json` con `python3 -I scripts/storia/controlla.py docs/storia/capitoli.md --json src/config/capitoli.json`. Mai testi di storia nel codice.
+- Fatti sui personaggi (vincolanti): Semino = mare, surf, palla in acqua, PC/nerd, cucina, chitarra, notte; NON ama la montagna (può piacergli una cosa precisa; si veste da montagna solo a modo suo, `zaino-storto`). Semina = montagna, cavallo, natura, animali, alba, euforica, ogni tanto arrabbiata; il mare le piace solo con Semino. A entrambi piace dormire. Nessun personaggio dice mai il tema della storia (guida-dialoghi).
+- Prima di 5 fiori Semina non esiste (sorpresa): niente nomi, niente mascotte, niente eco o vestiti, profili "Verde"/"Blu".
+- Tutto ciò che si sblocca deriva dal numero di fiori, dai capitoli visti (per giocatore: ruolo a/b) e dalla data: aggiungere capitoli non richiede migrazioni; le chiavi dei capitoli visti sono stabili (`capitolo-N`).
 - Livelli in ordine: semini, facile, medio, difficile, extreme, supersemini.
 - Si lavora su `main` (progetto personale). Push solo con tsc, test ed E2E verdi.
 - TURN: credenziali temporanee di Cloudflare Realtime via Worker `GET /ice` (secrets nel Worker); i server statici in src/config/ice.ts sono solo riserva.
@@ -33,5 +34,9 @@ GitHub Pages dal repo `genna-12/sudoku`, workflow `.github/workflows/deploy.yml`
 - 03/11 Palette "petrolio" (studio colori); verde fluo e blu elettrico solo nei dettagli.
 - 03/11 Backend minimo accettato da Genna per la memoria che segue la frase: Worker + KV gratuiti (nessuna sospensione per inattività), una chiave per coppia = sha256(frase). Il P2P resta per il tempo reale.
 - 03/11 Al riavvio si parte sempre dalla Home ("Continua"), mai dentro la partita.
+- 04/11 Storia a capitoli in primo piano dopo ogni partita, visti per giocatore; viaggio per luoghi con secondari; vestiti dai luoghi visitati; capitoli.md fonte unica; materiale personale fuori dal repo (pubblico). ADR 001-005.
+
+## Strumenti
+Nessun connettore: Cloudflare si gestisce con wrangler dal PC di Genna (il connettore Cloudflare del Project è di un cliente, non usarlo); GitHub via git dalla sessione. Il browser integrato della chat occupa un posto nella stanza P2P: chiuderlo prima delle prove.
 
 Segnalazioni sul metodo: docs/segnalazioni-metodo.md (skill workflow-progetti)

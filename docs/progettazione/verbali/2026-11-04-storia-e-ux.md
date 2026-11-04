@@ -28,5 +28,32 @@ Chat: PROG · Sudoku · storia e UX · 04/11 (Fable). Scritto durante la discuss
 ## Domande poste a Genna
 Lunghezza (partite per serata, serate a settimana); quanto "vera" deve essere la storia e temi vietati; 3-5 difficoltà reali da affrontare; personaggi secondari ispirati a persone/animali veri o inventati; tono delle frasi esistenti da tenere o no.
 
-## Alternative e obiezioni (si aggiorna durante la sessione)
-- (vuoto)
+## Risposte di Genna (04/11 04:31, testuali dove non personali)
+- Conferma le due interpretazioni ("Perfette entrambe") e aggiunge: "i personaggi secondari lasciano in qualche modo degli insegnamenti ma [...] non esplicitano le cose bensì noi leggiamo le loro conversazioni e li vediamo magari mentre si fanno dei regali o determinati gesti e capiamo cosa è andato storto e come hanno risolto".
+- Sul perché non esplicitare: "per non farlo sembrare banale e soprattutto per evitare l'ai slop nella storia perché voi ai tendere a rendere gli scambi banali e le storie che dichiarano tutto nero su bianco perdendo di emozione".
+- "potresti fare uno studio anche sulla scrittura e sulle difficoltà e lezioni di coppia che si dovrebbero insegnare/imparare".
+- Lunghezza: "inizia con 100 livelli poi vedremo".
+- Riconoscibilità: "si vorrei che si riconoscesse ma non ho modo di darti delle situazioni precise".
+- Difficoltà: quattro, elencate da Genna in forma personale; nel repo restano in forma neutra (bibbia §6): vicinanza e spazio; sentirsi al secondo posto; dire come si sta; strade diverse (musica/sport vs ricerca anche all'estero), con la volontà di un compromesso. Il testo originale è nel Project Claude, documento `claude/storia-materiale-riservato.md` (ADR 005: il repo è pubblico).
+- Secondari: "non ho nessuno in mente puoi inventare". Frasi esistenti: "va bene" (si tiene lo spirito).
+- Mandato: "vorrei facessi tutto in autonomia così domani è finito per l'implementazione adotta l'ufficio di subagenti dedicato ma ho bisogno che presti la massima attenzione e cura nei dettagli della storia e delle conversazioni".
+
+## Decisioni prese in autonomia (da confermare al risveglio)
+1. Capitolo prima della carta di vittoria; visti per ruolo; arretrati in coda; nessun "salta tutto"; diario (ADR 001).
+2. Otto atti, sette luoghi, sette secondari (più il Mulo per lettera); ordine dei temi dalla ricerca (ADR 002). La scaletta dei 101 capitoli l'ha scritta la chat; i dialoghi li hanno scritti scrittori Opus a lotti sulla scaletta, con revisione separata; i capitoli 0-6, 18, 19, 33, 61, 100 sono della chat.
+3. Vestiti per luogo, derivati dai capitoli visti; Semino con `zaino-storto` (cambia la regola "Semino mai da montagna" dei test: ADR 003).
+4. capitoli.md come fonte unica con script di controllo (ADR 004).
+5. Le parole personali fuori dal repo (ADR 005).
+6. Rimosso dal CLAUDE.md il "niente ADR o storico": con una decisione di questa portata serve lo storico (conflitto tra la regola del progetto e la skill, annotato in segnalazioni).
+
+## Alternative scartate
+- Storia come diario in prima persona (com'è oggi): racconta invece di mostrare; sostituita da scene al presente.
+- Un cattivo o un antagonista: Genna non lo vuole; gli attriti bastano.
+- Skin come menù o come premi a soglie di fiori: contro la richiesta; i vestiti derivano dai luoghi.
+- Capitolo dopo la carta di vittoria: "Nuova partita" lo salterebbe.
+- Visti per coppia (come oggi): uno dei due perde le scene.
+
+## Obiezioni aperte
+- Gli arretrati possono essere lunghi per chi ha già molti fiori (migrazione): accettato, con bottone in Home per leggerli quando si vuole.
+- La ricerca sulle coppie ha fonti solide solo in parte ([C] da riverificare prima di citarle fuori dal progetto).
+- Le stime in righe dei fondali e dei secondari sono della chat UX: da verificare al primo lotto di T5.

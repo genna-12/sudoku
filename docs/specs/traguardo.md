@@ -26,6 +26,7 @@ export interface Capitolo {
   fiore: number; luogo: Luogo; titolo: string;
   vestiti: Partial<Record<'semino'|'semina', string>>;   // id di accessorio/vestito (T6 ne aggiunge 8)
   entra?: Secondario; elemento?: string;                  // elemento: ricordo del giardino (T6)
+  fondale?: string;                                       // variante del fondale (es. 'laboratorio'); default = luogo
   eco: { chi: 'semino'|'semina'; testo: string };
   battute: BattutaCapitolo[];
 }
@@ -54,8 +55,9 @@ Il JSON è la sola fonte: non ricopiare testi a mano. Un test verifica: 101 capi
 - "Ricomincia da zero": azzera `capitoliVisti` di entrambi e `ecoViste`.
 
 ## Flusso dopo una vittoria (App.tsx)
-1. `effetti.vittoria` (ogni dispositivo che riceve `finitaOra`): `coda = codaCapitoli(fiori, vistiDi(ruolo))`. Se vuota → carta di vittoria come oggi.
-2. Se piena → `CapitoloScena` a tutto schermo sopra la partita, PRIMA della carta di vittoria (motivo: la storia è il premio, la carta è lo scontrino; e i due finiscono nello stesso istante su due telefoni: ognuno legge al suo ritmo). Indicatore "N di M" se `coda.length > 1`. Alla fine di ogni capitolo "Continua" → `segnaVisto` → capitolo successivo o carta di vittoria.
+0. Capitolo 0: non ha una partita finita. Si mostra alla prima entrata in Home dopo l'ingresso (coda non vuota con fiori = 0), come gli altri arretrati.
+1. `effetti.vittoria` (ogni dispositivo che riceve `finitaOra`): festa sulla griglia ~900 ms (reazione e lampo come oggi), poi `coda = codaCapitoli(fiori, vistiDi(ruolo))`. Se vuota → carta di vittoria come oggi.
+2. Se piena → `CapitoloScena` a tutto schermo sopra la partita, PRIMA della carta di vittoria (motivo: la storia è il premio, la carta è lo scontrino; e i due finiscono nello stesso istante su due telefoni: ognuno legge al suo ritmo). Indicatore "N di M" se `coda.length > 1`. Con 4 o più arretrati, prima del primo un foglio "Hai N capitoli da leggere. Li leggi adesso?" con "Adesso" / "Dopo": "Dopo" lascia tutto non visto, va alla carta di vittoria, e la coda torna in Home e alla vittoria successiva (sempre in ordine). Alla fine di ogni capitolo "Continua" → `segnaVisto` → capitolo successivo o carta di vittoria. La carta legge un riassunto salvato alla fine della partita (`riassuntoVittoria`: tempo, punti, bonus), così resta giusta anche se il partner ha già iniziato una partita nuova; in quel caso il bottone diventa "Vai" verso la nuova partita.
 3. La carta di vittoria perde il blocco `sorpresa`; "Nuova partita" resta.
 4. Capitolo 5: dentro `CapitoloScena`, con il comportamento attuale di `ScenaSblocco` (buio, fruscio, Semina che sbuca alla sua prima battuta, i colori che si accendono alla nota `narra` "Il verde è Semino..."): tenere l'animazione e i testid attuali (`scena-sblocco`, `scena-andiamo` → possono restare come alias di `capitolo-scena`, `capitolo-continua`).
 5. In Home, se `codaCapitoli` non è vuota (es. il partner ha giocato da solo, o un dispositivo nuovo): bottone "1 capitolo da leggere" / "N capitoli da leggere" sopra "Continua"; apre la stessa `CapitoloScena`. Il fumetto-tappa di oggi sparisce.
@@ -63,7 +65,9 @@ Il JSON è la sola fonte: non ricopiare testi a mano. Un test verifica: 101 capi
 
 ## Schermata del capitolo (`src/ui/CapitoloScena.tsx`, CSS proprio)
 - Props: `capitolo`, `indice/totale`, `sbloccata`, `onContinua`, `rilettura?: boolean`.
-- Fondale per `luogo` (7, semplici: cielo + 2-3 sagome, variabili `--sc-*` della palette; vedi studio-ux §2). Nessuna libreria.
+- Fondale per `luogo` (7, semplici: cielo + 2-3 sagome, variabili `--sc-*` della palette; vedi studio-ux §2); per aiuola/giardino si riusa la `Scena` della Home con gli elementi sbloccati; il campo opzionale `fondale` del capitolo (es. `laboratorio` per il luogo lontano) sceglie una variante. Nessuna libreria.
+- Avanzamento protetto: per 300 ms dopo ogni battuta i tocchi sono ignorati; all'ultima battuta il tocco non fa niente e compare "Continua" dopo 400 ms (una raffica di tocchi non salta nulla). Indietro con un bottone vero "‹".
+- `narra` = didascalia nel cielo, senza fumetto. I secondari hanno un posto fisso nel fondale, entrano alla loro prima battuta, fumetto crema con il nome sopra; verde e blu restano solo ai due. `mulo` = un foglio che si riempie una riga per tocco.
 - In scena: Semino e Semina (componente `Semino` esistente, `taglia` grande, `umore` della battuta corrente, `parla` mentre la battuta è sua, `accessorio` = `vestiti[chi]` se esiste nei vestiti disegnati, altrimenti nessuno). Semina compare solo se `sbloccata` o dal capitolo 5 in poi (nel 5 sbuca alla sua prima battuta). Il secondario del capitolo (se parla o se `entra`) compare in piccolo, dal lato; i 7 secondari sono SVG semplici in `src/ui/Secondari.tsx` (~40-80 righe ciascuno, due stati: fermo/parla). `narra` = didascalia in corsivo in basso, senza personaggio. `mulo` = una lettera (foglio di carta con il testo).
 - Avanzamento: un tocco ovunque = battuta successiva; bottone invisibile a tutto schermo per l'accessibilità (tastiera: Invio/Spazio avanti, Backspace indietro); tocco sull'angolo in alto a sinistra "◂" = battuta precedente; nessun auto-avanzamento; nessun "salta tutto" (decisione: niente deve perdersi; per rileggere c'è il diario). Alla fine: bottone "Continua" vero (focus su di lui).
 - Testi: ≤ 110 caratteri, fumetto a 2-3 righe, niente `line-clamp`. Dimensione minima 16 px.
