@@ -1,33 +1,33 @@
-# Handoff (04/11/2026, notte)
+# Handoff (04/11/2026, sera)
 
 ## Stato
-Progettazione chiusa (chat PROG · Sudoku · storia e UX · 04/11, Fable): storia nuova in 101 capitoli (`docs/storia/`), bibbia, guida ai dialoghi, scaletta, `src/config/capitoli.json` generato; specifiche T5 (`docs/specs/traguardo.md`), T6, T7; studio UX (`docs/design/studio-ux.md`); ADR 001-005 e ricerche in `docs/storico/`; BUSSOLA in `docs/progettazione/`. Codice applicativo invariato dal 25078f4 (T1-T3 deployati, 245 test, E2E verdi). Branch `main`, tutto pushato.
+T5 (storia a capitoli), T6 (vestiti per luogo, ricordi) e T7 punti 1-5, 8, 11 (usabilità) implementati, validati da agenti separati e DEPLOYATI su https://genna-12.github.io/sudoku/ (branch `main`). 421 test unitari, 5 E2E (due-client, personale, tre-dispositivi, arrivo-semina, capitoli-di-fila) verdi. Storia: 101 capitoli in `docs/storia/capitoli.md` (fonte unica, JSON in `src/config/capitoli.json`), rivisti dopo le note dei revisori e un passaggio di naturalezza. Report per Genna: `docs/REPORT-04-11-sera.md`.
 
 ## Prossimo passo
-T5 — la storia a capitoli, da `docs/specs/traguardo.md`, nell'ordine: (1) dati, regole, archivio v2, sync con test; (2) `CapitoloScena`, fondali, flusso dopo la vittoria; (3) secondari, diario, eco, due E2E nuovi. Prima di iniziare: leggere BUSSOLA.md e rispondere alle domande di `docs/progettazione/PASSAGGIO.md`.
+T8 collaudo reale della storia: Genna e Mati dal telefono (vedi "Da Genna"). Poi correzioni e i punti T7 rimasti (ROADMAP): accessibilità della griglia, menù unico, scena che conosce l'ora, accessori nelle schermate grandi.
 
 ## In sospeso
-- Genna deve approvare la BUSSOLA e leggere i capitoli (almeno 0-27) prima che la lead li metta in gioco; correzioni in `capitoli.md` + rigenerare il JSON.
-- T4 collaudo reale (4G, iPhone) non fatto: va in parallelo; i bug di rete hanno la precedenza.
+- Archivio v2: al primo avvio dopo l'aggiornamento ognuno trova gli arretrati (capitoli 0..fiori) da leggere dalla Home o dopo la prima vittoria; il giardino può restringersi finché non li legge (voluto, spec T5/T6).
+- Scostamenti minori accettati: rotazione vestiti 0,75 stesso luogo / 90 s; stessa frase dello stesso mittente entro 120 s = una voce nella posta; il foglio "Adesso/Dopo" solo dopo una vittoria.
+- Studio-ux extra non fatti: testate per atto nel diario, "il prossimo capitolo arriva col fiore N", "Capitolo N · rileggi" nel dettaglio del fiore, firma dell'eco toccabile, `leggendo` nella presenza.
 
 ## Da Genna
-1. Leggere `docs/storia/bibbia.md` e `capitoli.md`; dire cosa suona falso o troppo spiegato (numero di capitolo).
-2. Ok alla BUSSOLA (docs/progettazione/BUSSOLA.md) e ai 5 ADR.
-3. Sul PC: `git pull` in C:\dev\sudoku. La cartella `C:\dev\_tools` non era collegata alla sessione: nessun uso di coda/esecutore; i push sono partiti dal cloud.
-4. Prova reale PC=Genna, telefono=Mati (dal HANDOFF precedente), quando possibile.
-5. Quanti fiori avete oggi sui due telefoni e chi ha già visto la scena di Semina: serve alla lead per la migrazione e per sapere quanti arretrati vi troverete.
+1. Telefono: aggiornare la PWA su entrambi (banner "Aggiorna"); leggere gli arretrati; verificare che Mati veda il capitolo 5 sul suo telefono anche se tu l'hai già letto; "Dopo" e chiusura a metà capitolo; diario; eco in Home; cassetta della posta (dal fiore 12) con le frasi di ieri; vestiti in Home dopo il capitolo 15 (mare).
+2. Android: gesto indietro (foglio → Home → resta nell'app); iOS: `inert` e `100dvh` nel lettore, pushState in PWA.
+3. Leggere i capitoli in gioco e segnare i numeri di quelli che suonano falsi: si correggono in `capitoli.md` + rigenera JSON (`python3 -I scripts/storia/controlla.py docs/storia/capitoli.md --json src/config/capitoli.json`).
+4. Ok alla BUSSOLA (`docs/progettazione/BUSSOLA.md`) e ai 5 ADR.
+5. Sul PC: `git pull` in C:\dev\sudoku; `C:\dev\_tools` non era collegata: push dal cloud.
 
 ## Attenzione
-- Il repo è PUBBLICO: niente parole personali nei file (ADR 005); il materiale sta nel Project Claude (`claude/storia-materiale-riservato.md`).
-- Il Worker NON unisce: fa PUT, l'unione è nel client (`sync.ts`); `payloadDa` oggi butta i campi sconosciuti (spec T5 "Archivio e sync" dice come cambiarlo).
-- `tappeViste` era unito per coppia: non ripetere l'errore con `capitoliVisti` (per ruolo, per era).
-- Lo script `scripts/storia/controlla.py` non scrive il JSON se ci sono errori; i testi si cambiano solo in `capitoli.md`.
-- Semina mai prima del fiore 5: vale anche per eco, vestiti e diario (rilettura dei capitoli 0-4 senza di lei).
-- Il connettore Cloudflare del Project è di un cliente: mai usarlo. Il browser integrato della chat occupa un posto nella stanza P2P.
-- `Semino.tsx` e `Scena.tsx` sono grandi: modifiche con agente dedicato e screenshot.
-- Fonti [C] della ricerca sulle coppie non riaperte: non citarle fuori dal progetto senza verifica.
+- Il repo è PUBBLICO: niente parole personali nei file (ADR 005); il materiale sta nel Project Claude.
+- Visti per ruolo e per era; `payloadDa` conserva i campi sconosciuti; il client non scrive se `versioneDati` remota è più alta. Non reintrodurre unioni per coppia.
+- Gli E2E sul dev server chiamano il Worker vero (nel cloud è bloccato dal proxy; sul PC scriverebbe sul KV con frasi di prova): da sistemare con `VITE_SYNC_URL` vuota (Riserva).
+- Non far girare E2E mentre altri agenti toccano `src/` (HMR di vite fa fallire i test a caso).
+- Semina mai prima del capitolo 5: elementi, blu, petali, vestiti, eco, chiacchiere di luogo derivano dai capitoli letti, non dai fiori.
+- `Semino.tsx`, `Scena.tsx`, `CapitoloScena.tsx` grandi: agente dedicato e screenshot (390×844 e 360×640).
+- Il browser integrato della chat occupa un posto nella stanza P2P; il connettore Cloudflare del Project è di un cliente.
 
 ## Chat
-- Questa: PROG · Sudoku · storia e UX · 04/11 (chiusa).
-- Da aprire: LEAD · Sudoku · T5 capitoli · gg/mm (Opus), con "riprendi".
+- Questa: PROG · Sudoku · storia e UX · 04/11 (chiusa; ha fatto anche da lead per T5-T7 su richiesta di Genna).
+- Da aprire: LEAD · Sudoku · T8 collaudo · gg/mm (Opus), con "riprendi".
 - Altre attive: nessuna. La LEAD · Sudoku · MVP · 03/11 si può eliminare.

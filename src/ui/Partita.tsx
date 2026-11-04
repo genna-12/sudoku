@@ -16,6 +16,7 @@ import { accessorioValido } from './useMascotte';
 import type { Indossati, Mascotte } from './useMascotte';
 import type { ChiParla } from '../config/frasi';
 import { altro, sguardo, tempo, testoConnessione } from './util';
+import { delPartner } from './Toasts';
 import type { Battuta, Tono } from './Toasts';
 
 interface Props {
@@ -33,6 +34,9 @@ interface Props {
   chiacchiera: Chiacchiera | null;
   /** reazioni, frasi del partner e avvisi della partita (escono dal fumetto, mai sopra la griglia) */
   battuta: Battuta | null;
+  /** fumetto fermato dal tocco: le battute si accodano; `onRiprendi(chiusa)` riparte chiudendo quella toccata */
+  onFerma?: () => void;
+  onRiprendi?: (chiusa?: number) => void;
   solletico: Chiacchiera | null;
   onSolletico: (chi: ChiParla) => void;
   /** regalo: Semino riempie la cella; false se non si può */
@@ -181,23 +185,25 @@ export function Partita(p: Props) {
         p.battuta,
         p.chiacchiera && { ...p.chiacchiera, voce: true },
       ]);
-  // tocco sul fumetto: la prima volta resta aperto (e si può scorrere), la seconda si chiude
+  // tocco sul fumetto: la prima volta resta aperto (e si può scorrere) finché non lo si tocca di nuovo;
+  // intanto le battute si accodano (useBattute.ferma), solo una frase del partner lo sostituisce
   const [fermo, setFermo] = useState<Detto | null>(null);
   const [chiuso, setChiuso] = useState<number | null>(null);
-  if (fermo && detto && detto.id > fermo.id) setFermo(null);
-  const mostrato: Detto | null = regaloAttivo
-    ? detto
-    : fermo && (!detto || detto.id <= fermo.id)
-      ? fermo
-      : detto && detto.id !== chiuso
-        ? detto
-        : null;
+  if (fermo && detto && detto.id > fermo.id && delPartner(detto)) setFermo(null);
+  const mostrato: Detto | null = regaloAttivo ? detto : fermo ? fermo : detto && detto.id !== chiuso ? detto : null;
+  const { onFerma, onRiprendi } = p;
+  // uscendo dalla partita col fumetto fermato, le battute ripartono
+  useEffect(() => () => onRiprendi?.(), [onRiprendi]);
   function toccaFumetto(d: Detto) {
     if (d.id < 0) return;
     if (fermo?.id === d.id) {
       setFermo(null);
       setChiuso(d.id);
-    } else setFermo(d);
+      onRiprendi?.(d.id);
+    } else {
+      setFermo(d);
+      onFerma?.();
+    }
   }
   const desktop = useDesktop();
   const guarda = sel === null ? null : { r: Math.floor(sel / 9), c: sel % 9 };

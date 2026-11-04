@@ -87,7 +87,7 @@ export function Giardino(p: Props) {
             vuoto ? null : (
               <g data-testid="giardino-mascotte">
                 {chi.map((c) => {
-                  const x = chi.length > 1 ? (c === 'semino' ? -32 : 30) : -6;
+                  const x = chi.length > 1 ? (c === 'semino' ? -40 : 14) : -6;
                   return (
                     <g key={c} transform={`translate(${x - TAGLIA_PRATO / 2} ${-TAGLIA_PRATO})`}>
                       <Semino

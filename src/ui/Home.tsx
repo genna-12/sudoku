@@ -14,7 +14,7 @@ import { SemiTitolo } from './Icone';
 import type { Tema } from './MenuHome';
 import type { InfoSync } from './useSync';
 import type { GiardinoVisibile } from './capitoli';
-import { aCasoDiverso, vestitiIniziali, vestitiRiposo } from './regole';
+import { aCasoDiverso, primaInHome, vestitiIniziali, vestitiRiposo } from './regole';
 import type { VestitiRiposo } from './regole';
 import { ELEMENTI_SCENA, Scena } from './Scena';
 import { Semino, SeminoCoppia, SeminoPianta } from './Semino';
@@ -51,6 +51,8 @@ interface Props {
   visti: readonly string[];
   /** la prima volta che un vestito compare in Home (per giocatore): chiacchiera del suo luogo */
   onVestitoNuovo?: (chi: ChiParla, id: string) => void;
+  /** l'eco di un capitolo sta per essere detta: il vestito nuovo aspetta (studio-ux §4) */
+  ecoInArrivo?: boolean;
   /** capitoli in coda da leggere (0 = niente bottone) */
   daLeggere: number;
   onLeggi: () => void;
@@ -102,6 +104,7 @@ export function Home(p: Props) {
         bluPresenza={p.giardino.bluPresenza}
         altezza={220}
         sfuma
+        titolo
         nuovi={inEvidenza(p)}
       />
       {/* la cassetta della scena si tocca: un bottone trasparente sopra di lei (la scena sta sotto
@@ -240,6 +243,8 @@ export function Home(p: Props) {
 const RIPOSO_MS = 90000;
 /** vestiti già comparsi in Home su questo dispositivo, per giocatore (`chi:id`) */
 const CHIAVE_VESTITI_VISTI = 'sudoku-vestiti-visti';
+/** pausa fra il fumetto che si chiude (o l'entrata) e la battuta del vestito nuovo */
+const PAUSA_VESTITO_MS = 1200;
 
 /** Elemento della scena da far entrare di nuovo: quello del giorno speciale. */
 function inEvidenza(p: Pick<Props, 'giorno' | 'giardino'>): string[] | undefined {
@@ -263,6 +268,7 @@ function useAccessoriRiposo(
   giorno: GiornoSpeciale | null,
   ruolo: Giocatore,
   onNuovo?: (chi: ChiParla, id: string) => void,
+  ecoInArrivo = false,
 ): Indossati {
   const [indossati, setIndossati] = useState<VestitiRiposo>(() => vestitiIniziali({ visti, sbloccata, giorno }));
   // il ritmo non riparte a ogni fumetto (le chiacchiere arrivano più spesso di 90 s): se allo
@@ -290,19 +296,23 @@ function useAccessoriRiposo(
     prossimo(RIPOSO_MS * (0.9 + Math.random() * 0.2));
     return () => window.clearTimeout(t);
   }, []);
-  // vestito mai comparso in Home per questo giocatore: si segna e, se nessun fumetto è aperto, una chiacchiera
+  // vestito mai comparso in Home per questo giocatore: prima l'eco, poi (a fumetti chiusi) la sua
+  // chiacchiera; si segna "visto" solo quando la battuta esce
   useEffect(() => {
     const chiave = `${CHIAVE_VESTITI_VISTI}-${ruolo}`;
     const salvati = leggi<unknown>(chiave);
     const giaVisti = new Set(Array.isArray(salvati) ? salvati.filter((x): x is string => typeof x === 'string') : []);
     const chi: ChiParla[] = sbloccata ? ['semino', 'semina'] : ['semino'];
     const nuovi = chi.filter((c) => indossati[c] && !giaVisti.has(`${c}:${indossati[c]}`));
-    if (!nuovi.length) return;
-    for (const c of nuovi) giaVisti.add(`${c}:${indossati[c]}`);
-    scrivi(chiave, [...giaVisti]);
-    const c = aCasoDiverso(nuovi, undefined)!;
-    if (vivo.current.attivo) vivo.current.onNuovo?.(c, indossati[c]!);
-  }, [indossati, sbloccata, ruolo]);
+    if (primaInHome({ eco: ecoInArrivo, vestitoNuovo: nuovi.length > 0, fumettoAperto: !attivo }) !== 'vestito') return;
+    const t = window.setTimeout(() => {
+      const c = aCasoDiverso(nuovi, undefined)!;
+      vivo.current.onNuovo?.(c, indossati[c]!);
+      for (const x of nuovi) giaVisti.add(`${x}:${indossati[x]}`);
+      scrivi(chiave, [...giaVisti]);
+    }, PAUSA_VESTITO_MS);
+    return () => window.clearTimeout(t);
+  }, [indossati, sbloccata, ruolo, attivo, ecoInArrivo]);
   const out: Indossati = { semino: accessorioValido(indossati.semino) };
   if (sbloccata) out.semina = accessorioValido(indossati.semina);
   return out;
@@ -314,7 +324,7 @@ function Eroe(p: Props) {
   const sol = p.solletico;
   const parla: ChiParla = sol ? sol.chi : p.chiacchiera ? p.chiacchiera.chi : 'semino';
   const coppia = p.sbloccata;
-  const riposo = useAccessoriRiposo(!sol && !p.chiacchiera, coppia, p.visti, p.giorno, p.mioRuolo, p.onVestitoNuovo);
+  const riposo = useAccessoriRiposo(!sol && !p.chiacchiera, coppia, p.visti, p.giorno, p.mioRuolo, p.onVestitoNuovo, !!p.ecoInArrivo);
   // l'accessorio della chiacchiera aperta lo indossa chi parla; il solletico non lo toglie
   const indossati: Indossati = { ...riposo };
   if (!sol && p.chiacchiera) {

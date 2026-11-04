@@ -3328,6 +3328,10 @@ input:focus-visible {
 .crescita.cruscotto .battuta.a-destra:not(.battuta-pannello) {
   transform-origin: 100% 100%;
 }
+/* fermato sul telefono: resta di tre righe e scorre, così non copre livello, tempo e "in attesa" */
+.crescita.cruscotto .battuta.fermo:not(.battuta-pannello) .battuta-righe {
+  max-height: calc(3 * 1.25em);
+}
 .regalo {
   flex: none;
 }
@@ -3521,7 +3525,7 @@ input:focus-visible {
 }
 .posta-lista {
   margin: 4px 0 12px;
-  padding: 0 2px;
+  padding: 0 2px 4px;
   list-style: none;
   display: flex;
   flex-direction: column;
@@ -3529,7 +3533,20 @@ input:focus-visible {
   overflow-y: auto;
   overscroll-behavior: contain;
 }
+/* sfumatura in basso finché c'è altro da scorrere; in fondo alla lista diventa spazio vuoto, così
+   l'ultima frase non resta attaccata al bordo */
+.posta-lista::after {
+  content: '';
+  flex: none;
+  position: sticky;
+  bottom: -4px;
+  height: 36px;
+  margin-top: -16px;
+  background: linear-gradient(color-mix(in srgb, var(--carta-2) 0%, transparent), color-mix(in srgb, var(--carta-2) 92%, transparent) 90%);
+  pointer-events: none;
+}
 .posta-voce {
+  flex: none;
   display: flex;
   flex-direction: column;
   gap: 3px;

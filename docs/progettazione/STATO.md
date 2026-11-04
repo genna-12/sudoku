@@ -10,8 +10,11 @@
 - Rischi segnalati dai revisori: atto 8 molto affettuoso (parata di ritorni, poco attrito); capitoli 43 e 45 tiepidi; 91 e 93 sono elenchi; la gag del contare va dosata (20-24). Da valutare dopo la lettura di Genna e Mati in gioco, non prima.
 - T4 (collaudo reale sul 4G) non ancora fatto.
 
+## Aggiornamento sera
+Su richiesta di Genna la chat ha fatto anche da lead: T5, T6 e T7 (punti 1-5, 8, 11) implementati, validati e deployati il 04/11. Storia corretta sui capitoli segnalati e resa più parlata. Vedi HANDOFF.md e docs/REPORT-04-11-sera.md.
+
 ## Prossimo passo
-Chat lead Opus: "riprendi" → T5 dalla spec, nell'ordine dati+regole+archivio+sync, schermata+fondali+flusso, secondari+diario+eco+E2E.
+Chat lead Opus: "riprendi" → T8 collaudo reale, poi i punti T7 rimasti.
 
 ## Chat
 Questa: PROG · Sudoku · storia e UX · 04/11 (chiusa).

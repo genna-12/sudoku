@@ -450,6 +450,44 @@ export function accessorioDi(chi: ChiParla, testo: string): string | undefined {
   return undefined;
 }
 
+/**
+ * Il luogo a cui appartiene una chiacchiera (anche arrivata dal partner, già sostituita): quelle dei
+ * luoghi del viaggio e dei giorni speciali (mare, montagna); `undefined` per tutte le altre.
+ */
+export function luogoDellaChiacchiera(chi: ChiParla, testo: string): Luogo | undefined {
+  const fonti: Array<[Luogo, readonly FraseConAccessorio[]]> = [
+    ...(Object.entries(CHIACCHIERE_LUOGO) as Array<[Luogo, Record<ChiParla, FraseConAccessorio[]>]>).map(
+      ([l, x]) => [l, x[chi] ?? []] as [Luogo, readonly FraseConAccessorio[]],
+    ),
+    ...(Object.entries(GIORNI_SPECIALI) as Array<[GiornoSpeciale, (typeof GIORNI_SPECIALI)[GiornoSpeciale]]>).map(
+      ([g, x]) => [g, x.chiacchiere[chi] ?? []] as [Luogo, readonly FraseConAccessorio[]],
+    ),
+  ];
+  for (const [l, lista] of fonti)
+    for (const f of lista) {
+      const t = testoDi(f);
+      if (t === testo || modello(t).test(testo)) return l;
+    }
+  return undefined;
+}
+
+/** Una chiacchiera si mostra qui solo se il suo luogo (se ne ha uno) è già visitato da chi tiene il telefono. */
+export function chiacchieraPermessa(chi: ChiParla, testo: string, luoghi: readonly Luogo[]): boolean {
+  const l = luogoDellaChiacchiera(chi, testo);
+  return !l || luoghi.includes(l);
+}
+
+/**
+ * Entrando in Home: cosa dire per primo fra l'eco dell'ultimo capitolo e la battuta di un vestito mai
+ * visto. Prima l'eco; il vestito aspetta la chiacchiera successiva (e si segna "visto" solo quando la
+ * sua battuta esce). `fumettoAperto`: qualcosa è già a schermo, si aspetta.
+ */
+export function primaInHome(o: { eco: boolean; vestitoNuovo: boolean; fumettoAperto: boolean }): 'eco' | 'vestito' | null {
+  if (o.eco) return 'eco';
+  if (o.fumettoAperto) return null;
+  return o.vestitoNuovo ? 'vestito' : null;
+}
+
 // --- vestiti (dai luoghi visitati, config/luoghi.ts) -------------------------------------
 
 /** Gli accessori della lista già arrivati con questi capitoli visti (luogo visitato; animale e cavallo col loro capitolo). */

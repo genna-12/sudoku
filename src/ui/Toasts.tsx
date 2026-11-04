@@ -135,57 +135,124 @@ export interface Battuta {
   firma?: string;
 }
 
-/** una battuta resta almeno così prima che la successiva la sostituisca */
+/** un commento automatico resta almeno così prima che il successivo lo sostituisca */
 const MINIMO_BATTUTA_MS = 1200;
+/** commenti automatici tenuti da parte mentre il fumetto è fermato (gli altri si scartano) */
+const MAX_IN_ATTESA_FERMO = 3;
 let ultimoIdBattuta = 0;
 
+/** la frase mandata dal partner: non si scarta mai e ha la precedenza sui commenti automatici */
+export const delPartner = (b: { categoria?: string }) => b.categoria === 'frase';
+
+interface Voce {
+  b: Battuta;
+  ms: number;
+}
+
+/**
+ * Coda delle battute in partita (studio-ux §5.1). Le frasi del partner non si scartano mai: in attesa
+ * passano davanti a tutto e, a schermo, restano per il loro tempo pieno; i commenti automatici che
+ * arrivano intanto si saltano. Un commento automatico a schermo lascia subito il posto a una frase del
+ * partner; un altro commento lo sostituisce solo dopo 1,2 s (di quelli in attesa vale l'ultimo). `ferma`: il fumetto toccato
+ * resta aperto (timer fermo) e i commenti si accodano (al massimo tre); una frase del partner lo
+ * sostituisce subito. `riprendi(chiusa)`: si riparte, chiudendo subito la battuta `chiusa` se è a schermo.
+ */
 export function useBattute() {
   const [ora, setOra] = useState<Battuta | null>(null);
-  const s = useRef<{ inizio: number; visibile: boolean; attesa: { b: Battuta; ms: number } | null }>({
+  const s = useRef<{ cur: Voce | null; inizio: number; partner: Voce[]; auto: Voce[]; fermo: boolean }>({
+    cur: null,
     inizio: 0,
-    visibile: false,
-    attesa: null,
+    partner: [],
+    auto: [],
+    fermo: false,
   });
   const timer = useRef(0);
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
-  const apri = useCallback(function apri(b: Battuta, ms: number) {
-    s.current.inizio = Date.now();
-    s.current.visibile = true;
-    setOra(b);
-    window.clearTimeout(timer.current);
-    timer.current = window.setTimeout(function chiudi() {
-      const a = s.current.attesa;
-      s.current.attesa = null;
-      if (a) apri(a.b, a.ms);
-      else {
-        s.current.visibile = false;
+  // avanza (passa alla prossima in coda) e programma (quando cambiare): funzioni stabili sui ref
+  const [motore] = useState(() => {
+    function avanza() {
+      const x = s.current;
+      const v = x.partner.shift() ?? x.auto.shift() ?? null;
+      if (!v) {
+        x.cur = null;
         setOra(null);
+        return;
       }
-    }, ms);
-  }, []);
+      x.cur = v;
+      x.inizio = Date.now();
+      setOra(v.b);
+      programma();
+    }
+    /** quando cambia la battuta a schermo: a fine durata, o prima se un commento ha qualcuno in attesa */
+    function programma() {
+      window.clearTimeout(timer.current);
+      const x = s.current;
+      if (!x.cur || x.fermo) return;
+      const limite = !delPartner(x.cur.b) && x.auto.length > 0 ? MINIMO_BATTUTA_MS : x.cur.ms;
+      const resta = x.inizio + limite - Date.now();
+      if (resta <= 0) avanza();
+      else timer.current = window.setTimeout(avanza, resta);
+    }
+    return { avanza, programma };
+  });
+  const { avanza, programma } = motore;
 
   const dici = useCallback(
-    (x: Omit<Battuta, 'id'>, minimo = 0) => {
-      if (!x.testo) return;
+    (y: Omit<Battuta, 'id'>, minimo = 0) => {
+      if (!y.testo) return;
       // quanto serve a leggerla (chi chiama può chiedere di più, mai di meno)
-      const ms = Math.max(minimo, durataBattuta(x.testo));
+      const ms = Math.max(minimo, durataBattuta(y.testo));
       ultimoIdBattuta = Math.max(Date.now(), ultimoIdBattuta + 1);
-      const b = { ...x, id: ultimoIdBattuta };
-      const passato = Date.now() - s.current.inizio;
-      if (s.current.visibile && passato < MINIMO_BATTUTA_MS) {
-        // la precedente ha appena iniziato: questa aspetta il suo turno (e scavalca altre in attesa)
-        s.current.attesa = { b, ms };
-        window.clearTimeout(timer.current);
-        timer.current = window.setTimeout(() => {
-          const a = s.current.attesa;
-          s.current.attesa = null;
-          if (a) apri(a.b, a.ms);
-        }, MINIMO_BATTUTA_MS - passato);
-      } else apri(b, ms);
+      const v: Voce = { b: { ...y, id: ultimoIdBattuta }, ms };
+      const x = s.current;
+      if (delPartner(v.b)) {
+        x.auto = [];
+        if (x.fermo) {
+          // il fumetto fermato lascia il posto alla frase del partner
+          x.fermo = false;
+          x.partner.unshift(v);
+          avanza();
+          return;
+        }
+        x.partner.push(v);
+        // ha la precedenza: un commento automatico a schermo lascia subito il posto
+        if (x.cur && !delPartner(x.cur.b)) {
+          avanza();
+          return;
+        }
+      } else if (x.fermo) {
+        x.auto.push(v);
+        if (x.auto.length > MAX_IN_ATTESA_FERMO) x.auto.shift();
+        return;
+      } else if (x.cur && (delPartner(x.cur.b) || x.partner.length)) {
+        // c'è (o aspetta) una frase del partner: il commento automatico si salta
+        return;
+      } else x.auto = [v];
+      if (!x.cur) avanza();
+      else programma();
     },
-    [apri],
+    [avanza, programma],
   );
 
-  return { battuta: ora, dici };
+  const ferma = useCallback(() => {
+    s.current.fermo = true;
+    window.clearTimeout(timer.current);
+  }, []);
+
+  const riprendi = useCallback(
+    (chiusa?: number) => {
+      const x = s.current;
+      if (!x.fermo) return;
+      x.fermo = false;
+      if (!x.cur || x.cur.b.id === chiusa) avanza();
+      else {
+        x.inizio = Date.now();
+        programma();
+      }
+    },
+    [avanza, programma],
+  );
+
+  return { battuta: ora, dici, ferma, riprendi };
 }

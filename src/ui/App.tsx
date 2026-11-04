@@ -30,6 +30,7 @@ import {
   SOLLETICO_OGNI_MS,
   accessorioDi,
   accessorioPermesso,
+  chiacchieraPermessa,
   bonusVittoria,
   chiacchiera,
   daRimandare,
@@ -173,7 +174,7 @@ export function App() {
   const [postaAperta, setPostaAperta] = useState(false);
   const { ultime, ricorda } = useUltimeFrasi();
   const { attivi, mostra, chiudi: chiudiToast } = useToasts();
-  const { battuta, dici } = useBattute();
+  const { battuta, dici, ferma: fermaBattute, riprendi: riprendiBattute } = useBattute();
   const { mascotte, reagisci, sveglia } = useMascotte();
 
   /** Va a un'altra schermata passando dall'uscita (niente se ci si è già e non si sta uscendo). */
@@ -272,7 +273,9 @@ export function App() {
   function mostraChiacchiera(chi: ChiParla, testo: string, o: { firma?: string; ms?: number; accessorio?: string } = {}) {
     // l'accessorio della frase solo se il suo luogo è visitato e se è del suo carattere (in partita sono separati)
     const v = vivi.current;
-    const accessorio = o.accessorio ?? accessorioPermesso(chi, accessorioDi(chi, testo), v.vistiMiei, { giorno: v.giorno });
+    // una chiacchiera di un luogo che qui non è ancora visitato (es. dal partner più avanti) non si dice
+    if (!chiacchieraPermessa(chi, testo, v.luoghi)) return;
+    const accessorio = o.accessorio ?? accessorioPermesso(chi, accessorioDi(chi, testo), v.vistiMiei, { inCoppia: v.sbloccata, giorno: v.giorno });
     setChiacchieraOra({ id: Date.now(), chi, testo, accessorio, firma: o.firma });
     window.clearTimeout(timerChiacchiera.current);
     timerChiacchiera.current = window.setTimeout(() => setChiacchieraOra(null), o.ms ?? DURATA_CHIACCHIERA_MS);
@@ -662,7 +665,7 @@ export function App() {
           bluPresenza={g.bluPresenza}
           altezza={240}
           intera
-          nuovi={[]}
+          senzaEntrate
         />
       </div>
     );
@@ -921,6 +924,7 @@ export function App() {
           giorno={giorno}
           visti={vistiMiei}
           onVestitoNuovo={vestitoNuovo}
+          ecoInArrivo={!!ecoOra}
           daLeggere={coda.length}
           onLeggi={() => setLettore(apriLettore(fiori, vistiMiei, 'home', archivio.azzerato))}
           chiacchiera={chiacchieraOra}
@@ -982,6 +986,8 @@ export function App() {
           mascotte={mascotte}
           chiacchiera={chiacchieraOra}
           battuta={battuta}
+          onFerma={fermaBattute}
+          onRiprendi={riprendiBattute}
           solletico={solleticoOra}
           onSolletico={onSolletico}
           onSuggerisci={gioco.suggerisci}

@@ -186,7 +186,7 @@ function Cavallino({ x, y }: { x: number; y: number }) {
 /** la casetta: una finestra sul mare (sinistra), una sulla montagna (destra); (x, y) = centro della base */
 function Casetta({ x, y, chitarra, cartina }: { x: number; y: number; chitarra: ReactNode; cartina?: ReactNode }) {
   return (
-    <g transform={`translate(${x} ${y})`}>
+    <g transform={`translate(${x} ${y}) scale(0.82)`}>
       <rect x={14} y={-52} width={6} height={12} className="sc-camino" />
       <rect x={-26} y={-34} width={52} height={34} rx={1.5} className="sc-muro" />
       <path d="M-31 -32 L0 -54 L31 -32Z" className="sc-tetto" />
@@ -234,15 +234,33 @@ function Cassetta({ x, y, locandina }: { x: number; y: number; locandina?: React
 }
 
 /** tavola da surf appoggiata al muretto, con una montagna disegnata sopra; (x, y) = base del muretto */
+/** la tavola da surf da sola (appoggiata, inclinata di `a` gradi) */
+function TavolaSola({ a }: { a: number }) {
+  return (
+    <g transform={`rotate(${a})`}>
+      <path d="M0 -42 C6 -34 6.4 -10 4.8 -2 Q0 1.6 -4.8 -2 C-6.4 -10 -6 -34 0 -42Z" className="sc-tavola" />
+      <path d="M0 -42 C3.2 -38 4.6 -34 5.2 -30 Q0 -28.4 -5.2 -30 C-4.6 -34 -3.2 -38 0 -42Z" className="sc-tavola-punta" />
+      <path d="M-3.6 -12 L-1 -18 L0.6 -15.4 L1.8 -16.8 L3.8 -12Z" className="sc-tavola-monte" />
+      <path d="M0 -27 V-21" className="sc-tavola-anima" />
+    </g>
+  );
+}
+
+/** la tavola appoggiata al muro della casetta (Home sul telefono: il muretto sul mare è sotto il titolo) */
+function Tavola({ x, y }: { x: number; y: number }) {
+  return (
+    <g transform={`translate(${x} ${y}) scale(0.82)`}>
+      <TavolaSola a={9} />
+    </g>
+  );
+}
+
 function TavolaMuretto({ x, y }: { x: number; y: number }) {
   const sassi = [-20, -11, -2, 7, 16];
   return (
     <g transform={`translate(${x} ${y})`}>
-      <g transform="translate(-3 0) rotate(-12)">
-        <path d="M0 -42 C6 -34 6.4 -10 4.8 -2 Q0 1.6 -4.8 -2 C-6.4 -10 -6 -34 0 -42Z" className="sc-tavola" />
-        <path d="M0 -42 C3.2 -38 4.6 -34 5.2 -30 Q0 -28.4 -5.2 -30 C-4.6 -34 -3.2 -38 0 -42Z" className="sc-tavola-punta" />
-        <path d="M-3.6 -12 L-1 -18 L0.6 -15.4 L1.8 -16.8 L3.8 -12Z" className="sc-tavola-monte" />
-        <path d="M0 -27 V-21" className="sc-tavola-anima" />
+      <g transform="translate(-3 0)">
+        <TavolaSola a={-12} />
       </g>
       <path d="M-25 0 V-9 Q-25 -11 -23 -11 H21 Q23 -11 23 -9 V0Z" className="sc-muretto" />
       {sassi.map((sx, i) => (
@@ -378,8 +396,12 @@ interface Props {
   sfuma?: boolean;
   /** intera: sui contenitori stretti si rimpicciolisce invece di tagliare i lati (fondale del lettore) */
   intera?: boolean;
-  /** forza quali elementi animare in entrata (default: quelli mai visti su questo dispositivo) */
+  /** elementi da animare in entrata oltre a quelli mai visti su questo dispositivo (es. quello del giorno speciale) */
   nuovi?: readonly string[];
+  /** nessun elemento entra con l'animazione (fondali del lettore) */
+  senzaEntrate?: boolean;
+  /** in alto a sinistra c'è il titolo (Home): sul telefono la tavola e i razzi stanno alla sua destra */
+  titolo?: boolean;
   /** cose in piedi sul prato (es. le mascotte): origine al centro del prato, y = 0 al suolo (PRATO_Y), unità del viewBox */
   figli?: ReactNode;
   /** tocco sulla cassetta della posta (se c'è): un bersaglio trasparente sopra di lei */
@@ -397,6 +419,8 @@ export function Scena({
   sfuma = false,
   intera = false,
   nuovi: nuoviForzati,
+  senzaEntrate = false,
+  titolo = false,
   figli,
   onCassetta,
   className,
@@ -424,7 +448,7 @@ export function Scena({
   // elementi nuovi: mai visti su questo dispositivo, o comparsi mentre la scena è montata
   const visti = useRef<Set<string> | null>(null);
   if (visti.current === null) visti.current = leggiVisti() ?? new Set(elementi);
-  const nuovi = new Set(nuoviForzati ?? elementi.filter((e) => !visti.current!.has(e)));
+  const nuovi = new Set(senzaEntrate ? [] : [...(nuoviForzati ?? []), ...elementi.filter((e) => !visti.current!.has(e))]);
   const chiave = elementi.join(',');
   useEffect(() => {
     const v = visti.current!;
@@ -508,13 +532,15 @@ export function Scena({
     );
   }
 
+  // la casetta sulla cresta (un po' ridotta: non copre la montagna)
+  const xCas = 112;
   // sentiero di sassi: dalla base, verso la cresta (la porta della casetta)
   const sassi: ReactNode[] = [];
   if (ha.has('sentiero')) {
     const p0 = [34, 226];
     const p1 = [92, 196];
     const p2 = [62, 170];
-    const p3 = [116, yc(116) + 2];
+    const p3 = [xCas, yc(xCas) + 2];
     const n = 15;
     for (let i = 0; i < n; i++) {
       const t = i / (n - 1);
@@ -587,8 +613,12 @@ export function Scena({
   const xStagno = Math.max(-146, sx + 52);
   const xTavola = Math.max(-200, sx + 34);
   const xAlbero = Math.min(196, dx - 28);
-  // i razzi tra la casetta e l'albero; se non c'è spazio, dall'altra parte della casetta
-  const xRazzi = Math.min(164, xAlbero - 30) >= 152 ? Math.min(164, xAlbero - 30) : 78;
+  // sul telefono la Home ha il titolo sopra il mare: la tavola si appoggia alla casetta, fuori dal titolo
+  const sottoTitolo = titolo && W < 460;
+  // i razzi tra la casetta e l'albero; se non c'è spazio, dall'altra parte della casetta (o sotto l'albero)
+  const xRazzi = Math.min(164, xAlbero - 30) >= 152 ? Math.min(164, xAlbero - 30) : sottoTitolo ? xAlbero - 14 : 78;
+  // il cavallino bruca a destra dell'aiuola, fuori dalle mascotte del Giardino e dal titolo della Home
+  const xCavallo = 60;
 
   // la luna (con le stelle) e il suo riflesso nello stagno
   const luna = ha.has('stelle');
@@ -602,7 +632,6 @@ export function Scena({
       </g>
     ) : null;
 
-  const xCas = 116;
   const yAlbero = yc(xAlbero) + 5;
   const p = Math.round(Math.max(0, Math.min(1, bluPresenza || 0)) * 100);
 
@@ -682,8 +711,12 @@ export function Scena({
       </g>
 
       {el('sentiero', <g>{sassi}</g>)}
-      {el('surf', <TavolaMuretto x={f1(xTavola)} y={f1(yc(xTavola) + 6)} />)}
-      {el('sasso', <SassoQuota x={f1(xTavola + 13)} y={f1(yc(xTavola) + 6 - 11)} />)}
+      {sottoTitolo
+        ? el('surf', <Tavola x={xCas - 29} y={f1(yc(xCas - 29) + 4)} />)
+        : el('surf', <TavolaMuretto x={f1(xTavola)} y={f1(yc(xTavola) + 6)} />)}
+      {sottoTitolo
+        ? el('sasso', <SassoQuota x={xCas + 30} y={f1(yc(xCas + 30) + 6)} />)
+        : el('sasso', <SassoQuota x={f1(xTavola + 13)} y={f1(yc(xTavola) + 6 - 11)} />)}
       {el(
         'casetta',
         <Casetta
@@ -697,7 +730,7 @@ export function Scena({
       {el('fuochi', <Razzi x={f1(xRazzi)} y={f1(yc(xRazzi) + 6)} />)}
       {el('lanterna', <LanternaAppesa x={xAlbero - 9} y={f1(yAlbero - 39.6)} />)}
       {el('merlo', <Merlo x={xAlbero - 18} y={f1(yAlbero - 44.6)} />)}
-      {el('cavallino', <Cavallino x={46} y={f1(yc(46) + 22)} />)}
+      {el('cavallino', <Cavallino x={xCavallo} y={f1(yc(xCavallo) + 22)} />)}
 
       {ciuffi}
 

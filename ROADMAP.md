@@ -9,14 +9,13 @@
 ## T4 — Collaudo reale (aperto, in parallelo a T5)
 Genna e Mati giocano dal telefono: connessione 4G, mosse e reazioni identiche, iPhone (note, doppio tocco, vibrazione, esporta/importa). Esiti nella sezione "Da Genna" di HANDOFF. Non bloccare T5 per questo, ma ogni bug di rete trovato ha la precedenza.
 
-## T5 — La storia a capitoli (prossimo) — spec: docs/specs/traguardo.md
-Capitoli in primo piano dopo ogni partita, visti per giocatore, arretrati, eco, diario; `capitoli.json` da `docs/storia/capitoli.md`; schermata del capitolo con 7 fondali e 7 secondari; rimozione di tappe/sorprese/annunci. Stima: 2-3 sessioni (regole+archivio+sync; schermata+fondali; secondari+diario+E2E).
+## T5 — La storia a capitoli — chiuso 04/11 (pomeriggio), deployato; spec docs/specs/traguardo.md; validato (docs/design/img/t5-*.png)
+## T6 — Luoghi visitati, vestiti e ricordi — chiuso 04/11, deployato; spec docs/specs/T6-luoghi-vestiti.md
+## T7 — Dinamicità e usabilità — punti 1-5, 8, 11 chiusi 04/11; spec docs/specs/T7-ux.md
+Restano: 6 accessibilità della griglia (roving tabindex, Esc nei menù), 7 menù unico Home/Partita, 9 scena che conosce l'ora (`momento`), 10 accessori nelle schermate grandi, 12 `leggendo` nella presenza (opzionale). Scostamenti minori accettati: rotazione vestiti 0,75/90 s; posta: stessa frase entro 120 s = una voce.
 
-## T6 — Luoghi visitati, vestiti e ricordi — spec: docs/specs/T6-luoghi-vestiti.md
-8 vestiti nuovi, rotazione in Home per luogo, ricordi del giardino. Stima: 1-2 sessioni (vestiti con agente dedicato e screenshot).
-
-## T7 — Dinamicità e usabilità — spec: docs/specs/T7-ux.md, studio in docs/design/studio-ux.md
-Testi leggibili in partita, transizioni, gesti scoperti, cassetta vera, giardino vivo, accessibilità, menù unico, 12 px, scena che conosce l'ora, gesto indietro Android. Stima: 2 sessioni, a punti indipendenti.
+## T8 — Collaudo reale della storia (prossimo)
+Genna e Mati giocano dal telefono con la versione nuova: arretrati, lettura del capitolo su entrambi, vestiti, posta, gesto indietro Android, iOS PWA. Esiti in HANDOFF "Da Genna"; poi correzioni e i punti T7 rimasti.
 
 ## Dopo (solo se serve)
 - Capitoli oltre il 100 (nuovi atti con lo stesso metodo); "leggi dopo" più fine per gli arretrati.

@@ -9,7 +9,7 @@ Vite + React 19 + TypeScript, CSS puro, nessuna libreria UI. Tempo reale P2P con
 ## Struttura
 - `src/engine/` generatore/risolutore e valutazione mosse (puro TS) · `src/stato/` riduttore, merge, archivio locale versionato · `src/net/` stanze P2P (coppia con posti per profilo, personale) · `src/ui/` React (hook: useArchivio, usePartita, useRete, useMascotte; regole di gioco in `regole.ts`; storia: regole dei capitoli `capitoli.ts`, lettore `lettore.ts`, schermata `CapitoloScena.tsx` con `Fondale.tsx` e `Secondari.tsx`, diario nel `Giardino.tsx`; mascotte `Semino.tsx`; scena del giardino `Scena.tsx`) · `src/config/` giocatori, punteggio, frasi, storia, sonno, livelli, ICE.
 - Contratti in `src/*/types.ts`: cambiarli solo con decisione della lead.
-- Spec dei traguardi: `docs/specs/traguardo.md`. Design: `docs/design/studio-ui.md` (palette, regole sui colori: verde e blu nei dettagli, mai a blocchi). Report per Genna: `docs/REPORT-notte-03-11.md`.
+- Spec dei traguardi: `docs/specs/traguardo.md`. Design: `docs/design/studio-ui.md` (palette, regole sui colori: verde e blu nei dettagli, mai a blocchi). Report per Genna: `docs/REPORT-04-11-sera.md` (prima: `docs/REPORT-notte-03-11.md`, `docs/REPORT-notte-04-11.md`).
 
 ## Comandi
 `npm run dev` · `npm test -- --run` · `npm run build` (output `dist/`, base `/sudoku/`). E2E: vedi README (peerjs locale su 9000 + vite 5173 con `VITE_PEER_*`).
