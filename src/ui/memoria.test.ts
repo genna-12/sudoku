@@ -8,6 +8,8 @@ import { cancellaPartita, esporta, importa, ioDaArchivio, nomeFileEsportazione, 
 const puzzle = generaPuzzle('sudoku', 'semini', 3);
 const idx = puzzle.dati.findIndex((d) => d === 0);
 const toccata = applica(nuovaPartita(puzzle, 1000), { tipo: 'cella', idx, v: puzzle.soluzione[idx], note: [], da: 'a', ts: 1001 });
+/** capitolo-0..n-1 */
+const fino = (n: number) => Array.from({ length: n }, (_, k) => `capitolo-${k}`);
 const base = (x: Partial<Archivio> = {}): Archivio => ({
   ...migra({ ...ARCHIVIO_VUOTO }),
   io: { nome: 'Genna', frase: 'segreta' },
@@ -73,9 +75,33 @@ describe('esporta e importa', () => {
     expect(r?.importate).toBe(1);
     expect(r?.archivio.io).toEqual({ nome: 'Blu', frase: 'mia' });
     expect(r?.archivio.storico).toHaveLength(1);
-    expect(r?.archivio.tappeViste).toContain('semino-0');
+    expect(r?.archivio.tappeViste).toEqual([]); // le tappe di T2-T4 non si importano più
     // reimportare lo stesso file non aggiunge nulla
     expect(importa(r!.archivio, esporta(altro))?.importate).toBe(0);
+  });
+  it('esporta i capitoli visti, non le tappe di T2-T4', () => {
+    const j = JSON.parse(esporta(base({ tappeViste: ['semina-5'], capitoliVisti: { a: fino(2), b: [] } })));
+    expect(j).not.toHaveProperty('tappeViste');
+    expect(j.capitoliVisti).toEqual({ a: fino(2), b: [] });
+  });
+  it('importa i capitoli visti per ruolo, rinormalizzati al prefisso', () => {
+    const mio = base({ capitoliVisti: { a: fino(4), b: fino(1) } });
+    const suo = base({ capitoliVisti: { a: fino(2), b: fino(6) } });
+    expect(importa(mio, esporta(suo))?.archivio.capitoliVisti).toEqual({ a: fino(4), b: fino(6) });
+    const sparso = JSON.stringify({ ...JSON.parse(esporta(suo)), capitoliVisti: { a: ['capitolo-7'], b: ['capitolo-0', 'capitolo-1', 'capitolo-3'] } });
+    expect(importa(mio, sparso)?.archivio.capitoliVisti).toEqual({ a: fino(4), b: fino(2) });
+  });
+  it('capitoli visti di un\'era diversa: i vecchi non entrano, quelli di un azzeramento più nuovo sostituiscono', () => {
+    const mio = base({ azzerato: 500, capitoliVisti: { a: fino(1), b: [] } });
+    expect(importa(mio, esporta(base({ azzerato: 100, capitoliVisti: { a: fino(9), b: fino(9) } })))?.archivio.capitoliVisti).toEqual({ a: fino(1), b: [] });
+    expect(importa(mio, esporta(base({ azzerato: 900, capitoliVisti: { a: [], b: fino(2) } })))?.archivio.capitoliVisti).toEqual({ a: [], b: fino(2) });
+  });
+  it('un file v1 (senza capitoliVisti) non importa visti, anche se aveva visto semina-5', () => {
+    const v1 = { versione: 1, io: { nome: 'Semina', frase: '' }, storico: [voceStorico(toccata)], azzerato: 0, tappeViste: ['semina-5'] };
+    const r = importa(base(), JSON.stringify(v1));
+    expect(r?.importate).toBe(1);
+    expect(r?.archivio.capitoliVisti).toEqual({ a: [], b: [] });
+    expect(r?.archivio.tappeViste).toEqual([]);
   });
   it('file rotti non bloccano nulla', () => {
     expect(importa(base(), '{rotto')).toBeNull();
@@ -100,8 +126,8 @@ describe('cancellazioni', () => {
     expect(a.storico[0].stato).toBeDefined();
   });
   it('ricomincia da zero: tutto via tranne nome e frase', () => {
-    const a = ricomincia(base({ partita: toccata, storico: [voceStorico(toccata)], tappeViste: ['semino-0'] }), 9000);
-    expect(a).toMatchObject({ partita: null, storico: [], tappeViste: [], azzerato: 9000 });
+    const a = ricomincia(base({ partita: toccata, storico: [voceStorico(toccata)], tappeViste: ['semino-0'], capitoliVisti: { a: fino(3), b: fino(6) }, ecoViste: ['eco-2'] }), 9000);
+    expect(a).toMatchObject({ partita: null, storico: [], tappeViste: [], capitoliVisti: { a: [], b: [] }, ecoViste: [], azzerato: 9000 });
     expect(a.io?.frase).toBe('segreta');
     expect(ricomincia(a, 100).azzerato).toBe(9001); // sempre crescente
   });

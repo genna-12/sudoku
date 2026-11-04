@@ -4,7 +4,19 @@ import type { Puzzle } from '../engine/types';
 import { PREFISSO, derivaBase } from '../net/logica';
 import { migra, type Archivio } from './archivio';
 import { applica, nuovaPartita, voceStorico } from './index';
-import { chiaveSync, decidiScrittura, impronta, motivoCambio, payloadDa, unisciRemoto, type MotivoScrittura } from './sync';
+import { segnaVisto } from '../ui/capitoli';
+import {
+  VERSIONE_DATI,
+  chiaveSync,
+  decidiScrittura,
+  impronta,
+  leggiPayload,
+  motivoCambio,
+  payloadDa,
+  puoScrivere,
+  unisciRemoto,
+  type MotivoScrittura,
+} from './sync';
 import type { StatoPartita, VoceStorico } from './types';
 
 const subtle = globalThis.crypto.subtle;
@@ -30,6 +42,8 @@ function archivio(p: Partial<Archivio> = {}): Archivio {
 }
 
 const P = (a: Archivio) => payloadDa(a, 0);
+/** capitolo-0..n-1 */
+const fino = (n: number) => Array.from({ length: n }, (_, k) => `capitolo-${k}`);
 const contenuto = (a: Archivio) => impronta(P(a));
 
 describe('chiaveSync', () => {
@@ -104,7 +118,7 @@ describe('unisciRemoto', () => {
 
   it('azzeramento remoto pulisce il locale (storico, partita, tappe)', () => {
     const remoto = P(archivio({ azzerato: 1000, storico: [voce(9, 1100)] }));
-    const r = unisciRemoto({ ...A, sbloccatiVisti: ['x'] }, remoto);
+    const r = unisciRemoto({ ...A, sbloccatiVisti: ['x'], capitoliVisti: { a: fino(4), b: fino(2) }, ecoViste: ['eco-3'] }, remoto);
     expect(r.cambiatoLocale).toBe(true);
     expect(r.daScrivere).toBe(false);
     expect(r.archivio.azzerato).toBe(1000);
@@ -112,6 +126,8 @@ describe('unisciRemoto', () => {
     expect(r.archivio.storico.map((v) => v.id)).toEqual(['sudoku-9']);
     expect(r.archivio.tappeViste).toEqual([]);
     expect(r.archivio.sbloccatiVisti).toEqual([]);
+    expect(r.archivio.capitoliVisti).toEqual({ a: [], b: [] });
+    expect(r.archivio.ecoViste).toEqual([]);
   });
 
   it('una partita remota precedente all\'azzeramento locale non entra', () => {
@@ -142,18 +158,88 @@ describe('unisciRemoto', () => {
     expect(r.archivio.storico[0].finita).toBe(730);
   });
 
-  it('tappe viste: unione, senza scritture se è solo l\'ordine a cambiare', () => {
-    const x = archivio({ tappeViste: ['b', 'a'] });
-    const y = archivio({ tappeViste: ['a', 'b'] });
-    const r = unisciRemoto(x, P(y));
-    expect(r).toEqual({ archivio: x, cambiatoLocale: false, daScrivere: false });
-    expect(unisciRemoto(x, P(archivio({ tappeViste: ['c'] }))).archivio.tappeViste).toEqual(['b', 'a', 'c']);
+  it('tappe viste di T2-T4: non viaggiano più (né in scrittura né in lettura)', () => {
+    const x = archivio({ tappeViste: ['semino-1'] });
+    expect(P(x)).not.toHaveProperty('tappeViste');
+    const r = unisciRemoto(x, { ...P(archivio()), tappeViste: ['semina-5'] } as never);
+    expect(r.archivio.tappeViste).toEqual(['semino-1']);
+  });
+
+  it('capitoli visti: unione per ruolo (a con a, b con b), resta un prefisso, commutativa', () => {
+    const x = archivio({ capitoliVisti: { a: fino(3), b: [] } });
+    const y = archivio({ capitoliVisti: { a: fino(1), b: fino(6) } });
+    const xy = unisciRemoto(x, P(y));
+    expect(xy.archivio.capitoliVisti).toEqual({ a: fino(3), b: fino(6) });
+    expect(xy.cambiatoLocale).toBe(true);
+    expect(xy.daScrivere).toBe(true);
+    expect(contenuto(unisciRemoto(y, P(x)).archivio)).toBe(contenuto(xy.archivio));
+    // chiavi sparse dal remoto: si tiene il prefisso
+    const sparso = unisciRemoto(x, { ...P(archivio()), capitoliVisti: { a: ['capitolo-5'], b: ['capitolo-0', 'capitolo-2'] } });
+    expect(sparso.archivio.capitoliVisti).toEqual({ a: fino(3), b: fino(1) });
+    // idempotente
+    expect(unisciRemoto(xy.archivio, P(y)).cambiatoLocale).toBe(false);
+  });
+
+  it('capitoli visti remoti di un\'era precedente (azzeramento locale più nuovo) non entrano', () => {
+    const loc = archivio({ azzerato: 500, capitoliVisti: { a: fino(1), b: [] } });
+    const vecchio = P(archivio({ azzerato: 100, capitoliVisti: { a: fino(9), b: fino(9) } }));
+    const r = unisciRemoto(loc, vecchio);
+    expect(r.archivio.capitoliVisti).toEqual({ a: fino(1), b: [] });
+    expect(r.daScrivere).toBe(true);
+    // stessa era: entrano
+    expect(unisciRemoto(loc, { ...vecchio, azzerato: 500 }).archivio.capitoliVisti).toEqual({ a: fino(9), b: fino(9) });
+  });
+
+  it('segnaVisto ⇒ cambio da scrivere', () => {
+    const prima = archivio({ capitoliVisti: { a: fino(2), b: [] } });
+    const dopo = { ...prima, capitoliVisti: segnaVisto(prima.capitoliVisti, 'a', 2) };
+    expect(motivoCambio(prima, dopo)).toBe('cambio');
+    expect(unisciRemoto(dopo, P(prima)).daScrivere).toBe(true);
+    // rileggere lo stesso capitolo non cambia niente
+    const ancora = { ...dopo, capitoliVisti: segnaVisto(dopo.capitoliVisti, 'a', 2) };
+    expect(motivoCambio(dopo, ancora)).toBeNull();
   });
 
   it('il payload non porta nome, frase né impostazioni', () => {
     const p = P(A) as unknown as Record<string, unknown>;
-    expect(Object.keys(p).sort()).toEqual(['aggiornato', 'azzerato', 'partita', 'storico', 'tappeViste', 'versione']);
+    expect(Object.keys(p).sort()).toEqual(['aggiornato', 'azzerato', 'capitoliVisti', 'partita', 'storico', 'versione', 'versioneDati']);
+    expect(p.versioneDati).toBe(2);
     expect(JSON.stringify(p)).not.toContain('sei mini');
+  });
+});
+
+describe('leggiPayload, campi sconosciuti e versione dei dati', () => {
+  it('legge capitoliVisti così come sono, senza i passi di migrazione', () => {
+    const vecchio = { versione: 1, storico: [], azzerato: 0, partita: null, tappeViste: ['semina-5'], aggiornato: 7 };
+    const r = leggiPayload(vecchio)!;
+    expect(r.capitoliVisti).toEqual({ a: [], b: [] });
+    expect(r.versioneDati).toBe(1);
+    expect(r).not.toHaveProperty('tappeViste');
+    expect(leggiPayload({ ...vecchio, versioneDati: 2, capitoliVisti: { a: fino(2), b: 'x' } })!.capitoliVisti).toEqual({ a: fino(2), b: [] });
+    expect(leggiPayload(null)).toBeNull();
+    expect(leggiPayload([1])).toBeNull();
+  });
+
+  it('payloadDa ricopia i campi remoti sconosciuti (un client vecchio non cancella quelli nuovi)', () => {
+    const remoto = leggiPayload({ ...P(archivio()), versioneDati: 3, posta: [{ da: 'a', testo: 'ciao' }], tema: 'notte' })!;
+    expect(remoto.posta).toEqual([{ da: 'a', testo: 'ciao' }]);
+    const p = payloadDa(archivio({ capitoliVisti: { a: fino(1), b: [] } }), 5, remoto);
+    expect(p.posta).toEqual([{ da: 'a', testo: 'ciao' }]);
+    expect(p.tema).toBe('notte');
+    // i campi noti sono sempre i propri
+    expect(p.versioneDati).toBe(VERSIONE_DATI);
+    expect(p.capitoliVisti).toEqual({ a: fino(1), b: [] });
+    expect(p.aggiornato).toBe(5);
+    // gli extra non contano nell'impronta: niente scritture per loro
+    expect(impronta(p)).toBe(impronta(payloadDa(archivio({ capitoliVisti: { a: fino(1), b: [] } }), 9)));
+  });
+
+  it('puoScrivere: no se i dati remoti sono di una versione più nuova', () => {
+    expect(puoScrivere(null)).toBe(true);
+    expect(puoScrivere(leggiPayload({ storico: [] }))).toBe(true); // v1
+    expect(puoScrivere(P(archivio()))).toBe(true);
+    expect(puoScrivere({ ...P(archivio()), versioneDati: VERSIONE_DATI + 1 })).toBe(false);
+    expect(puoScrivere({ ...P(archivio()), versioneDati: 3 }, 3)).toBe(true);
   });
 });
 

@@ -5,8 +5,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { RefObject } from 'react';
 import { INTERVALLO_SYNC_MS, LETTURA_PRIMO_PIANO_MS, URL_SYNC } from '../config/sync';
 import type { Archivio } from '../stato/archivio';
-import { chiaveSync, decidiScrittura, impronta, leggiPayload, motivoCambio, payloadDa, unisciRemoto } from '../stato/sync';
-import type { MotivoScrittura } from '../stato/sync';
+import { chiaveSync, decidiScrittura, impronta, leggiPayload, motivoCambio, payloadDa, puoScrivere, unisciRemoto } from '../stato/sync';
+import type { MotivoScrittura, PayloadSync } from '../stato/sync';
 import type { StatoPartita } from '../stato/types';
 
 export type StatoSync = 'spenta' | 'ok' | 'errore' | 'in-corso';
@@ -50,6 +50,8 @@ export function creaSync(d: DipendenzeSync): MotoreSync {
   let pronta = false;
   /** impronta di ciò che (per quanto sappiamo) sta sul Worker */
   let noto: string | null = null;
+  /** ultimo payload letto: i suoi campi sconosciuti si ricopiano; se è di una versione più nuova non si scrive */
+  let ultimoRemoto: PayloadSync | null = null;
   let ultimoContatto: number | null = null;
   let ultimaLettura = 0;
   let timer: ReturnType<typeof setTimeout> | null = null;
@@ -80,7 +82,9 @@ export function creaSync(d: DipendenzeSync): MotoreSync {
   };
 
   async function scrivi(keepalive = false): Promise<void> {
-    const p = payloadDa(d.leggi(), ora());
+    // app non aggiornata (dati remoti più nuovi): legge soltanto
+    if (!puoScrivere(ultimoRemoto)) return;
+    const p = payloadDa(d.leggi(), ora(), ultimoRemoto);
     const corpo = JSON.stringify(p);
     const g = gen;
     const r = await fetcher(indirizzo(), {
@@ -114,6 +118,7 @@ export function creaSync(d: DipendenzeSync): MotoreSync {
       if (g !== gen) return;
       ultimaLettura = ora();
       const remoto = leggiPayload(corpo?.valore ?? null);
+      ultimoRemoto = remoto;
       const prova = unisciRemoto(d.leggi(), remoto);
       if (prova.cambiatoLocale) {
         if (d.riceviPartita && remoto?.partita) {
@@ -174,6 +179,7 @@ export function creaSync(d: DipendenzeSync): MotoreSync {
       chiave = null;
       pronta = false;
       noto = null;
+      ultimoRemoto = null;
       ultimoContatto = null;
       ultimaLettura = 0;
       occupato = false;

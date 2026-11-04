@@ -119,7 +119,7 @@ describe('archivio della versione online T2', () => {
     }
   });
 
-  it('importa memoria con i campi nuovi: unisce storico e tappe, non tocca i miei regali', () => {
+  it('importa memoria con i campi nuovi: unisce lo storico (le tappe non più, da T5), non tocca i miei regali', () => {
     const mio = { ...caricaDa(archivioT2(3)), regaliBonus: 1, sbloccatiVisti: ['elemento:fiore'] };
     const suo = { ...archivioT2(7), sbloccatiVisti: ['x'], regaliBonus: 9, io: { nome: 'Semina', frase: '' } };
     const r = importa(mio, JSON.stringify(suo));
@@ -127,7 +127,7 @@ describe('archivio della versione online T2', () => {
     expect(fioriDi(r!.archivio.storico)).toBe(7);
     expect(r!.archivio.regaliBonus).toBe(1);
     expect(r!.archivio.io?.frase).toBe('frase segreta');
-    expect(r!.archivio.tappeViste).toContain('semino-7');
+    expect(r!.archivio.tappeViste).not.toContain('semino-7'); // T5: tappeViste esce da importa
   });
 
   it('ricomincia da zero azzera anche i regali del giardino in attesa', () => {

@@ -2,8 +2,16 @@ import { specchiaInIndexedDB } from './persistenza';
 // Archivio locale: tutto ciò che persiste sul dispositivo, in UNA chiave localStorage versionata.
 // Aggiungere un campo = alzare VERSIONE_ARCHIVIO e aggiungere un passo in PASSI (storico e tappe
 // viste non si toccano mai). Puro TS: lo storage si passa come parametro (default localStorage).
+import { ULTIMO_CAPITOLO, SEMINA_ARRIVA_A, chiaveCapitolo } from '../config/capitoli';
+import { ruoloDiNome } from '../config/giocatori';
 import { unisciStorico, voceStorico } from './index';
 import type { StatoPartita, VoceStorico } from './types';
+
+/** Capitoli visti per ruolo (a = Semino, b = Semina): sempre un prefisso `capitolo-0..k`. */
+export interface CapitoliVisti {
+  a: string[];
+  b: string[];
+}
 
 export interface Archivio {
   versione: number;
@@ -13,14 +21,18 @@ export interface Archivio {
   storico: VoceStorico[];
   /** Date.now() dell'ultimo "ricomincia da zero" (0 = mai): voci con iniziata < azzerato scartate. */
   azzerato: number;
-  /** chiavi `${chi}-${partite}` delle tappe della storia già mostrate */
+  /** chiavi `${chi}-${partite}` delle tappe della storia di T2-T4 (inerte da T5: non si sincronizza) */
   tappeViste: string[];
+  /** capitoli letti fino in fondo, per ruolo (si sincronizzano) */
+  capitoliVisti: CapitoliVisti;
+  /** chiavi `eco-${fiore}` delle eco già mostrate in Home (solo locali) */
+  ecoViste: string[];
   impostazioni: { mostraErrori: boolean; vibrazione: boolean };
   /** Campi di versioni più nuove dell'app: non si leggono, ma `migra` li conserva e `salva` li riscrive. */
   [extra: string]: unknown;
 }
 
-export const VERSIONE_ARCHIVIO = 1;
+export const VERSIONE_ARCHIVIO = 2;
 export const CHIAVE_ARCHIVIO = 'sudoku-coppia-archivio';
 
 export const ARCHIVIO_VUOTO: Archivio = Object.freeze({
@@ -31,6 +43,8 @@ export const ARCHIVIO_VUOTO: Archivio = Object.freeze({
   storico: Object.freeze([]) as unknown as VoceStorico[],
   azzerato: 0,
   tappeViste: Object.freeze([]) as unknown as string[],
+  capitoliVisti: Object.freeze({ a: Object.freeze([]), b: Object.freeze([]) }) as unknown as CapitoliVisti,
+  ecoViste: Object.freeze([]) as unknown as string[],
   impostazioni: Object.freeze({ mostraErrori: true, vibrazione: true }),
 }) as Archivio;
 
@@ -45,6 +59,33 @@ export const CHIAVI_V0 = {
 
 export function chiaveTappa(chi: string, partite: number): string {
   return `${chi}-${partite}`;
+}
+
+// --- capitoli visti ----------------------------------------------------------
+
+/** Il prefisso contiguo più lungo `capitolo-0..k` contenuto nella lista (le chiavi sparse si scartano). */
+export function normalizzaPrefisso(chiavi: unknown): string[] {
+  if (!Array.isArray(chiavi)) return [];
+  const ci = new Set(chiavi.filter((c): c is string => typeof c === 'string'));
+  const out: string[] = [];
+  while (out.length <= ULTIMO_CAPITOLO && ci.has(chiaveCapitolo(out.length))) out.push(chiaveCapitolo(out.length));
+  return out;
+}
+
+/** Visti validi per entrambi i ruoli (default vuoti). */
+export function normalizzaVisti(x: unknown): CapitoliVisti {
+  const o = isObj(x) ? x : {};
+  return { a: normalizzaPrefisso(o.a), b: normalizzaPrefisso(o.b) };
+}
+
+/** Unione per ruolo (a con a, b con b), rinormalizzata al prefisso. Stesso oggetto `a` se non cambia. */
+export function unisciVisti(a: CapitoliVisti, b: CapitoliVisti): CapitoliVisti {
+  const uguali = (x: string[], y: string[]) => x.length === y.length && x.every((k, i) => k === y[i]);
+  const ua = normalizzaPrefisso([...a.a, ...b.a]);
+  const ub = normalizzaPrefisso([...a.b, ...b.b]);
+  const sa = uguali(ua, a.a);
+  const sb = uguali(ub, a.b);
+  return sa && sb ? a : { a: sa ? a.a : ua, b: sb ? a.b : ub };
 }
 
 // --- validazione ------------------------------------------------------------
@@ -65,6 +106,10 @@ function voceValida(x: unknown): x is VoceStorico {
   return isObj(x) && typeof x.id === 'string' && isNum(x.iniziata) && isNum(x.aggiornata);
 }
 
+function soloStringhe(x: unknown): string[] {
+  return Array.isArray(x) ? x.filter((t): t is string => typeof t === 'string') : [];
+}
+
 function ioValido(x: unknown): Archivio['io'] {
   return isObj(x) && typeof x.nome === 'string' && typeof x.frase === 'string' ? { nome: x.nome, frase: x.frase } : null;
 }
@@ -82,7 +127,9 @@ function normalizza(d: Obj): Archivio {
     partita: partitaValida(d.partita),
     storico: Array.isArray(d.storico) ? d.storico.filter(voceValida) : [],
     azzerato: isNum(d.azzerato) && d.azzerato > 0 ? d.azzerato : 0,
-    tappeViste: Array.isArray(d.tappeViste) ? d.tappeViste.filter((t): t is string => typeof t === 'string') : [],
+    tappeViste: soloStringhe(d.tappeViste),
+    capitoliVisti: normalizzaVisti(d.capitoliVisti),
+    ecoViste: soloStringhe(d.ecoViste),
     impostazioni: {
       mostraErrori: typeof imp.mostraErrori === 'boolean' ? imp.mostraErrori : def.mostraErrori,
       vibrazione: typeof imp.vibrazione === 'boolean' ? imp.vibrazione : def.vibrazione,
@@ -114,6 +161,16 @@ const PASSI: Record<number, (d: Obj) => Obj> = {
       impostazioni: { mostraErrori: typeof d.errori === 'boolean' ? d.errori : true, vibrazione: true },
     };
   },
+  // 1 → 2 (T5, capitoli): chi aveva visto l'arrivo di Semina (`semina-5`) ha visto i capitoli 0..5, ma
+  // SOLO il ruolo di `io` (tappeViste era unito per coppia: non dice se l'altro l'ha visto davvero).
+  1: (d) => {
+    const capitoliVisti: CapitoliVisti = { a: [], b: [] };
+    const io = ioValido(d.io);
+    if (io && soloStringhe(d.tappeViste).includes('semina-5')) {
+      capitoliVisti[ruoloDiNome(io.nome)] = Array.from({ length: SEMINA_ARRIVA_A + 1 }, (_, k) => chiaveCapitolo(k));
+    }
+    return { ...d, capitoliVisti, ecoViste: [] };
+  },
 };
 
 /** Porta qualsiasi dato (anche corrotto) a un Archivio valido alla versione corrente. Mai lancia. */
@@ -137,7 +194,7 @@ export function migra(dati: unknown): Archivio {
 
 function copiaVuoto(): Archivio {
   const v = ARCHIVIO_VUOTO;
-  return { ...v, storico: [], tappeViste: [], impostazioni: { ...v.impostazioni } };
+  return { ...v, storico: [], tappeViste: [], capitoliVisti: { a: [], b: [] }, ecoViste: [], impostazioni: { ...v.impostazioni } };
 }
 
 // --- storage ------------------------------------------------------------------
@@ -213,11 +270,19 @@ function filtra(a: Archivio): Archivio {
   return { ...a, storico, partita: chiudi ? null : a.partita };
 }
 
-/** azzerato = max(attuale, nuovo); se cresce svuota le tappe viste; filtra storico e partita. */
+/** azzerato = max(attuale, nuovo); se cresce svuota tappe, capitoli (di entrambi) ed eco; filtra storico e partita. */
 export function applicaAzzeramento(a: Archivio, azzerato: number): Archivio {
   if (!isNum(azzerato) || azzerato <= a.azzerato) return filtra(a);
   // con le tappe ripartono anche gli sblocchi visti e i loro regali in attesa (campi aggiunti in T3)
-  return filtra({ ...a, azzerato, tappeViste: [], sbloccatiVisti: [], regaliBonus: 0 });
+  return filtra({
+    ...a,
+    azzerato,
+    tappeViste: [],
+    capitoliVisti: { a: [], b: [] },
+    ecoViste: [],
+    sbloccatiVisti: [],
+    regaliBonus: 0,
+  });
 }
 
 /** Unisce lo storico ricevuto dal partner, rispettando prima il suo eventuale azzeramento. */

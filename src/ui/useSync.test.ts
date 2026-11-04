@@ -5,6 +5,7 @@ import { applica, nuovaPartita } from '../stato';
 import { migra, type Archivio } from '../stato/archivio';
 import { payloadDa } from '../stato/sync';
 import type { VoceStorico } from '../stato/types';
+import { segnaVisto } from './capitoli';
 import { creaSync, type InfoSync } from './useSync';
 
 function puzzle(seed: number): Puzzle {
@@ -153,5 +154,50 @@ describe('creaSync', () => {
     B.m.adesso();
     await flush();
     expect(w.put).toBe(put);
+  });
+
+  it('segnaVisto: si scrive (entro l\'intervallo) con i capitoli visti; l\'altro dispositivo li riceve per ruolo', async () => {
+    const { w, f } = workerFinto(null);
+    const A = dispositivo(vuoto(), f);
+    A.m.avvia('x');
+    await flush();
+    const put = w.put;
+    A.modifica((a) => ({ ...a, capitoliVisti: segnaVisto(a.capitoliVisti, 'a', 0) }));
+    await vi.advanceTimersByTimeAsync(INTERVALLO_SYNC_MS);
+    expect(w.put).toBe(put + 1);
+    expect((w.valore as { capitoliVisti: unknown }).capitoliVisti).toEqual({ a: ['capitolo-0'], b: [] });
+    const B = dispositivo({ ...vuoto(), io: { nome: 'Semina', frase: 'x' } }, f);
+    B.m.avvia('x');
+    await flush();
+    expect(B.get().capitoliVisti).toEqual({ a: ['capitolo-0'], b: [] });
+    A.m.ferma();
+    B.m.ferma();
+  });
+
+  it('dati sul Worker di una versione più nuova: legge e unisce, ma non scrive mai', async () => {
+    const remoto = { ...payloadDa({ ...vuoto(), storico: [voce(1, 100)] }, 5), versioneDati: 3 };
+    const { w, f } = workerFinto(remoto);
+    const d = dispositivo({ ...vuoto(), storico: [voce(2, 200)] }, f);
+    d.m.avvia('x');
+    await flush();
+    expect(d.get().storico.map((v) => v.id)).toEqual(['sudoku-2', 'sudoku-1']);
+    d.modifica((a) => ({ ...a, partita: nuovaPartita(puzzle(3), Date.now()) }));
+    await flush();
+    d.m.nascosta();
+    await vi.advanceTimersByTimeAsync(INTERVALLO_SYNC_MS * 2);
+    expect(w.put).toBe(0);
+    expect(w.valore).toEqual(remoto);
+    d.m.ferma();
+  });
+
+  it('i campi sconosciuti sul Worker sopravvivono alle scritture', async () => {
+    const { w, f } = workerFinto({ ...payloadDa(vuoto(), 5), posta: ['ciao'] });
+    const d = dispositivo({ ...vuoto(), storico: [voce(2, 200)] }, f);
+    d.m.avvia('x');
+    await flush();
+    expect(w.put).toBe(1);
+    expect((w.valore as { posta: unknown }).posta).toEqual(['ciao']);
+    expect((w.valore as { storico: VoceStorico[] }).storico[0].id).toBe('sudoku-2');
+    d.m.ferma();
   });
 });

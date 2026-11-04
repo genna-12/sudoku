@@ -76,7 +76,7 @@ describe('migra', () => {
   it('da versione 0: importa io, partner, partita, errori, storico; la partita toccata entra nello storico', () => {
     const p = partita(7, 1000);
     const a = migra({ io: { nome: 'Genna', frase: 'sei mini' }, partner: 'Lei', partita: p, errori: false, storico: [voce(3, 500)] });
-    expect(a.versione).toBe(1);
+    expect(a.versione).toBe(VERSIONE_ARCHIVIO);
     expect(a.io).toEqual({ nome: 'Genna', frase: 'sei mini' });
     expect(a.partner).toBe('Lei');
     expect(a.partita).toEqual(p);
@@ -84,6 +84,8 @@ describe('migra', () => {
     expect(a.storico.map((v) => v.id)).toEqual(['sudoku-7', 'sudoku-3']);
     expect(a.azzerato).toBe(0);
     expect(a.tappeViste).toEqual([]);
+    expect(a.capitoliVisti).toEqual({ a: [], b: [] });
+    expect(a.ecoViste).toEqual([]);
   });
 
   it('versione 0: partita mai toccata non entra nello storico', () => {
@@ -112,6 +114,61 @@ describe('migra', () => {
     const a = migra({ versione: 1, azzerato: 100, storico: [voce(1, 50), voce(2, 150)], partita: partita(1, 50) });
     expect(a.storico.map((v) => v.id)).toEqual(['sudoku-2']);
     expect(a.partita).toBeNull();
+  });
+});
+
+/** capitolo-0..n-1 */
+const fino = (n: number) => Array.from({ length: n }, (_, k) => `capitolo-${k}`);
+const v1 = (x: Record<string, unknown>) => ({
+  versione: 1,
+  io: { nome: 'Semino', frase: 'sei mini' },
+  partner: 'Semina',
+  partita: null,
+  storico: [voce(1, 10)],
+  azzerato: 0,
+  tappeViste: ['semino-0', 'semino-4', 'semina-5', 'semino-6'],
+  impostazioni: { mostraErrori: true, vibrazione: true },
+  ...x,
+});
+
+describe('migrazione 1 → 2 (capitoli)', () => {
+  it('chi ha visto semina-5 ha visto i capitoli 0..5, solo per il proprio ruolo', () => {
+    expect(VERSIONE_ARCHIVIO).toBe(2);
+    const a = migra(v1({}));
+    expect(a.versione).toBe(2);
+    expect(a.capitoliVisti).toEqual({ a: fino(6), b: [] });
+    expect(a.ecoViste).toEqual([]);
+    expect(a.tappeViste).toEqual(['semino-0', 'semino-4', 'semina-5', 'semino-6']); // inerte ma conservato
+    expect(a.storico).toEqual([voce(1, 10)]);
+  });
+
+  it('ruolo dal profilo: Blu/Semina → b, nomi di T1 (Genna) → a', () => {
+    expect(migra(v1({ io: { nome: 'Blu', frase: 'x' } })).capitoliVisti).toEqual({ a: [], b: fino(6) });
+    expect(migra(v1({ io: { nome: 'Semina', frase: 'x' } })).capitoliVisti).toEqual({ a: [], b: fino(6) });
+    expect(migra(v1({ io: { nome: 'Genna', frase: 'x' } })).capitoliVisti).toEqual({ a: fino(6), b: [] });
+  });
+
+  it('senza semina-5 (o senza io): nessun capitolo visto, gli arretrati si leggono in ordine', () => {
+    expect(migra(v1({ tappeViste: ['semino-0', 'semino-1', 'semino-4', 'entrambi-10'] })).capitoliVisti).toEqual({ a: [], b: [] });
+    expect(migra(v1({ io: null })).capitoliVisti).toEqual({ a: [], b: [] });
+    expect(migra(v1({ tappeViste: 'rotto' })).capitoliVisti).toEqual({ a: [], b: [] });
+  });
+
+  it('campi extra conservati; la migrazione non si riapplica (v2 con capitoliVisti vuoti resta vuoto)', () => {
+    const a = migra(v1({ sbloccatiVisti: ['elemento:fiore'], regaliBonus: 2, novita: { x: 1 } }));
+    expect(a.sbloccatiVisti).toEqual(['elemento:fiore']);
+    expect(a.regaliBonus).toBe(2);
+    expect(a.novita).toEqual({ x: 1 });
+    const v2 = { ...JSON.parse(JSON.stringify(a)), capitoliVisti: { a: [], b: [] } };
+    expect(migra(v2).capitoliVisti).toEqual({ a: [], b: [] });
+    expect(migra(JSON.parse(JSON.stringify(a)))).toEqual(a);
+  });
+
+  it('v2: capitoliVisti ed ecoViste validati; i visti restano un prefisso', () => {
+    const a = migra({ versione: 2, capitoliVisti: { a: 'x', b: [1, 'capitolo-1', 'capitolo-0', 'capitolo-3'] }, ecoViste: ['eco-1', 2] });
+    expect(a.capitoliVisti).toEqual({ a: [], b: fino(2) });
+    expect(a.ecoViste).toEqual(['eco-1']);
+    expect(migra({ versione: 2, capitoliVisti: [1] }).capitoliVisti).toEqual({ a: [], b: [] });
   });
 });
 
@@ -162,7 +219,7 @@ describe('carica / salva', () => {
 
   it('salva e ricarica', () => {
     const s = new FintoStorage();
-    const a = archivio({ partner: 'Lei', tappeViste: [chiaveTappa('semino', 3)] });
+    const a = archivio({ partner: 'Lei', tappeViste: [chiaveTappa('semino', 3)], capitoliVisti: { a: fino(3), b: fino(1) }, ecoViste: ['eco-2'] });
     expect(salva(a, s)).toBe(true);
     expect(carica(s)).toEqual(a);
   });
@@ -233,6 +290,17 @@ describe('applicaAzzeramento', () => {
     expect(a.tappeViste).toEqual(['semino-0']);
     expect(a.storico).toHaveLength(2);
     expect(applicaAzzeramento(base, 10)).toBe(base);
+  });
+
+  it('svuota i capitoli visti di ENTRAMBI i ruoli e le eco (anche quando arriva dal partner)', () => {
+    const c = archivio({ capitoliVisti: { a: fino(6), b: fino(3) }, ecoViste: ['eco-5'], azzerato: 10 });
+    const z = applicaAzzeramento(c, 100);
+    expect(z.capitoliVisti).toEqual({ a: [], b: [] });
+    expect(z.ecoViste).toEqual([]);
+    expect(applicaAzzeramento(c, 10).capitoliVisti).toEqual({ a: fino(6), b: fino(3) });
+    const r = unisciStoricoRemoto(c, [], 200);
+    expect(r.capitoliVisti).toEqual({ a: [], b: [] });
+    expect(r.ecoViste).toEqual([]);
   });
 
   it('tiene la partita iniziata dopo l\'azzeramento', () => {
