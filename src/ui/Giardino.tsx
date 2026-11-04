@@ -3,6 +3,7 @@ import type { ChiParla } from '../config/frasi';
 import { LIVELLI_PARAMETRI } from '../config/livelli';
 import { elementiSbloccati } from '../config/storia';
 import type { VoceStorico } from '../stato';
+import type { AttoDiario } from './capitoli';
 import type { Chiacchiera } from './Home';
 import { aCasoDiverso, accessoriSbloccati, numeriFiori, quotaBluFiore, statistiche } from './regole';
 import { Scena } from './Scena';
@@ -28,6 +29,10 @@ interface Props {
   onSolletico: (chi: ChiParla) => void;
   onRiprendi: (v: VoceStorico) => void;
   onEsci: () => void;
+  /** capitoli letti da chi tiene il telefono, per atto */
+  diario: AttoDiario[];
+  /** rilettura di un capitolo (non segna niente) */
+  onRileggi: (fiore: number) => void;
 }
 
 /** Il giardino: una pianta per partita, dalla più recente; fiori = finite, germogli = da riprendere. */
@@ -149,6 +154,8 @@ export function Giardino(p: Props) {
         </section>
       )}
 
+      <Diario atti={p.diario} onRileggi={p.onRileggi} />
+
       <div className="giardino" data-testid="giardino-lista" data-voci={p.storico.length}>
         {p.storico.length === 0 && (
           <div className="giardino-vuoto">
@@ -182,6 +189,33 @@ export function Giardino(p: Props) {
         ))}
       </div>
     </main>
+  );
+}
+
+/** Il diario: i capitoli già letti, per atto; un tocco li rilegge. */
+function Diario({ atti, onRileggi }: { atti: AttoDiario[]; onRileggi: (fiore: number) => void }) {
+  return (
+    <section className="diario" data-testid="diario" aria-labelledby="diario-titolo">
+      <h2 className="diario-titolo" id="diario-titolo">
+        Diario
+      </h2>
+      {atti.length === 0 && <p className="diario-vuoto">Ancora nessun capitolo letto.</p>}
+      {atti.map((atto) => (
+        <div className="diario-atto" key={atto.nome}>
+          <h3>{atto.nome}</h3>
+          <ol>
+            {atto.capitoli.map((c) => (
+              <li key={c.fiore}>
+                <button className="diario-riga" data-testid={`diario-${c.fiore}`} onClick={() => onRileggi(c.fiore)}>
+                  <span className="diario-numero">{c.fiore}</span>
+                  <span>{c.titolo}</span>
+                </button>
+              </li>
+            ))}
+          </ol>
+        </div>
+      ))}
+    </section>
   );
 }
 

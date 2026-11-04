@@ -4,15 +4,17 @@ import type { CSSProperties } from 'react';
 import { CARATTERE, FRASI } from '../config/frasi';
 import type { ChiParla } from '../config/frasi';
 import { dormePerOrario } from '../config/sonno';
-import { giornoSpeciale } from '../config/storia';
-import type { Battuta, Sblocco } from '../config/storia';
+import { SEMINA_ARRIVA_A, capitolo as capitoloDi } from '../config/capitoli';
+import type { Capitolo } from '../config/capitoli';
+import { elementiSbloccati, giornoSpeciale } from '../config/storia';
 import { COLORI_RUOLO, PROFILI, nomeVisibile, profiloDiNome } from '../config/giocatori';
 import type { Livello, Modalita } from '../engine';
 import type { Messaggio } from '../net';
-import type { VoceStorico } from '../stato';
+import type { Giocatore, StatoPartita, VoceStorico } from '../stato';
 import type { Archivio } from '../stato/archivio';
 import { unisciStoricoRemoto } from '../stato/archivio';
-import { AnnuncioSblocco } from './AnnuncioSblocco';
+import { CapitoloScena } from './CapitoloScena';
+import { codaCapitoli, diario, ecoDaMostrare, ecoDi, seminaSbloccata, vistiDi } from './capitoli';
 import { Giardino } from './Giardino';
 import type { Arrivo, Lampo } from './Griglia';
 import { Home } from './Home';
@@ -23,7 +25,6 @@ import { cancellaPartita, esporta, importa, ioDaArchivio, nomeFileEsportazione, 
 import type { Tema } from './MenuHome';
 import { Partita } from './Partita';
 import {
-  CHIAVE_SBLOCCO,
   SOLLETICO_OGNI_MS,
   accessorioDi,
   accessorioPermesso,
@@ -34,26 +35,25 @@ import {
   fraseMascotte,
   fraseSonno,
   frasiInvio,
+  frasiNuove,
   mascotteDi,
   nominaSemina,
   partitaToccata,
   presenzaBlu,
-  regaliBonusDi,
-  sblocchiNuovi,
   scegliFrase,
-  scenaDaMostrare,
-  seminaSbloccata,
   senzaSemina,
   solletico,
-  sorpresaDaMostrare,
   sostituisci,
   stessiVisti,
-  tappaDaMostrare,
+  testoFrasiNuove,
   umoreEvento,
   vociCambiate,
 } from './regole';
-import type { CategoriaFrase, Tappa } from './regole';
-import { ScenaSblocco } from './ScenaSblocco';
+import type { CategoriaFrase } from './regole';
+import { Scena } from './Scena';
+import { accessorioValido } from './useMascotte';
+import { FESTA_MS, USCITA_MS, apriLettore, avanza, capitoloDelLettore, conCapitoloVisto, leggiAdesso } from './lettore';
+import type { Lettore, Riassunto } from './lettore';
 import { Toasts, useBattute, useToasts } from './Toasts';
 import type { Tono } from './Toasts';
 import { useArchivio } from './useArchivio';
@@ -78,6 +78,21 @@ const DURATA_CHIACCHIERA_MS = 6500;
 const DURATA_SOLLETICO_MS = 2600;
 const STORICO_OGNI_MS = 2000;
 const AZZERAMENTO_RECENTE_MS = 10 * 60 * 1000;
+const DURATA_ECO_MS = 8000;
+
+/** I vestiti dei capitoli si disegnano solo se esistono già (T6 ne aggiunge altri). */
+const vestitoDisegnato = (id: string) => !!accessorioValido(id);
+
+/** La carta di vittoria salvata alla fine della partita (resta giusta se il partner ne apre un'altra). */
+function riassuntoDi(p: StatoPartita, mio: Giocatore): Riassunto {
+  return {
+    iniziata: p.iniziata,
+    secondi: p.secondi,
+    puntiMiei: p.contatori?.[mio]?.punti ?? 0,
+    puntiSuoi: p.contatori?.[altro(mio)]?.punti ?? 0,
+    bonus: bonusVittoria(p.secondi),
+  };
+}
 
 function leggiTema(): Tema {
   const t = leggi<string>(CHIAVI.tema);
@@ -91,9 +106,11 @@ export function App() {
   const profiloPartner = PROFILI.find((p) => p.id !== profilo.id) ?? PROFILI[1];
   const mioRuolo = profilo.ruolo;
   const fiori = fioriDi(archivio.storico);
-  // Semina "esiste" su questo dispositivo solo dopo la sua scena: prima la vittoria che la sblocca
-  // (o lo storico del partner) non deve rivelarla (Vittoria, cruscotto, nomi, voce).
-  const sbloccata = seminaSbloccata(fiori) && archivio.tappeViste.includes(CHIAVE_SBLOCCO);
+  // capitoli letti da chi tiene il telefono (per ruolo, non per coppia)
+  const vistiMiei = vistiDi(archivio.capitoliVisti, mioRuolo);
+  // Semina "esiste" su questo dispositivo solo dopo il suo capitolo (il 5): prima la vittoria che la
+  // porta (o lo storico del partner) non deve rivelarla (Vittoria, cruscotto, nomi, voce).
+  const sbloccata = seminaSbloccata(fiori, vistiMiei);
   const nomeMio = nomeVisibile(profilo, sbloccata);
   const nomePartner = nomeVisibile(profiloPartner, sbloccata);
   // giorno del mare / della montagna: solo dopo l'arrivo di Semina (le chiacchiere parlano di lei)
@@ -115,10 +132,17 @@ export function App() {
   const [vittoriaChiusa, setVittoriaChiusa] = useState<number | null>(null);
   const [fraseVittoria, setFraseVittoria] = useState<{ iniziata: number; testo: string } | null>(null);
   const [chiacchieraOra, setChiacchieraOra] = useState<Chiacchiera | null>(null);
-  const [tappaHome, setTappaHome] = useState<Tappa | null>(null);
   const [solleticoOra, setSolleticoOra] = useState<Chiacchiera | null>(null);
-  const [annuncio, setAnnuncio] = useState<Sblocco[] | null>(null);
-  const [sorpresa, setSorpresa] = useState<{ iniziata: number; battute: Battuta[] } | null>(null);
+  // storia: il lettore dei capitoli (coda congelata all'apertura), la rilettura dal diario
+  const [lettore, setLettore] = useState<Lettore | null>(null);
+  const [rilettura, setRilettura] = useState<number | null>(null);
+  const [esce, setEsce] = useState(false);
+  /** partita (iniziata) di cui è finita la festa sulla griglia */
+  const [festa, setFesta] = useState<number | null>(null);
+  /** partita (iniziata) i cui capitoli sono già stati letti o rimandati ("Dopo"): ora la carta */
+  const [fattoPer, setFattoPer] = useState<number | null>(null);
+  /** carta di vittoria di una partita già sostituita dal partner mentre leggevo: "Vai" */
+  const [cartaVai, setCartaVai] = useState<Riassunto | null>(null);
   /** azione in attesa di conferma (nuova partita o ripresa con un'altra partita già iniziata) */
   const [daConfermare, setDaConfermare] = useState<{ azione: () => void } | null>(null);
   const { ultime, ricorda } = useUltimeFrasi();
@@ -127,9 +151,9 @@ export function App() {
   const { mascotte, reagisci, sveglia } = useMascotte();
 
   // valori letti dai gestori di rete (sempre gli ultimi)
-  const vivi = useRef({ nomeMio, nomePartner, sbloccata, mioRuolo, schermata, mostraErrori, vibrazione, mascotte, fiori, giorno });
+  const vivi = useRef({ nomeMio, nomePartner, sbloccata, mioRuolo, schermata, mostraErrori, vibrazione, mascotte, fiori, giorno, vistiMiei });
   useEffect(() => {
-    vivi.current = { nomeMio, nomePartner, sbloccata, mioRuolo, schermata, mostraErrori, vibrazione, mascotte, fiori, giorno };
+    vivi.current = { nomeMio, nomePartner, sbloccata, mioRuolo, schermata, mostraErrori, vibrazione, mascotte, fiori, giorno, vistiMiei };
   });
   const ultimaFrase = useRef('');
   const ultimoEvento = useRef(0);
@@ -205,13 +229,13 @@ export function App() {
     } else mostra({ tipo: 'banner', testo, categoria: o.categoria });
   }
 
-  function mostraChiacchiera(chi: ChiParla, testo: string) {
+  function mostraChiacchiera(chi: ChiParla, testo: string, o: { firma?: string; ms?: number } = {}) {
     // l'accessorio della frase solo se è già sbloccato e del suo carattere (in partita sono separati)
     const v = vivi.current;
     const accessorio = accessorioPermesso(chi, accessorioDi(chi, testo), v.fiori, { giorno: v.giorno });
-    setChiacchieraOra({ id: Date.now(), chi, testo, accessorio });
+    setChiacchieraOra({ id: Date.now(), chi, testo, accessorio, firma: o.firma });
     window.clearTimeout(timerChiacchiera.current);
-    timerChiacchiera.current = window.setTimeout(() => setChiacchieraOra(null), DURATA_CHIACCHIERA_MS);
+    timerChiacchiera.current = window.setTimeout(() => setChiacchieraOra(null), o.ms ?? DURATA_CHIACCHIERA_MS);
   }
 
   function mostraReazione(r: Reazione, dalPartner: boolean) {
@@ -323,13 +347,7 @@ export function App() {
         const p = ref.current.partita;
         if (!p) return;
         setVittoriaChiusa(null);
-        // sorpresa di questo numero di fiori: una volta per dispositivo (segnata subito come vista)
-        const a = ref.current;
-        const s = sorpresaDaMostrare(fioriDi(a.storico), a.tappeViste, vivi.current.sbloccata);
-        if (s) {
-          setSorpresa({ iniziata: p.iniziata, battute: s.battute });
-          modifica((x) => (x.tappeViste.includes(s.chiave) ? x : { ...x, tappeViste: [...x.tappeViste, s.chiave] }));
-        }
+        // festa sulla griglia (reazione e lampo); il capitolo e la carta arrivano dopo (FESTA_MS)
         reagisci(vivi.current.sbloccata ? mascotteDi(vivi.current.mioRuolo) : 'semino', umoreEvento('semino', 'vittoria'));
         // la frase la sceglie chi ha messo l'ultima cella; se non arriva, la scelgo io
         window.setTimeout(() => {
@@ -503,7 +521,9 @@ export function App() {
   if (schermata === 'partita' && !partita) setSchermata('home');
 
   // --- timer ---------------------------------------------------------------------
-  const inGioco = schermata === 'partita' && !!partita && !partita.finita;
+  // mentre leggo un capitolo la partita nuova (aperta dal partner) aspetta: il mio timer è fermo
+  const leggendo = !!lettore || rilettura !== null || !!cartaVai;
+  const inGioco = schermata === 'partita' && !!partita && !partita.finita && !leggendo;
   const tick = gioco.tick;
   useEffect(() => {
     if (!inGioco) return;
@@ -513,69 +533,130 @@ export function App() {
     return () => window.clearInterval(t);
   }, [inGioco, tick]);
 
-  // --- storia e scena di sblocco -----------------------------------------------------
-  const vittoriaAperta = schermata === 'partita' && !!partita?.finita && vittoriaChiusa !== partita.iniziata;
-  const scena = !!io && schermata !== 'ingresso' && !vittoriaAperta && scenaDaMostrare(fiori, archivio.tappeViste);
+  // --- storia: capitoli dopo la vittoria e dalla Home ------------------------------------------
+  // Tutto derivato dallo stato: la coda (capitoli con fiore ≤ fiori non letti da me) si congela
+  // quando il lettore si apre e non cresce finché non si chiude.
+  const coda = useMemo(() => codaCapitoli(fiori, vistiMiei), [fiori, vistiMiei]);
+  const finitaQui = schermata === 'partita' && !!partita?.finita && vittoriaChiusa !== partita.iniziata;
+  const iniziataFinita = finitaQui ? partita!.iniziata : null;
+  // ~900 ms di festa sulla griglia prima del capitolo
+  useEffect(() => {
+    if (iniziataFinita === null) return;
+    const t = window.setTimeout(() => setFesta(iniziataFinita), FESTA_MS);
+    return () => window.clearTimeout(t);
+  }, [iniziataFinita]);
+  if (!lettore && iniziataFinita !== null && festa === iniziataFinita && fattoPer !== iniziataFinita && coda.length > 0) {
+    setLettore(apriLettore(fiori, vistiMiei, 'vittoria', archivio.azzerato, riassuntoDi(partita!, mioRuolo)));
+  }
+  // un azzeramento (anche dal partner) chiude il lettore: la coda di prima non vale più
+  if (lettore && lettore.azzerato !== archivio.azzerato) setLettore(null);
+  const capitoloAperto = capitoloDelLettore(lettore);
+  const vittoriaAperta = finitaQui && !lettore && !cartaVai && (coda.length === 0 || fattoPer === iniziataFinita);
 
-  // entrando nella Home: la tappa più alta non ancora vista (segnata subito come vista)
-  const [homeVista, setHomeVista] = useState<string | null>(null);
-  // con `azzerato`: dopo "ricomincia" la storia riparte anche se i fiori erano già 0
-  const chiaveHome = schermata === 'home' && !scena ? `${fiori}-${archivio.azzerato}` : null;
-  if (chiaveHome !== homeVista) {
-    setHomeVista(chiaveHome);
-    const t = chiaveHome ? tappaDaMostrare(fiori, archivio.tappeViste) : null;
-    setTappaHome(
-      t && {
-        ...t,
-        testo: sostituisci(t.testo, { nome: nomePartner, io: nomeMio, reale: profilo.nomeReale, realePartner: profiloPartner.nomeReale }),
-      },
+  function chiudiLettore(l: Lettore) {
+    setLettore(null);
+    if (l.origine !== 'vittoria' || !l.riassunto) return;
+    const p = ref.current.partita;
+    setFattoPer(l.riassunto.iniziata);
+    // il partner ha già aperto un'altra partita: la carta di quella finita, con "Vai"
+    if (!p || p.iniziata !== l.riassunto.iniziata) setCartaVai(l.riassunto);
+  }
+
+  /** "Continua" alla fine di un capitolo: visto (e regalo), poi il successivo o la carta. */
+  function continuaCapitolo() {
+    const l = lettore;
+    const c = capitoloDelLettore(l);
+    if (!l || !c || esce) return;
+    modifica((a) => conCapitoloVisto(a, mioRuolo, c.fiore));
+    if (c.fiore === SEMINA_ARRIVA_A) {
+      reagisci('semino', 'felice');
+      reagisci('semina', 'euforico');
+    }
+    const dopo = avanza(l);
+    if (dopo) {
+      setLettore(dopo);
+      return;
+    }
+    setEsce(true);
+    window.setTimeout(() => {
+      setEsce(false);
+      chiudiLettore(l);
+    }, USCITA_MS);
+  }
+
+  function chiudiRilettura() {
+    if (esce) return;
+    setEsce(true);
+    window.setTimeout(() => {
+      setEsce(false);
+      setRilettura(null);
+    }, USCITA_MS);
+  }
+
+  /** Fondale di aiuola e giardino: la Scena della Home con gli elementi di quel capitolo (Semina mai prima del 5). */
+  function sfondoDi(c: Capitolo) {
+    const v = c.fondale ?? c.luogo;
+    if (v !== 'aiuola' && v !== 'giardino') return undefined;
+    const f = Math.min(fiori, c.fiore);
+    const elementi = elementiSbloccati(f).filter((e) => e !== 'semina' || c.fiore > SEMINA_ARRIVA_A);
+    return (
+      <div className="capitolo-sfondo" aria-hidden="true">
+        <Scena elementi={elementi} fiori={f} bluPresenza={presenzaBlu(f, c.fiore > SEMINA_ARRIVA_A)} altezza={260} nuovi={[]} />
+      </div>
     );
   }
-  useEffect(() => {
-    if (!tappaHome) return;
-    const k = tappaHome.chiave;
-    modifica((a) => (a.tappeViste.includes(k) ? a : { ...a, tappeViste: [...a.tappeViste, k] }));
-  }, [tappaHome, modifica]);
 
-  // entrando nella Home: gli sblocchi nuovi per questo dispositivo (annuncio dell'ultima soglia, i
-  // suoi regali messi da parte per la prossima partita, tutti segnati come visti)
+  // entrando nella Home: l'eco dell'ultimo capitolo letto, una volta (poi entra nelle chiacchiere)
+  const ecoOra = schermata === 'home' && !lettore && rilettura === null ? ecoDaMostrare(vistiMiei, archivio.ecoViste) : null;
+  const chiaveEcoOra = ecoOra?.chiave ?? null;
+  useEffect(() => {
+    if (!ecoOra) return;
+    // prima dell'arrivo di Semina qui le sue eco non si dicono (non dovrebbero esserci: i dati lo garantiscono)
+    if (ecoOra.chi === 'semino' || vivi.current.sbloccata) {
+      const nome = ecoOra.chi === 'semina' ? 'Semina' : 'Semino';
+      mostraChiacchiera(ecoOra.chi, sostituisci(ecoOra.testo, sost()), { firma: `${nome} · dal capitolo ${ecoOra.fiore}`, ms: DURATA_ECO_MS });
+    }
+    const k = ecoOra.chiave;
+    modifica((a) => (a.ecoViste.includes(k) ? a : { ...a, ecoViste: [...a.ecoViste, k] }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chiaveEcoOra]);
+
+  // entrando nella Home: i pacchetti di frasi nuovi per questo dispositivo, con un toast
+  const chiaveHome = schermata === 'home' && !lettore ? `${fiori}-${archivio.azzerato}-${sbloccata}` : null;
   useEffect(() => {
     if (!chiaveHome) return;
     const a = ref.current;
-    const n = sblocchiNuovi(fioriDi(a.storico), a.sbloccatiVisti);
-    // l'arrivo di Semina l'ha già raccontato la scena: niente secondo annuncio (il regalo arriva lo stesso)
-    if (n.annuncio.length && !n.annuncio.some((s) => s.tipo === 'elemento' && s.id === 'semina')) setAnnuncio(n.annuncio);
-    if (n.regali || !stessiVisti(a.sbloccatiVisti, n.visti)) {
-      modifica((x) => ({ ...x, sbloccatiVisti: n.visti, regaliBonus: regaliBonusDi(x.regaliBonus) + n.regali }));
-    }
-  }, [chiaveHome, ref, modifica]);
-
-  function fineScena() {
-    modifica((a) => (a.tappeViste.includes(CHIAVE_SBLOCCO) ? a : { ...a, tappeViste: [...a.tappeViste, CHIAVE_SBLOCCO] }));
-    reagisci('semino', 'felice');
-    reagisci('semina', 'euforico');
-  }
+    const sb = vivi.current.sbloccata;
+    const n = frasiNuove(fioriDi(a.storico), a.sbloccatiVisti, sb);
+    if (n.nuove.length) mostra({ tipo: 'banner', testo: testoFrasiNuove(n.nuove, sb) });
+    if (!stessiVisti(a.sbloccatiVisti, n.visti)) modifica((x) => ({ ...x, sbloccatiVisti: n.visti }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chiaveHome]);
 
   // --- chiacchiere: ogni 40–60 s, mai sopra la storia, in partita solo dopo 45 s di quiete ------
   useOgniTanto(!!io && (schermata === 'home' || schermata === 'partita'), () => {
     const ora = Date.now();
-    if (tappaHome || scena || vittoriaAperta || annuncio) return;
+    if (leggendo || vittoriaAperta) return;
     if (vivi.current.schermata === 'partita' && ora - ultimoEvento.current < SILENZIO_PARTITA_MS) return;
     if (connessione === 'connesso' && ora - ultimaChiacchieraRicevuta.current < RISPETTA_CHIACCHIERA_MS) return;
     const chi: ChiParla = vivi.current.sbloccata ? prossimaChi.current : 'semino';
     prossimaChi.current = chi === 'semino' ? 'semina' : 'semino';
     // chi dorme non chiacchiera
     if (vivi.current.mascotte[chi].umore === 'dorme') return;
+    // le eco dei capitoli letti da me (in Home), con peso basso
+    const eco = vivi.current.schermata === 'home' ? ecoDi(vivi.current.vistiMiei, chi) : [];
     const testo = chiacchiera(chi, evita('chiacchiere'), sost(), Math.random, {
       fiori: vivi.current.fiori,
       giorno: vivi.current.giorno,
       sbloccata: vivi.current.sbloccata,
+      eco,
     });
     if (!testo) return;
     usata('chiacchiere', testo);
     const r: Reazione = { chi, umore: CARATTERE[chi].umoreBase, categoria: 'chiacchiera', testo };
     mostraReazione(r, false);
-    inviaReazione(r);
+    // un'eco resta qui: il partner quel capitolo forse non l'ha ancora letto
+    if (!eco.some((e) => sostituisci(e, sost()) === testo)) inviaReazione(r);
   });
 
   // --- azioni ------------------------------------------------------------------------
@@ -695,6 +776,8 @@ export function App() {
   return (
     <div className="app" style={stile}>
       <BannerAggiornamento />
+      {/* sotto il lettore (o la rilettura) tutto è inert; la carta "Vai" invece si tocca */}
+      <div className="app-sotto" inert={!!lettore || rilettura !== null}>
       {schermata === 'ingresso' && (
         <Ingresso key="ingresso" iniziale={io} sbloccata={sbloccata} onEntra={entra} />
       )}
@@ -712,8 +795,8 @@ export function App() {
           fiori={fiori}
           sbloccata={sbloccata}
           giorno={giorno}
-          tappa={tappaHome}
-          onChiudiTappa={() => setTappaHome(null)}
+          daLeggere={coda.length}
+          onLeggi={() => setLettore(apriLettore(fiori, vistiMiei, 'home', archivio.azzerato))}
           chiacchiera={chiacchieraOra}
           solletico={solleticoOra}
           onSolletico={onSolletico}
@@ -747,6 +830,8 @@ export function App() {
           onSolletico={onSolletico}
           onRiprendi={(v) => conConferma(() => riprendi(v))}
           onEsci={() => setSchermata('home')}
+          diario={diario(vistiMiei)}
+          onRileggi={setRilettura}
         />
       )}
       {schermata === 'partita' && partita && (
@@ -797,9 +882,29 @@ export function App() {
           bonus={bonusVittoria(partita.secondi)}
           fiori={fiori}
           bluPresenza={blu}
-          sorpresa={sorpresa && sorpresa.iniziata === partita.iniziata ? sorpresa.battute : null}
           onNuova={() => iniziaNuova(partita.puzzle.modalita, partita.puzzle.livello)}
           onChiudi={() => setVittoriaChiusa(partita.iniziata)}
+        />
+      )}
+      {cartaVai && !lettore && (
+        <Vittoria
+          secondi={cartaVai.secondi}
+          frase={fraseVittoria?.iniziata === cartaVai.iniziata ? fraseVittoria.testo : ''}
+          sbloccata={sbloccata}
+          mascotte={mascotte}
+          solletico={solleticoOra}
+          onSolletico={onSolletico}
+          puntiMiei={cartaVai.puntiMiei}
+          puntiSuoi={cartaVai.puntiSuoi}
+          bonus={cartaVai.bonus}
+          fiori={fiori}
+          bluPresenza={blu}
+          vai
+          onNuova={() => {
+            setCartaVai(null);
+            if (ref.current.partita) setSchermata('partita');
+          }}
+          onChiudi={() => setCartaVai(null)}
         />
       )}
       {daConfermare && (
@@ -815,11 +920,60 @@ export function App() {
           onChiudi={() => setDaConfermare(null)}
         />
       )}
-      {scena && <ScenaSblocco onFine={fineScena} />}
-      {annuncio && schermata === 'home' && !scena && (
-        <AnnuncioSblocco sblocchi={annuncio} fiori={fiori} bluPresenza={blu} onChiudi={() => setAnnuncio(null)} />
+      </div>
+      {lettore?.chiedi && (
+        <FoglioArretrati
+          n={lettore.coda.length}
+          onAdesso={() => setLettore(leggiAdesso(lettore))}
+          onDopo={() => chiudiLettore(lettore)}
+        />
+      )}
+      {capitoloAperto && lettore && (
+        <CapitoloScena
+          capitolo={capitoloAperto}
+          indice={lettore.pos + 1}
+          totale={lettore.coda.length}
+          stadio={Math.min(4, capitoloAperto.fiore)}
+          onContinua={continuaCapitolo}
+          accessoriDisegnati={vestitoDisegnato}
+          sfondo={sfondoDi(capitoloAperto)}
+          esce={esce}
+        />
+      )}
+      {rilettura !== null && !lettore && capitoloDi(rilettura) && (
+        <CapitoloScena
+          capitolo={capitoloDi(rilettura)!}
+          stadio={Math.min(4, rilettura)}
+          onContinua={chiudiRilettura}
+          rilettura
+          accessoriDisegnati={vestitoDisegnato}
+          sfondo={sfondoDi(capitoloDi(rilettura)!)}
+          esce={esce}
+        />
       )}
       <Toasts attivi={attivi} />
+    </div>
+  );
+}
+
+/** Prima di una coda lunga di capitoli dopo la vittoria: leggerli adesso o dopo (dalla Home). */
+function FoglioArretrati({ n, onAdesso, onDopo }: { n: number; onAdesso: () => void; onDopo: () => void }) {
+  return (
+    <div className="foglio-velo">
+      <div className="foglio" role="alertdialog" aria-modal="true" aria-labelledby="arretrati-titolo" data-testid="capitoli-chiedi">
+        <div className="foglio-passo">
+          <h2 id="arretrati-titolo">Hai {n} capitoli da leggere</h2>
+          <p>Li leggi adesso? Se no restano qui, in ordine, e li trovi nella Home.</p>
+          <div className="foglio-azioni">
+            <button className="bottone" data-testid="capitoli-dopo" onClick={onDopo}>
+              Dopo
+            </button>
+            <button className="bottone primario" data-testid="capitoli-adesso" autoFocus onClick={onAdesso}>
+              Adesso
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

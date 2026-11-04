@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { FRASI, FRASI_EXTRA, SONNO, STORIA_SEMINO, VOCE, VOCE_SUGGERIMENTO } from './frasi';
+import { FRASI, FRASI_EXTRA, SONNO, VOCE, VOCE_SUGGERIMENTO } from './frasi';
 import type { ChiParla, FraseConAccessorio } from './frasi';
-import { GIORNI_SPECIALI, SBLOCCHI, SORPRESE, STORIA, chiaveDi, elementiSbloccati, giornoSpeciale } from './storia';
+import { GIORNI_SPECIALI, QUOTA_ECO_CHIACCHIERE, SBLOCCHI, elementiSbloccati, giornoSpeciale } from './storia';
 
 const testo = (f: FraseConAccessorio) => (typeof f === 'string' ? f : f.testo);
 const accessorio = (f: FraseConAccessorio) => (typeof f === 'string' ? undefined : f.accessorio);
@@ -15,38 +15,21 @@ const PRINCIPALI = [
 /** Semino non ama la montagna: la nomina solo per lamentarsene. */
 const montagnaOk = (t: string) => !/montagn/i.test(t) || /fatic|lament/i.test(t);
 
-describe('storia', () => {
-  it('tappe ordinate, una per numero di fiori, chiavi uniche, testi ≤ 240', () => {
-    const p = STORIA.map((t) => t.partite);
-    expect(p).toEqual([...p].sort((x, y) => x - y));
-    expect(new Set(p).size).toBe(p.length);
-    const chiavi = STORIA.map(chiaveDi);
-    expect(new Set(chiavi).size).toBe(chiavi.length);
-    for (const t of STORIA) expect(t.testo.length, t.testo).toBeLessThanOrEqual(240);
-  });
-  it('tappe 0–5 invariate rispetto a quelle già viste', () => {
-    for (const vecchia of STORIA_SEMINO.filter((t) => t.partite <= 5)) {
-      const t = STORIA.find((x) => x.partite === vecchia.partite);
-      expect(t && { chi: t.chi, testo: t.testo }).toEqual({ chi: vecchia.chi, testo: vecchia.testo });
-    }
-    expect(STORIA.find((t) => t.partite === 6)?.chi).toBe('semino'); // chiave semino-6 come prima
-  });
-  it('fitta fino a 20, poi fino ad almeno 60, epilogo a 80 e 100', () => {
-    const p = STORIA.map((t) => t.partite);
-    for (let i = 1; i < p.length && p[i] <= 20; i++) expect(p[i] - p[i - 1]).toBeLessThanOrEqual(2);
-    for (let i = 1; i < p.length && p[i] <= 60; i++) expect(p[i] - p[i - 1]).toBeLessThanOrEqual(5);
-    expect(p).toContain(60);
-    expect(p).toContain(80);
-    expect(p).toContain(100);
-  });
-  it('ogni elemento del giardino ha la sua tappa alla stessa soglia', () => {
+// La storia sono i capitoli (config/capitoli.test.ts); qui restano sblocchi, pacchetti e giorni speciali.
+describe('sblocchi del giardino', () => {
+  it('elementi alle soglie di sempre (il panorama non cambia finché non c\'è T6), id unici', () => {
     const soglie = [1, 3, 5, 8, 10, 12, 15, 18, 20, 25, 30, 35, 40, 50, 60];
     const elementi = SBLOCCHI.filter((s) => s.sblocco.tipo === 'elemento');
     expect(elementi.map((s) => s.partite)).toEqual(soglie);
-    for (const s of elementi) expect(STORIA.find((t) => t.partite === s.partite)?.sblocca?.id).toBe(s.sblocco.id);
     expect(elementiSbloccati(9)).toEqual(['fiore', 'sentiero', 'semina', 'stagno']);
+    expect(elementiSbloccati(0)).toEqual([]);
     const ids = SBLOCCHI.map((s) => `${s.sblocco.tipo}:${s.sblocco.id}`);
     expect(new Set(ids).size).toBe(ids.length);
+  });
+  it('soglie in ordine, niente più regali negli sblocchi (vanno coi capitoli)', () => {
+    const p = SBLOCCHI.map((s) => s.partite);
+    expect(p).toEqual([...p].sort((x, y) => x - y));
+    expect(SBLOCCHI.map((s) => s.sblocco.tipo as string)).not.toContain('regalo');
   });
   it('i pacchetti di frasi sbloccati esistono in FRASI_EXTRA', () => {
     const pacchetti = new Set(FRASI_EXTRA.map((p) => `${p.chi}-${p.categoria}-${p.partite}`));
@@ -54,13 +37,9 @@ describe('storia', () => {
     for (const n of [8, 12, 20, 30, 40, 50]) expect(FRASI_EXTRA.some((p) => p.partite === n)).toBe(true);
     expect(SBLOCCHI.find((s) => s.sblocco.tipo === 'accessorio' && s.sblocco.id === 'surf')?.partite).toBe(15);
   });
-  it('sorprese alle soglie scelte, 2–3 battute brevi', () => {
-    expect(SORPRESE.map((s) => s.partite)).toEqual([7, 10, 15, 20, 25, 30, 40, 50, 60]);
-    for (const s of SORPRESE) {
-      expect(s.battute.length).toBeGreaterThanOrEqual(2);
-      expect(s.battute.length).toBeLessThanOrEqual(3);
-      for (const b of s.battute) expect(b.testo.length).toBeLessThanOrEqual(240);
-    }
+  it('le eco entrano nelle chiacchiere con peso basso (circa 1 su 4)', () => {
+    expect(QUOTA_ECO_CHIACCHIERE).toBeGreaterThan(0);
+    expect(QUOTA_ECO_CHIACCHIERE).toBeLessThanOrEqual(0.3);
   });
   it('giorni del mare e della montagna deterministici dalla data', () => {
     const giorni = Array.from({ length: 14 }, (_, i) => giornoSpeciale(new Date(2026, 0, 1 + i, 12)));
@@ -108,11 +87,6 @@ describe('frasi e personaggi', () => {
       if (a) expect(ACC_SEMINO.has(a), `${a}: ${testo(f)}`).toBe(true);
     }
     for (const g of Object.values(GIORNI_SPECIALI)) expect(ACC_SEMINO.has(g.accessori.semino)).toBe(true);
-    for (const t of STORIA) {
-      if ((t.chi === 'semino' || t.chi === 'entrambi') && t.accessorio) expect(ACC_SEMINO.has(t.accessorio), t.testo).toBe(true);
-      if (t.chi === 'semina' && t.accessorio) expect(ACC_SEMINA.has(t.accessorio), t.testo).toBe(true);
-      if (t.accessorioSemina) expect(ACC_SEMINA.has(t.accessorioSemina)).toBe(true);
-    }
   });
   it('Semina: accessori suoi, il mare solo con Semino', () => {
     const sue: FraseConAccessorio[] = [

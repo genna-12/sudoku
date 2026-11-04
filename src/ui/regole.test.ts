@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { BONUS_VITTORIA, PENALITA_ERRORE, PUNTI, PUNTI_CRESCITA_PIENA, PUNTI_PER_REGALO, bonusTempo } from '../config/punteggio';
-import { FRASI, FRASI_EXTRA, SEMINA_SBLOCCATA_A, VOCE, VOCE_SUGGERIMENTO } from '../config/frasi';
-import { GIORNI_SPECIALI, SBLOCCHI, SORPRESE } from '../config/storia';
+import { SEMINA_ARRIVA_A } from '../config/capitoli';
+import { FRASI, FRASI_EXTRA, VOCE, VOCE_SUGGERIMENTO } from '../config/frasi';
+import { GIORNI_SPECIALI, QUOTA_ECO_CHIACCHIERE, SBLOCCHI } from '../config/storia';
 import { generaPuzzle } from '../engine';
 import type { Puzzle, Valutazione } from '../engine';
 import { applica, griglia, nuovaPartita, voceStorico } from '../stato';
 import type { Contatori, StatoPartita, VoceStorico } from '../stato';
 import {
-  CHIAVE_SBLOCCO,
   RARO_ARRABBIATA,
   UMORI_SOLLETICO,
   accessorioDi,
@@ -18,7 +18,6 @@ import {
   quotaBluFiore,
   quotaBluPartita,
   solletico,
-  STORIA,
   celleCompletate,
   accessoriSbloccati,
   accessorioPermesso,
@@ -26,10 +25,10 @@ import {
   chiaveSblocco,
   frasiDisponibili,
   frasiInvio,
+  frasiNuove,
+  testoFrasiNuove,
   regaliBonusDi,
   ricorda,
-  sblocchiNuovi,
-  sorpresaDaMostrare,
   stessiVisti,
   conBonusVittoria,
   conRegali,
@@ -43,10 +42,8 @@ import {
   senzaSemina,
   puntiMossa,
   scegliFrase,
-  scenaDaMostrare,
   sostituisci,
   statistiche,
-  tappaDaMostrare,
   umoreEvento,
   usaRegalo,
   vociCambiate,
@@ -202,27 +199,6 @@ describe('giardino e storia', () => {
       { modalita: 'killer', livello: 'medio', secondi: 90 },
     ]);
   });
-  it('storia completa ordinata per fiori', () => {
-    const p = STORIA.map((t) => t.partite);
-    expect(p).toEqual([...p].sort((x, y) => x - y));
-  });
-  it('tappa più alta raggiunta e non vista; la tappa di Semina la racconta la scena', () => {
-    expect(tappaDaMostrare(0, [])?.chiave).toBe('semino-0');
-    expect(tappaDaMostrare(3, [])?.chiave).toBe('semino-3');
-    // la storia non torna indietro: le tappe saltate non si recuperano
-    expect(tappaDaMostrare(3, ['semino-3'])).toBeNull();
-    // vittoria a 4 seguita subito da "nuova", poi il 5° fiore: dopo la scena NON "Semino si sente solo"
-    expect(tappaDaMostrare(SEMINA_SBLOCCATA_A, [CHIAVE_SBLOCCO])).toBeNull();
-    expect(tappaDaMostrare(SEMINA_SBLOCCATA_A, [])).toBeNull();
-    expect(tappaDaMostrare(SEMINA_SBLOCCATA_A + 1, [CHIAVE_SBLOCCO])?.chiave).toBe('semino-6');
-    // chiavi di T2 con un altro `chi` per lo stesso numero di fiori: la tappa resta vista
-    expect(tappaDaMostrare(8, ['semina-8'])).toBeNull();
-    expect(tappaDaMostrare(7, ['semino-7'])).toBeNull();
-    expect(tappaDaMostrare(8, ['sorpresa-8'])?.chiave).toBe('semino-8');
-    expect(scenaDaMostrare(SEMINA_SBLOCCATA_A - 1, [])).toBe(false);
-    expect(scenaDaMostrare(SEMINA_SBLOCCATA_A, [])).toBe(true);
-    expect(scenaDaMostrare(SEMINA_SBLOCCATA_A + 3, [CHIAVE_SBLOCCO])).toBe(false);
-  });
 });
 
 describe('frasi', () => {
@@ -285,8 +261,8 @@ function casoDa(seme: number): () => number {
 describe('presenza del blu', () => {
   it('cresce coi fiori fino allo sblocco, poi resta piena', () => {
     expect(presenzaBlu(0, false)).toBe(0);
-    expect(presenzaBlu(3, false)).toBeCloseTo(3 / SEMINA_SBLOCCATA_A);
-    expect(presenzaBlu(SEMINA_SBLOCCATA_A + 4, false)).toBe(1);
+    expect(presenzaBlu(3, false)).toBeCloseTo(3 / SEMINA_ARRIVA_A);
+    expect(presenzaBlu(SEMINA_ARRIVA_A + 4, false)).toBe(1);
     expect(presenzaBlu(0, true)).toBe(1);
     expect(presenzaBlu(-2, false)).toBe(0);
   });
@@ -310,13 +286,13 @@ describe('fiori del giardino', () => {
     const v = finita('x', 1, { quotaBlu: 1 });
     expect(quotaBluFiore(v, 1, false)).toBe(0);
     expect(quotaBluFiore(v, 3, false)).toBeCloseTo(0.25);
-    expect(quotaBluFiore(v, SEMINA_SBLOCCATA_A, false)).toBe(0.5);
+    expect(quotaBluFiore(v, SEMINA_ARRIVA_A, false)).toBe(0.5);
     expect(quotaBluFiore(v, 1, true)).toBe(0);
-    expect(quotaBluFiore(v, SEMINA_SBLOCCATA_A, true)).toBe(0.5);
+    expect(quotaBluFiore(v, SEMINA_ARRIVA_A, true)).toBe(0.5);
   });
 
   it('dal fiore successivo conta chi ha fatto più punti', () => {
-    const n = SEMINA_SBLOCCATA_A + 1;
+    const n = SEMINA_ARRIVA_A + 1;
     expect(quotaBluFiore(finita('x', 1, { quotaBlu: 0.8 }), n, true)).toBe(0.8);
     expect(quotaBluFiore(finita('x', 1, { quotaBlu: 0 }), n, true)).toBe(0);
     expect(quotaBluFiore(finita('x', 1), n, true)).toBe(0.5);
@@ -465,58 +441,70 @@ describe('accessori sbloccati', () => {
   });
 });
 
-describe('sblocchi nuovi', () => {
+describe('pacchetti di frasi nuovi (toast in Home)', () => {
   const chiavi = (n: number) => SBLOCCHI.filter((s) => s.partite <= n).map((s) => chiaveSblocco(s.sblocco));
 
-  it('niente da annunciare a 0 fiori', () => {
-    expect(sblocchiNuovi(0, undefined)).toEqual({ annuncio: [], regali: 0, visti: [] });
+  it('niente a 0 fiori', () => {
+    expect(frasiNuove(0, undefined, false)).toEqual({ nuove: [], visti: [] });
   });
 
-  it('una soglia nuova: annuncio con i suoi regali', () => {
-    const n = sblocchiNuovi(8, chiavi(7));
-    expect(n.annuncio.map((s) => s.id)).toEqual(['stagno', 'semino-chiacchiere-8', 'semina-chiacchiere-8']);
-    expect(n.regali).toBe(0);
+  it('solo i pacchetti di frasi si annunciano; elementi e accessori si segnano e basta', () => {
+    const n = frasiNuove(8, chiavi(7), true);
+    expect(n.nuove.map((s) => s.id)).toEqual(['semino-chiacchiere-8', 'semina-chiacchiere-8']);
     expect(n.visti).toEqual(chiavi(8));
-    const m = sblocchiNuovi(10, chiavi(8));
-    expect(m.annuncio.map((s) => s.tipo)).toEqual(['elemento', 'regalo']);
-    expect(m.regali).toBe(1);
+    expect(testoFrasiNuove(n.nuove, true)).toBe('Frasi nuove per Semino e Semina');
+    expect(frasiNuove(10, chiavi(8), true).nuove).toEqual([]);
+    expect(testoFrasiNuove([], true)).toBe('');
   });
 
-  it('più soglie insieme: solo l’ultima, tutte segnate viste; poi più niente', () => {
-    const n = sblocchiNuovi(13, []);
-    expect(n.annuncio.map((s) => s.id)).toEqual(['cassetta', 'entrambi-invio-12']);
-    expect(n.regali).toBe(0);
-    expect(sblocchiNuovi(13, n.visti).annuncio).toEqual([]);
-    expect(stessiVisti(n.visti, sblocchiNuovi(13, n.visti).visti)).toBe(true);
+  it('più soglie insieme: tutti i pacchetti in un toast solo; poi più niente', () => {
+    const n = frasiNuove(13, [], true);
+    expect(n.nuove.map((s) => s.id)).toEqual(['semino-chiacchiere-8', 'semina-chiacchiere-8', 'entrambi-invio-12']);
+    expect(frasiNuove(13, n.visti, true).nuove).toEqual([]);
+    expect(stessiVisti(n.visti, frasiNuove(13, n.visti, true).visti)).toBe(true);
+  });
+
+  it('prima che Semina arrivi qui i suoi pacchetti aspettano (né annunciati né segnati)', () => {
+    const n = frasiNuove(8, chiavi(7), false);
+    expect(n.nuove.map((s) => s.id)).toEqual(['semino-chiacchiere-8']);
+    expect(n.visti).not.toContain('frasi:semina-chiacchiere-8');
+    expect(testoFrasiNuove(n.nuove, false)).toBe('Frasi nuove per Semino');
+    expect(frasiNuove(8, n.visti, true).nuove.map((s) => s.id)).toEqual(['semina-chiacchiere-8']);
+    expect(testoFrasiNuove(frasiNuove(12, chiavi(11), false).nuove, false)).toBe('Frasi nuove per voi due');
   });
 
   it('dopo un "ricomincia" le chiavi oltre i fiori si dimenticano', () => {
-    const n = sblocchiNuovi(0, chiavi(20));
+    const n = frasiNuove(0, chiavi(20), true);
     expect(n.visti).toEqual([]);
     expect(stessiVisti(chiavi(20), n.visti)).toBe(false);
-    expect(sblocchiNuovi(1, n.visti).regali).toBe(1);
   });
 
   it('valori strani nell’archivio', () => {
-    expect(sblocchiNuovi(1, 'boh').annuncio.length).toBe(2);
+    expect(frasiNuove(8, 'boh', true).nuove.length).toBe(2);
     expect(regaliBonusDi(undefined)).toBe(0);
     expect(regaliBonusDi(-3)).toBe(0);
     expect(regaliBonusDi(2.7)).toBe(2);
   });
 });
 
-describe('sorprese alla vittoria', () => {
-  const dopoSemina = ['semina-5'];
-  it('la scena del numero di fiori raggiunto, una volta', () => {
-    const s = sorpresaDaMostrare(10, dopoSemina, true);
-    expect(s?.chiave).toBe('sorpresa-10');
-    expect(s?.battute).toBe(SORPRESE.find((x) => x.partite === 10)?.battute);
-    expect(sorpresaDaMostrare(10, [...dopoSemina, 'sorpresa-10'], true)).toBeNull();
-    expect(sorpresaDaMostrare(11, dopoSemina, true)).toBeNull();
+describe('eco dei capitoli nelle chiacchiere', () => {
+  const s = { nome: 'a', io: 'b' };
+  it('con caso sotto la quota viene dalle eco, sopra dalle solite', () => {
+    const eco = ['eco uno', 'eco due'];
+    expect(eco).toContain(chiacchiera('semino', '', s, () => QUOTA_ECO_CHIACCHIERE / 2, { fiori: 3, eco }));
+    expect(eco).not.toContain(chiacchiera('semino', '', s, () => Math.min(0.99, QUOTA_ECO_CHIACCHIERE + 0.05), { fiori: 3, eco }));
   });
-  it('mai prima che Semina sia arrivata qui, mai sopra la sua scena', () => {
-    expect(sorpresaDaMostrare(10, [], false)).toBeNull();
-    expect(sorpresaDaMostrare(SEMINA_SBLOCCATA_A, [], true)).toBeNull();
+  it('circa una su quattro su tante chiacchiere', () => {
+    const eco = ['eco uno'];
+    const caso = casoDa(11);
+    let n = 0;
+    for (let i = 0; i < 2000; i++) if (chiacchiera('semino', '', s, caso, { fiori: 3, eco }) === 'eco uno') n++;
+    expect(n / 2000).toBeGreaterThan(QUOTA_ECO_CHIACCHIERE - 0.06);
+    expect(n / 2000).toBeLessThan(QUOTA_ECO_CHIACCHIERE + 0.06);
+  });
+  it('senza eco nulla cambia; prima dello sblocco un\'eco che nomina Semina non passa', () => {
+    expect(chiacchiera('semino', '', s, () => 0.01, { fiori: 3, eco: [] })).not.toBe('');
+    expect(chiacchiera('semino', '', s, () => 0.01, { fiori: 3, sbloccata: false, eco: ['ciao Semina'] })).not.toMatch(/semina/i);
   });
 });
 
@@ -561,7 +549,7 @@ describe('Semina non si nomina prima del suo arrivo', () => {
   const giorni = [null, 'mare', 'montagna'] as const;
 
   it('nessuna frase scelta con fiori < 5 contiene "Semina" (tutte le categorie)', () => {
-    for (let fiori = 0; fiori < SEMINA_SBLOCCATA_A; fiori++) {
+    for (let fiori = 0; fiori < SEMINA_ARRIVA_A; fiori++) {
       for (const caso of casi) {
         for (const c of categorie) {
           expect(fraseMascotte(c, 'semino', '', s, caso, fiori, false)).not.toMatch(/semina/i);

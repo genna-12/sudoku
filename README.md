@@ -31,6 +31,7 @@ Test a due client in locale (serve un server PeerJS locale perché due schede su
 npx peerjs --port 9000 --host 127.0.0.1
 VITE_PEER_HOST=127.0.0.1 VITE_PEER_PORT=9000 VITE_PEER_SECURE=false npx vite --port 5173 --host 127.0.0.1
 node scripts/qa/due-client.mjs http://127.0.0.1:5173/sudoku/
-node scripts/qa/sblocco-semina.mjs http://127.0.0.1:5173/sudoku/   # archivio T2, 4→5 fiori, layout, "Nuova" insieme
+node scripts/qa/arrivo-semina.mjs http://127.0.0.1:5173/sudoku/     # archivio v1 a 4 fiori → vittoria → capitoli 0..5 su due client → Semino e Semina
+node scripts/qa/capitoli-di-fila.mjs http://127.0.0.1:5173/sudoku/  # un capitolo per vittoria, chiuso a metà, "Nuova" del partner mentre leggo, diario
 ```
-(anche `personale.mjs` e `tre-dispositivi.mjs`, stesso uso.)
+(anche `personale.mjs` e `tre-dispositivi.mjs`, stesso uso; `scripts/qa/comune.mjs` ha gli aiuti dei due E2E della storia.)

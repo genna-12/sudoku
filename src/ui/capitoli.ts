@@ -72,3 +72,42 @@ export function regaliNuovi(prima: readonly string[], dopo: readonly string[]): 
   const d = new Set(dopo);
   return REGALI_A_CAPITOLO.filter((f) => d.has(chiaveCapitolo(f)) && !p.has(chiaveCapitolo(f))).length;
 }
+
+/** Le eco dei capitoli visti che dice `chi` (entrano nel pool delle chiacchiere con peso basso). */
+export function ecoDi(visti: readonly string[], chi: 'semino' | 'semina'): string[] {
+  const v = new Set(visti);
+  return CAPITOLI.filter((c) => v.has(chiaveCapitolo(c.fiore)) && c.eco.chi === chi).map((c) => c.eco.testo);
+}
+
+/** Gli atti della storia (docs/storia/scaletta.md): primo capitolo e nome del luogo. */
+export const ATTI: ReadonlyArray<{ da: number; nome: string }> = [
+  { da: 0, nome: "L'aiuola" },
+  { da: 6, nome: 'Il giardino' },
+  { da: 15, nome: 'Il mare' },
+  { da: 28, nome: 'La montagna' },
+  { da: 43, nome: 'Il bosco' },
+  { da: 55, nome: 'La città' },
+  { da: 67, nome: 'La cucina' },
+  { da: 77, nome: 'Oltre la montagna' },
+  { da: 91, nome: 'Il ritorno' },
+];
+
+export interface AttoDiario {
+  nome: string;
+  capitoli: Array<{ fiore: number; titolo: string }>;
+}
+
+/** Il diario: i capitoli visti, in ordine, raggruppati per atto (gli atti senza capitoli letti non ci sono). */
+export function diario(visti: readonly string[]): AttoDiario[] {
+  const v = new Set(visti);
+  const out: AttoDiario[] = [];
+  ATTI.forEach((atto, i) => {
+    const fino = i + 1 < ATTI.length ? ATTI[i + 1].da : Infinity;
+    const capitoli = CAPITOLI.filter((c) => c.fiore >= atto.da && c.fiore < fino && v.has(chiaveCapitolo(c.fiore))).map((c) => ({
+      fiore: c.fiore,
+      titolo: c.titolo,
+    }));
+    if (capitoli.length) out.push({ nome: atto.nome, capitoli });
+  });
+  return out;
+}

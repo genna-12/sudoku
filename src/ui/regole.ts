@@ -1,5 +1,6 @@
 // Regole di gioco della UI, pure e testate: punti, serie, errori, regali, crescita, giardino,
-// storia, scelta delle frasi e allineamento dello storico. I numeri stanno in config/punteggio.ts.
+// sblocchi, scelta delle frasi e allineamento dello storico. I numeri stanno in config/punteggio.ts.
+// La storia a capitoli (coda, visti, eco, Semina sbloccata) sta in ui/capitoli.ts.
 import {
   BONUS_VITTORIA,
   PENALITA_ERRORE,
@@ -11,9 +12,10 @@ import {
 } from '../config/punteggio';
 import { LIVELLI, valutaMossa } from '../engine';
 import type { Griglia, Livello, Modalita, Puzzle, Valutazione } from '../engine';
-import { FRASI, FRASI_EXTRA, SEMINA_SBLOCCATA_A, SONNO, SONNO_MOSSA, VOCE, VOCE_SUGGERIMENTO } from '../config/frasi';
-import { GIORNI_SPECIALI, SBLOCCHI, SORPRESE, STORIA as STORIA_COMPLETA, chiaveDi } from '../config/storia';
-import type { Battuta, GiornoSpeciale, Sblocco, Tappa as TappaStoria } from '../config/storia';
+import { SEMINA_ARRIVA_A } from '../config/capitoli';
+import { FRASI, FRASI_EXTRA, SONNO, SONNO_MOSSA, VOCE, VOCE_SUGGERIMENTO } from '../config/frasi';
+import { GIORNI_SPECIALI, QUOTA_ECO_CHIACCHIERE, SBLOCCHI } from '../config/storia';
+import type { GiornoSpeciale, Sblocco } from '../config/storia';
 import { ORARI_SONNO, dormePerOrario, seminaDormeTardiOggi } from '../config/sonno';
 import type { ChiParla, FraseConAccessorio } from '../config/frasi';
 import type { Contatori, Giocatore, StatoPartita, VoceStorico } from '../stato';
@@ -173,8 +175,9 @@ export function fioriDi(storico: VoceStorico[]): number {
   return storico.reduce((n, v) => n + (v.finita ? 1 : 0), 0);
 }
 
-export function seminaSbloccata(fiori: number): boolean {
-  return fiori >= SEMINA_SBLOCCATA_A;
+/** Default delle funzioni di frasi senza `sbloccata` esplicita: Semina c'è dai fiori del suo capitolo. */
+function arrivata(fiori: number): boolean {
+  return fiori >= SEMINA_ARRIVA_A;
 }
 
 /**
@@ -183,7 +186,7 @@ export function seminaSbloccata(fiori: number): boolean {
  */
 export function presenzaBlu(fiori: number, sbloccata: boolean): number {
   if (sbloccata) return 1;
-  return Math.max(0, Math.min(fiori / SEMINA_SBLOCCATA_A, 1));
+  return Math.max(0, Math.min(fiori / SEMINA_ARRIVA_A, 1));
 }
 
 /** Voce del giardino con la quota di petali blu salvata a fine partita (campo extra, sopravvive a migra e merge). */
@@ -220,53 +223,18 @@ export function numeriFiori(storico: readonly VoceStorico[]): Map<string, number
 }
 
 /**
- * Frazione di petali blu di un fiore (null per i germogli). I primi SEMINA_SBLOCCATA_A fiori seguono
+ * Frazione di petali blu di un fiore (null per i germogli). I primi SEMINA_ARRIVA_A fiori seguono
  * la progressione verso Semina (1 = tutto verde … 5 = metà e metà) e restano così; dal successivo
  * conta chi ha fatto più punti in quella partita (`quotaBlu` salvata a fine partita; 0.5 se manca).
  * Prima che Semina sia arrivata su questo dispositivo, nessun fiore va oltre la metà.
  */
 export function quotaBluFiore(voce: VoceGiardino, n: number, sbloccata: boolean): number | null {
   if (!voce.finita) return null;
-  const k = SEMINA_SBLOCCATA_A;
+  const k = SEMINA_ARRIVA_A;
   if (n <= k) return k > 1 ? ((Math.max(1, n) - 1) / (k - 1)) * 0.5 : 0.5;
   if (!sbloccata) return 0.5;
   const q = voce.quotaBlu;
   return typeof q === 'number' && Number.isFinite(q) ? Math.max(0, Math.min(1, q)) : 0.5;
-}
-
-export type Tappa = TappaStoria & { chiave: string };
-
-/** Storia completa (config/storia.ts), ordinata per numero di fiori. */
-export const STORIA: ReadonlyArray<TappaStoria> = [...STORIA_COMPLETA].sort((x, y) => x.partite - y.partite);
-
-/**
- * La tappa corrente (la più alta con partite ≤ fiori), se non ancora vista; null altrimenti.
- * Le tappe più vecchie saltate (più fiori arrivati insieme, vittoria seguita subito da "nuova",
- * dispositivo nuovo) non si recuperano: la storia non torna mai indietro (es. Semino "solo" a 4
- * dopo l'arrivo di Semina). Se la tappa corrente è quella di Semina la racconta la scena.
- */
-export function tappaDaMostrare(fiori: number, viste: readonly string[]): Tappa | null {
-  let scelta: Tappa | null = null;
-  for (const t of STORIA) {
-    if (t.partite <= fiori && (!scelta || t.partite >= scelta.partite)) scelta = { ...t, chiave: chiaveDi(t) };
-  }
-  if (!scelta || scelta.chiave === CHIAVE_SBLOCCO || tappaVista(scelta.partite, viste)) return null;
-  return scelta;
-}
-
-/**
- * Una tappa per numero di fiori: è vista se c'è la chiave di quel numero con QUALSIASI `chi`.
- * Così le chiavi di versioni precedenti (T2: `semina-8`, ora la tappa 8 è `semino-8`) valgono ancora.
- */
-function tappaVista(partite: number, viste: readonly string[]): boolean {
-  return (['semino', 'semina', 'entrambi', 'nessuno'] as const).some((chi) => viste.includes(chiaveDi({ chi, partite })));
-}
-
-/** Tappa dell'arrivo di Semina: al suo posto c'è la scena a schermo intero, una volta per dispositivo. */
-export const CHIAVE_SBLOCCO = chiaveDi({ chi: 'semina', partite: SEMINA_SBLOCCATA_A });
-
-export function scenaDaMostrare(fiori: number, viste: readonly string[]): boolean {
-  return seminaSbloccata(fiori) && !viste.includes(CHIAVE_SBLOCCO);
 }
 
 // --- frasi ------------------------------------------------------------------
@@ -351,7 +319,7 @@ export function frasiDisponibili(
   categoria: string,
   chi: ChiParla,
   fiori: number,
-  sbloccata: boolean = seminaSbloccata(fiori),
+  sbloccata: boolean = arrivata(fiori),
 ): FraseConAccessorio[] {
   const base: readonly FraseConAccessorio[] =
     categoria === 'suggerimento'
@@ -376,7 +344,7 @@ export function fraseMascotte(
   s: Sostituzioni,
   caso: () => number = Math.random,
   fiori: number = 0,
-  sbloccata: boolean = seminaSbloccata(fiori),
+  sbloccata: boolean = arrivata(fiori),
 ): string {
   const voce = frasiDisponibili(categoria, chi, fiori, sbloccata).map(testoDi);
   const lista = voce.length && caso() < 0.5 ? voce : senzaSemina(FRASI[categoria], sbloccata);
@@ -384,7 +352,7 @@ export function fraseMascotte(
 }
 
 /** Frasi da mandare al partner con questi fiori (FRASI.invio + pacchetti sbloccati). */
-export function frasiInvio(fiori: number, sbloccata: boolean = seminaSbloccata(fiori)): string[] {
+export function frasiInvio(fiori: number, sbloccata: boolean = arrivata(fiori)): string[] {
   return frasiDisponibili('invio', 'semino', fiori, sbloccata).map(testoDi);
 }
 
@@ -396,7 +364,7 @@ export function chiacchiereDi(
   chi: ChiParla,
   fiori: number,
   giorno: GiornoSpeciale | null = null,
-  sbloccata: boolean = seminaSbloccata(fiori),
+  sbloccata: boolean = arrivata(fiori),
 ): {
   solite: FraseConAccessorio[];
   speciali: FraseConAccessorio[];
@@ -407,16 +375,23 @@ export function chiacchiereDi(
   };
 }
 
-/** Chiacchiera a caso del personaggio (stringa vuota se non ne ha); evita le ultime usate. */
+/**
+ * Chiacchiera a caso del personaggio (stringa vuota se non ne ha); evita le ultime usate.
+ * `eco`: le eco dei capitoli letti che spettano a questo personaggio (entrano con peso basso).
+ */
 export function chiacchiera(
   chi: ChiParla,
   evita: string | readonly string[],
   s: Sostituzioni,
   caso: () => number = Math.random,
-  o: { fiori?: number; giorno?: GiornoSpeciale | null; sbloccata?: boolean } = {},
+  o: { fiori?: number; giorno?: GiornoSpeciale | null; sbloccata?: boolean; eco?: readonly string[] } = {},
 ): string {
   const fiori = o.fiori ?? 0;
-  const { solite, speciali } = chiacchiereDi(chi, fiori, o.giorno ?? null, o.sbloccata ?? seminaSbloccata(fiori));
+  const sbloccata = o.sbloccata ?? arrivata(fiori);
+  // ogni tanto (QUOTA_ECO_CHIACCHIERE) torna l'eco di un capitolo già letto
+  const eco = senzaSemina(o.eco ?? [], sbloccata);
+  if (eco.length && caso() < QUOTA_ECO_CHIACCHIERE) return scegliFrase(eco, evita, s, caso);
+  const { solite, speciali } = chiacchiereDi(chi, fiori, o.giorno ?? null, sbloccata);
   const lista = (speciali.length && caso() < QUOTA_CHIACCHIERE_SPECIALI ? speciali : solite).map(testoDi);
   return lista.length ? scegliFrase(lista, evita, s, caso) : '';
 }
@@ -488,32 +463,40 @@ export function chiaveSblocco(s: Sblocco): string {
   return `${s.tipo}:${s.id}`;
 }
 
-export interface SblocchiNuovi {
-  /** gli sblocchi da annunciare: quelli della soglia più alta fra i nuovi (vuoto se niente di nuovo) */
-  annuncio: Sblocco[];
-  /** quanti suggerimenti regalare: solo quelli annunciati */
-  regali: number;
-  /** le chiavi viste aggiornate (da salvare): tutte quelle sbloccate con questi fiori */
+export interface FrasiNuove {
+  /** i pacchetti di frasi nuovi da annunciare con un toast (vuoto se niente di nuovo) */
+  nuove: Sblocco[];
+  /** le chiavi viste aggiornate (da salvare): tutte quelle raggiunte con questi fiori */
   visti: string[];
 }
 
+/** id del pacchetto `${chi}-${categoria}-${partite}`: di chi sono le frasi. */
+function chiDelPacchetto(s: Sblocco): ChiParla | 'entrambi' {
+  return s.id.startsWith('semina-') ? 'semina' : s.id.startsWith('semino-') ? 'semino' : 'entrambi';
+}
+
 /**
- * Sblocchi nuovi su questo dispositivo: quelli con `partite ≤ fiori` non ancora visti. Come la
- * storia, non si torna indietro: con più soglie superate insieme (dispositivo nuovo, storico del
- * partner) si annuncia solo l'ultima e si segnano viste tutte. Le chiavi oltre i fiori attuali
- * (dopo un "ricomincia") si dimenticano, così il giardino nuovo le riannuncia.
+ * Pacchetti di frasi (SBLOCCHI di tipo `frasi`) nuovi su questo dispositivo: `partite ≤ fiori` e non
+ * ancora visti. Gli altri sblocchi raggiunti si segnano e basta (elementi e accessori si vedono da sé).
+ * Prima che Semina arrivi qui i pacchetti suoi aspettano (né annunciati né segnati). Le chiavi oltre i
+ * fiori attuali (dopo un "ricomincia") si dimenticano.
  */
-export function sblocchiNuovi(fiori: number, visti: unknown): SblocchiNuovi {
+export function frasiNuove(fiori: number, visti: unknown, sbloccata: boolean): FrasiNuove {
   const prima = new Set(Array.isArray(visti) ? visti.filter((x): x is string => typeof x === 'string') : []);
-  const raggiunti = SBLOCCHI.filter((s) => s.partite <= fiori);
-  const nuovi = raggiunti.filter((s) => !prima.has(chiaveSblocco(s.sblocco)));
-  const soglia = nuovi.reduce((m, s) => Math.max(m, s.partite), -1);
-  const annuncio = nuovi.filter((s) => s.partite === soglia).map((s) => s.sblocco);
+  const raggiunti = SBLOCCHI.filter((s) => s.partite <= fiori && (sbloccata || s.sblocco.tipo !== 'frasi' || chiDelPacchetto(s.sblocco) !== 'semina'));
   return {
-    annuncio,
-    regali: annuncio.filter((s) => s.tipo === 'regalo').length,
+    nuove: raggiunti.filter((s) => s.sblocco.tipo === 'frasi' && !prima.has(chiaveSblocco(s.sblocco))).map((s) => s.sblocco),
     visti: raggiunti.map((s) => chiaveSblocco(s.sblocco)),
   };
+}
+
+/** Testo del toast per i pacchetti nuovi: "Frasi nuove per Semino" / "per Semino e Semina" / "per voi due". */
+export function testoFrasiNuove(nuove: readonly Sblocco[], sbloccata: boolean): string {
+  if (!nuove.length) return '';
+  const chi = new Set(nuove.map(chiDelPacchetto));
+  const due = chi.has('entrambi') || (chi.has('semino') && chi.has('semina'));
+  const per = due ? (sbloccata ? 'Semino e Semina' : 'voi due') : chi.has('semina') ? 'Semina' : 'Semino';
+  return `Frasi nuove per ${per}`;
 }
 
 /** Suggerimenti regalati dagli sblocchi in attesa della prossima partita (campo extra dell'archivio). */
@@ -524,28 +507,6 @@ export function regaliBonusDi(x: unknown): number {
 /** Le chiavi viste salvate sono già quelle giuste (nessuna scrittura da fare)? */
 export function stessiVisti(salvati: unknown, nuovi: readonly string[]): boolean {
   return Array.isArray(salvati) && salvati.length === nuovi.length && nuovi.every((k, i) => salvati[i] === k);
-}
-
-// --- sorprese ------------------------------------------------------------------------
-
-export function chiaveSorpresa(partite: number): string {
-  return `sorpresa-${partite}`;
-}
-
-/**
- * La sorpresa per la vittoria che porta a `fiori`, se c'è e non è già stata vista qui. Mai insieme
- * alla scena dell'arrivo di Semina (ha la precedenza) né prima che Semina sia arrivata qui.
- */
-export function sorpresaDaMostrare(
-  fiori: number,
-  viste: readonly string[],
-  sbloccata: boolean,
-): { partite: number; chiave: string; battute: Battuta[] } | null {
-  if (!sbloccata || scenaDaMostrare(fiori, viste)) return null;
-  const s = SORPRESE.find((x) => x.partite === fiori);
-  if (!s) return null;
-  const chiave = chiaveSorpresa(s.partite);
-  return viste.includes(chiave) ? null : { partite: s.partite, chiave, battute: s.battute };
 }
 
 /** Elemento a caso della lista, diverso da `ultimo` se c'è alternativa. */

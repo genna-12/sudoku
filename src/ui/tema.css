@@ -466,6 +466,106 @@ input:focus-visible {
   }
 }
 
+/* Home: capitoli della storia in coda, sopra "Continua" */
+.da-leggere {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 16px;
+  background: var(--carta);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-foglia);
+  color: var(--testo);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  transition:
+    transform 0.15s var(--curva),
+    border-color 0.2s;
+}
+.da-leggere:active {
+  transform: scale(0.98);
+  border-color: var(--evid);
+}
+.da-leggere-punto {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--mio);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--mio) 60%, transparent);
+}
+/* sfondo dei capitoli nell'aiuola e nel giardino: la Scena della Home, prato al 70% */
+.capitolo-sfondo {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(70% - 222px);
+  pointer-events: none;
+}
+/* il bordo basso della Scena sfuma nel prato del fondale: niente scalino */
+.capitolo-sfondo .sc-scena {
+  -webkit-mask-image: linear-gradient(to bottom, #000 88%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 88%, transparent 100%);
+}
+/* diario nel Giardino */
+.diario {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  margin: var(--s4) 0;
+}
+.diario-titolo {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 650;
+}
+.diario-vuoto {
+  margin: 0;
+  color: var(--tenue);
+}
+.diario-atto h3 {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tenue);
+}
+.diario-atto ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--linea);
+  border-radius: var(--r-foglia);
+  overflow: hidden;
+}
+.diario-atto li + li {
+  border-top: 1px solid var(--linea);
+}
+.diario-riga {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  background: var(--carta);
+  color: var(--testo);
+  font: inherit;
+  font-size: 16px;
+  text-align: left;
+}
+.diario-riga:active {
+  background: var(--carta-2);
+}
+.diario-numero {
+  min-width: 2ch;
+  color: var(--tenue);
+  font-variant-numeric: tabular-nums;
+}
 .continua {
   display: flex;
   align-items: center;
@@ -1913,12 +2013,6 @@ input:focus-visible {
   margin: 0;
   text-align: left;
 }
-.fumetto-storia {
-  cursor: pointer;
-  font: inherit;
-  font-size: 15.5px;
-  line-height: 1.35;
-}
 .fumetto-firma {
   display: block;
   margin-top: 6px;
@@ -2240,27 +2334,7 @@ input:focus-visible {
   vertical-align: 0.2em;
 }
 
-/* ---------- scena: arriva Semina ---------- */
-.scena {
-  position: fixed;
-  inset: 0;
-  z-index: 70;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 18px;
-  padding: max(24px, env(safe-area-inset-top)) 20px max(24px, env(safe-area-inset-bottom));
-  background:
-    radial-gradient(70% 45% at 50% 40%, rgb(241 230 194 / 0.1), transparent 70%),
-    rgb(5 10 7 / 0.94);
-  color: #efe8d6;
-  cursor: pointer;
-  overflow: hidden;
-  animation: scena-buio 0.9s ease both;
-  -webkit-user-select: none;
-  user-select: none;
-}
+/* ---------- animazioni dell'arrivo di Semina (usate dal capitolo 5 e da Semino sbuca) ---------- */
 @keyframes scena-buio {
   from {
     opacity: 0;
@@ -2294,30 +2368,6 @@ input:focus-visible {
     transform: rotate(calc(-22deg + var(--k) * 8deg)) scaleY(1.04);
   }
 }
-.scena-palco {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 0;
-  min-height: 150px;
-}
-.scena-attore {
-  display: grid;
-  transition:
-    transform 0.4s var(--curva),
-    filter 0.4s;
-  filter: brightness(0.75) saturate(0.8);
-}
-.scena-attore.parla {
-  filter: none;
-  transform: translateY(-4px) scale(1.04);
-}
-.scena-lei {
-  margin-left: -18px;
-  animation: sbuca 0.9s var(--molla) both;
-}
 @keyframes sbuca {
   0% {
     transform: translate(-40px, 30px) scale(0);
@@ -2332,67 +2382,12 @@ input:focus-visible {
     transform: translate(0, -8px) scale(1.02);
   }
 }
-/* "Il verde è Semino. La blu è Semina.": i due colori si accendono sotto le mascotte */
-.scena-colori .scena-attore::after {
-  content: '';
-  justify-self: center;
-  width: 70%;
-  height: 10px;
-  margin-top: 4px;
-  border-radius: 50%;
-  background: var(--verde);
-  box-shadow: 0 0 22px 6px color-mix(in srgb, var(--verde) 60%, transparent);
-  animation: accendi 0.8s ease both;
-}
-.scena-colori .scena-lei::after {
-  background: var(--blu);
-  box-shadow: 0 0 22px 6px color-mix(in srgb, var(--blu) 70%, transparent);
-}
 @keyframes accendi {
   from {
     opacity: 0;
     transform: scaleX(0.2);
   }
 }
-.scena-battuta {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-  width: min(100%, 380px);
-  min-height: 150px;
-}
-.scena .fumetto {
-  --fumetto-fondo: #1b2e24;
-  color: #efe8d6;
-  max-width: 100%;
-  font-size: 18px;
-  text-align: center;
-}
-.scena .fumetto-giu::before {
-  top: -8.5px;
-  bottom: auto;
-  left: calc(50% - 7px);
-  transform: rotate(135deg);
-}
-.scena-fruscio {
-  border-style: dashed;
-  --fumetto-accento: #5b7566;
-  color: #93a698;
-}
-.scena-aiuto {
-  font-size: 13px;
-  color: #93a698;
-  animation: respiro 2.4s ease-in-out infinite;
-}
-.scena-andiamo {
-  max-width: 260px;
-  background: #f1e6c2;
-  color: #0b1410;
-}
-
 /* ---------- movimento ridotto ---------- */
 @media (prefers-reduced-motion: reduce) {
   .schermata,
@@ -2411,15 +2406,10 @@ input:focus-visible {
   .foglio,
   .foglio-velo,
   .bottone.primario.invito,
-  .scena,
-  .scena-foglie i,
-  .scena-lei,
-  .scena-aiuto,
-  .scena-colori .scena-attore::after {
+  .scena-foglie i {
     animation: none;
   }
-  .profilo-goccia,
-  .scena-attore {
+  .profilo-goccia {
     transition: none;
   }
   .coriandoli {
@@ -3078,6 +3068,10 @@ input:focus-visible {
 .app {
   overflow-x: clip;
 }
+/* le schermate sotto il lettore dei capitoli (inert mentre è aperto): nessun box in più */
+.app-sotto {
+  display: contents;
+}
 
 /* Home: il giardino dietro titolo e mascotte, a tutta larghezza, sfuma nel fondo */
 .home {
@@ -3117,104 +3111,6 @@ input:focus-visible {
   margin-top: -96px;
 }
 
-/* annuncio di uno sblocco */
-.annuncio {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  display: grid;
-  place-items: center;
-  padding: var(--s4);
-  background: color-mix(in srgb, var(--fondo) 78%, transparent);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
-  animation: dissolvi 0.3s ease both;
-}
-.annuncio-carta {
-  width: min(100%, 400px);
-  max-height: calc(100dvh - 32px);
-  overflow: auto;
-  background: var(--carta);
-  border: 1px solid var(--linea);
-  border-radius: var(--r-foglia);
-  box-shadow: var(--ombra);
-  animation: atterra 0.5s 0.08s var(--molla) both;
-  outline: none;
-}
-.annuncio-cielo {
-  background: linear-gradient(to bottom, var(--cielo), var(--fondo) 70%, var(--fondo-2));
-  border-bottom: 1px solid var(--linea);
-}
-.annuncio-corpo {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s2);
-  padding: var(--s4) var(--s6) var(--s6);
-}
-.annuncio-titolo {
-  margin: 0;
-  font-size: 27px;
-  line-height: 1.04;
-  font-weight: 850;
-  letter-spacing: -0.015em;
-  --casl: 1;
-  text-wrap: balance;
-}
-.annuncio-descrizione {
-  margin: 0;
-  font-size: 15.5px;
-  line-height: 1.4;
-  color: var(--tenue);
-  --casl: 1;
-  text-wrap: pretty;
-}
-.annuncio-regali {
-  display: grid;
-  gap: var(--s3);
-  margin: var(--s2) 0 var(--s3);
-  padding: var(--s3) 0 0;
-  border-top: 1px solid var(--linea);
-  list-style: none;
-}
-.annuncio-regali li {
-  --c: var(--linea-forte);
-  display: grid;
-  grid-template-columns: 12px 1fr;
-  column-gap: var(--s3);
-  font-size: 14.5px;
-  line-height: 1.3;
-}
-/* un seme per riga: oro il suggerimento; frasi e accessori col colore di chi li porta (crema se di tutti e due) */
-.annuncio-regali li::before {
-  content: '';
-  grid-row: span 2;
-  width: 10px;
-  height: 10px;
-  margin-top: 4px;
-  border-radius: 50% 50% 50% 2px;
-  background: var(--c);
-}
-.annuncio-regali li[data-tipo='regalo'] {
-  --c: var(--oro);
-}
-.annuncio-regali li[data-chi='entrambi'] {
-  --c: var(--testo);
-}
-.annuncio-regali li[data-chi='semino'] {
-  --c: var(--verde);
-}
-.annuncio-regali li[data-chi='semina'] {
-  --c: var(--blu);
-}
-.annuncio-regali b {
-  font-weight: 650;
-}
-.annuncio-regali span {
-  grid-column: 2;
-  font-size: 13.5px;
-  color: var(--tenue);
-}
-
 /* vittoria: una striscia di giardino in testa alla carta, le mascotte ci stanno sopra */
 .vittoria-carta {
   overflow: hidden;
@@ -3225,90 +3121,13 @@ input:focus-visible {
   background: linear-gradient(to bottom, var(--cielo), var(--fondo) 80%);
   border-bottom: 1px solid var(--linea);
 }
+.vittoria-vai {
+  margin: 0 0 var(--s2);
+  font-size: 14px;
+  color: var(--tenue);
+}
 .vittoria-carta .vittoria-mascotte {
   margin: -66px auto 8px;
-}
-
-/* sorpresa: una battuta per tocco al posto della frase, poi la frase */
-.sorpresa {
-  --c: var(--verde-inchiostro);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--s1);
-  justify-content: center;
-  width: 100%;
-  min-height: 150px;
-  margin: 0 0 var(--s4);
-  padding: var(--s3) var(--s4);
-  border: 1.5px solid color-mix(in srgb, var(--c) 70%, var(--linea));
-  border-radius: 22px;
-  background: var(--carta-2);
-  color: var(--inchiostro);
-  font: inherit;
-  cursor: pointer;
-  animation: fumetto-entra 0.32s var(--molla) both;
-  transform-origin: 50% 0;
-}
-.sorpresa-semina {
-  --c: var(--blu-inchiostro);
-}
-.sorpresa-nessuno {
-  --c: var(--linea-forte);
-  border-style: dashed;
-}
-.sorpresa-chi {
-  font-size: 13px;
-  font-weight: 650;
-  color: var(--c);
-}
-.sorpresa-testo {
-  font-size: 19px;
-  line-height: 1.25;
-  font-weight: 650;
-  --casl: 1;
-  text-wrap: balance;
-}
-.sorpresa-nessuno .sorpresa-testo {
-  font-style: italic;
-  font-weight: 420;
-  color: var(--tenue);
-}
-.sorpresa-avanti {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s2);
-  margin-top: var(--s1);
-  font-size: 12.5px;
-  color: var(--tenue);
-}
-.sorpresa-passi {
-  display: inline-flex;
-  gap: 4px;
-}
-.sorpresa-passi i {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--linea-forte);
-}
-.sorpresa-passi i.fatto {
-  background: var(--c);
-}
-/* chi non parla nella sorpresa resta un passo indietro */
-.vittoria-carta.parla-semino .semino-coppia-lei,
-.vittoria-carta.parla-semina .semino-coppia-lui,
-.vittoria-carta.parla-nessuno .semino {
-  opacity: 0.82;
-  transition: opacity 0.3s;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .annuncio,
-  .annuncio-carta,
-  .sorpresa {
-    animation: none;
-  }
 }
 
 /* ---- Aggiornamento PWA: striscia in alto, sopra tutto, nello stile delle superfici ---- */

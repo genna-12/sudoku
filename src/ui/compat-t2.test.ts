@@ -1,24 +1,17 @@
 // Compatibilità con l'archivio di chi ha giocato la versione online T2 (03/11 sera): versione 1 senza
 // sbloccatiVisti/regaliBonus/quotaBlu, tappe viste con le chiavi della storia di T2, partita in corso.
+// Da T5 la storia sono i capitoli: chi aveva visto l'arrivo di Semina ha letto 0..5 (solo il suo ruolo).
 import { describe, expect, it } from 'vitest';
-import { SEMINA_SBLOCCATA_A } from '../config/frasi';
+import { SEMINA_ARRIVA_A, chiaveCapitolo } from '../config/capitoli';
 import { generaPuzzle } from '../engine';
 import { applica, nuovaPartita, voceStorico } from '../stato';
 import type { VoceStorico } from '../stato';
 import { CHIAVE_ARCHIVIO, carica, salva } from '../stato/archivio';
 import { importa, ricomincia } from './memoria';
-import {
-  CHIAVE_SBLOCCO,
-  fioriDi,
-  regaliBonusDi,
-  sblocchiNuovi,
-  scenaDaMostrare,
-  seminaSbloccata,
-  sorpresaDaMostrare,
-  tappaDaMostrare,
-} from './regole';
+import { codaCapitoli, seminaSbloccata, vistiDi } from './capitoli';
+import { fioriDi, frasiNuove, regaliBonusDi } from './regole';
 
-/** chiavi delle tappe di T2 (STORIA_SEMINO + STORIA_EXTRA di frasi.ts a 4209f09) */
+/** chiavi delle tappe di T2 (storia di frasi.ts a 4209f09, ritirata in T5) */
 const TAPPE_T2: Record<number, string> = {
   0: 'semino', 1: 'semino', 2: 'semino', 3: 'semino', 4: 'semino', 5: 'semina', 6: 'semino', 7: 'semino',
   8: 'semina', 9: 'semina', 10: 'entrambi', 11: 'entrambi', 12: 'semina', 13: 'semino', 14: 'semina',
@@ -47,7 +40,7 @@ function archivioT2(fiori: number, { scenaVista = true } = {}) {
   });
   const viste: string[] = [];
   for (let k = 0; k <= Math.min(fiori, 14); k++) {
-    if (k === SEMINA_SBLOCCATA_A && !scenaVista) continue;
+    if (k === SEMINA_ARRIVA_A && !scenaVista) continue;
     viste.push(`${TAPPE_T2[k]}-${k}`);
   }
   return {
@@ -70,35 +63,34 @@ function caricaDa(dati: unknown) {
 
 describe('archivio della versione online T2', () => {
   for (const fiori of [0, 1, 3, 4, 5, 6, 7, 8, 11, 14]) {
-    it(`${fiori} fiori: carica, storia senza ripetizioni, un solo annuncio, niente sorprese retroattive`, () => {
+    it(`${fiori} fiori: carica, capitoli dal prefisso giusto, Semina come prima, pacchetti senza ripetizioni`, () => {
       const a = caricaDa(archivioT2(fiori));
       expect(a.partita?.puzzle.modalita).toBe('killer');
       expect(a.impostazioni.vibrazione).toBe(false);
       expect(fioriDi(a.storico)).toBe(fiori);
-      // la tappa corrente era già stata vista in T2 (anche se ora ha un altro `chi`)
-      expect(tappaDaMostrare(fiori, a.tappeViste)).toBeNull();
-      expect(scenaDaMostrare(fiori, a.tappeViste)).toBe(false);
-      const sbloccata = seminaSbloccata(fiori) && a.tappeViste.includes(CHIAVE_SBLOCCO);
-      expect(sbloccata).toBe(fiori >= SEMINA_SBLOCCATA_A);
-      // annuncio: solo gli sblocchi della soglia più alta, al massimo un regalo
-      const n = sblocchiNuovi(fiori, a.sbloccatiVisti);
-      const soglie = new Set(n.annuncio.map((s) => s.id));
-      expect(n.regali).toBeLessThanOrEqual(1);
-      if (fiori === 0) expect(n.annuncio).toEqual([]);
-      else expect(soglie.size).toBeGreaterThan(0);
-      // una seconda apertura della Home non annuncia più nulla
-      expect(sblocchiNuovi(fiori, n.visti).annuncio).toEqual([]);
-      // sorprese: solo per il numero esatto raggiunto con la vittoria (le soglie passate non tornano)
-      for (let k = 0; k < fiori; k++) expect(sorpresaDaMostrare(k, a.tappeViste, sbloccata)?.partite ?? k).toBe(k);
+      // chi aveva visto la scena di Semina (dal 5) ha letto 0..5; l'altro ruolo niente
+      const visti = vistiDi(a.capitoliVisti, 'a');
+      expect(visti).toEqual(fiori >= SEMINA_ARRIVA_A ? Array.from({ length: 6 }, (_, k) => chiaveCapitolo(k)) : []);
+      expect(vistiDi(a.capitoliVisti, 'b')).toEqual([]);
+      // Semina resta com'era: sbloccata da 5 fiori in su (la UI prima dello sblocco non cambia)
+      expect(seminaSbloccata(fiori, visti)).toBe(fiori >= SEMINA_ARRIVA_A);
+      // la coda: gli arretrati in ordine, dal primo non letto fino ai fiori di adesso
+      const coda = codaCapitoli(fiori, visti).map((c) => c.fiore);
+      const da = fiori >= SEMINA_ARRIVA_A ? SEMINA_ARRIVA_A + 1 : 0;
+      expect(coda).toEqual(Array.from({ length: Math.max(0, fiori + 1 - da) }, (_, k) => da + k));
+      // pacchetti di frasi: una volta sola, poi più niente
+      const n = frasiNuove(fiori, a.sbloccatiVisti, seminaSbloccata(fiori, visti));
+      expect(frasiNuove(fiori, n.visti, seminaSbloccata(fiori, visti)).nuove).toEqual([]);
       expect(regaliBonusDi(a.regaliBonus)).toBe(0);
     });
   }
 
-  it('5 fiori con la scena NON ancora vista in T2: parte la scena, Semina non è sbloccata finché non la si vede', () => {
+  it('5 fiori con la scena NON ancora vista in T2: Semina non è sbloccata, la coda parte da 0 e arriva al 5', () => {
     const a = caricaDa(archivioT2(5, { scenaVista: false }));
-    expect(scenaDaMostrare(5, a.tappeViste)).toBe(true);
-    expect(tappaDaMostrare(5, a.tappeViste)).toBeNull();
-    expect(sorpresaDaMostrare(5, a.tappeViste, false)).toBeNull();
+    const visti = vistiDi(a.capitoliVisti, 'a');
+    expect(visti).toEqual([]);
+    expect(seminaSbloccata(5, visti)).toBe(false);
+    expect(codaCapitoli(5, visti).map((c) => c.fiore)).toEqual([0, 1, 2, 3, 4, 5]);
   });
 
   it('salva e ricarica: campi nuovi conservati, quotaBlu delle voci conservata', () => {
@@ -135,7 +127,8 @@ describe('archivio della versione online T2', () => {
     const z = ricomincia(a, Date.now());
     expect(z.storico).toEqual([]);
     expect(z.tappeViste).toEqual([]);
+    expect(z.capitoliVisti).toEqual({ a: [], b: [] });
     expect(regaliBonusDi(z.regaliBonus)).toBe(0);
-    expect(sblocchiNuovi(0, z.sbloccatiVisti).annuncio).toEqual([]);
+    expect(frasiNuove(0, z.sbloccatiVisti, false)).toEqual({ nuove: [], visti: [] });
   });
 });

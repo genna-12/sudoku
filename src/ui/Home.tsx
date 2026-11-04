@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { LIVELLI } from '../engine';
 import type { Livello, Modalita } from '../engine';
-import { SEMINA_SBLOCCATA_A } from '../config/frasi';
+import { SEMINA_ARRIVA_A } from '../config/capitoli';
 import type { ChiParla } from '../config/frasi';
 import { LIVELLI_PARAMETRI } from '../config/livelli';
 import { GIORNI_SPECIALI, elementiSbloccati } from '../config/storia';
@@ -14,7 +14,6 @@ import { SemiTitolo } from './Icone';
 import type { Tema } from './MenuHome';
 import type { InfoSync } from './useSync';
 import { aCasoDiverso, accessoriSbloccati, accessorioPermesso, presenzaBlu } from './regole';
-import type { Tappa } from './regole';
 import { ELEMENTI_SCENA, Scena } from './Scena';
 import { ACCESSORI_DI, Semino, SeminoCoppia, SeminoPianta } from './Semino';
 import type { Accessorio } from './Semino';
@@ -28,6 +27,8 @@ export interface Chiacchiera {
   testo: string;
   /** accessorio da indossare mentre il fumetto è aperto */
   accessorio?: string;
+  /** firma sotto il fumetto (l'eco di un capitolo: "Semino · dal capitolo 12") */
+  firma?: string;
 }
 
 interface Props {
@@ -43,8 +44,9 @@ interface Props {
   sbloccata: boolean;
   /** giorno del mare / della montagna (solo dopo l'arrivo di Semina), o null */
   giorno: GiornoSpeciale | null;
-  tappa: Tappa | null;
-  onChiudiTappa: () => void;
+  /** capitoli in coda da leggere (0 = niente bottone) */
+  daLeggere: number;
+  onLeggi: () => void;
   chiacchiera: Chiacchiera | null;
   /** reazione al solletico in corso (fumetto breve, sopra a tutto) */
   solletico: Chiacchiera | null;
@@ -137,6 +139,13 @@ export function Home(p: Props) {
 
       <Eroe {...p} />
 
+      {p.daLeggere > 0 && (
+        <button data-testid="capitoli-da-leggere" className="da-leggere" onClick={p.onLeggi}>
+          <span className="da-leggere-punto" aria-hidden="true" />
+          {p.daLeggere === 1 ? '1 capitolo da leggere' : `${p.daLeggere} capitoli da leggere`}
+        </button>
+      )}
+
       {inCorso && (
         <button data-testid="continua" className="continua" onClick={p.onContinua}>
           <MiniGriglia partita={inCorso} mioRuolo={p.mioRuolo} />
@@ -207,18 +216,11 @@ export function Home(p: Props) {
 
 const RIPOSO_MS = 60000;
 
-/** Elementi della scena da far entrare di nuovo: quello della tappa aperta, o quello del giorno speciale. */
-function inEvidenza(p: Pick<Props, 'tappa' | 'giorno' | 'fiori'>): string[] | undefined {
-  const scena = (x: string) => (ELEMENTI_SCENA as readonly string[]).includes(x);
+/** Elemento della scena da far entrare di nuovo: quello del giorno speciale. */
+function inEvidenza(p: Pick<Props, 'giorno' | 'fiori'>): string[] | undefined {
   const visibili = elementiSbloccati(p.fiori);
-  if (p.tappa) {
-    const k = [p.tappa.scena, p.tappa.sblocca?.tipo === 'elemento' ? p.tappa.sblocca.id : undefined].filter(
-      (x): x is string => !!x && scena(x) && visibili.includes(x),
-    );
-    return k.length ? k : undefined;
-  }
   const g = p.giorno ? GIORNI_SPECIALI[p.giorno].scena : '';
-  return g && visibili.includes(g) ? [g] : undefined;
+  return g && visibili.includes(g) && (ELEMENTI_SCENA as readonly string[]).includes(g) ? [g] : undefined;
 }
 
 /** Gli accessori che ciascuno può mettersi a riposo: i suoi, già sbloccati; Semina al mare in coppia anche la tavola. */
@@ -273,38 +275,20 @@ function useAccessoriRiposo(attivo: boolean, sbloccata: boolean, fiori: number, 
   return sbloccata ? indossati : { semino: indossati.semino };
 }
 
-/** Accessori della tappa aperta: `accessorio` a chi parla (con 'entrambi': a Semino), `accessorioSemina` a lei. */
-function accessoriTappa(t: Tappa, fiori: number, coppia: boolean): Indossati {
-  const o = { inCoppia: coppia };
-  const out: Indossati = {};
-  const lui = t.chi === 'semina' ? undefined : t.accessorio;
-  const lei = t.chi === 'semina' ? t.accessorio : t.chi === 'entrambi' ? t.accessorioSemina : undefined;
-  if (t.chi !== 'nessuno') {
-    const a = accessorioValido(accessorioPermesso('semino', lui, fiori, o));
-    if (a) out.semino = a;
-    const b = accessorioValido(accessorioPermesso('semina', lei, fiori, o));
-    if (b) out.semina = b;
-  }
-  return out;
-}
-
-/** Le mascotte con il loro fumetto: solletico, storia (se c'è una tappa nuova), chiacchiere o un saluto. */
+/** Le mascotte con il loro fumetto: solletico, chiacchiere (anche l'eco di un capitolo) o un saluto. */
 function Eroe(p: Props) {
   const stadio = Math.min(4, p.fiori);
-  const tappa = p.tappa;
   const sol = p.solletico;
-  const parla: ChiParla | 'entrambi' | 'nessuno' = sol ? sol.chi : tappa ? tappa.chi : p.chiacchiera ? p.chiacchiera.chi : 'semino';
+  const parla: ChiParla = sol ? sol.chi : p.chiacchiera ? p.chiacchiera.chi : 'semino';
   const coppia = p.sbloccata;
-  const riposo = useAccessoriRiposo(!sol && !tappa && !p.chiacchiera, coppia, p.fiori, p.giorno);
-  // l'accessorio della frase aperta (storia o chiacchiera) lo indossa chi parla; il solletico non lo toglie
+  const riposo = useAccessoriRiposo(!sol && !p.chiacchiera, coppia, p.fiori, p.giorno);
+  // l'accessorio della chiacchiera aperta lo indossa chi parla; il solletico non lo toglie
   const indossati: Indossati = { ...riposo };
-  if (tappa) Object.assign(indossati, accessoriTappa(tappa, p.fiori, coppia));
-  else if (!sol && p.chiacchiera) {
+  if (!sol && p.chiacchiera) {
     const a = accessorioValido(p.chiacchiera.accessorio);
     if (a) indossati[p.chiacchiera.chi] = a;
   }
-  const variante =
-    parla === 'semina' ? ' fumetto--semina' : parla === 'entrambi' ? ' fumetto--entrambi' : parla === 'nessuno' ? ' fumetto--narra' : '';
+  const variante = parla === 'semina' ? ' fumetto--semina' : '';
   const giorno = p.giorno ? GIORNI_SPECIALI[p.giorno] : null;
   const saluto =
     p.fiori === 0
@@ -314,7 +298,7 @@ function Eroe(p: Props) {
         : `Ciao ${p.nome}. Nel giardino ${p.fiori === 1 ? 'c’è 1 fiore' : `ci sono ${p.fiori} fiori`}.`;
   const m = p.mascotte;
   // chi ha il fumetto aperto muove la bocca per il tempo della frase
-  const frase = sol?.testo ?? tappa?.testo ?? p.chiacchiera?.testo ?? saluto;
+  const frase = sol?.testo ?? p.chiacchiera?.testo ?? saluto;
   return (
     <section className={`home-eroe parla-${parla}`} aria-live="polite">
       <span className="home-mascotte">
@@ -328,7 +312,7 @@ function Eroe(p: Props) {
             accessorioSemina={indossati.semina}
             onSolletico={p.onSolletico}
             taglia={72}
-            parla={parla === 'nessuno' ? null : parla}
+            parla={parla}
             frase={frase}
             entrata="salto"
             seguiPuntatore
@@ -341,7 +325,7 @@ function Eroe(p: Props) {
             accessorio={indossati.semino}
             onSolletico={() => p.onSolletico('semino')}
             taglia={92}
-            parla={parla === 'semino' || parla === 'entrambi'}
+            parla={parla === 'semino'}
             frase={frase}
             entrata="salto"
             seguiPuntatore
@@ -352,14 +336,10 @@ function Eroe(p: Props) {
         <p key={sol.id} className={`fumetto fumetto-solletico${variante}`} data-testid="fumetto-solletico">
           {sol.testo}
         </p>
-      ) : tappa ? (
-        <button key={tappa.chiave} className={`fumetto fumetto-storia${variante}`} onClick={p.onChiudiTappa}>
-          {tappa.testo}
-          <span className="fumetto-firma">{firma(tappa.chi) ? `${firma(tappa.chi)}, tocca per chiudere` : 'tocca per chiudere'}</span>
-        </button>
       ) : p.chiacchiera ? (
-        <p key={p.chiacchiera.id} className={`fumetto${variante}`}>
+        <p key={p.chiacchiera.id} className={`fumetto${variante}`} data-testid={p.chiacchiera.firma ? 'fumetto-eco' : undefined}>
           {p.chiacchiera.testo}
+          {p.chiacchiera.firma && <span className="fumetto-firma">{p.chiacchiera.firma}</span>}
         </p>
       ) : (
         <p className="fumetto fumetto-quieto">{saluto}</p>
@@ -370,11 +350,7 @@ function Eroe(p: Props) {
 
 /** Un fiore prima dello sblocco: Semino si sente solo e la Home invita a giocare insieme. */
 function solo(p: Pick<Props, 'fiori' | 'sbloccata'>): boolean {
-  return !p.sbloccata && p.fiori === SEMINA_SBLOCCATA_A - 1;
-}
-
-function firma(chi: ChiParla | 'entrambi' | 'nessuno'): string {
-  return chi === 'nessuno' ? '' : chi === 'entrambi' ? 'Semino e Semina' : chi === 'semina' ? 'Semina' : 'Semino';
+  return !p.sbloccata && p.fiori === SEMINA_ARRIVA_A - 1;
 }
 
 export function Pallino({

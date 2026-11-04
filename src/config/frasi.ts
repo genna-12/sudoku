@@ -262,45 +262,6 @@ export const FRASI = {
   ],
 } as const;
 
-/**
- * Storia di Semino (e poi di Semina): una tappa per numero di fiori (partite finite), mostrata
- * la prima volta che la si raggiunge. `chi` dice chi parla. Semina compare dalla tappa 5.
- */
-export const SEMINA_SBLOCCATA_A = 5;
-
-/** Scena di sblocco di Semina (a SEMINA_SBLOCCATA_A fiori): battute in ordine, una per tocco. */
-export const SCENA_SBLOCCO: Array<{ chi: 'semino' | 'semina' | 'nessuno'; umore: string; testo: string }> = [
-  { chi: 'semino', umore: 'neutro', testo: 'Cinque fiori. Il giardino è grande, adesso.' },
-  { chi: 'nessuno', umore: '', testo: '...fruscio...' },
-  { chi: 'semino', umore: 'sorpreso', testo: 'Il fruscio! È qui, è qui dietro...' },
-  { chi: 'semina', umore: 'euforico', testo: 'CIAO! Sono Semina! Vi guardavo giocare da un sacco di tempo, non ce la facevo più a stare zitta!' },
-  { chi: 'semino', umore: 'imbarazzato', testo: 'Ehm. Ciao. Io sono Semino. Mi sentivo un po\' solo, prima.' },
-  { chi: 'semina', umore: 'felice', testo: 'Lo so. Ti ho sentito. Da adesso le righe le chiudiamo in due.' },
-  { chi: 'nessuno', umore: '', testo: 'Il verde è Semino. La blu è Semina. Siete voi, da sempre.' },
-  { chi: 'semina', umore: 'euforico', testo: 'E adesso... giochiamo!' },
-];
-
-/**
- * @deprecated La storia completa è in ./storia.ts (`STORIA`), che sostituisce STORIA_SEMINO +
- * STORIA_EXTRA. Queste due liste restano solo per compatibilità con regole.ts finché non passa a storia.ts.
- */
-export const STORIA_SEMINO: Array<{ partite: number; chi: 'semino' | 'semina' | 'entrambi'; testo: string }> = [
-  { partite: 0, chi: 'semino', testo: 'Ciao. Sono Semino. Sono piccolo, ma se risolvete i sudoku insieme cresco. Promesso.' },
-  { partite: 1, chi: 'semino', testo: 'Il primo fiore! Il giardino comincia da qui.' },
-  { partite: 2, chi: 'semino', testo: 'Stanotte ho sentito un fruscio dall\'altra parte dell\'aiuola. Sarà il vento.' },
-  { partite: 3, chi: 'semino', testo: 'Tre fiori. Il fruscio è tornato. Non era il vento.' },
-  { partite: 4, chi: 'semino', testo: 'Quattro fiori. Stasera mi sento un po\' solo, qui in mezzo. Dai... ne facciamo un altro insieme?' },
-  { partite: 5, chi: 'semina', testo: 'Ciao. Sono Semina. Ero qui da un pezzo: aspettavo che il giardino fosse abbastanza grande per due.' },
-  { partite: 6, chi: 'semino', testo: 'Semina conta i fiori in modo diverso da me. Dice che i miei sono storti. Sono storti.' },
-  { partite: 8, chi: 'semina', testo: 'Semino parla nel sonno. Dice "sei mini". Non so a chi.' },
-  { partite: 10, chi: 'entrambi', testo: 'Dieci fiori. Ora ci vengono le api. Le contiamo insieme, ma arriviamo a numeri diversi.' },
-  { partite: 13, chi: 'semino', testo: 'Le ho chiesto se vuole stare nella stessa aiuola. Ha detto "forse". Da un semino, forse è un sì.' },
-  { partite: 15, chi: 'semina', testo: 'Ho detto forse. Poi ho spostato le radici di un centimetro verso le sue. Non diteglielo.' },
-  { partite: 20, chi: 'entrambi', testo: 'Venti. Quando non ci siete, parliamo di voi due. Siete il nostro sudoku preferito.' },
-  { partite: 30, chi: 'semino', testo: 'Trenta fiori. Ci siamo intrecciati senza accorgercene. Succede, a crescere vicini.' },
-  { partite: 50, chi: 'entrambi', testo: 'Cinquanta. Non sappiamo più contare, ma sappiamo che siete tornati. Sempre.' },
-];
-
 export { COLORI } from './giocatori';
 
 // ---------------------------------------------------------------------------------------------
@@ -1243,22 +1204,6 @@ export const VOCE_SUGGERIMENTO: Record<ChiParla, string[]> = {
     'qui ci pianto una bandierina',
   ],
 };
-
-/**
- * @deprecated Tappe della storia aggiunte (si uniscono a STORIA_SEMINO: chiave stabile chi-partite).
- * La storia completa è in ./storia.ts.
- */
-export const STORIA_EXTRA: Array<{ partite: number; chi: 'semino' | 'semina' | 'entrambi'; testo: string; accessorio?: string }> = [
-  { partite: 7, chi: 'semino', testo: 'Le ho fatto vedere la piscina. Ha detto che è "un lago con le regole". Poi si è tuffata.', accessorio: 'palla' },
-  { partite: 9, chi: 'semina', testo: 'Ho portato Semino nel bosco. Ha contato gli alberi. Tutti. Poi ha sorriso.', accessorio: 'animale' },
-  { partite: 14, chi: 'semina', testo: 'Montagna. Semino ha portato il computer. L\'ha usato come vassoio per i panini.', accessorio: 'montagna' },
-  { partite: 18, chi: 'semina', testo: 'L\'ho messo a cavallo. Ha detto "è un algoritmo con le zampe". Il cavallo ha approvato.', accessorio: 'cavallo' },
-  { partite: 11, chi: 'entrambi', testo: 'Abbiamo suonato insieme per la prima volta. Lui a tempo, io fuori tempo, bellissimo.', accessorio: 'chitarra' },
-  { partite: 12, chi: 'semina', testo: 'Semino ha cucinato. Ho mangiato tutto. Ho chiesto il bis. Era un sudoku di sapori.', accessorio: 'corona' },
-  { partite: 17, chi: 'semino', testo: 'Mi ha insegnato i nomi degli uccelli. Io le ho insegnato cos\'è un bug. Pari.' },
-  { partite: 25, chi: 'semina', testo: 'Mi sono arrabbiata per una riga sbagliata. Lui ha aspettato. Poi abbiamo riso.' },
-  { partite: 40, chi: 'entrambi', testo: 'Quaranta. Abbiamo un merlo, un riccio e una ricetta nostra. E voi due.' },
-];
 
 /** Frasi dette mentre si viene svegliati (mossa o tocco) nelle proprie ore di sonno. */
 export const SONNO: Record<ChiParla, string[]> = {
