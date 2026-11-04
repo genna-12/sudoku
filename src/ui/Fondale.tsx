@@ -4,7 +4,7 @@
 //   - viewBox 360×640 (telefono verticale), xMidYMax slice: il suolo resta in basso su ogni schermo;
 //     tutto ciò che conta sta fra x 40 e 320 (sui telefoni stretti i bordi si tagliano)
 //   - il palco: suolo a y 448 (70%); sotto y 416 niente sagome alte, solo terra e cose basse a contrasto debole
-//   - giardino: solo cielo e prato neutri (sopra si monta la Scena della Home)
+//   - giardino: cielo, prato, ciuffi e lucciole (sopra si monta la Scena della Home, intera)
 //   - notte (default true) cambia il cielo; cucina e laboratorio sono interni e la ignorano
 // Tinte in fondale.css (--fd-*, ricavate dal tema con color-mix); verde e blu solo in fili e punti.
 import { useId } from 'react';
@@ -84,11 +84,23 @@ type P = { id: string; notte: boolean };
 
 /* ------------------------------------------------------------ i luoghi */
 
-/** giardino: niente panorama (sopra va la Scena), solo cielo, chiarore e prato con le tinte della Scena */
+/** lucciole del prato (giardino): poche, basse, sfasate */
+const LUCCIOLE_PRATO: Array<[number, number, number]> = [
+  [62, 492, 0], [118, 556, 1.4], [206, 600, 2.6], [262, 520, 0.8], [312, 578, 2], [150, 470, 3.1],
+];
+/** ciuffi d'erba in primo piano (giardino): [x, y, scala] */
+const CIUFFI_PRATO: Array<[number, number, number]> = [
+  [34, 560, 1], [88, 618, 1.3], [172, 540, 0.8], [228, 632, 1.2], [296, 552, 1], [338, 610, 1.3], [128, 590, 0.9], [262, 590, 0.8],
+];
+
+/**
+ * giardino: niente panorama (sopra va la Scena, intera, col prato al 70%): cielo di notte con stelle e
+ * luna, chiarore all'orizzonte, prato con le tinte della Scena, ciuffi e lucciole in primo piano
+ */
 function Giardino({ id, notte }: P) {
   return (
     <>
-      <Cielo id={id} o={0.66} notte={false} />
+      <Cielo id={id} o={0.66} notte={notte} luna={[268, 176]} />
       <linearGradient id={`fd-chiarore-${id}`} x1="0" y1="0" x2="0" y2="1">
         <stop offset="0" className="fd-chiarore-0" />
         <stop offset="1" className="fd-chiarore-1" />
@@ -96,6 +108,24 @@ function Giardino({ id, notte }: P) {
       <rect y="250" width="360" height="190" fill={`url(#fd-chiarore-${id})`} className={notte ? undefined : 'fd-giorno-piano'} />
       <path d="M0 436C80 424 150 428 200 432S310 438 360 428V640H0Z" className="fd-prato" />
       <path d="M0 436C80 424 150 428 200 432S310 438 360 428" className="fd-filo-verde" />
+      <g className="fd-ciuffi">
+        {CIUFFI_PRATO.map(([x, y, k], i) => (
+          <path
+            key={i}
+            d={`M${x} ${y}q${-2 * k} ${-6 * k} ${-6 * k} ${-9 * k}M${x} ${y}q${0.5 * k} ${-8 * k} ${-0.5 * k} ${-12 * k}M${x} ${y}q${2 * k} ${-5 * k} ${6 * k} ${-8 * k}`}
+          />
+        ))}
+      </g>
+      {notte && (
+        <g className="fd-lucciole">
+          {LUCCIOLE_PRATO.map(([x, y, d], i) => (
+            <g key={i} className="fd-lucciola" style={{ animationDelay: `-${d}s` }}>
+              <circle cx={x} cy={y} r="5" className="fd-lucciola-alone" />
+              <circle cx={x} cy={y} r="1.6" className="fd-lucciola-punto" />
+            </g>
+          ))}
+        </g>
+      )}
     </>
   );
 }

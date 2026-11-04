@@ -2,7 +2,9 @@
 // arrivo di Semina, eco in Home, regali. I fiori sono della coppia, i visti del giocatore (ruolo).
 import { CAPITOLI, SEMINA_ARRIVA_A, capitolo, chiaveCapitolo } from '../config/capitoli';
 import type { Capitolo } from '../config/capitoli';
+import { elementiSbloccati } from '../config/storia';
 import { normalizzaPrefisso, unisciVisti } from '../stato/archivio';
+import { presenzaBlu } from './regole';
 
 export { normalizzaPrefisso, unisciVisti };
 
@@ -46,6 +48,35 @@ export function maxVisto(visti: readonly string[]): number {
 /** Semina c'è su questo dispositivo solo dopo aver letto il suo capitolo (il 5). */
 export function seminaSbloccata(fiori: number, visti: readonly string[]): boolean {
   return fiori >= SEMINA_ARRIVA_A && visti.includes(chiaveCapitolo(SEMINA_ARRIVA_A));
+}
+
+/** Il giardino che si vede (Scena): gli elementi e quanto blu c'è negli accenti di coppia (0..1). */
+export interface GiardinoVisibile {
+  elementi: string[];
+  bluPresenza: number;
+}
+
+/**
+ * Il giardino su questo dispositivo (Home, Giardino, Vittoria, `--blu-presenza` dell'app): finché il
+ * capitolo 5 non è visto da chi tiene il telefono niente tracce di Semina (né il tulipano `semina`, né
+ * il blu oltre quello dell'ultimo capitolo letto, al massimo quello del 4). Gli altri elementi seguono i fiori.
+ */
+export function giardinoVisibile(fiori: number, visti: readonly string[]): GiardinoVisibile {
+  const elementi = elementiSbloccati(fiori);
+  if (seminaSbloccata(fiori, visti)) return { elementi, bluPresenza: presenzaBlu(fiori, true) };
+  const letti = Math.max(0, Math.min(fiori, maxVisto(visti), SEMINA_ARRIVA_A - 1));
+  return { elementi: elementi.filter((e) => e !== 'semina'), bluPresenza: presenzaBlu(letti, false) };
+}
+
+/**
+ * Il giardino nel lettore (fondale di aiuola e giardino): com'era a quel capitolo (fiori del capitolo,
+ * non oltre i fiori di adesso); il tulipano e il blu pieno solo dopo il 5, così i capitoli 0-5 riletti restano senza di lei.
+ */
+export function giardinoDelCapitolo(fiore: number, fiori: number): GiardinoVisibile {
+  const f = Math.max(0, Math.min(fiori, fiore));
+  const dopoDiLei = fiore > SEMINA_ARRIVA_A;
+  const elementi = elementiSbloccati(f).filter((e) => e !== 'semina' || dopoDiLei);
+  return { elementi, bluPresenza: presenzaBlu(dopoDiLei ? f : Math.min(f, SEMINA_ARRIVA_A - 1), dopoDiLei) };
 }
 
 export function chiaveEco(fiore: number): string {

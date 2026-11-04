@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { ChiParla } from '../config/frasi';
 import { LIVELLI_PARAMETRI } from '../config/livelli';
-import { elementiSbloccati } from '../config/storia';
 import type { VoceStorico } from '../stato';
 import type { AttoDiario } from './capitoli';
 import type { Chiacchiera } from './Home';
@@ -22,6 +21,8 @@ interface Props {
   /** id della partita aperta adesso (non si "riprende" quella in corso) */
   inCorso: string | null;
   sbloccata: boolean;
+  /** elementi visibili della scena (senza il tulipano di Semina prima del capitolo 5) */
+  elementi: readonly string[];
   /** presenza del blu (0..1) per il chiarore della scena */
   bluPresenza: number;
   mascotte: Mascotte;
@@ -65,7 +66,7 @@ export function Giardino(p: Props) {
       {/* le mascotte stanno in piedi sul prato della scena; il fumetto del solletico nel cielo */}
       <div className={`giardino-scena${vuoto ? ' giardino-scena-vuota' : ''}`} style={{ position: 'relative' }}>
         <Scena
-          elementi={elementiSbloccati(st.fiori)}
+          elementi={p.elementi}
           fiori={st.fiori}
           bluPresenza={p.bluPresenza}
           altezza={180}

@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { CAPITOLI, ULTIMO_CAPITOLO, chiaveCapitolo } from '../config/capitoli';
+import { CAPITOLI, SEMINA_ARRIVA_A, ULTIMO_CAPITOLO, chiaveCapitolo } from '../config/capitoli';
+import { elementiSbloccati } from '../config/storia';
 import {
   REGALI_A_CAPITOLO,
   chiaveEco,
   codaCapitoli,
   ecoDaMostrare,
+  giardinoDelCapitolo,
+  giardinoVisibile,
   maxVisto,
   normalizzaPrefisso,
   regaliNuovi,
@@ -123,5 +126,46 @@ describe('regali', () => {
 
   it('più capitoli-regalo in un colpo (arretrati uniti) contano tutti', () => {
     expect(regaliNuovi([], fino(11))).toBe(3);
+  });
+});
+
+describe('giardinoVisibile (niente tracce di Semina prima del capitolo 5)', () => {
+  it('telefono nuovo con 6 fiori e nessun capitolo visto: niente tulipano, niente blu', () => {
+    const g = giardinoVisibile(6, []);
+    expect(g.elementi).not.toContain('semina');
+    expect(g.elementi).toContain('sentiero');
+    expect(g.bluPresenza).toBe(0);
+  });
+
+  it('il blu segue i capitoli letti fino al 4, mai di più senza il 5', () => {
+    expect(giardinoVisibile(6, fino(3)).bluPresenza).toBeCloseTo(2 / SEMINA_ARRIVA_A);
+    expect(giardinoVisibile(6, fino(5)).bluPresenza).toBeCloseTo(4 / SEMINA_ARRIVA_A);
+    expect(giardinoVisibile(6, fino(5)).elementi).not.toContain('semina');
+  });
+
+  it('a fiori < 5 come prima: blu dei fiori (letti tutti), nessun tulipano', () => {
+    expect(giardinoVisibile(3, fino(4))).toEqual({ elementi: elementiSbloccati(3), bluPresenza: 3 / SEMINA_ARRIVA_A });
+    expect(giardinoVisibile(0, []).bluPresenza).toBe(0);
+  });
+
+  it('col capitolo 5 visto: tulipano e blu pieno', () => {
+    const g = giardinoVisibile(6, fino(6));
+    expect(g.elementi).toEqual(elementiSbloccati(6));
+    expect(g.elementi).toContain('semina');
+    expect(g.bluPresenza).toBe(1);
+  });
+});
+
+describe('giardinoDelCapitolo (fondale del lettore)', () => {
+  it('com\'era a quel capitolo, senza Semina fino al 5 compreso', () => {
+    expect(giardinoDelCapitolo(2, 40)).toEqual({ elementi: elementiSbloccati(2), bluPresenza: 2 / SEMINA_ARRIVA_A });
+    const c5 = giardinoDelCapitolo(5, 40);
+    expect(c5.elementi).not.toContain('semina');
+    expect(c5.bluPresenza).toBeCloseTo(4 / SEMINA_ARRIVA_A);
+    expect(giardinoDelCapitolo(7, 40)).toEqual({ elementi: elementiSbloccati(7), bluPresenza: 1 });
+  });
+
+  it('mai oltre i fiori di adesso', () => {
+    expect(giardinoDelCapitolo(12, 9).elementi).toEqual(elementiSbloccati(9));
   });
 });

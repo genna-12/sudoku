@@ -497,18 +497,14 @@ input:focus-visible {
   background: var(--mio);
   box-shadow: 0 0 8px color-mix(in srgb, var(--mio) 60%, transparent);
 }
-/* sfondo dei capitoli nell'aiuola e nel giardino: la Scena della Home, prato al 70% */
+/* sfondo dei capitoli nell'aiuola e nel giardino: la Scena della Home intera (meet), posata in basso
+   con il prato (PRATO_Y, ~34 px sopra il bordo basso) sul suolo del palco al 70% */
 .capitolo-sfondo {
   position: absolute;
   left: 0;
   right: 0;
-  top: calc(70% - 222px);
+  bottom: calc(30% - 34px);
   pointer-events: none;
-}
-/* il bordo basso della Scena sfuma nel prato del fondale: niente scalino */
-.capitolo-sfondo .sc-scena {
-  -webkit-mask-image: linear-gradient(to bottom, #000 88%, transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 88%, transparent 100%);
 }
 /* diario nel Giardino */
 .diario {

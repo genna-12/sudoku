@@ -11,6 +11,44 @@
   --cap-carta: #f5eedb;
   --cap-inchiostro: #1c2520;
   --cap-inchiostro-2: #5c5a4c;
+  /* sempre notte, a prescindere dal tema dell'app: la palette di :root (notte) ridichiarata qui,
+     con i valori derivati (su :root sono già calcolati con le tinte del tema) */
+  --notte-verde: #0a1613;
+  --notte-blu: #0a1222;
+  --terra: #07100d;
+  --superficie-verde: #13221e;
+  --superficie-blu: #141d2e;
+  --testo: #f1ead7;
+  --testo-2: #a7ae9c;
+  --linea: #24362f;
+  --linea-forte: #557064;
+  --errore: #ff7c6b;
+  --oro: #ffc94a;
+  --verde-testo: #7cff4a;
+  --blu-testo: #8aa9ff;
+  --oro-testo: #ffd36e;
+  --evid: #f1e6c2;
+  --su-evid: #0a1613;
+  --grana: 0.07;
+  --lucciole: 0.75;
+  --stelle: 0.6;
+  --ombra-base: #000;
+  --fondo: color-mix(in oklab, var(--notte-verde), var(--notte-blu) calc(var(--blu-presenza) * 55%));
+  --cielo: color-mix(in oklab, var(--notte-verde), var(--notte-blu) calc(var(--blu-presenza) * 100%));
+  --fondo-2: color-mix(in oklab, var(--terra), var(--notte-blu) calc(var(--blu-presenza) * 12%));
+  --superficie: color-mix(in oklab, var(--superficie-verde), var(--superficie-blu) calc(var(--blu-presenza) * 45%));
+  --superficie-2: color-mix(in oklab, var(--superficie), var(--testo) 6%);
+  --ombra-tinta: color-mix(in oklab, var(--ombra-base), var(--blu) calc(var(--blu-presenza) * 40%));
+  --rilievo: var(--luce-alto), 0 12px 24px -16px var(--ombra-tinta);
+  --ombra: 0 18px 36px -18px var(--ombra-tinta), 0 2px 6px rgb(0 0 0 / 0.18);
+  --carta: var(--superficie);
+  --carta-2: var(--superficie-2);
+  --inchiostro: var(--testo);
+  --tenue: var(--testo-2);
+  --verde-inchiostro: var(--verde-testo);
+  --blu-inchiostro: var(--blu-testo);
+  --oro-inchiostro: var(--oro-testo);
+  color-scheme: dark;
   position: fixed;
   inset: 0;
   z-index: 70;
@@ -147,6 +185,10 @@
 .capitolo--rivelazione.capitolo--colori .fd .fd-stella-blu {
   fill: color-mix(in oklab, var(--blu) 70%, #fff);
 }
+/* prima dell'arrivo di Semina (capitoli 0-4) nessuna stella blu */
+.capitolo--prima-di-lei .fd .fd-stella-blu {
+  fill: #9aa39b;
+}
 .capitolo-foglie {
   z-index: 0;
   transition: opacity 600ms ease-out;
@@ -280,8 +322,8 @@
   right: 12px;
   margin: 0;
   padding: 16px 14px;
-  /* un velo morbido dietro il testo (non un fumetto): resta leggibile su luna, neve e lampioni */
-  background: radial-gradient(farthest-side, color-mix(in srgb, var(--fondo) 85%, transparent) 72%, transparent);
+  /* un velo scuro morbido dietro il testo (non un fumetto): resta leggibile su luna, neve e lampioni */
+  background: radial-gradient(closest-side, rgb(4 10 8 / 0.42), rgb(4 10 8 / 0.28) 55%, transparent);
   font-size: 16px;
   font-style: italic;
   line-height: 1.45;

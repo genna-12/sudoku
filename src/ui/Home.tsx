@@ -5,7 +5,7 @@ import type { Livello, Modalita } from '../engine';
 import { SEMINA_ARRIVA_A } from '../config/capitoli';
 import type { ChiParla } from '../config/frasi';
 import { LIVELLI_PARAMETRI } from '../config/livelli';
-import { GIORNI_SPECIALI, elementiSbloccati } from '../config/storia';
+import { GIORNI_SPECIALI } from '../config/storia';
 import type { GiornoSpeciale } from '../config/storia';
 import type { StatoConnessione } from '../net';
 import type { Giocatore, StatoPartita } from '../stato';
@@ -13,7 +13,8 @@ import { MenuHome } from './MenuHome';
 import { SemiTitolo } from './Icone';
 import type { Tema } from './MenuHome';
 import type { InfoSync } from './useSync';
-import { aCasoDiverso, accessoriSbloccati, accessorioPermesso, presenzaBlu } from './regole';
+import type { GiardinoVisibile } from './capitoli';
+import { aCasoDiverso, accessoriSbloccati, accessorioPermesso } from './regole';
 import { ELEMENTI_SCENA, Scena } from './Scena';
 import { ACCESSORI_DI, Semino, SeminoCoppia, SeminoPianta } from './Semino';
 import type { Accessorio } from './Semino';
@@ -42,6 +43,8 @@ interface Props {
   generando: boolean;
   fiori: number;
   sbloccata: boolean;
+  /** il giardino visibile su questo dispositivo (senza tracce di Semina prima del capitolo 5) */
+  giardino: GiardinoVisibile;
   /** giorno del mare / della montagna (solo dopo l'arrivo di Semina), o null */
   giorno: GiornoSpeciale | null;
   /** capitoli in coda da leggere (0 = niente bottone) */
@@ -88,9 +91,9 @@ export function Home(p: Props) {
     <main className="schermata home" data-testid="home" data-giorno={p.giorno ?? undefined}>
       <Scena
         className="home-scena"
-        elementi={elementiSbloccati(p.fiori)}
+        elementi={p.giardino.elementi}
         fiori={p.fiori}
-        bluPresenza={presenzaBlu(p.fiori, p.sbloccata)}
+        bluPresenza={p.giardino.bluPresenza}
         altezza={220}
         sfuma
         nuovi={inEvidenza(p)}
@@ -109,7 +112,7 @@ export function Home(p: Props) {
             fiorita={p.fiori > 0}
             stadio={2}
             taglia={30}
-            quotaBlu={p.fiori > 0 ? presenzaBlu(p.fiori, p.sbloccata) * 0.5 : undefined}
+            quotaBlu={p.fiori > 0 ? p.giardino.bluPresenza * 0.5 : undefined}
           />
           <span className="tabellare">{p.fiori}</span>
         </button>
@@ -217,8 +220,8 @@ export function Home(p: Props) {
 const RIPOSO_MS = 60000;
 
 /** Elemento della scena da far entrare di nuovo: quello del giorno speciale. */
-function inEvidenza(p: Pick<Props, 'giorno' | 'fiori'>): string[] | undefined {
-  const visibili = elementiSbloccati(p.fiori);
+function inEvidenza(p: Pick<Props, 'giorno' | 'giardino'>): string[] | undefined {
+  const visibili = p.giardino.elementi;
   const g = p.giorno ? GIORNI_SPECIALI[p.giorno].scena : '';
   return g && visibili.includes(g) && (ELEMENTI_SCENA as readonly string[]).includes(g) ? [g] : undefined;
 }

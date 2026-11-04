@@ -301,6 +301,8 @@ interface Props {
   festa?: boolean;
   /** sfuma in basso verso il fondo della pagina (dietro la Home) */
   sfuma?: boolean;
+  /** intera: sui contenitori stretti si rimpicciolisce invece di tagliare i lati (fondale del lettore) */
+  intera?: boolean;
   /** forza quali elementi animare in entrata (default: quelli mai visti su questo dispositivo) */
   nuovi?: readonly string[];
   /** cose in piedi sul prato (es. le mascotte): origine al centro del prato, y = 0 al suolo (PRATO_Y), unità del viewBox */
@@ -316,6 +318,7 @@ export function Scena({
   altezza = 180,
   festa = false,
   sfuma = false,
+  intera = false,
   nuovi: nuoviForzati,
   figli,
   className,
@@ -539,7 +542,7 @@ export function Scena({
       ref={rif}
       className={`sc-scena${sfuma ? ' sc-sfuma' : ''}${festa ? ' sc-festa' : ''}${className ? ` ${className}` : ''}`}
       viewBox={`${f1(sx)} 0 ${f1(W)} ${H}`}
-      preserveAspectRatio="xMidYMax slice"
+      preserveAspectRatio={intera ? 'xMidYMax meet' : 'xMidYMax slice'}
       role={figli ? 'group' : 'img'}
       aria-label={descrizione(elementi, fiori)}
       style={{ height: altezza, '--sc-p': `${p}%`, ...style } as CSSProperties}

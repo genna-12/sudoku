@@ -6,7 +6,7 @@ import type { ChiParla } from '../config/frasi';
 import { dormePerOrario } from '../config/sonno';
 import { SEMINA_ARRIVA_A, capitolo as capitoloDi } from '../config/capitoli';
 import type { Capitolo } from '../config/capitoli';
-import { elementiSbloccati, giornoSpeciale } from '../config/storia';
+import { giornoSpeciale } from '../config/storia';
 import { COLORI_RUOLO, PROFILI, nomeVisibile, profiloDiNome } from '../config/giocatori';
 import type { Livello, Modalita } from '../engine';
 import type { Messaggio } from '../net';
@@ -14,7 +14,7 @@ import type { Giocatore, StatoPartita, VoceStorico } from '../stato';
 import type { Archivio } from '../stato/archivio';
 import { unisciStoricoRemoto } from '../stato/archivio';
 import { CapitoloScena } from './CapitoloScena';
-import { codaCapitoli, diario, ecoDaMostrare, ecoDi, seminaSbloccata, vistiDi } from './capitoli';
+import { codaCapitoli, diario, ecoDaMostrare, ecoDi, giardinoDelCapitolo, giardinoVisibile, seminaSbloccata, vistiDi } from './capitoli';
 import { Giardino } from './Giardino';
 import type { Arrivo, Lampo } from './Griglia';
 import { Home } from './Home';
@@ -39,7 +39,6 @@ import {
   mascotteDi,
   nominaSemina,
   partitaToccata,
-  presenzaBlu,
   scegliFrase,
   senzaSemina,
   solletico,
@@ -174,8 +173,10 @@ export function App() {
     if (tema === 'auto') delete r.dataset.tema;
     else r.dataset.tema = tema;
   }, [tema]);
+  // il giardino che si vede su questo dispositivo: niente tulipano né blu di Semina prima del capitolo 5 visto
+  const giardino = giardinoVisibile(fiori, vistiMiei);
   // quanto blu negli accenti di coppia: sul root, così arriva anche alla grana del body
-  const blu = presenzaBlu(fiori, sbloccata);
+  const blu = giardino.bluPresenza;
   useEffect(() => {
     document.documentElement.style.setProperty('--blu-presenza', String(blu));
   }, [blu]);
@@ -593,15 +594,24 @@ export function App() {
     }, USCITA_MS);
   }
 
-  /** Fondale di aiuola e giardino: la Scena della Home con gli elementi di quel capitolo (Semina mai prima del 5). */
+  /**
+   * Fondale di aiuola e giardino: la Scena della Home com'era a quel capitolo (Semina mai prima del 5),
+   * intera e posata sul prato del fondale; il cielo (sempre notte, stelle e luna) è del Fondale.
+   */
   function sfondoDi(c: Capitolo) {
     const v = c.fondale ?? c.luogo;
     if (v !== 'aiuola' && v !== 'giardino') return undefined;
-    const f = Math.min(fiori, c.fiore);
-    const elementi = elementiSbloccati(f).filter((e) => e !== 'semina' || c.fiore > SEMINA_ARRIVA_A);
+    const g = giardinoDelCapitolo(c.fiore, fiori);
     return (
       <div className="capitolo-sfondo" aria-hidden="true">
-        <Scena elementi={elementi} fiori={f} bluPresenza={presenzaBlu(f, c.fiore > SEMINA_ARRIVA_A)} altezza={260} nuovi={[]} />
+        <Scena
+          elementi={g.elementi.filter((e) => e !== 'stelle')}
+          fiori={Math.min(fiori, c.fiore)}
+          bluPresenza={g.bluPresenza}
+          altezza={240}
+          intera
+          nuovi={[]}
+        />
       </div>
     );
   }
@@ -794,6 +804,7 @@ export function App() {
           generando={generando}
           fiori={fiori}
           sbloccata={sbloccata}
+          giardino={giardino}
           giorno={giorno}
           daLeggere={coda.length}
           onLeggi={() => setLettore(apriLettore(fiori, vistiMiei, 'home', archivio.azzerato))}
@@ -824,6 +835,7 @@ export function App() {
           storico={archivio.storico}
           inCorso={partita && !partita.finita ? `${partita.puzzle.modalita}-${partita.puzzle.seed}` : null}
           sbloccata={sbloccata}
+          elementi={giardino.elementi}
           bluPresenza={blu}
           mascotte={mascotte}
           solletico={solleticoOra}
@@ -881,6 +893,7 @@ export function App() {
           puntiSuoi={partita.contatori?.[altro(mioRuolo)]?.punti ?? 0}
           bonus={bonusVittoria(partita.secondi)}
           fiori={fiori}
+          elementi={giardino.elementi}
           bluPresenza={blu}
           onNuova={() => iniziaNuova(partita.puzzle.modalita, partita.puzzle.livello)}
           onChiudi={() => setVittoriaChiusa(partita.iniziata)}
@@ -898,6 +911,7 @@ export function App() {
           puntiSuoi={cartaVai.puntiSuoi}
           bonus={cartaVai.bonus}
           fiori={fiori}
+          elementi={giardino.elementi}
           bluPresenza={blu}
           vai
           onNuova={() => {

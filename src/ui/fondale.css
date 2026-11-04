@@ -36,12 +36,12 @@
 }
 /* mattina (tema chiaro): neve, schiuma e luna restano chiare */
 @media (prefers-color-scheme: light) {
-  :root:not([data-tema='scuro']) .fd {
+  :root:not([data-tema='scuro']) .fd:not(.capitolo *) {
     --fd-neve: #ffffff;
     --fd-schiuma: #ffffff;
   }
 }
-:root[data-tema='chiaro'] .fd {
+:root[data-tema='chiaro'] .fd:not(.capitolo *) {
   --fd-neve: #ffffff;
   --fd-schiuma: #ffffff;
 }
@@ -193,6 +193,12 @@
 }
 .fd .fd-prato {
   fill: color-mix(in oklab, var(--fd-terra), var(--fd-verde) 11%);
+}
+.fd .fd-ciuffi {
+  fill: none;
+  stroke: color-mix(in oklab, var(--fd-verde) 30%, var(--fd-terra));
+  stroke-width: 1.4;
+  stroke-linecap: round;
 }
 
 /* ---------- mare ---------- */

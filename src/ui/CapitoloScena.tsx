@@ -2,7 +2,7 @@
 // <CapitoloScena capitolo={c} indice={2} totale={3} stadio={3} onContinua={…} />
 //   - una battuta per tocco (bottone trasparente a tutto schermo); 300 ms di guardia dopo ogni cambio
 //   - all'ultima battuta il tocco non fa niente: dopo 400 ms compare il bottone vero "Continua"
-//   - "‹" in alto a sinistra = indietro; tastiera: Invio/Spazio/→ avanti, Backspace/← indietro
+//   - "‹" in alto a sinistra = indietro; tastiera: Invio/Spazio/→ avanti, Backspace/← indietro, Esc chiude (solo in rilettura)
 //   - narra = didascalia nel cielo; mulo = una lettera che si riempie una riga per tocco
 //   - Semina solo dal capitolo 5 (nel 5 sbuca alla sua prima battuta); un secondario alla volta (nel 99 tutti)
 //   - rilettura: "Dal diario" e "Chiudi"; esce: la classe dell'uscita (150 ms), la gestisce il genitore
@@ -131,7 +131,8 @@ export function CapitoloScena({
   useEffect(() => {
     function tasto(e: KeyboardEvent) {
       const suBottone = e.target instanceof HTMLElement && e.target.closest('button');
-      if (e.key === 'ArrowRight') avanti();
+      if (e.key === 'Escape' && rilettura) onContinua();
+      else if (e.key === 'ArrowRight') avanti();
       else if (e.key === 'ArrowLeft' || e.key === 'Backspace') indietro();
       else if ((e.key === 'Enter' || e.key === ' ') && !suBottone) avanti();
       else return;
@@ -139,7 +140,7 @@ export function CapitoloScena({
     }
     window.addEventListener('keydown', tasto);
     return () => window.removeEventListener('keydown', tasto);
-  }, [avanti, indietro]);
+  }, [avanti, indietro, rilettura, onContinua]);
 
   const b = battute[Math.min(passo, ultimo)] as BattutaCapitolo | undefined;
   const chi = b?.chi;
@@ -191,6 +192,7 @@ export function CapitoloScena({
     'capitolo',
     `capitolo--${c.luogo}`,
     rivelazione && 'capitolo--rivelazione',
+    c.fiore < 5 && 'capitolo--prima-di-lei',
     colori && 'capitolo--colori',
     chi === 'mulo' && 'capitolo--lettera',
     tutti && 'capitolo--tutti',

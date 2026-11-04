@@ -234,6 +234,16 @@ describe('CapitoloScena', () => {
     expect(onContinua).toHaveBeenCalledTimes(1);
   });
 
+  it('Esc chiude solo la rilettura', () => {
+    const esc = () => act(() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })));
+    const nuovo = monta({ capitolo: SEMPLICE });
+    esc();
+    expect(nuovo).not.toHaveBeenCalled();
+    const riletto = monta({ capitolo: cap(7, [{ chi: 'semino', testo: 'Una.' }, { chi: 'semino', testo: 'Due.' }]), rilettura: true });
+    esc();
+    expect(riletto).toHaveBeenCalledTimes(1);
+  });
+
   it('il vestito si mette solo se è disegnato', () => {
     const c = cap(17, [{ chi: 'semino', testo: 'Surf.' }], { vestiti: { semino: 'surf' } });
     monta({ capitolo: c });

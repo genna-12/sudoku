@@ -43,9 +43,9 @@
   user-select: none;
 }
 
-/* mattina: niente notte da accendere, la luce è del giorno */
+/* mattina: niente notte da accendere, la luce è del giorno (non nel lettore dei capitoli: lì è sempre notte) */
 @media (prefers-color-scheme: light) {
-  :root:not([data-tema='scuro']) .sc-scena {
+  :root:not([data-tema='scuro']) .sc-scena:not(.capitolo *) {
     --sc-schiuma: #ffffff;
     --sc-neve: #ffffff;
     --sc-stella: color-mix(in oklab, var(--sc-blu) 55%, #fff);
@@ -59,7 +59,7 @@
     --sc-luce-casa: color-mix(in oklab, var(--sc-blu) 25%, #fff);
   }
 }
-:root[data-tema='chiaro'] .sc-scena {
+:root[data-tema='chiaro'] .sc-scena:not(.capitolo *) {
   --sc-schiuma: #ffffff;
   --sc-neve: #ffffff;
   --sc-stella: color-mix(in oklab, var(--sc-blu) 55%, #fff);

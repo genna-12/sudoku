@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import type { CSSProperties } from 'react';
 import type { ChiParla } from '../config/frasi';
-import { elementiSbloccati } from '../config/storia';
 import type { Chiacchiera } from './Home';
 import { Scena } from './Scena';
 import { Semino, SeminoCoppia } from './Semino';
@@ -22,6 +21,7 @@ export function Vittoria({
   puntiSuoi,
   bonus,
   fiori,
+  elementi,
   bluPresenza,
   vai = false,
   onNuova,
@@ -40,6 +40,8 @@ export function Vittoria({
   bonus: number;
   /** fiori con questa vittoria: la scena piccola in testa (fuochi e arcobaleno se sbloccati) */
   fiori: number;
+  /** elementi visibili della scena (senza il tulipano di Semina prima del capitolo 5) */
+  elementi: readonly string[];
   bluPresenza: number;
   /** il partner ha già aperto una partita nuova (mentre leggevo il capitolo): "Vai" al posto di "Nuova partita" */
   vai?: boolean;
@@ -60,7 +62,6 @@ export function Vittoria({
   );
   const umoreLui = solletico?.chi === 'semino' ? mascotte.semino.umore : 'festa';
   const umoreLei = solletico?.chi === 'semina' ? mascotte.semina.umore : umoreValido('euforico');
-  const elementi = elementiSbloccati(fiori);
   // chi parla adesso (solletico): la sua bocca si muove
   const chiParla: ChiParla | null = solletico ? solletico.chi : null;
   return (
