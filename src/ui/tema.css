@@ -264,12 +264,33 @@ input:focus-visible {
   min-height: 100dvh;
   padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
     max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
-  animation: entra 0.38s var(--curva) both;
+  animation: entra 0.25s var(--curva) both;
 }
 @keyframes entra {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px);
+  }
+}
+/* uscita (App.vai): dissolvenza e 8 px verso l'alto; all'animationend entra la schermata nuova */
+.app-sotto[data-esce] > .schermata {
+  pointer-events: none;
+  animation: esce 0.15s ease-in both;
+}
+@keyframes esce {
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+@keyframes entra-dissolvenza {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes esce-dissolvenza {
+  to {
+    opacity: 0;
   }
 }
 
@@ -1192,7 +1213,7 @@ input:focus-visible {
     color 0.2s;
 }
 .tasto-resto {
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1;
   color: var(--tenue);
 }
@@ -1236,7 +1257,7 @@ input:focus-visible {
   border-radius: 8px 8px 8px 2px;
   background: var(--evid);
   color: var(--su-evid);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 650;
   white-space: nowrap;
   animation: atterra-su 0.2s var(--molla) both;
@@ -1532,7 +1553,7 @@ input:focus-visible {
   border-radius: 10px 10px 10px 3px;
   background: var(--oro);
   color: var(--su-oro);
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 850;
   font-variant-numeric: tabular-nums;
 }
@@ -1657,6 +1678,61 @@ input:focus-visible {
 .pianta-riprendi:active {
   transform: scale(var(--premi));
 }
+/* fiore finito: tutta la card si tocca e apre il dettaglio */
+.pianta-apri {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.pianta-fiorita {
+  transition: transform 0.2s var(--molla);
+}
+.pianta-fiorita:has(.pianta-apri:active) {
+  transform: scale(0.96);
+}
+.foglio-fiore h2 {
+  margin: 0;
+}
+.fiore-testa {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.fiore-data {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--tenue);
+}
+.fiore-dati {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 0 0 14px;
+}
+.fiore-dati > div {
+  padding: 8px 12px;
+  background: var(--carta);
+  border: 1px solid var(--linea);
+  border-radius: 14px 14px 14px 5px;
+}
+.fiore-dati dt {
+  font-size: 12px;
+  color: var(--tenue);
+}
+.fiore-dati dd {
+  margin: 2px 0 0;
+  font-size: 20px;
+  font-weight: 750;
+}
+.fiore-ultima {
+  grid-column: 1 / -1;
+}
 
 /* ---------- toast ---------- */
 .toasts {
@@ -1712,6 +1788,10 @@ input:focus-visible {
   text-align: center;
   background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--fondo) 88%, transparent) 0, transparent 70%);
   animation: grande 3.6s var(--curva) both;
+}
+.toast-grande > * {
+  pointer-events: auto;
+  cursor: pointer;
 }
 .toast-grande-testo {
   font-size: clamp(42px, 13vw, 76px);
@@ -1966,6 +2046,10 @@ input:focus-visible {
 .giardino-bottone:active {
   transform: scale(var(--premi));
 }
+.giardino-etichetta {
+  white-space: nowrap;
+  padding-left: 2px;
+}
 .giardino-bottone .semino-pianta {
   margin-top: -4px;
 }
@@ -2185,6 +2269,20 @@ input:focus-visible {
   border-left: 0;
   border-right: 1px solid var(--linea);
 }
+/* etichette a 12 px (T7): nel cruscotto si stringe la spaziatura, non il corpo */
+.crescita.cruscotto .contatore {
+  gap: 4px;
+  padding: 2px 6px 2px 5px;
+}
+.crescita.cruscotto .contatore-suo {
+  padding: 2px 5px 2px 6px;
+}
+.crescita.cruscotto .contatore-errori {
+  padding-left: 5px;
+}
+.crescita.cruscotto .contatore-suo .contatore-errori {
+  padding: 0 5px 0 0;
+}
 .contatore-errori[hidden] {
   display: none;
 }
@@ -2325,7 +2423,7 @@ input:focus-visible {
 /* ---------- toast: chi parla ---------- */
 .toast-prefisso {
   margin-right: 0.35em;
-  font-size: 0.62em;
+  font-size: max(12px, 0.62em);
   font-weight: 650;
   opacity: 0.85;
   vertical-align: 0.2em;
@@ -2387,7 +2485,13 @@ input:focus-visible {
 }
 /* ---------- movimento ridotto ---------- */
 @media (prefers-reduced-motion: reduce) {
-  .schermata,
+  /* le schermate: solo dissolvenza, niente spostamento */
+  .schermata {
+    animation-name: entra-dissolvenza;
+  }
+  .app-sotto[data-esce] > .schermata {
+    animation-name: esce-dissolvenza;
+  }
   .menu,
   .vittoria-carta,
   .cella:not(.data) .valore:not(:empty),
@@ -2705,12 +2809,25 @@ input:focus-visible {
 }
 .battuta-righe {
   margin: 0;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  overflow: hidden;
+  /* tre righe, poi scorre (niente testo tagliato) */
+  max-height: calc(3 * 1.25em);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
   text-wrap: pretty;
+}
+.battuta {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+/* fermato col tocco: resta aperto, un po' più alto, finché non si tocca di nuovo */
+.battuta.fermo {
+  box-shadow: var(--ombra);
+  outline: 2px solid color-mix(in srgb, var(--b-accento) 35%, transparent);
+  outline-offset: 2px;
+}
+.battuta.fermo .battuta-righe {
+  max-height: calc(5 * 1.25em);
 }
 .battuta-firma {
   margin-right: 0.35em;
@@ -2760,9 +2877,7 @@ input:focus-visible {
   transform-origin: 30% 0;
 }
 .battuta-pannello .battuta-righe {
-  display: block;
-  -webkit-line-clamp: unset;
-  line-clamp: none;
+  max-height: none;
 }
 .battuta-pannello::before,
 .battuta-pannello.a-destra::before {
@@ -3075,6 +3190,24 @@ input:focus-visible {
   position: relative;
   isolation: isolate;
 }
+/* sopra la cassetta della scena (x = −72, base a 203 unità; nella Home 1 unità = 1 px, centro = centro) */
+.cassetta-bottone {
+  position: absolute;
+  z-index: 2;
+  top: 158px;
+  left: calc(50% - 72px - 22px);
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.cassetta-bottone:active {
+  background: color-mix(in srgb, var(--testo) 8%, transparent);
+}
 .home-scena {
   position: absolute;
   z-index: -1;
@@ -3186,9 +3319,14 @@ input:focus-visible {
   padding-top: 30px;
 }
 .crescita.cruscotto .battuta:not(.battuta-pannello) {
-  inset: 0 0 auto 0;
-  height: 46px;
+  /* il bordo basso resta dov'era (sopra i punti): con la terza riga cresce verso l'alto */
+  inset: auto 0 calc(100% - 46px) 0;
+  min-height: 46px;
   font-size: 13px;
+  transform-origin: 0 100%;
+}
+.crescita.cruscotto .battuta.a-destra:not(.battuta-pannello) {
+  transform-origin: 100% 100%;
 }
 .regalo {
   flex: none;
@@ -3207,9 +3345,9 @@ input:focus-visible {
   display: none;
 }
 .contatore small {
-  font-size: 9.5px;
+  font-size: 12px;
   font-weight: 500;
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
   color: var(--tenue);
   text-decoration: none;
 }
@@ -3375,6 +3513,52 @@ input:focus-visible {
   border-color: var(--mio);
 }
 
+/* la cassetta della posta: le frasi mandate e ricevute, nuove in cima */
+.foglio-posta {
+  display: flex;
+  flex-direction: column;
+  max-height: min(78dvh, 640px);
+}
+.posta-lista {
+  margin: 4px 0 12px;
+  padding: 0 2px;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.posta-voce {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-width: 88%;
+  padding: 8px 12px;
+  background: var(--carta);
+  border: 1px solid var(--linea);
+  border-left: 3px solid var(--mio);
+  border-radius: 14px 14px 14px 5px;
+}
+.posta-sua {
+  align-self: flex-end;
+  border-left: 1px solid var(--linea);
+  border-right: 3px solid var(--suo);
+  border-radius: 14px 14px 5px 14px;
+}
+.posta-chi {
+  font-size: 12px;
+  color: var(--tenue);
+}
+.posta-testo {
+  font-size: 16px;
+  line-height: 1.25;
+  --casl: 1;
+}
+.posta-vuota {
+  color: var(--testo-2);
+}
+
 /* telefono in orizzontale: griglia a sinistra alta quanto lo schermo, a destra barra, cruscotto e
    comandi (strumenti 2×2 accanto al tastierino 3×3) */
 @media (orientation: landscape) and (max-height: 500px) {
@@ -3456,5 +3640,5 @@ input:focus-visible {
 
 .menu-versione { margin: 10px 14px 4px; font-size: 0.75rem; color: var(--testo-2); text-align: center; opacity: 0.8; }
 
-.diagnostica { margin: 6px 14px; max-height: 220px; overflow: auto; font: 11px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; word-break: break-all; color: var(--testo-2); background: color-mix(in oklab, var(--fondo) 70%, var(--superficie)); border-radius: 10px; padding: 8px 10px; }
+.diagnostica { margin: 6px 14px; max-height: 220px; overflow: auto; font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; word-break: break-all; color: var(--testo-2); background: color-mix(in oklab, var(--fondo) 70%, var(--superficie)); border-radius: 10px; padding: 8px 10px; }
 .menu-sync { font-size: 0.85rem; color: var(--testo-2); margin: 0; }

@@ -3,8 +3,8 @@
 import { INTERVALLO_SYNC_MS } from '../config/sync';
 import { normalizzaFrase } from '../net/logica';
 import { unisci } from './index';
-import { VERSIONE_ARCHIVIO, migra, normalizzaVisti, unisciStoricoRemoto, unisciVisti } from './archivio';
-import type { Archivio, CapitoliVisti } from './archivio';
+import { VERSIONE_ARCHIVIO, migra, normalizzaVisti, unisciPosta, unisciStoricoRemoto, unisciVisti } from './archivio';
+import type { Archivio, CapitoliVisti, VocePosta } from './archivio';
 import type { StatoPartita, VoceStorico } from './types';
 
 /** Versione dei dati di questo client: un client più vecchio di quella sul Worker legge soltanto. */
@@ -19,13 +19,15 @@ export interface PayloadSync {
   azzerato: number;
   partita: StatoPartita | null;
   capitoliVisti: CapitoliVisti;
+  /** la cassetta della posta (T7): assente se vuota; i client vecchi la ricopiano intatta */
+  posta?: VocePosta[];
   aggiornato: number;
   /** campi di versioni più nuove: si ricopiano intatti quando si scrive */
   [extra: string]: unknown;
 }
 
 /** Campi del payload che questo client conosce (`tappeViste` di T2-T4 esce dal payload). */
-const NOTI = new Set(['versione', 'versioneDati', 'storico', 'azzerato', 'partita', 'capitoliVisti', 'aggiornato', 'tappeViste']);
+const NOTI = new Set(['versione', 'versioneDati', 'storico', 'azzerato', 'partita', 'capitoliVisti', 'posta', 'aggiornato', 'tappeViste']);
 
 function sconosciuti(x: unknown): Record<string, unknown> {
   if (typeof x !== 'object' || x === null || Array.isArray(x)) return {};
@@ -53,6 +55,7 @@ export function payloadDa(a: Archivio, ora = Date.now(), remoto?: unknown): Payl
     azzerato: a.azzerato,
     partita: a.partita,
     capitoliVisti: a.capitoliVisti,
+    ...(a.posta?.length ? { posta: a.posta } : {}),
     aggiornato: ora,
   };
 }
@@ -65,7 +68,7 @@ export function payloadDa(a: Archivio, ora = Date.now(), remoto?: unknown): Payl
 export function leggiPayload(x: unknown): PayloadSync | null {
   if (typeof x !== 'object' || x === null || Array.isArray(x)) return null;
   const d = x as Record<string, unknown>;
-  const a = migra({ versione: VERSIONE_ARCHIVIO, storico: d.storico, azzerato: d.azzerato, partita: d.partita, capitoliVisti: d.capitoliVisti });
+  const a = migra({ versione: VERSIONE_ARCHIVIO, storico: d.storico, azzerato: d.azzerato, partita: d.partita, capitoliVisti: d.capitoliVisti, posta: d.posta });
   const v = typeof d.versioneDati === 'number' && Number.isFinite(d.versioneDati) ? d.versioneDati : 1;
   return { ...payloadDa(a, typeof d.aggiornato === 'number' ? d.aggiornato : 0, d), versioneDati: v };
 }
@@ -97,6 +100,7 @@ export function impronta(p: PayloadSync | null): string {
     azzerato: p.azzerato,
     partita: p.partita,
     capitoliVisti: normalizzaVisti(p.capitoliVisti),
+    ...(p.posta?.length ? { posta: p.posta } : {}),
   });
 }
 
@@ -116,7 +120,9 @@ export function unisciRemoto(
   const rp = r.partita && r.partita.iniziata >= a.azzerato ? r.partita : null;
   const partita = a.partita && rp ? unisci(a.partita, rp) : (a.partita ?? rp);
   const capitoliVisti = r.azzerato >= a.azzerato ? unisciVisti(a.capitoliVisti, r.capitoliVisti) : a.capitoliVisti;
-  const unito: Archivio = { ...a, partita, capitoliVisti };
+  // posta: unione per chiave, filtrata per l'era di azzeramento (come lo storico)
+  const posta = unisciPosta(a.posta ?? [], r.posta, a.azzerato);
+  const unito: Archivio = { ...a, partita, capitoliVisti, posta };
   const iUnito = impronta(payloadDa(unito));
   const cambiatoLocale = iUnito !== impronta(payloadDa(locale));
   return {
@@ -140,7 +146,13 @@ export function decidiScrittura(ultima: number | null, ora: number, motivo: Moti
  * `cancella`: la partita in corso è stata chiusa a mano (si scrive senza rileggere, se no tornerebbe).
  */
 export function motivoCambio(prima: Archivio, dopo: Archivio): MotivoScrittura | 'cancella' | null {
-  if (prima.storico === dopo.storico && prima.azzerato === dopo.azzerato && prima.partita === dopo.partita && prima.capitoliVisti === dopo.capitoliVisti) {
+  if (
+    prima.storico === dopo.storico &&
+    prima.azzerato === dopo.azzerato &&
+    prima.partita === dopo.partita &&
+    prima.capitoliVisti === dopo.capitoliVisti &&
+    prima.posta === dopo.posta
+  ) {
     return null;
   }
   if (dopo.azzerato > prima.azzerato) return 'urgente';

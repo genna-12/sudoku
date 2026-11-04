@@ -221,10 +221,10 @@ describe('leggiPayload, campi sconosciuti e versione dei dati', () => {
   });
 
   it('payloadDa ricopia i campi remoti sconosciuti (un client vecchio non cancella quelli nuovi)', () => {
-    const remoto = leggiPayload({ ...P(archivio()), versioneDati: 3, posta: [{ da: 'a', testo: 'ciao' }], tema: 'notte' })!;
-    expect(remoto.posta).toEqual([{ da: 'a', testo: 'ciao' }]);
+    const remoto = leggiPayload({ ...P(archivio()), versioneDati: 3, bacheca: [{ da: 'a', testo: 'ciao' }], tema: 'notte' })!;
+    expect(remoto.bacheca).toEqual([{ da: 'a', testo: 'ciao' }]);
     const p = payloadDa(archivio({ capitoliVisti: { a: fino(1), b: [] } }), 5, remoto);
-    expect(p.posta).toEqual([{ da: 'a', testo: 'ciao' }]);
+    expect(p.bacheca).toEqual([{ da: 'a', testo: 'ciao' }]);
     expect(p.tema).toBe('notte');
     // i campi noti sono sempre i propri
     expect(p.versioneDati).toBe(VERSIONE_DATI);

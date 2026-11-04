@@ -382,6 +382,8 @@ interface Props {
   nuovi?: readonly string[];
   /** cose in piedi sul prato (es. le mascotte): origine al centro del prato, y = 0 al suolo (PRATO_Y), unità del viewBox */
   figli?: ReactNode;
+  /** tocco sulla cassetta della posta (se c'è): un bersaglio trasparente sopra di lei */
+  onCassetta?: () => void;
   className?: string;
   style?: CSSProperties;
 }
@@ -396,6 +398,7 @@ export function Scena({
   intera = false,
   nuovi: nuoviForzati,
   figli,
+  onCassetta,
   className,
   style,
 }: Props) {
@@ -716,6 +719,24 @@ export function Scena({
         </g>,
       )}
       {el('cassetta', <Cassetta x={-72} y={203} locandina={el('locandina', <Locandina />)} />)}
+      {onCassetta && ha.has('cassetta') && (
+        <g
+          className="sc-cassetta-tocco"
+          role="button"
+          tabIndex={0}
+          aria-label="La cassetta della posta: le frasi che vi siete mandati"
+          data-testid="cassetta"
+          onClick={onCassetta}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onCassetta();
+            }
+          }}
+        >
+          <rect x={-72 - 24} y={203 - 50} width={48} height={54} rx={10} />
+        </g>
+      )}
 
       {figli && (
         <g className="sc-figli" transform={`translate(0 ${PRATO_Y})`}>

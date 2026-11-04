@@ -9,6 +9,7 @@ import type { Arrivo, Lampo } from './Griglia';
 import { IconaAnnulla, IconaCancella, IconaCuore, IconaIndietro, IconaMatita, IconaMenu } from './Icone';
 import type { Chiacchiera } from './Home';
 import { Tastierino } from './Tastierino';
+import { useChiudiConIndietro } from './indietro';
 import { Semino, stadioDaCrescita } from './Semino';
 import { crescita, mascotteDi } from './regole';
 import { accessorioValido } from './useMascotte';
@@ -42,6 +43,8 @@ interface Props {
   onCursore: (idx: number | null) => void;
   /** manda una frase al partner: quella scelta, o una a caso */
   onFrase: (testo?: string) => void;
+  /** gesti nascosti: tocco sul tastierino, selezione di una cella con un numero (suggerimento una tantum) */
+  onSuggerimento?: (evento: 'tastierino' | 'cella-piena') => void;
   /** le frasi da proporre nel foglio (sei) */
   frasiDaScegliere: () => string[];
   onEsci: () => void;
@@ -63,6 +66,9 @@ export function Partita(p: Props) {
   const [regaloAttivo, setRegaloAttivo] = useState(false);
   const [evidenziato, setEvidenziato] = useState(0);
   const [proposte, setProposte] = useState<string[] | null>(null);
+  // gesto indietro: chiude il foglio delle frasi o il menù prima di uscire dalla partita
+  useChiudiConIndietro(menu, () => setMenu(false));
+  useChiudiConIndietro(proposte !== null, () => setProposte(null));
   const valori = useMemo(() => griglia(partita), [partita]);
   // "ne restano": con gli errori visibili contano solo i valori giusti, così un numero sbagliato non
   // esaurisce la cifra (senza errori visibili contano tutti: non si rivela cosa è sbagliato)
@@ -103,6 +109,7 @@ export function Partita(p: Props) {
     // il faro del doppio tocco si spegne su una cella con un altro numero o vuota
     const v = valori[i];
     setEvidenziato((e) => (e && v !== e ? 0 : e));
+    if (v) p.onSuggerimento?.('cella-piena');
     if (regaloAttivo && p.onSuggerisci(i)) setRegaloAttivo(false);
   }
 
@@ -174,6 +181,24 @@ export function Partita(p: Props) {
         p.battuta,
         p.chiacchiera && { ...p.chiacchiera, voce: true },
       ]);
+  // tocco sul fumetto: la prima volta resta aperto (e si può scorrere), la seconda si chiude
+  const [fermo, setFermo] = useState<Detto | null>(null);
+  const [chiuso, setChiuso] = useState<number | null>(null);
+  if (fermo && detto && detto.id > fermo.id) setFermo(null);
+  const mostrato: Detto | null = regaloAttivo
+    ? detto
+    : fermo && (!detto || detto.id <= fermo.id)
+      ? fermo
+      : detto && detto.id !== chiuso
+        ? detto
+        : null;
+  function toccaFumetto(d: Detto) {
+    if (d.id < 0) return;
+    if (fermo?.id === d.id) {
+      setFermo(null);
+      setChiuso(d.id);
+    } else setFermo(d);
+  }
   const desktop = useDesktop();
   const guarda = sel === null ? null : { r: Math.floor(sel / 9), c: sel % 9 };
 
@@ -257,8 +282,17 @@ export function Partita(p: Props) {
               regaloAttivo={regaloAttivo}
               onRegalo={() => setRegaloAttivo((a) => !a)}
               guarda={guarda}
-              fumetto={!desktop && detto ? <FumettoPartita detto={detto} destra={!!destra && detto.chi === destra} /> : null}
-              parla={!desktop && detto ? { chi: detto.chi, testo: detto.testo } : null}
+              fumetto={
+                !desktop && mostrato ? (
+                  <FumettoPartita
+                    detto={mostrato}
+                    destra={!!destra && mostrato.chi === destra}
+                    fermo={fermo?.id === mostrato.id}
+                    onTocca={toccaFumetto}
+                  />
+                ) : null
+              }
+              parla={!desktop && mostrato ? { chi: mostrato.chi, testo: mostrato.testo } : null}
             />
           </div>
           <Griglia
@@ -285,7 +319,9 @@ export function Partita(p: Props) {
             sbloccata={p.sbloccata}
             mascotte={p.mascotte}
             indossati={indossati}
-            detto={desktop ? detto : null}
+            detto={desktop ? mostrato : null}
+            fermo={fermo?.id ?? null}
+            onTocca={toccaFumetto}
             guarda={guarda}
             onSolletico={p.onSolletico}
           />
@@ -319,7 +355,14 @@ export function Partita(p: Props) {
             </button>
           </div>
 
-          <Tastierino restano={restano} matita={matita} onCifra={premi} />
+          <Tastierino
+            restano={restano}
+            matita={matita}
+            onCifra={(n, nota) => {
+              p.onSuggerimento?.('tastierino');
+              premi(n, nota);
+            }}
+          />
         </div>
       </div>
       {proposte && (
@@ -398,24 +441,38 @@ function useDesktop() {
 
 /**
  * Il fumetto della partita su telefono: copre per un attimo la barra di crescita, accanto alla
- * mascotte che parla (coda verso di lei), al massimo due righe. Classe `toast` e
- * `data-categoria` restano per i test a due client.
+ * mascotte che parla (coda verso di lei), tre righe e poi scorre. Un tocco lo ferma (resta aperto),
+ * un secondo tocco lo chiude. Classe `toast` e `data-categoria` restano per i test a due client.
  */
-function FumettoPartita({ detto, destra, pannello = false }: { detto: Detto; destra: boolean; pannello?: boolean }) {
+function FumettoPartita({
+  detto,
+  destra,
+  pannello = false,
+  fermo = false,
+  onTocca,
+}: {
+  detto: Detto;
+  destra: boolean;
+  pannello?: boolean;
+  fermo?: boolean;
+  onTocca?: (d: Detto) => void;
+}) {
   const tono = detto.voce ? `voce-${detto.chi}` : `tono-${detto.tono ?? 'mio'}`;
   return (
     <div
       key={detto.id}
-      className={`battuta toast ${tono}${destra ? ' a-destra' : ''}${pannello ? ' battuta-pannello' : ''}${detto.solletico ? ' battuta-solletico' : ''}`}
+      className={`battuta toast ${tono}${destra ? ' a-destra' : ''}${pannello ? ' battuta-pannello' : ''}${detto.solletico ? ' battuta-solletico' : ''}${fermo ? ' fermo' : ''}`}
       data-categoria={detto.categoria ?? (detto.solletico ? 'solletico' : detto.voce ? 'chiacchiera' : undefined)}
       data-testid={detto.solletico ? 'fumetto-solletico' : undefined}
+      data-fermo={fermo ? 'true' : undefined}
       role="status"
-      title={pannello ? undefined : detto.testo}
+      onClick={() => onTocca?.(detto)}
     >
       <p className="battuta-righe">
         {detto.firma && <b className="battuta-firma">{detto.firma}</b>}
         <span data-testid="toast-testo">{detto.testo}</span>
       </p>
+      {fermo && <span className="nascosto-visivo">resta aperto, tocca di nuovo per chiudere</span>}
     </div>
   );
 }
@@ -431,6 +488,8 @@ function PannelloMascotte(p: {
   mascotte: Mascotte;
   indossati: Indossati;
   detto: Detto | null;
+  fermo: number | null;
+  onTocca: (d: Detto) => void;
   guarda: { r: number; c: number } | null;
   onSolletico: (chi: ChiParla) => void;
 }) {
@@ -463,7 +522,7 @@ function PannelloMascotte(p: {
         ))}
       </div>
       {d ? (
-        <FumettoPartita detto={d} destra={chi.length > 1 && d.chi === chi[1]} pannello />
+        <FumettoPartita detto={d} destra={chi.length > 1 && d.chi === chi[1]} pannello fermo={p.fermo === d.id} onTocca={p.onTocca} />
       ) : (
         <div
           className={`battuta battuta-pannello battuta-quieta${dormiente ? '' : ' vuota'}${dormiente && chi.length > 1 && dormiente === chi[1] ? ' a-destra' : ''}`}

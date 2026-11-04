@@ -5,7 +5,20 @@ import { specchiaInIndexedDB } from './persistenza';
 import { ULTIMO_CAPITOLO, SEMINA_ARRIVA_A, chiaveCapitolo } from '../config/capitoli';
 import { ruoloDiNome } from '../config/giocatori';
 import { unisciStorico, voceStorico } from './index';
-import type { StatoPartita, VoceStorico } from './types';
+import type { Giocatore, StatoPartita, VoceStorico } from './types';
+
+/** Una frase mandata (da = chi l'ha mandata): la cassetta della posta (T7). Chiave `${ts}-${da}`. */
+export interface DettaglioFiore {
+  a: number;
+  b: number;
+  ultima: Giocatore | null;
+}
+
+export interface VocePosta {
+  ts: number;
+  da: Giocatore;
+  testo: string;
+}
 
 /** Capitoli visti per ruolo (a = Semino, b = Semina): sempre un prefisso `capitolo-0..k`. */
 export interface CapitoliVisti {
@@ -28,6 +41,10 @@ export interface Archivio {
   /** chiavi `eco-${fiore}` delle eco già mostrate in Home (solo locali) */
   ecoViste: string[];
   impostazioni: { mostraErrori: boolean; vibrazione: boolean };
+  /** frasi mandate e ricevute, le più recenti prima (al massimo POSTA_MAX; si sincronizza) */
+  posta: VocePosta[];
+  /** per le partite finite viste da questo dispositivo: punti di ciascuno e chi ha messo l'ultima cella (solo locale) */
+  dettagliFiori: Record<string, DettaglioFiore>;
   /** Campi di versioni più nuove dell'app: non si leggono, ma `migra` li conserva e `salva` li riscrive. */
   [extra: string]: unknown;
 }
@@ -46,6 +63,8 @@ export const ARCHIVIO_VUOTO: Archivio = Object.freeze({
   capitoliVisti: Object.freeze({ a: Object.freeze([]), b: Object.freeze([]) }) as unknown as CapitoliVisti,
   ecoViste: Object.freeze([]) as unknown as string[],
   impostazioni: Object.freeze({ mostraErrori: true, vibrazione: true }),
+  posta: Object.freeze([]) as unknown as VocePosta[],
+  dettagliFiori: Object.freeze({}) as Record<string, DettaglioFiore>,
 }) as Archivio;
 
 /** Chiavi sparse della versione 0 (T1). `sudoku-coppia-scelta` resta alla Home e non si tocca. */
@@ -86,6 +105,85 @@ export function unisciVisti(a: CapitoliVisti, b: CapitoliVisti): CapitoliVisti {
   const sa = uguali(ua, a.a);
   const sb = uguali(ub, a.b);
   return sa && sb ? a : { a: sa ? a.a : ua, b: sb ? a.b : ub };
+}
+
+// --- posta ----------------------------------------------------------------------
+
+export const POSTA_MAX = 50;
+/** la stessa frase della stessa persona entro questo intervallo è una sola (mittente e destinatario la
+ *  registrano ciascuno col proprio orologio: il messaggio P2P non porta l'ora) */
+export const POSTA_STESSA_MS = 120_000;
+
+export const chiavePosta = (v: VocePosta) => `${v.ts}-${v.da}`;
+
+function vocePostaValida(x: unknown): x is VocePosta {
+  return isObj(x) && isNum(x.ts) && x.ts > 0 && (x.da === 'a' || x.da === 'b') && typeof x.testo === 'string' && x.testo.length > 0;
+}
+
+/**
+ * Unione per chiave, poi: scartate quelle prima dell'azzeramento, fuse le copie della stessa frase
+ * (stesso mittente e testo entro POSTA_STESSA_MS: resta la più vecchia), le POSTA_MAX più recenti
+ * prima. Commutativa. Restituisce `a` stesso se il risultato non cambia.
+ */
+export function unisciPosta(a: VocePosta[], b: unknown, azzerato = 0): VocePosta[] {
+  const tutte = new Map<string, VocePosta>();
+  for (const v of [...a, ...(Array.isArray(b) ? b : [])]) {
+    if (!vocePostaValida(v) || v.ts < azzerato) continue;
+    const k = chiavePosta(v);
+    const c = tutte.get(k);
+    // stessa chiave: testo deterministico (il minore), così l'unione è commutativa
+    if (!c || v.testo < c.testo) tutte.set(k, { ts: v.ts, da: v.da, testo: v.testo.slice(0, 200) });
+  }
+  const crescenti = [...tutte.values()].sort((x, y) => x.ts - y.ts || (x.da < y.da ? -1 : x.da > y.da ? 1 : 0));
+  const tenute: VocePosta[] = [];
+  const ultima = new Map<string, number>();
+  for (const v of crescenti) {
+    const k = `${v.da}\n${v.testo}`;
+    const t = ultima.get(k);
+    if (t !== undefined && v.ts - t < POSTA_STESSA_MS) continue;
+    ultima.set(k, v.ts);
+    tenute.push(v);
+  }
+  const out = tenute.reverse().slice(0, POSTA_MAX);
+  const uguale = out.length === a.length && out.every((v, i) => chiavePosta(v) === chiavePosta(a[i]) && v.testo === a[i].testo);
+  return uguale ? a : out;
+}
+
+/** Aggiunge una frase alla posta (mandata o ricevuta). */
+export function conPosta(a: Archivio, v: VocePosta): Archivio {
+  const posta = unisciPosta(a.posta, [v], a.azzerato);
+  return posta === a.posta ? a : { ...a, posta };
+}
+
+// --- dettagli dei fiori -----------------------------------------------------------
+
+function dettagliValidi(x: unknown): Record<string, DettaglioFiore> {
+  if (!isObj(x)) return {};
+  const out: Record<string, DettaglioFiore> = {};
+  for (const [id, d] of Object.entries(x)) {
+    if (isObj(d) && isNum(d.a) && isNum(d.b)) out[id] = { a: d.a, b: d.b, ultima: d.ultima === 'a' || d.ultima === 'b' ? d.ultima : null };
+  }
+  return out;
+}
+
+/** Ricorda punti di ciascuno e ultima cella di una partita finita (tiene solo le voci ancora nello storico). */
+export function conDettaglioFiore(a: Archivio, p: StatoPartita): Archivio {
+  if (!p.finita) return a;
+  const id = voceStorico(p).id;
+  let ultima: DettaglioFiore['ultima'] = null;
+  let ts = -1;
+  for (const c of Object.values(p.celle)) {
+    if (c && c.v && c.ts > ts) {
+      ts = c.ts;
+      ultima = c.da;
+    }
+  }
+  const d: DettaglioFiore = { a: p.contatori?.a?.punti ?? 0, b: p.contatori?.b?.punti ?? 0, ultima };
+  const prima = a.dettagliFiori?.[id];
+  if (prima && prima.a === d.a && prima.b === d.b && prima.ultima === d.ultima) return a;
+  const ids = new Set(a.storico.map((v) => v.id));
+  const tenuti = Object.fromEntries(Object.entries(a.dettagliFiori ?? {}).filter(([k]) => ids.has(k)));
+  return { ...a, dettagliFiori: { ...tenuti, [id]: d } };
 }
 
 // --- validazione ------------------------------------------------------------
@@ -130,6 +228,8 @@ function normalizza(d: Obj): Archivio {
     tappeViste: soloStringhe(d.tappeViste),
     capitoliVisti: normalizzaVisti(d.capitoliVisti),
     ecoViste: soloStringhe(d.ecoViste),
+    posta: unisciPosta([], d.posta),
+    dettagliFiori: dettagliValidi(d.dettagliFiori),
     impostazioni: {
       mostraErrori: typeof imp.mostraErrori === 'boolean' ? imp.mostraErrori : def.mostraErrori,
       vibrazione: typeof imp.vibrazione === 'boolean' ? imp.vibrazione : def.vibrazione,
@@ -194,7 +294,7 @@ export function migra(dati: unknown): Archivio {
 
 function copiaVuoto(): Archivio {
   const v = ARCHIVIO_VUOTO;
-  return { ...v, storico: [], tappeViste: [], capitoliVisti: { a: [], b: [] }, ecoViste: [], impostazioni: { ...v.impostazioni } };
+  return { ...v, storico: [], tappeViste: [], capitoliVisti: { a: [], b: [] }, ecoViste: [], impostazioni: { ...v.impostazioni }, posta: [], dettagliFiori: {} };
 }
 
 // --- storage ------------------------------------------------------------------
@@ -266,8 +366,9 @@ function filtra(a: Archivio): Archivio {
   if (!a.azzerato) return a;
   const storico = a.storico.filter((v) => v.iniziata >= a.azzerato);
   const chiudi = a.partita !== null && a.partita.iniziata < a.azzerato;
-  if (storico.length === a.storico.length && !chiudi) return a;
-  return { ...a, storico, partita: chiudi ? null : a.partita };
+  const posta = unisciPosta(a.posta ?? [], [], a.azzerato);
+  if (storico.length === a.storico.length && !chiudi && posta === a.posta) return a;
+  return { ...a, storico, partita: chiudi ? null : a.partita, posta };
 }
 
 /** azzerato = max(attuale, nuovo); se cresce svuota tappe, capitoli (di entrambi) ed eco; filtra storico e partita. */

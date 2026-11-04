@@ -75,6 +75,8 @@ interface Props {
   onNuova: (m: Modalita, l: Livello) => void;
   onGiardino: () => void;
   onCambia: () => void;
+  /** tocco sulla cassetta della posta della scena */
+  onPosta?: () => void;
 }
 
 const NOMI_MODALITA: Record<Modalita, string> = { sudoku: 'Sudoku', killer: 'Killer' };
@@ -102,6 +104,17 @@ export function Home(p: Props) {
         sfuma
         nuovi={inEvidenza(p)}
       />
+      {/* la cassetta della scena si tocca: un bottone trasparente sopra di lei (la scena sta sotto
+          titolo e mascotte, che altrimenti prenderebbero il tocco) */}
+      {p.onPosta && p.giardino.elementi.includes('cassetta') && (
+        <button
+          type="button"
+          className="cassetta-bottone"
+          data-testid="cassetta"
+          aria-label="La cassetta della posta: le frasi che vi siete mandati"
+          onClick={p.onPosta}
+        />
+      )}
       <header className="home-testa">
         <Pallino connessione={p.connessione} partner={p.partnerNome} occupata={p.occupata} femminile={p.mioRuolo === 'b'} />
         {p.personaleConnesso && (
@@ -118,7 +131,9 @@ export function Home(p: Props) {
             taglia={30}
             quotaBlu={p.fiori > 0 ? p.giardino.bluPresenza * 0.5 : undefined}
           />
-          <span className="tabellare">{p.fiori}</span>
+          <span className="giardino-etichetta">
+            Giardino · <span className="tabellare">{p.fiori}</span>
+          </span>
         </button>
         <MenuHome
           mostraErrori={p.mostraErrori}

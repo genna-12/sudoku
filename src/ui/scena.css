@@ -651,3 +651,22 @@
 .sc-figli {
   pointer-events: auto;
 }
+
+/* la cassetta si tocca (Home e Giardino): bersaglio trasparente di ~48 unità sopra di lei */
+.sc-cassetta-tocco {
+  pointer-events: auto;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.sc-cassetta-tocco rect {
+  fill: transparent;
+  pointer-events: all;
+}
+.sc-cassetta-tocco:focus-visible {
+  outline: none;
+}
+.sc-cassetta-tocco:focus-visible rect {
+  stroke: var(--sc-testo, currentColor);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+}

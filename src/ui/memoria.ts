@@ -2,7 +2,7 @@
 // Pure (nessun DOM): le usa App, le provano i test.
 import { PROFILI, profiloDiNome } from '../config/giocatori';
 import type { Profilo } from '../config/giocatori';
-import { aggiornaStorico, applicaAzzeramento, migra, normalizzaVisti, unisciStoricoRemoto, unisciVisti } from '../stato/archivio';
+import { aggiornaStorico, applicaAzzeramento, migra, normalizzaVisti, unisciPosta, unisciStoricoRemoto, unisciVisti } from '../stato/archivio';
 import type { Archivio } from '../stato/archivio';
 import { partitaToccata } from './regole';
 
@@ -52,7 +52,8 @@ export function importa(a: Archivio, testo: string): { archivio: Archivio; impor
   // niente PASSI qui: un file v1 con `semina-5` darebbe i visti al ruolo di chi l'ha esportato
   const visti = normalizzaVisti((dati as Record<string, unknown>).capitoliVisti);
   const capitoliVisti = imp.azzerato >= unito.azzerato ? unisciVisti(unito.capitoliVisti, visti) : unito.capitoliVisti;
-  return { archivio: { ...unito, capitoliVisti }, importate };
+  const posta = unisciPosta(unito.posta ?? [], imp.posta, unito.azzerato);
+  return { archivio: { ...unito, capitoliVisti, posta }, importate };
 }
 
 /** Chiude la partita in corso lasciandola come germoglio (se toccata). */

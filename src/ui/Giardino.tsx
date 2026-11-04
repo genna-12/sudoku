@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ChiParla } from '../config/frasi';
 import { LIVELLI_PARAMETRI } from '../config/livelli';
-import type { VoceStorico } from '../stato';
+import type { Giocatore, VoceStorico } from '../stato';
+import type { DettaglioFiore } from '../stato/archivio';
+import { useChiudiConIndietro } from './indietro';
 import type { AttoDiario } from './capitoli';
 import type { Chiacchiera } from './Home';
 import { aCasoDiverso, accessoriSbloccati, numeriFiori, quotaBluFiore, statistiche } from './regole';
@@ -36,6 +38,12 @@ interface Props {
   diario: AttoDiario[];
   /** rilettura di un capitolo (non segna niente) */
   onRileggi: (fiore: number) => void;
+  /** tocco sulla cassetta della posta della scena */
+  onPosta?: () => void;
+  /** punti di ciascuno e ultima cella delle partite finite viste qui */
+  dettagli?: Record<string, DettaglioFiore>;
+  /** nomi visibili per ruolo (prima dell'arrivo di Semina: Verde/Blu) */
+  nomi?: Record<Giocatore, string>;
 }
 
 /** Il giardino: una pianta per partita, dalla più recente; fiori = finite, germogli = da riprendere. */
@@ -51,6 +59,7 @@ export function Giardino(p: Props) {
   const chi: ChiParla[] = p.sbloccata ? ['semino', 'semina'] : ['semino'];
   const stadio = Math.min(4, st.fiori);
   const gesto = useGestiGiardino(!vuoto, chi);
+  const [aperto, setAperto] = useState<VoceStorico | null>(null);
   return (
     <main className="schermata giardino-schermata">
       <header className="barra">
@@ -73,6 +82,7 @@ export function Giardino(p: Props) {
           bluPresenza={p.bluPresenza}
           altezza={180}
           sfuma={vuoto}
+          onCassetta={p.onPosta}
           figli={
             vuoto ? null : (
               <g data-testid="giardino-mascotte">
@@ -188,9 +198,20 @@ export function Giardino(p: Props) {
             sbloccata={p.sbloccata}
             quotaBlu={quotaBluFiore(v, numeri.get(v.id) ?? 0, p.sbloccata)}
             onRiprendi={p.onRiprendi}
+            onApri={setAperto}
           />
         ))}
       </div>
+      {aperto && (
+        <FoglioFiore
+          voce={aperto}
+          numero={numeri.get(aperto.id) ?? 0}
+          dettaglio={p.dettagli?.[aperto.id]}
+          nomi={p.nomi}
+          sbloccata={p.sbloccata}
+          onChiudi={() => setAperto(null)}
+        />
+      )}
     </main>
   );
 }
@@ -269,6 +290,7 @@ function Pianta({
   sbloccata,
   quotaBlu,
   onRiprendi,
+  onApri,
 }: {
   voce: VoceStorico;
   inCorso: boolean;
@@ -276,6 +298,7 @@ function Pianta({
   /** frazione di petali blu (null per i germogli, che restano neutri) */
   quotaBlu: number | null;
   onRiprendi: (v: VoceStorico) => void;
+  onApri?: (v: VoceStorico) => void;
 }) {
   const finita = !!voce.finita;
   const quando = new Date(voce.iniziata);
@@ -314,6 +337,104 @@ function Pianta({
         </button>
       )}
       {!finita && inCorso && <span className="pianta-in-corso">in corso</span>}
+      {finita && onApri && (
+        <button
+          type="button"
+          className="pianta-apri"
+          data-testid={`apri-${voce.id}`}
+          aria-label={`${NOMI_MODALITA[voce.modalita] ?? voce.modalita}, ${livello}, ${DATA.format(quando)}: dettagli`}
+          onClick={() => onApri(voce)}
+        />
+      )}
     </article>
+  );
+}
+
+const DATA_LUNGA = new Intl.DateTimeFormat('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
+
+/** Il dettaglio di un fiore: com'è andata quella partita. */
+function FoglioFiore({
+  voce,
+  numero,
+  dettaglio,
+  nomi,
+  sbloccata,
+  onChiudi,
+}: {
+  voce: VoceStorico;
+  numero: number;
+  dettaglio?: DettaglioFiore;
+  nomi?: Record<Giocatore, string>;
+  sbloccata: boolean;
+  onChiudi: () => void;
+}) {
+  useChiudiConIndietro(true, onChiudi);
+  const chiudi = useRef<HTMLButtonElement>(null);
+  useEffect(() => chiudi.current?.focus(), []);
+  const quando = new Date(voce.finita ?? voce.iniziata);
+  const livello = LIVELLI_PARAMETRI[voce.livello]?.etichetta ?? voce.livello;
+  const chi = sbloccata && voce.modalita === 'killer' ? 'semina' : 'semino';
+  return (
+    <div className="foglio-velo foglio-velo-leggero" onPointerDown={(e) => e.target === e.currentTarget && onChiudi()}>
+      <div
+        className="foglio foglio-fiore"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="fiore-titolo"
+        data-testid="foglio-fiore"
+        onKeyDown={(e) => e.key === 'Escape' && onChiudi()}
+      >
+        <div className="fiore-testa">
+          <SeminoPianta fiorita stadio={4} chi={chi} taglia={56} />
+          <div>
+            <h2 id="fiore-titolo">
+              {NOMI_MODALITA[voce.modalita] ?? voce.modalita}, {livello}
+            </h2>
+            <p className="fiore-data">
+              {numero > 0 ? `Fiore ${numero} · ` : ''}
+              {DATA_LUNGA.format(quando)}, {ORA.format(quando)}
+            </p>
+          </div>
+        </div>
+        <dl className="fiore-dati">
+          <div>
+            <dt>tempo</dt>
+            <dd className="tabellare">{tempo(voce.secondi)}</dd>
+          </div>
+          {dettaglio && nomi ? (
+            <>
+              <div className="fiore-punti">
+                <dt>punti di {nomi.a}</dt>
+                <dd className="tabellare">{dettaglio.a}</dd>
+              </div>
+              <div className="fiore-punti">
+                <dt>punti di {nomi.b}</dt>
+                <dd className="tabellare">{dettaglio.b}</dd>
+              </div>
+            </>
+          ) : (
+            <div>
+              <dt>punti di coppia</dt>
+              <dd className="tabellare">{voce.punti}</dd>
+            </div>
+          )}
+          <div>
+            <dt>errori</dt>
+            <dd className="tabellare">{voce.errori}</dd>
+          </div>
+          {dettaglio?.ultima && nomi && (
+            <div className="fiore-ultima">
+              <dt>ultima cella</dt>
+              <dd>{nomi[dettaglio.ultima]}</dd>
+            </div>
+          )}
+        </dl>
+        <div className="foglio-azioni">
+          <button ref={chiudi} className="bottone" data-testid="fiore-chiudi" onClick={onChiudi}>
+            Chiudi
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

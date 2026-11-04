@@ -126,13 +126,13 @@ describe('T5 validazione: migrazione v1 → v2', () => {
 
 describe('T5 validazione: payload', () => {
   it('campi sconosciuti: leggiPayload → payloadDa → JSON → leggiPayload li conserva; tappeViste non torna', () => {
-    const remoto = leggiPayload({ ...payloadDa(base(), 1), posta: [{ testo: 'ciao' }], futuro: { x: 1 }, tappeViste: ['semina-5'] })!;
+    const remoto = leggiPayload({ ...payloadDa(base(), 1), bacheca: [{ testo: 'ciao' }], futuro: { x: 1 }, tappeViste: ['semina-5'] })!;
     const scritto = JSON.parse(JSON.stringify(payloadDa(base({ capitoliVisti: { a: fino(2), b: [] } }), 2, remoto)));
-    expect(scritto.posta).toEqual([{ testo: 'ciao' }]);
+    expect(scritto.bacheca).toEqual([{ testo: 'ciao' }]);
     expect(scritto.futuro).toEqual({ x: 1 });
     expect(scritto).not.toHaveProperty('tappeViste');
     const riletto = leggiPayload(scritto)!;
-    expect(riletto.posta).toEqual([{ testo: 'ciao' }]);
+    expect(riletto.bacheca).toEqual([{ testo: 'ciao' }]);
     expect(riletto.capitoliVisti).toEqual({ a: fino(2), b: [] });
   });
 

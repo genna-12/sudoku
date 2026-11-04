@@ -13,7 +13,7 @@ import type { Livello, Modalita } from '../engine';
 import type { Messaggio } from '../net';
 import type { Giocatore, StatoPartita, VoceStorico } from '../stato';
 import type { Archivio } from '../stato/archivio';
-import { unisciStoricoRemoto } from '../stato/archivio';
+import { conDettaglioFiore, conPosta, unisciStoricoRemoto } from '../stato/archivio';
 import { CapitoloScena } from './CapitoloScena';
 import { codaCapitoli, diario, ecoDaMostrare, ecoDi, giardinoDelCapitolo, giardinoVisibile, seminaSbloccata, vistiDi } from './capitoli';
 import { Giardino } from './Giardino';
@@ -25,6 +25,7 @@ import { Ingresso } from './Ingresso';
 import { cancellaPartita, esporta, importa, ioDaArchivio, nomeFileEsportazione, profiloConfermato, ricomincia } from './memoria';
 import type { Tema } from './MenuHome';
 import { Partita } from './Partita';
+import { FoglioPosta } from './Posta';
 import {
   SOLLETICO_OGNI_MS,
   accessorioDi,
@@ -56,6 +57,9 @@ import { Scena } from './Scena';
 import { accessorioValido } from './useMascotte';
 import { FESTA_MS, USCITA_MS, apriLettore, avanza, capitoloDelLettore, conCapitoloVisto, leggiAdesso } from './lettore';
 import type { Lettore, Riassunto } from './lettore';
+import { useChiudiConIndietro, useGestoIndietro } from './indietro';
+import { CHIAVE_SUGGERIMENTI, TESTI_SUGGERIMENTI, suggerimentiVisti, suggerimentoDa } from './suggerimenti';
+import type { EventoSuggerimento } from './suggerimenti';
 import { Toasts, useBattute, useToasts } from './Toasts';
 import type { Tono } from './Toasts';
 import { useArchivio } from './useArchivio';
@@ -81,6 +85,8 @@ const DURATA_SOLLETICO_MS = 2600;
 const STORICO_OGNI_MS = 2000;
 const AZZERAMENTO_RECENTE_MS = 10 * 60 * 1000;
 const DURATA_ECO_MS = 8000;
+/** uscita di una schermata (tema.css `esce`) */
+const USCITA_SCHERMATA_MS = 150;
 
 /** I vestiti dei capitoli si disegnano solo se esistono già (T6 ne aggiunge altri). */
 const vestitoDisegnato = (id: string) => !!accessorioValido(id);
@@ -130,6 +136,18 @@ export function App() {
     // Al (ri)avvio si parte sempre dalla Home: la partita in corso è lì, su "Continua" (richiesta di Genna).
     !io || !profiloConfermato(archivio) ? 'ingresso' : 'home',
   );
+  // cambio di schermata con uscita breve: la vecchia si dissolve (150 ms), all'animationend entra la nuova
+  const [verso, setVerso] = useState<Schermata | null>(null);
+  const versoRef = useRef<Schermata | null>(null);
+  const timerVai = useRef(0);
+  const arriva = useCallback(() => {
+    const s = versoRef.current;
+    if (s === null) return;
+    versoRef.current = null;
+    window.clearTimeout(timerVai.current);
+    setVerso(null);
+    setSchermata(s);
+  }, []);
   const [tema, setTema] = useState<Tema>(leggiTema);
   const [partnerCursore, setPartnerCursore] = useState<number | null>(null);
   const [lampo, setLampo] = useState<Lampo | null>(null);
@@ -151,10 +169,24 @@ export function App() {
   const [cartaVai, setCartaVai] = useState<Riassunto | null>(null);
   /** azione in attesa di conferma (nuova partita o ripresa con un'altra partita già iniziata) */
   const [daConfermare, setDaConfermare] = useState<{ azione: () => void } | null>(null);
+  /** la cassetta della posta aperta (Home o Giardino) */
+  const [postaAperta, setPostaAperta] = useState(false);
   const { ultime, ricorda } = useUltimeFrasi();
-  const { attivi, mostra } = useToasts();
+  const { attivi, mostra, chiudi: chiudiToast } = useToasts();
   const { battuta, dici } = useBattute();
   const { mascotte, reagisci, sveglia } = useMascotte();
+
+  /** Va a un'altra schermata passando dall'uscita (niente se ci si è già e non si sta uscendo). */
+  function vai(s: Schermata) {
+    if (versoRef.current === null && s === vivi.current.schermata) return;
+    setPostaAperta(false);
+    versoRef.current = s;
+    setVerso(s);
+    window.clearTimeout(timerVai.current);
+    // riserva: se l'animationend non arriva (scheda nascosta, animazioni spente) si cambia lo stesso
+    timerVai.current = window.setTimeout(arriva, USCITA_SCHERMATA_MS + 120);
+  }
+  useEffect(() => () => window.clearTimeout(timerVai.current), []);
 
   // valori letti dai gestori di rete (sempre gli ultimi)
   const vivi = useRef({ nomeMio, nomePartner, sbloccata, mioRuolo, schermata, mostraErrori, vibrazione, mascotte, fiori, giorno, vistiMiei, luoghi });
@@ -467,7 +499,7 @@ export function App() {
         if (esito !== 'nuova') break;
         setPartnerCursore(null);
         setVittoriaChiusa(null);
-        setSchermata((s) => (s === 'ingresso' ? s : 'partita'));
+        if (vivi.current.schermata !== 'ingresso') vai('partita');
         if (dalPartner(m, da)) {
           annuncia(eraGermoglio ? fraseSemplice('ripresa') : `${vivi.current.nomePartner} ha iniziato una nuova partita`, {
             chi: 'sua',
@@ -485,6 +517,11 @@ export function App() {
       case 'frase':
         if (!m.inoltrato) inoltra(m, da);
         if (dalPartner(m, da) && !(nominaSemina(m.testo ?? '') && !vivi.current.sbloccata)) {
+          // nella cassetta della posta (chi l'ha mandata la registra a sua volta: il sync le fonde)
+          if (typeof m.testo === 'string' && m.testo) {
+            const testo = m.testo.slice(0, 200);
+            modifica((a) => conPosta(a, { ts: Date.now(), da: altro(vivi.current.mioRuolo), testo }));
+          }
           // in partita la frase del partner esce dal suo fumetto, col suo colore; fuori, grande al centro
           if (vivi.current.schermata === 'partita') annuncia(m.testo, { chi: 'sua', tono: 'suo', firma: vivi.current.nomePartner, categoria: 'frase', ms: 4500 });
           else mostra({ tipo: 'grande', testo: m.testo, firma: vivi.current.nomePartner, colore: 'var(--suo)' });
@@ -540,6 +577,14 @@ export function App() {
     }, 1000);
     return () => window.clearInterval(t);
   }, [inGioco, tick]);
+
+  // partita finita: punti di ciascuno e ultima cella restano per il dettaglio del fiore nel Giardino
+  const chiaveFinita = partita?.finita
+    ? `${partita.iniziata}-${partita.contatori?.a?.punti ?? 0}-${partita.contatori?.b?.punti ?? 0}`
+    : null;
+  useEffect(() => {
+    if (chiaveFinita) modifica((a) => (a.partita?.finita ? conDettaglioFiore(a, a.partita) : a));
+  }, [chiaveFinita, modifica]);
 
   // --- storia: capitoli dopo la vittoria e dalla Home ------------------------------------------
   // Tutto derivato dallo stato: la coda (capitoli con fiore ≤ fiori non letti da me) si congela
@@ -690,6 +735,45 @@ export function App() {
     if (!eco.some((e) => sostituisci(e, sost()) === testo)) inviaReazione(r);
   });
 
+  // --- gesto indietro (Android): chiude l'ultimo foglio aperto o torna alla Home, mai fuori dall'app ----
+  useGestoIndietro(
+    () => ({ schermata: versoRef.current ?? schermata, entrato: !!io && profiloConfermato(ref.current), bloccato: !!lettore }),
+    () => vai('home'),
+  );
+  useChiudiConIndietro(rilettura !== null && !lettore, chiudiRilettura);
+  useChiudiConIndietro(vittoriaAperta && !!partita, () => partita && setVittoriaChiusa(partita.iniziata));
+  useChiudiConIndietro(!!cartaVai && !lettore, () => setCartaVai(null));
+  useChiudiConIndietro(!!daConfermare, () => setDaConfermare(null));
+
+  // --- suggerimenti una tantum sui gesti (uno per sessione, ognuno una volta per dispositivo) ----
+  const suggerito = useRef(false);
+  const chiacchieraAperta = useRef(false);
+  chiacchieraAperta.current = !!chiacchieraOra || !!solleticoOra;
+  function suggerisci(evento: EventoSuggerimento) {
+    if (suggerito.current) return;
+    const v = vivi.current;
+    const p = ref.current.partita;
+    const mosse = p ? Object.values(p.celle).filter((c) => c.da === v.mioRuolo).length : 0;
+    const visti = suggerimentiVisti(leggi(CHIAVE_SUGGERIMENTI));
+    const s = suggerimentoDa(evento, { mosse, fiori: v.fiori }, visti, suggerito.current);
+    if (!s) return;
+    suggerito.current = true;
+    scrivi(CHIAVE_SUGGERIMENTI, [...visti, s]);
+    const chi: ChiParla = v.sbloccata ? mascotteDi(v.mioRuolo) : 'semino';
+    if (evento === 'home') mostraChiacchiera(chi, TESTI_SUGGERIMENTI[s], { ms: DURATA_CHIACCHIERA_MS });
+    else dici({ chi, testo: TESTI_SUGGERIMENTI[s], tono: 'mio', categoria: 'suggerimento' });
+  }
+  // in Home, dopo 4 s fermi e senza fumetti aperti: "puoi toccarmi"
+  const homeQuieta = schermata === 'home' && verso === null && !lettore && rilettura === null && fiori >= 1;
+  useEffect(() => {
+    if (!homeQuieta) return;
+    const t = window.setTimeout(() => {
+      if (!chiacchieraAperta.current) suggerisci('home');
+    }, 4000);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [homeQuieta]);
+
   // --- azioni ------------------------------------------------------------------------
   // verso entrambe: il mio altro dispositivo non le mostra (non sono del partner) ma le inoltra
   const onCursore = useCallback((idx: number | null) => invia({ t: 'cursore', idx }), [invia]);
@@ -715,6 +799,7 @@ export function App() {
     }
     const testo = scelta ? usata('invio', scelta) : fraseSemplice('invio');
     invia({ t: 'frase', testo });
+    modifica((a) => conPosta(a, { ts: Date.now(), da: vivi.current.mioRuolo, testo }));
     annuncia(`Mandata: ${testo}`, { categoria: 'invio' });
   }
 
@@ -726,7 +811,7 @@ export function App() {
         gioco.iniziaNuova(m, l);
         setPartnerCursore(null);
         setVittoriaChiusa(null);
-        setSchermata('partita');
+        vai('partita');
       } finally {
         setGenerando(false);
       }
@@ -744,13 +829,13 @@ export function App() {
     if (!gioco.riprendi(v)) return;
     setPartnerCursore(null);
     setVittoriaChiusa(null);
-    setSchermata('partita');
+    vai('partita');
     annuncia(fraseSemplice('ripresa'), { categoria: 'ripresa', inPartita: true });
   }
 
   function entra(nuovo: Io) {
     modifica((a) => ({ ...a, io: nuovo }));
-    setSchermata('home');
+    vai('home');
   }
 
   function cambiaImpostazione(k: 'mostraErrori' | 'vibrazione', v: boolean) {
@@ -808,7 +893,14 @@ export function App() {
     <div className="app" style={stile}>
       <BannerAggiornamento />
       {/* sotto il lettore (o la rilettura) tutto è inert; la carta "Vai" invece si tocca */}
-      <div className="app-sotto" inert={!!lettore || rilettura !== null}>
+      <div
+        className="app-sotto"
+        inert={!!lettore || rilettura !== null}
+        data-esce={verso !== null ? '' : undefined}
+        onAnimationEnd={(e) => {
+          if (verso !== null && /^esce/.test(e.animationName) && (e.target as Element).classList?.contains('schermata')) arriva();
+        }}
+      >
       {schermata === 'ingresso' && (
         <Ingresso key="ingresso" iniziale={io} sbloccata={sbloccata} onEntra={entra} />
       )}
@@ -846,10 +938,11 @@ export function App() {
           onRicomincia={ricominciaDaZero}
           sync={sync}
           onSincronizza={sync.sincronizzaOra}
-          onContinua={() => setSchermata('partita')}
+          onContinua={() => vai('partita')}
           onNuova={(m, l) => conConferma(() => iniziaNuova(m, l))}
-          onGiardino={() => setSchermata('giardino')}
-          onCambia={() => setSchermata('ingresso')}
+          onGiardino={() => vai('giardino')}
+          onCambia={() => vai('ingresso')}
+          onPosta={() => setPostaAperta(true)}
         />
       )}
       {schermata === 'giardino' && (
@@ -865,14 +958,17 @@ export function App() {
           solletico={solleticoOra}
           onSolletico={onSolletico}
           onRiprendi={(v) => conConferma(() => riprendi(v))}
-          onEsci={() => setSchermata('home')}
+          onEsci={() => vai('home')}
           diario={diario(vistiMiei)}
           onRileggi={setRilettura}
+          onPosta={() => setPostaAperta(true)}
+          dettagli={archivio.dettagliFiori}
+          nomi={{ [mioRuolo]: nomeMio, [altro(mioRuolo)]: nomePartner } as Record<Giocatore, string>}
         />
       )}
       {schermata === 'partita' && partita && (
         <Partita
-          key="partita"
+          key={`partita-${partita.puzzle.modalita}-${partita.puzzle.seed}`}
           partita={partita}
           mioRuolo={mioRuolo}
           partnerNome={nomePartner}
@@ -899,8 +995,9 @@ export function App() {
           puoAnnullare={gioco.puoAnnullare}
           onCursore={onCursore}
           onFrase={mandaFrase}
+          onSuggerimento={suggerisci}
           frasiDaScegliere={frasiDaScegliere}
-          onEsci={() => setSchermata('home')}
+          onEsci={() => vai('home')}
           lampo={lampo}
           arrivo={arrivo}
         />
@@ -940,9 +1037,18 @@ export function App() {
           vai
           onNuova={() => {
             setCartaVai(null);
-            if (ref.current.partita) setSchermata('partita');
+            if (ref.current.partita) vai('partita');
           }}
           onChiudi={() => setCartaVai(null)}
+        />
+      )}
+      {postaAperta && (schermata === 'home' || schermata === 'giardino') && (
+        <FoglioPosta
+          posta={archivio.posta}
+          mioRuolo={mioRuolo}
+          nomePartner={nomePartner}
+          sbloccata={sbloccata}
+          onChiudi={() => setPostaAperta(false)}
         />
       )}
       {daConfermare && (
@@ -953,7 +1059,7 @@ export function App() {
           }}
           onContinua={() => {
             setDaConfermare(null);
-            if (ref.current.partita) setSchermata('partita');
+            if (ref.current.partita) vai('partita');
           }}
           onChiudi={() => setDaConfermare(null)}
         />
@@ -989,7 +1095,7 @@ export function App() {
           esce={esce}
         />
       )}
-      <Toasts attivi={attivi} />
+      <Toasts attivi={attivi} onChiudi={chiudiToast} />
     </div>
   );
 }

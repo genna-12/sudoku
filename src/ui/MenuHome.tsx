@@ -1,5 +1,6 @@
 import { REGISTRO } from '../net';
 import { useRef, useState, useEffect } from 'react';
+import { useChiudiConIndietro } from './indietro';
 import type { ChangeEvent } from 'react';
 import { IconaMenu } from './Icone';
 import type { InfoSync } from './useSync';
@@ -77,6 +78,12 @@ export function MenuHome(p: Props) {
   const [conferma, setConferma] = useState<Conferma>(null);
   const [parola, setParola] = useState('');
   const file = useRef<HTMLInputElement>(null);
+  // gesto indietro: chiude prima la conferma, poi il menù
+  useChiudiConIndietro(aperto, () => setAperto(false));
+  useChiudiConIndietro(conferma !== null, () => {
+    setConferma(null);
+    setParola('');
+  });
 
   function chiudiTutto() {
     setAperto(false);

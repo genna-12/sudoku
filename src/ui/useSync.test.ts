@@ -191,12 +191,12 @@ describe('creaSync', () => {
   });
 
   it('i campi sconosciuti sul Worker sopravvivono alle scritture', async () => {
-    const { w, f } = workerFinto({ ...payloadDa(vuoto(), 5), posta: ['ciao'] });
+    const { w, f } = workerFinto({ ...payloadDa(vuoto(), 5), bacheca: ['ciao'] });
     const d = dispositivo({ ...vuoto(), storico: [voce(2, 200)] }, f);
     d.m.avvia('x');
     await flush();
     expect(w.put).toBe(1);
-    expect((w.valore as { posta: unknown }).posta).toEqual(['ciao']);
+    expect((w.valore as { bacheca: unknown }).bacheca).toEqual(['ciao']);
     expect((w.valore as { storico: VoceStorico[] }).storico[0].id).toBe('sudoku-2');
     d.m.ferma();
   });
