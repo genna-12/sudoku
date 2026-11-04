@@ -351,7 +351,7 @@ Chiusura: il piccione sulla tastiera. ritmo G
 ### 65 · citta · La locandina
 Cosa succede: la locandina del concerto di lui su un muro. Lei la stacca per tenerla. "È abusivo." "Anche il concerto era." La piega male e la mette nello zaino.
 Ombra: lei tiene le cose di lui.
-Chiusura: la locandina piegata in otto. ritmo G
+Chiusura: la locandina piegata in otto. @elemento locandina · ritmo G
 
 ### 66 · citta · Quanto lontana
 Cosa succede: si lascia la città. Lei: "Se la piazza fosse lontana?" Lui: "Quanto lontana?" "Non lo so ancora." Lui non risponde. Rimette lo zaino storto.
@@ -425,7 +425,7 @@ Ombra: accompagnare senza trattenere.
 Chiusura: due biglietti, uno con il ritorno. @vestiti semino=cuffie semina=camice · ritmo O
 
 ### 79 · lontano · Il finestrino
-Cosa succede: sul treno. Lei spiega l'esperimento disegnando col dito sul vetro appannato. Lui impara una parola e la dice male ("cen-trì-fuga"). Il disegno sparisce; lui lo ripassa col dito.
+Cosa succede: sul treno. Lei spiega l'esperimento disegnando col dito sul vetro appannato. Lui impara una parola e la dice male (a pezzi: "cen... tri... fuga"). Il disegno sparisce; lui lo ripassa col dito.
 Ombra: conoscere il sogno dell'altro nei dettagli, prima di tutto il resto.
 Chiusura: il disegno ripassato. ritmo G
 
@@ -445,9 +445,9 @@ Ombra: mostrarsi anche i giorni brutti.
 Chiusura: due cose brutte, una per parte. ritmo O
 
 ### 83 · lontano · Il fuoco acceso
-Cosa succede: lui torna passando dalla baita. Nonna Capra sta scendendo a valle: d'inverno sta giù, d'estate il Mulo sale. "E qual è casa?" "Quella dove c'è il fuoco acceso." "E se è acceso in due posti?" "Allora siamo ricchi."
+Cosa succede: lui torna passando dalla baita. Nonna Capra è ancora in cima e prepara la discesa: d'inverno sta giù dal Mulo, d'estate il Mulo sale da lei. "E qual è casa?" "Quella dove c'è il fuoco acceso." "E se è acceso in due posti?" "Allora siamo ricchi."
 Ombra: due case, a turni, da quarant'anni.
-Chiusura: il secchio che scende con dentro Nonna Capra. ritmo G
+Chiusura: il secchio che scende col formaggio; lei resta in cima, per ora. ritmo G
 
 ### 84 · lontano · La lettera del Mulo
 Cosa succede: sul treno, una lettera del Mulo (tre righe): "La capra russa. Mandami il formaggio. Il nodo è buono." Semino lega il nodo di Nonna Capra alla cinghia dello zaino.
@@ -465,7 +465,7 @@ Ombra: il ricongiungimento con un disallineamento vero.
 Chiusura: due mele sul tavolo. ritmo O
 
 ### 87 · lontano · Una brutta e una bella
-Cosa succede: a tavola: ognuno dice una cosa brutta e una bella dei giorni passati. La brutta di lei: "La centrifuga." La brutta di lui: "La cen-trì-fuga." Lei ride. Briciola sulla lettera (ancora).
+Cosa succede: a tavola: ognuno dice una cosa brutta e una bella dei giorni passati. La brutta di lei: "La centrifuga." La brutta di lui: "La cen... tri... fuga." Lei ride. Briciola sulla lettera (ancora).
 Ombra: raccontare anche il brutto; la parola sbagliata che è diventata loro.
 Chiusura: Briciola sulla lettera. ritmo G
 
