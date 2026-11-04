@@ -1,0 +1,569 @@
+/* I fondali dei luoghi (Fondale.tsx): quinte piatte senza contorno, tinte ricavate dal tema con color-mix
+   (come scena.css). Verde e blu solo in fili e punti; --oro solo per le luci accese. */
+.fd {
+  --fd-fondo: var(--fondo, #0a1613);
+  --fd-cielo: var(--cielo, #0a1613);
+  --fd-terra: var(--fondo-2, #07100d);
+  --fd-testo: var(--testo, #f1ead7);
+  --fd-verde: var(--verde, #7cff4a);
+  --fd-blu: var(--blu, #2f6bff);
+  --fd-oro: var(--oro, #ffc94a);
+
+  /* cielo: notte di default */
+  --fd-c0: color-mix(in oklab, var(--fd-cielo), #000 28%);
+  --fd-c1: color-mix(in oklab, var(--fd-fondo), #9fb8a8 13%);
+  /* sagome: lontano (più chiaro, freddo), medio, vicino (scuro) */
+  --fd-lontano: color-mix(in oklab, var(--fd-fondo), #8ea2b4 20%);
+  --fd-medio: color-mix(in oklab, var(--fd-terra), #6f8a8a 15%);
+  --fd-vicino: color-mix(in oklab, var(--fd-terra), #000 30%);
+  --fd-suolo: color-mix(in oklab, var(--fd-terra), var(--fd-verde) 9%);
+  --fd-neve: color-mix(in oklab, var(--fd-testo) 78%, #9fc2ff);
+  --fd-sabbia: color-mix(in oklab, var(--fd-terra), var(--fd-oro) 17%);
+  --fd-mare-0: color-mix(in oklab, var(--fd-fondo), #4f8796 34%);
+  --fd-mare-1: color-mix(in oklab, var(--fd-terra), #2f5a6a 30%);
+  --fd-schiuma: color-mix(in oklab, var(--fd-testo) 70%, #9fc2d8);
+  --fd-legno: color-mix(in oklab, #7a5233, var(--fd-terra) 48%);
+  --fd-pietra: color-mix(in oklab, var(--fd-fondo), #b5a88e 20%);
+  --fd-luce: var(--fd-oro);
+  --fd-filo-v: color-mix(in oklab, var(--fd-verde) 34%, transparent);
+
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  background: var(--fd-terra);
+}
+/* mattina (tema chiaro): neve, schiuma e luna restano chiare */
+@media (prefers-color-scheme: light) {
+  :root:not([data-tema='scuro']) .fd {
+    --fd-neve: #ffffff;
+    --fd-schiuma: #ffffff;
+  }
+}
+:root[data-tema='chiaro'] .fd {
+  --fd-neve: #ffffff;
+  --fd-schiuma: #ffffff;
+}
+.fd > svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* giorno (notte={false}): petrolio chiaro in alto, crema rosata all'orizzonte, mai così chiaro da
+   spegnere il testo crema della testa */
+.fd[data-notte='0'] {
+  --fd-c0: color-mix(in oklab, var(--fd-fondo), #5b8f8c 46%);
+  --fd-c1: color-mix(in oklab, var(--fd-fondo), #e9c4a8 40%);
+  --fd-lontano: color-mix(in oklab, var(--fd-fondo), #9db3bf 36%);
+  --fd-medio: color-mix(in oklab, var(--fd-terra), #6f8f86 26%);
+  --fd-suolo: color-mix(in oklab, var(--fd-terra), var(--fd-verde) 16%);
+  --fd-mare-0: color-mix(in oklab, var(--fd-fondo), #6fa6b0 48%);
+  --fd-mare-1: color-mix(in oklab, var(--fd-terra), #3d7584 40%);
+  --fd-sabbia: color-mix(in oklab, var(--fd-terra), var(--fd-oro) 28%);
+  --fd-luce: color-mix(in oklab, var(--fd-oro), var(--fd-fondo) 35%);
+}
+/* luoghi col cielo proprio */
+.fd-bosco {
+  --fd-c0: color-mix(in oklab, var(--fd-cielo), #3a2850 30%);
+  --fd-c1: color-mix(in oklab, var(--fd-fondo), #6a5878 24%);
+}
+.fd-citta {
+  --fd-c0: color-mix(in oklab, var(--fd-cielo), #0a1430 40%);
+  --fd-c1: color-mix(in oklab, var(--fd-fondo), #3a4c6a 30%);
+}
+
+.fd .fd-cielo-0 {
+  stop-color: var(--fd-c0);
+}
+.fd .fd-cielo-1 {
+  stop-color: var(--fd-c1);
+}
+.fd .fd-stella {
+  fill: #fff2cf;
+  opacity: var(--stelle, 0.6);
+}
+.fd .fd-stella-blu {
+  fill: color-mix(in oklab, var(--fd-blu) 70%, #fff);
+  opacity: 0.9;
+}
+.fd .fd-luna {
+  fill: #fff4d8;
+  opacity: 0.92;
+}
+
+/* ---------- comuni ---------- */
+.fd .fd-lontano {
+  fill: var(--fd-lontano);
+}
+.fd .fd-medio {
+  fill: var(--fd-medio);
+}
+.fd .fd-suolo {
+  fill: var(--fd-suolo);
+}
+.fd .fd-neve {
+  fill: var(--fd-neve);
+}
+.fd .fd-filo-verde {
+  fill: none;
+  stroke: var(--fd-filo-v);
+  stroke-width: 1.2;
+}
+.fd .fd-filo-verde-pieno {
+  fill: var(--fd-verde);
+}
+.fd .fd-filo-blu {
+  fill: none;
+  stroke: var(--fd-blu);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.fd .fd-filo,
+.fd .fd-palo-linea {
+  fill: none;
+  stroke: color-mix(in oklab, var(--fd-testo) 30%, transparent);
+  stroke-width: 1;
+}
+.fd .fd-palo-linea {
+  stroke: var(--fd-vicino);
+  stroke-width: 2.4;
+}
+.fd .fd-finestra-accesa {
+  fill: var(--fd-luce);
+  opacity: 0.78;
+}
+.fd .fd-finestra-blu {
+  fill: color-mix(in oklab, var(--fd-luce) 60%, var(--fd-vicino));
+  stroke: var(--fd-blu);
+  stroke-width: 1.4;
+}
+.fd .fd-finestra-blu-piena {
+  fill: color-mix(in oklab, var(--fd-blu) 70%, #fff);
+}
+.fd .fd-pavimento {
+  fill: color-mix(in oklab, var(--fd-terra), #000 18%);
+}
+.fd .fd-zoccolo,
+.fd .fd-bordo-strada {
+  fill: none;
+  stroke: color-mix(in oklab, var(--fd-testo) 14%, transparent);
+  stroke-width: 1;
+}
+.fd .fd-tavolo-luce {
+  fill: none;
+  stroke: color-mix(in oklab, var(--fd-testo) 26%, transparent);
+  stroke-width: 1;
+}
+.fd .fd-insegna {
+  fill: var(--fd-vicino);
+  stroke: var(--fd-verde);
+  stroke-width: 1.2;
+}
+.fd .fd-rotaia {
+  fill: none;
+  stroke: color-mix(in oklab, var(--fd-testo) 26%, var(--fd-terra));
+  stroke-width: 1.6;
+}
+.fd .fd-traversina {
+  stroke: color-mix(in oklab, var(--fd-legno), var(--fd-terra) 30%);
+  stroke-width: 3;
+}
+.fd .fd-telaio {
+  fill: none;
+  stroke: color-mix(in oklab, var(--fd-testo) 55%, var(--fd-legno));
+  stroke-width: 4;
+  stroke-linejoin: round;
+}
+.fd .fd-vetro-cielo {
+  fill: color-mix(in oklab, var(--fd-cielo), #24365a 34%);
+}
+
+/* ---------- giardino ---------- */
+.fd .fd-chiarore-0 {
+  stop-color: var(--fd-verde);
+  stop-opacity: 0;
+}
+.fd .fd-chiarore-1 {
+  stop-color: var(--fd-verde);
+  stop-opacity: 0.07;
+}
+.fd .fd-prato {
+  fill: color-mix(in oklab, var(--fd-terra), var(--fd-verde) 11%);
+}
+
+/* ---------- mare ---------- */
+.fd .fd-mare-0 {
+  stop-color: var(--fd-mare-0);
+}
+.fd .fd-mare-1 {
+  stop-color: var(--fd-mare-1);
+}
+.fd .fd-orizzonte {
+  stroke: var(--fd-schiuma);
+  stroke-width: 0.8;
+  opacity: 0.4;
+}
+.fd .fd-riflesso {
+  fill: #fff4d8;
+  opacity: 0.32;
+}
+.fd .fd-onda {
+  fill: none;
+  stroke: var(--fd-schiuma);
+  stroke-linecap: round;
+  stroke-width: 1.4;
+  opacity: 0.4;
+  animation: fd-onda 7s ease-in-out infinite alternate;
+}
+.fd .fd-onda-vicina {
+  stroke-width: 2;
+  opacity: 0.6;
+  animation-duration: 6s;
+  animation-direction: alternate-reverse;
+}
+.fd .fd-filo-verde-onda {
+  stroke: var(--fd-verde);
+  stroke-dasharray: 52 400;
+  stroke-dashoffset: -96;
+  opacity: 0.7;
+}
+.fd .fd-onda-ferma {
+  animation: none;
+  stroke-width: 1;
+}
+@keyframes fd-onda {
+  to {
+    transform: translateX(8px);
+  }
+}
+.fd .fd-sabbia {
+  fill: var(--fd-sabbia);
+}
+.fd .fd-schiuma-riva {
+  fill: none;
+  stroke: var(--fd-schiuma);
+  stroke-width: 1.4;
+  opacity: 0.35;
+}
+.fd .fd-muretto-faccia {
+  fill: var(--fd-pietra);
+}
+.fd .fd-muretto-cima {
+  fill: none;
+  stroke: color-mix(in oklab, var(--fd-testo) 30%, transparent);
+  stroke-width: 1.4;
+}
+.fd .fd-muretto-giunti {
+  fill: none;
+  stroke: color-mix(in oklab, var(--fd-pietra), #000 30%);
+  stroke-width: 1;
+}
+
+/* ---------- montagna ---------- */
+.fd .fd-alone-blu {
+  fill: none;
+  stroke: color-mix(in oklab, var(--fd-blu) 45%, transparent);
+  stroke-width: 2.4;
+  stroke-linejoin: round;
+}
+.fd .fd-baita-muro {
+  fill: var(--fd-legno);
+}
+.fd .fd-baita-tetto {
+  fill: color-mix(in oklab, var(--fd-legno), #000 35%);
+}
+.fd .fd-sassi ellipse {
+  fill: var(--fd-pietra);
+  stroke: color-mix(in oklab, var(--fd-pietra), #000 35%);
+  stroke-width: 1;
+}
+
+/* ---------- bosco ---------- */
+.fd .fd-banda-0 {
+  stop-color: var(--fd-oro);
+  stop-opacity: 0;
+}
+.fd .fd-banda-1 {
+  stop-color: var(--fd-oro);
+  stop-opacity: 0.16;
+}
+.fd[data-notte='1'] .fd-banda-1 {
+  stop-opacity: 0.08;
+}
+.fd .fd-tronco,
+.fd .fd-tronco-caduto {
+  fill: var(--fd-vicino);
+}
+.fd .fd-tronco-caduto {
+  fill: color-mix(in oklab, var(--fd-vicino), var(--fd-legno) 25%);
+}
+.fd .fd-tronco-taglio {
+  fill: color-mix(in oklab, var(--fd-legno), var(--fd-testo) 12%);
+}
+.fd .fd-lucciola {
+  opacity: var(--lucciole, 0.75);
+  animation: fd-lucciola 3.6s ease-in-out infinite;
+}
+.fd .fd-lucciola-alone {
+  fill: var(--fd-verde);
+  opacity: 0.18;
+}
+.fd .fd-lucciola-punto {
+  fill: color-mix(in oklab, var(--fd-verde) 80%, #fff);
+}
+@keyframes fd-lucciola {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: var(--lucciole, 0.75);
+  }
+}
+
+/* ---------- città ---------- */
+.fd .fd-palazzi {
+  fill: color-mix(in oklab, var(--fd-vicino), #1a2438 40%);
+}
+.fd .fd-strada {
+  fill: color-mix(in oklab, var(--fd-terra), #1a2030 30%);
+}
+.fd .fd-cono {
+  fill: var(--fd-testo);
+  opacity: 0.08;
+}
+.fd .fd-palo {
+  fill: none;
+  stroke: var(--fd-vicino);
+  stroke-width: 3;
+}
+.fd .fd-lampada {
+  fill: #fff2cf;
+}
+.fd .fd-accende {
+  animation: fd-accende 10s steps(1) infinite;
+}
+.fd .fd-ritardo {
+  animation-duration: 13s;
+  animation-delay: -5s;
+}
+@keyframes fd-accende {
+  0%,
+  100% {
+    opacity: 0.78;
+  }
+  60% {
+    opacity: 0.12;
+  }
+}
+
+/* ---------- cucina ---------- */
+.fd .fd-muro-0 {
+  stop-color: color-mix(in oklab, var(--fd-fondo), #c9a27a 20%);
+}
+.fd .fd-muro-1 {
+  stop-color: color-mix(in oklab, var(--fd-fondo), #c9a27a 8%);
+}
+.fd .fd-vetro-mare {
+  fill: var(--fd-mare-1);
+}
+.fd .fd-davanzale {
+  fill: color-mix(in oklab, var(--fd-testo) 40%, var(--fd-legno));
+}
+.fd .fd-frigo {
+  fill: color-mix(in oklab, var(--fd-fondo), var(--fd-testo) 30%);
+}
+.fd .fd-frigo-segni {
+  fill: none;
+  stroke: color-mix(in oklab, var(--fd-fondo), var(--fd-testo) 14%);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.fd .fd-calamita {
+  fill: var(--fd-oro);
+}
+.fd .fd-nove {
+  fill: var(--su-oro, #2a1c0e);
+  font: 850 12px 'Recursive', ui-rounded, system-ui, sans-serif;
+}
+.fd-treno .fd-pavimento {
+  fill: color-mix(in oklab, var(--fd-fondo), #7a6a58 7%);
+}
+.fd-cucina .fd-pavimento {
+  fill: color-mix(in oklab, var(--fd-fondo), #8a6a4a 10%);
+}
+.fd .fd-tavolo {
+  fill: var(--fd-legno);
+}
+.fd .fd-tazza path:first-child {
+  fill: color-mix(in oklab, var(--fd-testo) 75%, var(--fd-fondo));
+}
+.fd .fd-manico {
+  fill: none;
+  stroke: color-mix(in oklab, var(--fd-testo) 75%, var(--fd-fondo));
+  stroke-width: 3;
+}
+.fd .fd-tazza .fd-filo-verde {
+  stroke: var(--fd-verde);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+/* ---------- treno ---------- */
+.fd .fd-vagone {
+  fill: color-mix(in oklab, var(--fd-fondo), #7a6a58 14%);
+}
+.fd .fd-cornice {
+  fill: none;
+  stroke: color-mix(in oklab, var(--fd-fondo), var(--fd-testo) 24%);
+  stroke-width: 9;
+}
+.fd .fd-riflesso-vetro {
+  stroke: #fff;
+  stroke-width: 1;
+  opacity: 0.12;
+}
+.fd .fd-mensola {
+  fill: color-mix(in oklab, var(--fd-fondo), var(--fd-testo) 18%);
+}
+.fd .fd-scorre {
+  animation: fd-scorre 24s linear infinite;
+}
+.fd .fd-scorre-lento {
+  animation-duration: 70s;
+}
+@keyframes fd-scorre {
+  to {
+    transform: translateX(-320px);
+  }
+}
+
+/* ---------- piazza ---------- */
+.fd .fd-facciata {
+  fill: color-mix(in oklab, var(--fd-medio), #b07a5a 14%);
+}
+.fd .fd-cornicione {
+  fill: color-mix(in oklab, var(--fd-medio), var(--fd-testo) 12%);
+}
+.fd .fd-arco {
+  fill: var(--fd-vicino);
+}
+.fd .fd-finestra-piazza {
+  fill: color-mix(in oklab, var(--fd-vicino), var(--fd-medio) 40%);
+}
+.fd .fd-selciato {
+  fill: color-mix(in oklab, var(--fd-terra), #8a7a64 12%);
+}
+.fd .fd-selciato-righe {
+  fill: none;
+  stroke: color-mix(in oklab, var(--fd-testo) 8%, transparent);
+  stroke-width: 1;
+}
+.fd .fd-vasca {
+  fill: var(--fd-pietra);
+}
+.fd .fd-vasca-bordo {
+  fill: color-mix(in oklab, var(--fd-mare-1), var(--fd-pietra) 30%);
+  stroke: color-mix(in oklab, var(--fd-testo) 34%, var(--fd-pietra));
+  stroke-width: 1.4;
+}
+.fd .fd-acqua {
+  fill: none;
+  stroke: var(--fd-schiuma);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  opacity: 0.6;
+}
+
+/* ---------- laboratorio ---------- */
+.fd .fd-muro-lab {
+  fill: color-mix(in oklab, var(--fd-fondo), #a8c4c0 13%);
+}
+.fd .fd-mensola-lab {
+  stroke: color-mix(in oklab, var(--fd-fondo), var(--fd-testo) 26%);
+  stroke-width: 3;
+}
+.fd .fd-barattolo {
+  fill: color-mix(in oklab, var(--fd-fondo), var(--fd-testo) 22%);
+}
+.fd .fd-banco-piano {
+  fill: color-mix(in oklab, var(--fd-fondo), var(--fd-testo) 22%);
+}
+.fd .fd-banco {
+  fill: color-mix(in oklab, var(--fd-terra), #5a6a70 20%);
+}
+.fd .fd-vetro {
+  fill: color-mix(in oklab, var(--fd-testo) 16%, transparent);
+  stroke: color-mix(in oklab, var(--fd-testo) 50%, transparent);
+  stroke-width: 1;
+}
+.fd .fd-liquido {
+  fill: color-mix(in oklab, var(--fd-testo) 40%, #6fa6b0);
+  opacity: 0.6;
+}
+.fd .fd-liquido-verde {
+  fill: var(--fd-verde);
+  opacity: 0.7;
+}
+.fd .fd-supporto {
+  fill: var(--fd-legno);
+}
+.fd .fd-microscopio {
+  fill: color-mix(in oklab, var(--fd-fondo), var(--fd-testo) 34%);
+}
+.fd-laboratorio .fd-pavimento {
+  fill: color-mix(in oklab, var(--fd-fondo), #a8c4c0 6%);
+}
+
+/* ---------- stazione ---------- */
+.fd .fd-massicciata {
+  fill: color-mix(in oklab, var(--fd-terra), #6a6050 16%);
+}
+.fd .fd-marciapiede {
+  fill: color-mix(in oklab, var(--fd-terra), #8a8a80 12%);
+}
+.fd .fd-linea-gialla {
+  stroke: var(--fd-oro);
+  stroke-width: 2;
+  stroke-dasharray: 10 6;
+  opacity: 0.55;
+}
+.fd .fd-pensilina,
+.fd .fd-pilastro {
+  fill: var(--fd-vicino);
+}
+.fd .fd-orologio-cassa {
+  fill: var(--fd-vicino);
+}
+.fd .fd-orologio {
+  fill: #f3ecd9;
+}
+.fd .fd-cartello {
+  fill: var(--fd-vicino);
+}
+.fd .fd-cartello-righe {
+  stroke: color-mix(in oklab, var(--fd-testo) 60%, transparent);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.fd .fd-lancette {
+  fill: none;
+  stroke: var(--fd-vicino);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fd *,
+  .fd *::before,
+  .fd *::after {
+    animation: none !important;
+  }
+  .fd .fd-lucciola {
+    opacity: var(--lucciole, 0.75);
+  }
+}
