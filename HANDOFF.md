@@ -15,6 +15,7 @@ T5 — la storia a capitoli, da `docs/specs/traguardo.md`, nell'ordine: (1) dati
 2. Ok alla BUSSOLA (docs/progettazione/BUSSOLA.md) e ai 5 ADR.
 3. Sul PC: `git pull` in C:\dev\sudoku. La cartella `C:\dev\_tools` non era collegata alla sessione: nessun uso di coda/esecutore; i push sono partiti dal cloud.
 4. Prova reale PC=Genna, telefono=Mati (dal HANDOFF precedente), quando possibile.
+5. Quanti fiori avete oggi sui due telefoni e chi ha già visto la scena di Semina: serve alla lead per la migrazione e per sapere quanti arretrati vi troverete.
 
 ## Attenzione
 - Il repo è PUBBLICO: niente parole personali nei file (ADR 005); il materiale sta nel Project Claude (`claude/storia-materiale-riservato.md`).
