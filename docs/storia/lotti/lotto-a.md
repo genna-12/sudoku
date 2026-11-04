@@ -92,10 +92,10 @@
 - semina (neutro): Forse.
 - semino (felice): Secondo i miei calcoli, da un semino forse vuol dire sì.
 - semina (neutro): Forse.
-- narra: Semino punta un bastoncino tra le sue radici e quelle di lei.
-- semino (neutro): Quaranta centimetri.
+- semino (neutro): Bastoncino. Radice mia, radice tua. Quaranta centimetri.
 - semina (felice): Sono tanti?
 - semino (neutro): Sono quaranta.
+- narra: Semino scrive 40 su un sasso piatto e lo pianta a metà strada, tra le due radici.
 
 ## 14 · giardino · Un centimetro
 @vestiti: semino=occhiali semina=animale
@@ -147,7 +147,7 @@
 - semino (neutro): Non me ne stavo andando.
 - pinza: Lo dicono tutti. Tengo io.
 - semina (euforico): SI CHIAMA PINZA.
-- pinza: Pinza va bene. Andiamo di qua.
+- pinza: Tengo anche quello. Di qua.
 - narra: Pinza parte di lato e non molla l'alluce. Semino, per stargli dietro, va di lato anche lui.
 
 ## 20 · mare · Venti stelle
@@ -243,7 +243,8 @@
 - semina (neutro): Mh.
 - narra: Semina prende un sasso appuntito. Sulla tavola graffia una montagna. Poi, sotto, un'onda.
 - semino (neutro): Era nuova, la tavola.
-- semina (neutro): Adesso si vede di chi è.
+- semina (neutro): L'onda è venuta piccola.
+- semino (neutro): Undici centimetri.
 
 ## 27 · mare · Una chela sola
 @vestiti: semino=surf semina=paglia
