@@ -1,0 +1,394 @@
+/* Personaggi secondari: stesso inchiostro caldo di Semino, colori propri (mai verde fluo né blu elettrico). */
+.secondario {
+  --sec-tratto: #2a1c0e;
+  --sec-bianco: #f6efe0;
+  --sec-bocca: #5b2a22;
+  --sec-c1: #c9c2b6;
+  --sec-c2: #a9a196;
+  --sec-c3: #e8dcc6;
+  --sec-c4: #8f7d68;
+  --sec-f2: color-mix(in oklab, var(--sec-c1), #000 18%);
+  --sec-f3: color-mix(in oklab, var(--sec-c1), #fff 22%);
+  display: inline-block;
+  flex: none;
+  line-height: 0;
+  vertical-align: bottom;
+}
+.secondario svg {
+  display: block;
+  overflow: visible;
+}
+
+/* ---------- tinte per personaggio ---------- */
+.sec-fischio {
+  --sec-c1: #3a3633;
+  --sec-c2: #4d4843;
+  --sec-c3: #e2903e;
+  --sec-f3: #45403c;
+}
+/* nero su fondo notte: un filo di luce sul bordo perché la sagoma si legga */
+.sec-fischio svg {
+  filter: drop-shadow(0 0 0.8px color-mix(in oklab, var(--testo, #f1ead7) 45%, transparent));
+}
+.sec-pinza {
+  --sec-c1: #b6553c;
+  --sec-f2: #93412d;
+  --sec-f3: #cf7a5d;
+}
+.sec-nuvola {
+  --sec-c1: #d2cdc5;
+  --sec-c2: #aaa39a;
+  --sec-c3: #8a8178;
+  --sec-f2: #b3aca3;
+}
+.sec-nonnacapra {
+  --sec-c1: #e7dfcf;
+  --sec-c2: #cfc4af;
+  --sec-c3: #f7f3ec;
+  --sec-c4: #9a8a74;
+  --sec-f2: #d6cab6;
+  --sec-c4-fill: #d8a08a;
+}
+.sec-gufo {
+  --sec-c1: #8d877f;
+  --sec-c2: #6f6a63;
+  --sec-c3: #c98a4b;
+  --sec-f3: #bcb4a8;
+  --sec-giallo: #f3c433;
+}
+.sec-grillo {
+  --sec-c1: #52703e;
+  --sec-c2: #3f5b30;
+  --sec-c3: #b97f4b;
+  --sec-c4: #7a4f2c;
+}
+.sec-briciola {
+  --sec-c1: #d29458;
+  --sec-c3: #f2e2c6;
+  --sec-c4: #c47b6c;
+  --sec-f3: #f2e2c6;
+  --sec-righe: #8f562c;
+}
+
+/* ---------- materiali ---------- */
+.secondario .sec-c1,
+.secondario .sec-c2,
+.secondario .sec-c3,
+.secondario .sec-c4,
+.secondario .sec-bianco,
+.secondario .sec-giallo {
+  stroke: var(--sec-tratto);
+  stroke-width: 2.4;
+  stroke-linejoin: round;
+}
+.secondario .sec-c1 {
+  fill: var(--sec-c1);
+}
+.secondario .sec-c2 {
+  fill: var(--sec-c2);
+}
+.secondario .sec-c3 {
+  fill: var(--sec-c3);
+}
+.secondario .sec-c4 {
+  fill: var(--sec-c4);
+}
+.secondario .sec-sottile {
+  stroke-width: 1.6;
+}
+.secondario .sec-f1 {
+  fill: var(--sec-c1);
+}
+.secondario .sec-f2 {
+  fill: var(--sec-f2);
+}
+.secondario .sec-f3 {
+  fill: var(--sec-f3);
+}
+.secondario .sec-f4 {
+  fill: var(--sec-c4-fill, var(--sec-c4));
+}
+.secondario .sec-bianco {
+  fill: var(--sec-bianco);
+}
+.secondario .sec-giallo {
+  fill: var(--sec-giallo);
+}
+.secondario .sec-pieno {
+  fill: var(--sec-tratto);
+}
+.secondario .sec-luce {
+  fill: #fff;
+}
+.secondario .sec-linea {
+  fill: none;
+  stroke: var(--sec-tratto);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.secondario .sec-fine {
+  stroke-width: 1.6;
+}
+.secondario .sec-tenue {
+  opacity: 0.45;
+}
+/* arti a "tubo": bordo d'inchiostro e dentro il colore */
+.secondario .sec-bordo {
+  fill: none;
+  stroke: var(--sec-tratto);
+  stroke-width: 7.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.secondario .sec-arto {
+  fill: none;
+  stroke: var(--sec-c1);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.secondario .sec-bordo-fine {
+  stroke-width: 5.6;
+}
+.secondario .sec-arto-fine {
+  stroke-width: 1.6;
+}
+.secondario .sec-arto-2 {
+  stroke: var(--sec-c2);
+}
+.secondario .sec-righe {
+  fill: none;
+  stroke: var(--sec-righe, var(--sec-tratto));
+  stroke-width: 2.6;
+  stroke-linecap: round;
+}
+.secondario .sec-unghie {
+  fill: none;
+  stroke: var(--sec-c3);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+.secondario .sec-corde {
+  fill: none;
+  stroke: #f6efe0;
+  stroke-width: 0.6;
+  opacity: 0.8;
+}
+.secondario .sec-terra {
+  fill: #000;
+  opacity: 0.22;
+}
+
+/* ---------- movimento: tutti i perni sono in unità del viewBox ---------- */
+.secondario g,
+.secondario circle,
+.secondario ellipse {
+  transform-box: view-box;
+}
+.secondario .sec-idle {
+  animation: sec-respiro 1.9s ease-in-out infinite alternate;
+}
+@keyframes sec-respiro {
+  to {
+    transform: scale(1.015, 0.975);
+  }
+}
+
+/* dettagli vivi da fermi */
+.sec-fischio .sec-coda {
+  animation: sec-oscilla 2.6s ease-in-out infinite alternate;
+  --sec-ang: 5deg;
+}
+.sec-briciola .sec-coda {
+  animation: sec-oscilla 1.7s ease-in-out infinite alternate;
+  --sec-ang: 9deg;
+}
+.sec-pinza .sec-chela {
+  animation: sec-oscilla 2.2s ease-in-out infinite alternate;
+  --sec-ang: 4deg;
+}
+.sec-grillo .sec-antenne {
+  animation: sec-oscilla 2.4s ease-in-out infinite alternate;
+  --sec-ang: 3deg;
+}
+.sec-nuvola .sec-criniera {
+  animation: sec-oscilla 3s ease-in-out infinite alternate;
+  --sec-ang: 1.5deg;
+}
+.sec-nuvola .sec-orecchio {
+  animation: sec-orecchio 5s ease-in-out infinite;
+}
+@keyframes sec-oscilla {
+  from {
+    transform: rotate(calc(var(--sec-ang) * -1));
+  }
+  to {
+    transform: rotate(var(--sec-ang));
+  }
+}
+@keyframes sec-orecchio {
+  0%,
+  86%,
+  100% {
+    transform: none;
+  }
+  90% {
+    transform: rotate(-14deg);
+  }
+  94% {
+    transform: rotate(4deg);
+  }
+}
+/* Nonna Capra mastica sempre, di lato */
+.sec-nonnacapra .sec-mascella {
+  animation: sec-mastica 1s ease-in-out infinite;
+}
+@keyframes sec-mastica {
+  0%,
+  100% {
+    transform: none;
+  }
+  25% {
+    transform: translate(-1.4px, 1.2px);
+  }
+  50% {
+    transform: translate(0, 0.4px);
+  }
+  75% {
+    transform: translate(1.4px, 1.2px);
+  }
+}
+/* il Gufo sbatte le palpebre ogni tanto */
+.sec-gufo .sec-palpebra {
+  transform: scaleY(0);
+  animation: sec-ciglia 5.5s ease-in-out infinite;
+}
+@keyframes sec-ciglia {
+  0%,
+  93%,
+  100% {
+    transform: scaleY(0);
+  }
+  95.5% {
+    transform: scaleY(1);
+  }
+}
+
+/* ---------- parla ---------- */
+.secondario .sec-bocca-aperta {
+  fill: var(--sec-bocca);
+  stroke: var(--sec-tratto);
+  stroke-width: 1.6;
+  opacity: 0;
+}
+.sec-parla .sec-bocca-aperta {
+  opacity: 1;
+  animation: sec-bocca 0.26s ease-in-out infinite alternate;
+}
+.sec-parla .sec-bocca-chiusa {
+  opacity: 0;
+}
+@keyframes sec-bocca {
+  from {
+    transform: scaleY(0.25);
+  }
+}
+.sec-parla .sec-becco {
+  animation: sec-becco 0.26s ease-in-out infinite alternate;
+}
+@keyframes sec-becco {
+  to {
+    transform: rotate(-22deg);
+  }
+}
+.sec-parla .sec-giu {
+  animation: sec-giu 0.26s ease-in-out infinite alternate;
+}
+@keyframes sec-giu {
+  to {
+    transform: translateY(2.8px);
+  }
+}
+.sec-parla .sec-labbro {
+  animation: sec-giu 0.26s ease-in-out infinite alternate;
+}
+.sec-nonnacapra.sec-parla .sec-mascella {
+  animation: sec-mastica-parla 0.5s ease-in-out infinite;
+}
+@keyframes sec-mastica-parla {
+  0%,
+  100% {
+    transform: none;
+  }
+  30% {
+    transform: translate(-1px, 3.2px);
+  }
+  70% {
+    transform: translate(1px, 2.6px);
+  }
+}
+.sec-pinza.sec-parla .sec-chela {
+  animation-duration: 0.4s;
+  --sec-ang: 8deg;
+}
+.sec-grillo.sec-parla .sec-pizzica {
+  animation: sec-oscilla 0.22s ease-in-out infinite alternate;
+  --sec-ang: 10deg;
+}
+/* piccolo cenno di tutto il corpo, e della testa dove c'è */
+.sec-parla .sec-cenno {
+  animation: sec-cenno 0.9s ease-in-out infinite;
+}
+@keyframes sec-cenno {
+  0%,
+  100% {
+    transform: none;
+  }
+  40% {
+    transform: translateY(-2px) rotate(-1.5deg);
+  }
+  70% {
+    transform: translateY(0) rotate(1deg);
+  }
+}
+.sec-parla .sec-cenno-testa {
+  animation: sec-cenno-testa 0.9s ease-in-out infinite;
+}
+@keyframes sec-cenno-testa {
+  0%,
+  100% {
+    transform: none;
+  }
+  45% {
+    transform: rotate(-4deg);
+  }
+}
+
+/* ---------- entrata: sbuca dal basso ---------- */
+.sec-entra .sec-entrata {
+  animation: sec-sbuca 250ms var(--molla, cubic-bezier(0.34, 1.56, 0.64, 1)) both;
+}
+@keyframes sec-sbuca {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.7);
+  }
+  40% {
+    opacity: 1;
+  }
+}
+@keyframes sec-dissolvi {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .secondario * {
+    animation: none !important;
+  }
+  .secondario.sec-entra .sec-entrata {
+    animation: sec-dissolvi 250ms ease-out both !important;
+  }
+}
