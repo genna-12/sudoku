@@ -129,6 +129,7 @@ Chi scrive aggiorna questa tabella. Un oggetto si paga 3-10 capitoli dopo, in un
 | "9 (MIE)" sul frigo | 74 | — |
 | la riga 408; la centrifuga Ugo | 82, 87 | eco |
 | la puntina storta; la matita rossa | 88, 98 | 94, 98 |
+| la palla si chiama "Pirata" (lei) / "versione 1.1" (lui); i nomi dei granchi scritti nella sabbia | 22, 21 | eco |
 
 Regola per il lettore dei capitoli: in scena c'è al massimo un secondario alla volta, l'ultimo che ha parlato (così a 53 Gufo e Fischio non si vedono mai insieme); fa eccezione il 99, dove ci sono tutti.
 
