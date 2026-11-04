@@ -628,12 +628,21 @@ export const ACCESSORI = [
   'montagna',
   'cavallo',
   'animale',
+  // vestiti dei luoghi (T6)
+  'zaino-storto',
+  'lanterna',
+  'cuffie',
+  'paglia',
+  'lucciola',
+  'giacca',
+  'grembiule',
+  'camice',
 ] as const;
 export type Accessorio = (typeof ACCESSORI)[number];
-/** gli stili di ciascuno. Semino: mai montagna né cavallo. Semina: il surf solo nelle scene al mare con lui */
+/** gli stili di ciascuno. Semino: mai montagna né cavallo (in montagna va a modo suo, zaino-storto). Semina: il surf solo nelle scene al mare con lui */
 export const ACCESSORI_DI: Record<SeminoChi, Accessorio[]> = {
-  semino: ['occhiali', 'cuoco', 'palla', 'chitarra', 'surf'],
-  semina: ['corona', 'montagna', 'cavallo', 'animale'],
+  semino: ['occhiali', 'cuoco', 'palla', 'chitarra', 'surf', 'zaino-storto', 'lanterna', 'cuffie'],
+  semina: ['corona', 'montagna', 'cavallo', 'animale', 'paglia', 'lucciola', 'giacca', 'grembiule', 'camice'],
 };
 const NOMI_ACCESSORIO: Record<Accessorio, string> = {
   occhiali: 'con gli occhiali',
@@ -645,6 +654,14 @@ const NOMI_ACCESSORIO: Record<Accessorio, string> = {
   montagna: 'vestito da montagna',
   cavallo: 'col caschetto e il cavallino',
   animale: 'con un uccellino',
+  'zaino-storto': 'con lo zaino storto e un berretto troppo grande',
+  lanterna: 'con una lanterna accesa',
+  cuffie: 'con le cuffie e il biglietto del treno',
+  paglia: 'col cappello di paglia e una conchiglia al collo',
+  lucciola: 'con una corona di foglie e una lucciola',
+  giacca: 'con la giacca di jeans e gli occhiali da sole',
+  grembiule: 'col grembiule infarinato',
+  camice: 'col camice e gli occhiali da laboratorio',
 };
 
 /** dove si appoggia un cappello: sulla punta della testa (Semina è più larga e più bassa) */
@@ -653,7 +670,7 @@ const TESTA: Record<SeminoChi, { x: number; y: number; k: number }> = {
   semina: { x: 48, y: 49.5, k: 1.1 },
 };
 /** di quanto si alza la pianta per uscire dal cappello */
-const ALZATA: Partial<Record<Accessorio, number>> = { cuoco: 11, montagna: 9, cavallo: 9 };
+const ALZATA: Partial<Record<Accessorio, number>> = { cuoco: 11, montagna: 9, cavallo: 9, 'zaino-storto': 10, paglia: 8, cuffie: 4 };
 
 /** braccino corto che spunta dal fianco e tiene qualcosa */
 function manina(d: string) {
@@ -880,11 +897,294 @@ function Uccellino({ stadio }: { stadio: SeminoStadio }) {
   );
 }
 
+/* --- vestiti dei luoghi (T6). Semino: zaino-storto (montagna a modo suo), lanterna (bosco), cuffie (oltre). */
+
+/** berretto di lana troppo grande e storto (~13°): il risvolto copre mezzo occhio sinistro, la punta ricade col pompon */
+function Berretto() {
+  // risvolto: bordo alto da (17.6 68.4) a (80.4 53.6), bordo basso da (19.6 76.6) a (82.4 60.6)
+  const alto = (x: number) => 68.4 - (x - 17.6) * 0.2357;
+  const basso = (x: number) => 76.6 - (x - 19.6) * 0.2554;
+  const coste = Array.from({ length: 10 }, (_, i) => {
+    const x = 23 + i * 6.2;
+    return `M${x} ${(alto(x) + 1.4).toFixed(2)} L${(x + 1.6).toFixed(2)} ${(basso(x + 1.6) - 1.4).toFixed(2)}`;
+  }).join(' ');
+  return (
+    <g>
+      <path d="M18.4 69 C14.6 50 31 31.4 52 31.4 C68 31.4 79 41.6 80.2 54.4Z" className="s-lana" />
+      <path d="M33 64 C33 52 39 42 47 36.4 M49 59.6 C50 49 54 41.4 60 36.6 M63.4 56.4 C65 49.6 68 45 72 41.6" className="s-lana-coste" />
+      {/* punta molle che ricade a sinistra, col pompon */}
+      <path d="M38 33.6 C27 31.4 13.6 36 9.6 47.4 L16 50 C18.6 43.4 26 40.4 37 41.4Z" className="s-lana" />
+      <circle cx={11} cy={51.4} r={5.4} className="s-pompon" />
+      <path d="M9 49.6 l1.6 1.6 M12.4 49 l-0.8 2 M10.6 53.6 l1.8 -0.6" className="s-lana-coste" />
+      <path d="M17.6 68.4 L80.4 53.6 L82.4 60.6 L19.6 76.6Z" className="s-lana s-lana-risvolto" />
+      <path d={coste} className="s-lana-coste" />
+    </g>
+  );
+}
+/** zaino portato di traverso: dietro il corpo, inclinato di 12°, ne spunta il fianco destro */
+function ZainoStorto() {
+  return (
+    <g transform="rotate(12 79 75)">
+      <rect x={66} y={57} width={26} height={33} rx={6.4} className="s-zaino-lui" />
+      <path d="M66.6 68 Q79 62 91.4 68 L91.4 63 Q79 56.6 66.6 63Z" className="s-zaino-lui-scuro" />
+      <rect x={81} y={76} width={9} height={10} rx={2.6} className="s-zaino-lui-scuro" />
+      <circle cx={85.5} cy={76.6} r={1.3} className="s-tirazip" />
+    </g>
+  );
+}
+/** la cinghia che scende sul fianco destro, dal berretto in giù */
+function CinghiaStorta() {
+  const d = 'M73 61.4 Q79.6 68.6 79.4 82';
+  return (
+    <g>
+      <path d={d} className="s-spallaccio-bordo" />
+      <path d={d} className="s-spallaccio s-spallaccio-lui" />
+      <rect x={76.4} y={68.4} width={5.2} height={3.8} rx={0.8} transform="rotate(62 79 70.3)" className="s-fibbia" />
+    </g>
+  );
+}
+
+/** lanterna tenuta con la manina, con l'alone caldo che pulsa piano (fermo con reduced-motion) */
+function Lanterna({ id }: { id: string }) {
+  const g = `alone-${id}`;
+  return (
+    <g>
+      <defs>
+        <radialGradient id={g}>
+          <stop offset="0" stopColor="#ffd77a" stopOpacity="0.9" />
+          <stop offset="0.55" stopColor="#ffbf55" stopOpacity="0.35" />
+          <stop offset="1" stopColor="#ffb648" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <circle cx={13} cy={79} r={16} fill={`url(#${g})`} className="s-alone" />
+      <g transform="translate(13 68.6)">
+        <path d="M-3 0.4 A3 3.2 0 0 1 3 0.4" className="s-ferro-filo" />
+        <path d="M-6 4.2 L6 4.2 L3.6 0.4 L-3.6 0.4Z" className="s-ferro" />
+        <rect x={-5} y={4.2} width={10} height={13.6} rx={1.4} className="s-vetro" />
+        <path d="M0 7.6 C2.4 10.4 1.8 12.6 0 13.4 C-1.8 12.6 -2.4 10.4 0 7.6Z" className="s-fiamma" />
+        <rect x={-1.4} y={13.4} width={2.8} height={3.6} rx={0.6} className="s-candela" />
+        <path d="M-2.6 4.6 V17.4 M2.6 4.6 V17.4" className="s-ferro-filo s-ferro-sottile" />
+        <rect x={-6.4} y={17.6} width={12.8} height={2.8} rx={1} className="s-ferro" />
+      </g>
+      {manina('M26.6 76.4 Q21.4 69 15.2 67.6')}
+    </g>
+  );
+}
+
+/** cuffie: archetto sopra la punta, padiglioni sui fianchi (anello verde fluo) */
+function Cuffie() {
+  const arco = 'M24.4 56 C20.6 32.4 80.6 28.6 77 53';
+  const padiglione = (cx: number, cy: number, r: number) => (
+    <g transform={`rotate(${r} ${cx} ${cy})`}>
+      <rect x={cx - 5.6} y={cy - 7.6} width={11.2} height={15.2} rx={5.2} className="s-padiglione" />
+      <rect x={cx - 3.2} y={cy - 4.8} width={6.4} height={9.6} rx={3.2} className="s-padiglione-anello" />
+    </g>
+  );
+  return (
+    <g>
+      <path d={arco} className="s-archetto-bordo" />
+      <path d={arco} className="s-archetto" />
+      {padiglione(25.4, 60.4, -30)}
+      {padiglione(75.6, 58, 32)}
+    </g>
+  );
+}
+/** biglietto del treno in mano: fascia rossa, timbro, perforazione */
+function Biglietto() {
+  return (
+    <g>
+      <g transform="translate(12.4 83) rotate(-14)">
+        <rect x={-8.4} y={-5.4} width={16.8} height={10.8} rx={1.2} className="s-biglietto" />
+        <path d="M-7.4 -5.4 H7.4 Q8.4 -5.4 8.4 -4.2 V-2.4 H-8.4 V-4.2 Q-8.4 -5.4 -7.4 -5.4Z" className="s-biglietto-fascia" />
+        <path d="M3.8 -1.6 V5.2" className="s-perforato" />
+        <path d="M-6 0.4 H1.6 M-6 2.6 H-0.6" className="s-righe-biglietto" />
+        <circle cx={6.2} cy={1.8} r={1.3} className="s-righe-biglietto" />
+      </g>
+      {manina('M27.2 80.2 Q23.6 82.6 19.6 82.8')}
+    </g>
+  );
+}
+
+/* --- Semina: paglia (mare), lucciola (bosco), giacca (città), grembiule (cucina), camice (oltre). */
+
+/** cappello di paglia a tesa larga, un filo storto, col nastro blu e le code */
+function CappelloPaglia() {
+  return (
+    <g transform="rotate(-6)">
+      <ellipse cx={0} cy={-1.4} rx={24} ry={5.4} className="s-paglia" />
+      <path d="M-19 0.2 Q0 5 19 0.2 M-13.6 2.6 Q0 6.2 13.6 2.6" className="s-trama" />
+      <path d="M-10 -2.6 C-10.6 -10.4 -6 -14.6 0 -14.6 C6 -14.6 10.6 -10.4 10 -2.6 Q0 -0.4 -10 -2.6Z" className="s-paglia" />
+      <path d="M-6 -12 Q0 -13.4 6 -12 M-8.6 -9 Q0 -10.4 8.6 -9" className="s-trama" />
+      <path d="M-10.3 -6.6 Q0 -4.4 10.3 -6.6 L10.1 -3 Q0 -0.8 -10.1 -3Z" className="s-nastro-paglia" />
+      <path d="M-9.2 -3.4 L-12.6 4.4 L-10.2 3.6 L-9.4 6.2 L-6.8 -2.8Z" className="s-nastro-paglia" />
+    </g>
+  );
+}
+/** conchiglia bucata appesa a un cordino, di lato per lasciare libera la bocca */
+function Conchiglia() {
+  return (
+    <g>
+      <path d="M21.4 79 Q50 101 78.6 79" className="s-collana" />
+      <g transform="translate(38.4 88.2) rotate(8)">
+        <path
+          d="M0 0.6 C-2 0.6 -5.6 3 -5.8 6 C-5 7.4 -4.4 7.2 -3.6 8 C-2.6 8.8 -1.4 8.2 0 8.8 C1.4 8.2 2.6 8.8 3.6 8 C4.4 7.2 5 7.4 5.8 6 C5.6 3 2 0.6 0 0.6Z"
+          className="s-conchiglia"
+        />
+        <path d="M0 3.4 V8.2 M-1.6 3.6 L-3.4 7.6 M1.6 3.6 L3.4 7.6" className="s-conchiglia-righe" />
+        <circle cx={0} cy={2.2} r={0.9} className="s-pieno" />
+      </g>
+    </g>
+  );
+}
+
+/** corona di foglie (la stessa curva della corona di fiori) */
+function CoronaFoglie({ chi }: { chi: SeminoChi }) {
+  const semina = chi === 'semina';
+  const cx = semina ? 48.5 : 51.5;
+  const hw = semina ? 20 : 16.5;
+  const cy = semina ? 53.5 : 54.5;
+  const punto = (u: number) => [cx + u * hw, cy + (1 - u * u) * 3.6] as const;
+  const [x0, y0] = punto(-1.08);
+  const [x1, y1] = punto(1.08);
+  const ramo = `M${x0} ${y0} Q${cx} ${cy + 7.2} ${x1} ${y1}`;
+  return (
+    <g className="s-corona-foglie">
+      <path d={`M${x0} ${y0} Q${cx} ${cy - 8.6} ${x1} ${y1}`} className="s-ramo-dietro" />
+      <path d={ramo} className="s-stelo-bordo s-ramo-bordo" />
+      <path d={ramo} className="s-stelo s-ramo" />
+      {[-1, -0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1].map((u, i) => {
+        const [x, y] = punto(u);
+        const su = i % 2 === 0;
+        return foglia(x, y, x + u * 4 + (su ? -1.6 : 2.4), y - (su ? 7.6 : 5.6), su ? 2.6 : 2.2, i);
+      })}
+    </g>
+  );
+}
+/** lucciola in volo sopra la corona: la coda è una luce calda che pulsa piano */
+function Lucciola({ x, y, id }: { x: number; y: number; id: string }) {
+  const g = `lucciola-${id}`;
+  return (
+    <g transform={`translate(${x} ${y}) rotate(-24)`}>
+      <defs>
+        <radialGradient id={g}>
+          <stop offset="0" stopColor="#fff2a0" stopOpacity="0.95" />
+          <stop offset="0.45" stopColor="#ffd45c" stopOpacity="0.45" />
+          <stop offset="1" stopColor="#ffc44a" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <circle cx={0} cy={3.4} r={8.4} fill={`url(#${g})`} className="s-alone" />
+      <ellipse cx={-2.6} cy={-1.2} rx={2.6} ry={1.5} transform="rotate(-30 -2.6 -1.2)" className="s-ala-lucciola" />
+      <ellipse cx={2.6} cy={-1.2} rx={2.6} ry={1.5} transform="rotate(30 2.6 -1.2)" className="s-ala-lucciola" />
+      <ellipse cx={0} cy={0} rx={1.7} ry={2.6} className="s-lucciola" />
+      <circle cx={0} cy={-2.8} r={1.3} className="s-lucciola" />
+      <ellipse cx={0} cy={3.2} rx={1.8} ry={2} className="s-lucciola-coda" />
+    </g>
+  );
+}
+
+/** giacca o camice aperti sul davanti: due pannelli ritagliati sul corpo, sotto le guance; la bocca resta libera */
+function Giacchino({ chi, id, tipo }: { chi: SeminoChi; id: string; tipo: 'jeans' | 'camice' }) {
+  const clip = `giacca-${id}`;
+  const c = tipo === 'jeans' ? 's-jeans' : 's-camice';
+  return (
+    <g>
+      <defs>
+        <clipPath id={clip}>
+          <path d={CORPO[chi]} />
+        </clipPath>
+      </defs>
+      <g clipPath={`url(#${clip})`}>
+        {/* fianchi fin sotto gli occhi, poi giù lungo le guance e aperta sul davanti */}
+        <path d="M0 62 L21.6 67 L27 82.4 L37.2 85 L41.2 100 L0 100Z M100 62 L78.4 67 L73 82.4 L62.8 85 L58.8 100 L100 100Z" className={c} />
+        {tipo === 'jeans' && <path d="M0 91.6 H39.4 V100 H0Z M100 91.6 H60.6 V100 H100Z" className="s-jeans s-jeans-orlo" />}
+        {tipo === 'jeans' && <path d="M34.6 87.6 L37.2 97 M65.4 87.6 L62.8 97 M20.6 74 Q22.6 82 24 90 M79.4 74 Q77.4 82 76 90" className="s-cucitura-jeans" />}
+      </g>
+      {/* baveri */}
+      <path d="M21.4 66.6 L28.4 69.6 L30.6 82.8 L37.6 85 L31 90.6 L25.6 83.6Z M78.6 66.6 L71.6 69.6 L69.4 82.8 L62.4 85 L69 90.6 L74.4 83.6Z" className={`${c} ${c}-bavero`} />
+      {tipo === 'jeans' ? (
+        <g>
+          <path d="M23.6 87.4 H31.2 L30.6 90.6 L27.4 92 L24.2 90.6Z" className="s-jeans s-jeans-bavero" />
+          <circle cx={27.4} cy={90.2} r={0.9} className="s-bottone" />
+          <circle cx={39.6} cy={90} r={1.1} className="s-bottone" />
+          <circle cx={60.4} cy={90} r={1.1} className="s-bottone" />
+        </g>
+      ) : (
+        <g>
+          {/* taschino con la penna (cappuccio blu) */}
+          <path d="M66 89 l3.6 -7.2" className="s-penna" />
+          <path d="M68.2 84.6 l1.4 -2.8" className="s-penna-cappuccio" />
+          <path d="M63.6 88 H72.4 V93.4 Q68 94.6 63.6 93.4Z" className="s-camice s-camice-tasca" />
+        </g>
+      )}
+    </g>
+  );
+}
+/** occhiali da sole sugli occhi, anche di notte */
+function OcchialiSole() {
+  const lente = (x: number) =>
+    `M${x - 8.4} 65.6 H${x + 8.4} Q${x + 8.8} 72.6 ${x + 4.8} 75 Q${x} 76.6 ${x - 4.8} 75 Q${x - 8.8} 72.6 ${x - 8.4} 65.6Z`;
+  return (
+    <g>
+      <path d="M31.8 67 L22.4 65.8 M68.2 67 L77.6 65.8" className="s-astina" />
+      <path d={lente(40)} className="s-lente-sole" />
+      <path d={lente(60)} className="s-lente-sole" />
+      <path d="M48.2 67.2 Q50 65.8 51.8 67.2" className="s-astina" />
+      <path d="M34.4 68.4 l3.4 -1.6 M54.4 68.4 l3.4 -1.6" className="s-riflesso-lente" />
+    </g>
+  );
+}
+/** occhiali da laboratorio tondi, con l'elastico che gira dietro */
+function OcchialiLab() {
+  return (
+    <g>
+      <path d="M32 70.4 L20.8 69 M68 70.4 L79.2 69" className="s-elastico" />
+      <circle cx={40} cy={71} r={7.6} className="s-lente-lab" />
+      <circle cx={60} cy={71} r={7.6} className="s-lente-lab" />
+      <path d="M47.4 70 Q50 68 52.6 70" className="s-astina" />
+      <path d="M35.2 67.4 Q37 65.6 39.2 65.4 M55.2 67.4 Q57 65.6 59.2 65.4" className="s-riflesso-lente" />
+    </g>
+  );
+}
+
+/** grembiule chiaro legato in vita, sotto la bocca, con impronte di farina (e un baffo di farina sulla guancia) */
+function Grembiule() {
+  return (
+    <g>
+      <path d="M21.4 86.4 Q30 90.4 37 90 M78.6 86.4 Q70 90.4 63 90" className="s-laccio" />
+      {/* fiocco dei lacci, sul fianco */}
+      <path d="M76.6 87.6 l2.6 5 M76.6 87.6 l-0.4 5.6" className="s-laccio" />
+      <path d="M76.6 87.6 C79.4 82.8 83.4 85 80.6 88.6Z M76.6 87.6 C73.4 83.6 70.6 86.6 73.6 89.2Z" className="s-grembiule" />
+      <path d="M33.6 89.4 Q50 91.2 66.4 89.4 L69.4 99.4 Q50 101.8 30.6 99.4Z" className="s-grembiule" />
+      <path d="M45 93.4 H55 V96.8 Q50 97.8 45 96.8Z" className="s-grembiule s-grembiule-tasca" />
+      {/* impronte di farina: una manina sul grembiule, una sul fianco, uno sbaffo sulla guancia */}
+      <g className="s-farina">
+        {[
+          [38.6, 96.4, -10],
+          [24.6, 72, 24],
+        ].map(([x, y, r]) => (
+          <g key={x} transform={`translate(${x} ${y}) rotate(${r})`}>
+            <ellipse cx={0} cy={0} rx={2.4} ry={2} />
+            <circle cx={-2.2} cy={-2.8} r={0.8} />
+            <circle cx={-0.6} cy={-3.5} r={0.8} />
+            <circle cx={1.1} cy={-3.3} r={0.8} />
+            <circle cx={2.5} cy={-2.2} r={0.75} />
+          </g>
+        ))}
+        <ellipse cx={61.6} cy={95.6} rx={1.8} ry={1.2} transform="rotate(20 61.6 95.6)" />
+        <ellipse cx={71} cy={64.4} rx={3.4} ry={1.5} transform="rotate(-20 71 64.4)" />
+        <circle cx={66.6} cy={66.6} r={0.8} />
+      </g>
+    </g>
+  );
+}
+
 /** pezzi dell'accessorio, per strato: dietro il corpo, sulla testa, davanti alla faccia */
 function AccessorioDietro({ a }: { a: Accessorio }) {
-  return a === 'montagna' ? <ZainoRetro /> : null;
+  if (a === 'montagna') return <ZainoRetro />;
+  if (a === 'zaino-storto') return <ZainoStorto />;
+  return null;
 }
-function AccessorioTesta({ a, chi }: { a: Accessorio; chi: SeminoChi }) {
+function AccessorioTesta({ a, chi, id }: { a: Accessorio; chi: SeminoChi; id: string }) {
   const t = TESTA[chi];
   const sopra = `translate(${t.x} ${t.y}) scale(${t.k})`;
   switch (a) {
@@ -908,6 +1208,21 @@ function AccessorioTesta({ a, chi }: { a: Accessorio; chi: SeminoChi }) {
       );
     case 'corona':
       return <Corona chi={chi} />;
+    case 'paglia':
+      return (
+        <g transform={sopra}>
+          <CappelloPaglia />
+        </g>
+      );
+    case 'cuffie':
+      return <Cuffie />;
+    case 'lucciola':
+      return (
+        <g>
+          <CoronaFoglie chi={chi} />
+          <Lucciola x={chi === 'semina' ? 27 : 33} y={chi === 'semina' ? 44.6 : 45.6} id={id} />
+        </g>
+      );
     default:
       return null;
   }
@@ -939,6 +1254,36 @@ function AccessorioDavanti({ a, chi, stadio, id }: { a: Accessorio; chi: SeminoC
       return (
         <g transform={chi === 'semina' ? 'translate(100 0) scale(-1 1)' : undefined}>
           <Uccellino stadio={stadio} />
+        </g>
+      );
+    case 'zaino-storto':
+      // il berretto va sopra la faccia: il risvolto copre mezzo occhio
+      return (
+        <g>
+          <CinghiaStorta />
+          <Berretto />
+        </g>
+      );
+    case 'lanterna':
+      return <Lanterna id={id} />;
+    case 'cuffie':
+      return <Biglietto />;
+    case 'paglia':
+      return <Conchiglia />;
+    case 'giacca':
+      return (
+        <g>
+          <Giacchino chi={chi} id={id} tipo="jeans" />
+          <OcchialiSole />
+        </g>
+      );
+    case 'grembiule':
+      return <Grembiule />;
+    case 'camice':
+      return (
+        <g>
+          <Giacchino chi={chi} id={id} tipo="camice" />
+          <OcchialiLab />
         </g>
       );
     default:
@@ -1482,7 +1827,7 @@ export function Semino({
                   <path d={CORPO[chi]} className="s-contorno" />
                   {accessorio && (
                     <g key={`t-${accessorio}`} className="s-accessorio s-accessorio-testa">
-                      <AccessorioTesta a={accessorio} chi={chi} />
+                      <AccessorioTesta a={accessorio} chi={chi} id={id} />
                     </g>
                   )}
                   {lei && <Fiocco />}

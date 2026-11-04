@@ -1006,6 +1006,294 @@
   opacity: 0.8;
 }
 
+/* ---------- vestiti dei luoghi (T6) ---------- */
+/* berretto di lana e zaino storto (Semino in montagna) */
+.semino .s-lana {
+  fill: #c4483c;
+  stroke: var(--semino-tratto);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.semino .s-lana-risvolto {
+  fill: #a53a31;
+}
+.semino .s-lana-coste {
+  fill: none;
+  stroke: var(--semino-tratto);
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  opacity: 0.35;
+}
+.semino .s-pompon {
+  fill: #f4e7cf;
+  stroke: var(--semino-tratto);
+  stroke-width: 1.8;
+}
+.semino .s-zaino-lui {
+  fill: #4f6d8f;
+  stroke: var(--semino-tratto);
+  stroke-width: 2;
+}
+.semino .s-zaino-lui-scuro {
+  fill: #3a5272;
+  stroke: var(--semino-tratto);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+.semino .s-spallaccio-lui {
+  stroke: #4f6d8f;
+}
+.semino .s-tirazip {
+  fill: var(--semino-verde);
+  stroke: var(--semino-tratto);
+  stroke-width: 0.9;
+}
+/* lanterna e lucciola: luce calda che pulsa piano */
+.semino .s-alone {
+  opacity: 0.8;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: semino-pulsa 3.4s ease-in-out infinite alternate;
+}
+@keyframes semino-pulsa {
+  from {
+    opacity: 0.5;
+    transform: scale(0.88);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+.semino .s-ferro {
+  fill: #3b3a44;
+  stroke: var(--semino-tratto);
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+}
+.semino .s-ferro-filo {
+  fill: none;
+  stroke: var(--semino-tratto);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+.semino .s-ferro-sottile {
+  stroke-width: 1;
+  opacity: 0.6;
+}
+.semino .s-vetro {
+  fill: #ffe7a6;
+  stroke: var(--semino-tratto);
+  stroke-width: 1.6;
+}
+.semino .s-fiamma {
+  fill: #ff9a3c;
+  stroke: #e0682a;
+  stroke-width: 0.6;
+}
+.semino .s-candela {
+  fill: #fffaf0;
+}
+.semino .s-ala-lucciola {
+  fill: #fff;
+  fill-opacity: 0.55;
+  stroke: var(--semino-tratto);
+  stroke-width: 0.7;
+}
+.semino .s-lucciola {
+  fill: #3a2f2a;
+  stroke: var(--semino-tratto);
+  stroke-width: 0.6;
+}
+.semino .s-lucciola-coda {
+  fill: #fff0a0;
+  stroke: #e0a83a;
+  stroke-width: 0.6;
+}
+.semino .s-corona-foglie .s-foglia {
+  fill: #4fae3a;
+}
+.semino .s-corona-foglie > g:nth-of-type(even) .s-foglia {
+  fill: #8bc94e;
+}
+/* cuffie e biglietto */
+.semino .s-archetto-bordo,
+.semino .s-archetto {
+  fill: none;
+  stroke-linecap: round;
+}
+.semino .s-archetto-bordo {
+  stroke: var(--semino-tratto);
+  stroke-width: 5.4;
+}
+.semino .s-archetto {
+  stroke: #4a4f5c;
+  stroke-width: 2.6;
+}
+.semino .s-padiglione {
+  fill: #33363f;
+  stroke: var(--semino-tratto);
+  stroke-width: 1.8;
+}
+.semino .s-padiglione-anello {
+  fill: #4a4f5c;
+  stroke: var(--semino-verde);
+  stroke-width: 1.4;
+}
+.semino .s-biglietto {
+  fill: #fff6e2;
+  stroke: var(--semino-tratto);
+  stroke-width: 1.4;
+}
+.semino .s-biglietto-fascia {
+  fill: #e0523f;
+}
+.semino .s-perforato {
+  fill: none;
+  stroke: var(--semino-tratto);
+  stroke-width: 0.8;
+  stroke-dasharray: 1 1;
+  opacity: 0.6;
+}
+.semino .s-righe-biglietto {
+  fill: none;
+  stroke: var(--semino-tratto);
+  stroke-width: 0.8;
+  stroke-linecap: round;
+  opacity: 0.55;
+}
+/* paglia e conchiglia */
+.semino .s-paglia {
+  fill: #f0cf7e;
+  stroke: var(--semino-tratto);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.semino .s-trama {
+  fill: none;
+  stroke: #a9782f;
+  stroke-width: 0.9;
+  stroke-linecap: round;
+  stroke-dasharray: 2 1.4;
+}
+.semino .s-nastro-paglia {
+  fill: var(--semino-blu);
+  stroke: var(--semino-tratto);
+  stroke-width: 1.3;
+  stroke-linejoin: round;
+}
+.semino .s-collana {
+  fill: none;
+  stroke: #7a5232;
+  stroke-width: 1;
+  stroke-linecap: round;
+}
+.semino .s-conchiglia {
+  fill: #ffd9c7;
+  stroke: var(--semino-tratto);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+}
+.semino .s-conchiglia-righe {
+  fill: none;
+  stroke: #d98a73;
+  stroke-width: 0.8;
+  stroke-linecap: round;
+}
+/* giacca di jeans, camice, occhiali */
+.semino .s-jeans {
+  fill: #5a7fae;
+  stroke: var(--semino-tratto);
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+.semino .s-jeans-bavero {
+  fill: #6f93c0;
+}
+.semino .s-jeans-orlo {
+  fill: #47699a;
+}
+.semino .s-cucitura-jeans {
+  fill: none;
+  stroke: #f2b14a;
+  stroke-width: 0.8;
+  stroke-dasharray: 1.4 1;
+}
+.semino .s-bottone {
+  fill: #c9a14a;
+  stroke: var(--semino-tratto);
+  stroke-width: 0.8;
+}
+.semino .s-lente-sole {
+  fill: #1f1c28;
+  stroke: var(--semino-tratto);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.semino .s-camice {
+  fill: #fbfaf6;
+  stroke: var(--semino-tratto);
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+.semino .s-camice-bavero {
+  fill: #eeeae2;
+}
+.semino .s-camice-tasca {
+  stroke-width: 1.2;
+}
+.semino .s-penna,
+.semino .s-penna-cappuccio {
+  fill: none;
+  stroke-linecap: round;
+}
+.semino .s-penna {
+  stroke: var(--semino-tratto);
+  stroke-width: 1.8;
+}
+.semino .s-penna-cappuccio {
+  stroke: var(--semino-blu);
+  stroke-width: 1.4;
+}
+.semino .s-elastico {
+  fill: none;
+  stroke: #3b4350;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+}
+.semino .s-lente-lab {
+  fill: #dff3ff;
+  fill-opacity: 0.25;
+  stroke: #7d8a99;
+  stroke-width: 2.8;
+}
+/* grembiule infarinato */
+.semino .s-grembiule {
+  fill: #f7f1e4;
+  stroke: var(--semino-tratto);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+.semino .s-grembiule-tasca {
+  stroke-width: 1.1;
+}
+.semino .s-laccio {
+  fill: none;
+  stroke: var(--semino-tratto);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+.semino .s-farina {
+  fill: #fff;
+  opacity: 0.85;
+}
+@media (prefers-reduced-motion: reduce) {
+  .semino .s-alone {
+    opacity: 0.8;
+    transform: none;
+  }
+}
+
 /* entrata: pop dal punto d'appoggio */
 .semino .s-accessorio,
 .semino .semino-tremolio {

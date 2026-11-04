@@ -6,8 +6,8 @@ import { GIORNI_SPECIALI, QUOTA_ECO_CHIACCHIERE, SBLOCCHI, elementiSbloccati, gi
 const testo = (f: FraseConAccessorio) => (typeof f === 'string' ? f : f.testo);
 const accessorio = (f: FraseConAccessorio) => (typeof f === 'string' ? undefined : f.accessorio);
 const CHI: ChiParla[] = ['semino', 'semina'];
-const ACC_SEMINO = new Set(['occhiali', 'cuoco', 'palla', 'chitarra', 'surf']);
-const ACC_SEMINA = new Set(['corona', 'montagna', 'cavallo', 'animale', 'chitarra']);
+const ACC_SEMINO = new Set(['occhiali', 'cuoco', 'palla', 'chitarra', 'surf', 'zaino-storto', 'lanterna', 'cuffie']);
+const ACC_SEMINA = new Set(['corona', 'montagna', 'cavallo', 'animale', 'chitarra', 'paglia', 'lucciola', 'giacca', 'grembiule', 'camice']);
 const PRINCIPALI = [
   'giusta', 'intelligente', 'brillante', 'completato', 'serie', 'sbagliata', 'sbagliataSerie', 'regalo',
   'vittoria', 'solletico', 'chiacchiere', 'arrivo', 'partnerBrillante', 'ripresa', 'invio',
