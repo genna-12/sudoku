@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { chiaveCapitolo } from '../config/capitoli';
 import type { ChiParla } from '../config/frasi';
 import { seminaSbloccata } from './capitoli';
-import { vestitiGrandi } from './Home';
+import { vestitiGrandi } from './vestiti';
 import { Ingresso } from './Ingresso';
 import { vestitiIniziali, vestitiSchermata } from './regole';
 import { ACCESSORI_DI } from './Semino';

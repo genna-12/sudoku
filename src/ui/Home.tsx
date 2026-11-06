@@ -15,13 +15,14 @@ import { SemiTitolo } from './Icone';
 import type { Tema } from './Menu';
 import type { InfoSync } from './useSync';
 import type { GiardinoVisibile } from './capitoli';
-import { aCasoDiverso, primaInHome, vestitiIniziali, vestitiRiposo, vestitiSchermata } from './regole';
+import { aCasoDiverso, primaInHome, vestitiIniziali, vestitiRiposo } from './regole';
 import type { UltimiVestiti, VestitiRiposo } from './regole';
 import { ELEMENTI_SCENA, Scena } from './Scena';
 import { Semino, SeminoCoppia, SeminoPianta } from './Semino';
 import { accessorioValido } from './useMascotte';
 import type { Indossati, Mascotte } from './useMascotte';
 import { CHIAVI, leggi, scrivi, tempo, testoConnessione } from './util';
+import { CHIAVE_ULTIMI_VESTITI } from './vestiti';
 
 export interface Chiacchiera {
   id: number;
@@ -248,8 +249,6 @@ export function Home(p: Props) {
 const RIPOSO_MS = 90000;
 /** vestiti già comparsi in Home su questo dispositivo, per giocatore (`chi:id`) */
 const CHIAVE_VESTITI_VISTI = 'sudoku-vestiti-visti';
-/** gli ultimi vestiti a riposo in Home, per giocatore (`-a`/`-b`): li ritrovano Ingresso, Vittoria e Giardino */
-const CHIAVE_ULTIMI_VESTITI = 'sudoku-vestiti-ultimi';
 /** pausa fra il fumetto che si chiude (o l'entrata) e la battuta del vestito nuovo */
 const PAUSA_VESTITO_MS = 1200;
 
@@ -327,17 +326,6 @@ function useAccessoriRiposo(
   }, [indossati, visti.length, ruolo]);
   const out: Indossati = { semino: accessorioValido(indossati.semino) };
   if (sbloccata) out.semina = accessorioValido(indossati.semina);
-  return out;
-}
-
-/**
- * I vestiti dove i personaggi sono grandi (Ingresso, Vittoria, Giardino): gli ultimi a riposo in Home se
- * nel frattempo non si è letto un capitolo, altrimenti quelli d'entrata (`vestitiSchermata`).
- */
-export function vestitiGrandi(ruolo: Giocatore, o: { visti: readonly string[]; sbloccata: boolean; giorno: GiornoSpeciale | null }): Indossati {
-  const v = vestitiSchermata({ ...o, ultimi: leggi<unknown>(`${CHIAVE_ULTIMI_VESTITI}-${ruolo}`) });
-  const out: Indossati = { semino: accessorioValido(v.semino) };
-  if (o.sbloccata) out.semina = accessorioValido(v.semina);
   return out;
 }
 

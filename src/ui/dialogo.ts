@@ -52,6 +52,8 @@ export function useDialogo(rif: RefObject<HTMLElement | null>, attivo = true, op
     if (!attivo) return;
     const el = rif.current;
     if (!el) return;
+    // la riserva è un ref stabile (useRef di chi chiama): il suo .current si legge alla chiusura
+    const riserva = opzRif.current.riserva;
     const dentro = el.contains(document.activeElement);
     const apritore = dentro ? precedente : document.activeElement;
     // l'autoFocus di un campo dentro il dialogo vince
@@ -84,7 +86,7 @@ export function useDialogo(rif: RefObject<HTMLElement | null>, attivo = true, op
       // il focus torna solo se è rimasto dentro il dialogo o si è perso (non lo si ruba a chi l'ha preso)
       const att = document.activeElement;
       if (att && att !== document.body && att.isConnected && !el.contains(att)) return;
-      ritornoFocus(apritore, opzRif.current.riserva?.current)?.focus({ preventScroll: true });
+      ritornoFocus(apritore, riserva?.current)?.focus({ preventScroll: true });
     };
   }, [attivo, rif]);
 }
