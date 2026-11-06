@@ -49,5 +49,6 @@ export default defineConfig({
       workbox: { globPatterns: ['**/*.{js,css,html,svg,png,woff2}'], clientsClaim: true, skipWaiting: false, cleanupOutdatedCaches: true },
     }),
   ],
-  test: { environment: 'node' },
+  // .claude/worktrees può contenere copie del repo degli agenti: i test sono solo questi
+  test: { environment: 'node', exclude: ['**/node_modules/**', '**/.git/**', '**/dist/**', '.claude/**'] },
 } as Parameters<typeof defineConfig>[0]);
