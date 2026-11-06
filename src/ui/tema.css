@@ -2124,6 +2124,13 @@ input:focus-visible {
 .menu-home {
   min-width: 262px;
 }
+/* menù unico (T7.7): stessa larghezza in Home e in partita; su schermi bassi scorre dentro di sé */
+.menu-pannello {
+  min-width: 262px;
+  max-height: calc(100dvh - 96px - env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
 .menu-riga {
   margin: 4px 10px;
   border: 0;
@@ -3042,7 +3049,8 @@ input:focus-visible {
   font-weight: 650;
   color: var(--testo-2);
 }
-.menu-sezione:not(:first-child) {
+.menu-sezione:not(:first-child),
+.menu-gruppo:not(:first-child) > .menu-sezione:first-child {
   margin-top: var(--s2);
   padding-top: var(--s3);
   border-top: 1px solid var(--linea);

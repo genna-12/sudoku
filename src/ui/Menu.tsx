@@ -188,7 +188,7 @@ export function Menu(p: Props) {
               </button>
             )}
             {c('impostazioni') && (
-              <div role="group" aria-labelledby="menu-impostazioni">
+              <div className="menu-gruppo" role="group" aria-labelledby="menu-impostazioni">
                 <p className="menu-sezione" id="menu-impostazioni">
                   Impostazioni
                 </p>
@@ -233,7 +233,7 @@ export function Menu(p: Props) {
               </div>
             )}
             {c('memoria') && (
-              <div role="group" aria-labelledby="menu-memoria">
+              <div className="menu-gruppo" role="group" aria-labelledby="menu-memoria">
                 <p className="menu-sezione" id="menu-memoria">
                   Memoria del giardino
                 </p>
@@ -270,7 +270,7 @@ export function Menu(p: Props) {
               </div>
             )}
             {(c('cancella') || c('ricomincia')) && (
-              <div role="group" aria-labelledby="menu-ripartire">
+              <div className="menu-gruppo" role="group" aria-labelledby="menu-ripartire">
                 <p className="menu-sezione" id="menu-ripartire">
                   Per ripartire
                 </p>
