@@ -3260,8 +3260,13 @@ input:focus-visible {
   .profilo .semino,
   .foglio,
   .foglio-passo.avanti,
-  .cella:not(.data) .valore:not(:empty) {
+  .cella:not(.data) .valore:not(:empty),
+  .partner-chip i {
     animation: none;
+  }
+  /* la carta di vittoria: solo dissolvenza (la regola con `atterra` qui sopra la riattivava) */
+  .vittoria-carta {
+    animation: entra-dissolvenza 0.3s ease both;
   }
   .guarda .semino-occhi,
   .tasto,
