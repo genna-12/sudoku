@@ -2826,6 +2826,44 @@ input:focus-visible {
     display: none;
   }
 }
+/* a 360 in due i contatori non ci stanno fra due mascotte da 44 px e il seme d'oro: mascotte più
+   piccole (36 px), seme stretto e contatori con meno aria (etichette sempre a 12 px) */
+@media (max-width: 380px) {
+  .crescita.cruscotto.in-due {
+    gap: 5px;
+  }
+  .crescita.cruscotto.in-due .mascottina {
+    width: 36px;
+  }
+  .crescita.cruscotto.in-due .mascottina > * {
+    scale: 0.82;
+    transform-origin: 50% 90%;
+  }
+  .crescita.cruscotto.in-due .regalo {
+    min-width: 38px;
+    padding: 0 8px;
+  }
+  .crescita.cruscotto.in-due .crescita-testo {
+    gap: 4px;
+  }
+  .crescita.cruscotto.in-due .contatore {
+    gap: 3px;
+    padding: 2px 4px 2px 3px;
+  }
+  .crescita.cruscotto.in-due .contatore-suo {
+    padding: 2px 3px 2px 4px;
+  }
+  .crescita.cruscotto.in-due .contatore::before {
+    width: 6px;
+    height: 6px;
+  }
+  .crescita.cruscotto.in-due .contatore-errori {
+    padding-left: 4px;
+  }
+  .crescita.cruscotto.in-due .contatore-suo .contatore-errori {
+    padding: 0 4px 0 0;
+  }
+}
 
 /* ---------- battute della partita ----------
    telefono: il fumetto copre per un attimo la barra di crescita (mai la griglia), accanto alla mascotte
