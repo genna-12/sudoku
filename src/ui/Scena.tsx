@@ -616,7 +616,10 @@ export function Scena({
   ) : null;
 
   // sugli schermi stretti le cose ai lati rientrano
-  const xStagno = Math.max(-146, sx + 52);
+  // nel lettore (intera) Semino sta al 22% della colonna: lo stagno va più a sinistra e un po' più indietro,
+  // così lui ci sta davanti e non dentro
+  const xStagno = intera ? Math.max(-204, sx + 30) : Math.max(-146, sx + 52);
+  const yStagno = intera ? -16 : 0;
   const xTavola = Math.max(-200, sx + 34);
   const xAlbero = Math.min(196, dx - 28);
   // sul telefono la Home ha il titolo sopra il mare: la tavola si appoggia alla casetta, fuori dal titolo
@@ -762,7 +765,7 @@ export function Scena({
 
       {el(
         'stagno',
-        <g transform={`translate(${f1(xStagno + 146)} 0)`}>
+        <g transform={`translate(${f1(xStagno + 146)} ${yStagno})`}>
           <ellipse cx={-146} cy={197} rx={44} ry={9.5} className="sc-stagno-riva" />
           <ellipse cx={-146} cy={196} rx={41} ry={8} fill={`url(#stagno-${id})`} />
           <ellipse cx={-136} cy={194.4} rx={16} ry={1.4} className="sc-stagno-luce" />
