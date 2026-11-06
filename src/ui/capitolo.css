@@ -624,13 +624,15 @@
 /* i punti restano fermi in fondo: l'aiuto e "Continua" compaiono sopra di loro, senza spostarli */
 .capitolo-piede > .capitolo-aiuto,
 .capitolo-piede > .capitolo-continua,
-.capitolo-piede > .capitolo-continua-guscio {
+.capitolo-piede > .capitolo-continua-guscio,
+.capitolo-piede > .capitolo-azioni {
   position: absolute;
   left: 20px;
   right: 20px;
   bottom: calc(100% + 12px);
 }
-.capitolo-piede > .capitolo-continua-guscio {
+.capitolo-piede > .capitolo-continua-guscio,
+.capitolo-piede > .capitolo-azioni {
   width: auto;
 }
 .capitolo-piede > .capitolo-aiuto {
@@ -728,10 +730,12 @@
   }
   .capitolo-piede > .capitolo-aiuto,
   .capitolo-piede > .capitolo-continua,
-  .capitolo-piede > .capitolo-continua-guscio {
+  .capitolo-piede > .capitolo-continua-guscio,
+  .capitolo-piede > .capitolo-azioni {
     bottom: calc(100% + 8px);
   }
-  .capitolo-piede .capitolo-continua {
+  .capitolo-piede .capitolo-continua,
+  .capitolo-piede .capitolo-dopo {
     max-width: 180px;
     min-height: 44px;
     font-size: 16px;

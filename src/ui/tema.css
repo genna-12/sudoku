@@ -3477,12 +3477,12 @@ input:focus-visible {
 [data-approdo]:focus {
   outline: none;
 }
-/* lettore aperto dalla Home: "Dopo" accanto a "Continua" (S3) */
+/* lettore aperto dalla Home: "Dopo" accanto a "Continua" (S3); il posto (assoluto, sopra i punti
+   fermi, S14) lo dà capitolo.css */
 .capitolo-azioni,
 .capitolo-continua-guscio:has(.capitolo-dopo) {
   display: flex;
   gap: 10px;
-  width: 100%;
   max-width: 360px;
   margin: 0 auto;
   pointer-events: auto;

@@ -337,6 +337,27 @@ describe('CapitoloScena', () => {
     expect(box.innerHTML).toContain('con la tavola da surf');
   });
 
+  it('"Dopo" a fine capitolo: accanto a "Continua" in `.capitolo-azioni`, figlio diretto del piede (posto assoluto di S14)', () => {
+    const onDopo = vi.fn();
+    const onContinua = monta({ capitolo: SEMPLICE, onDopo });
+    expect(q('[data-testid="capitolo-dopo"]')).toBeNull();
+    for (let i = 0; i < SEMPLICE.battute.length; i++) avanti();
+    passa(ATTESA_CONTINUA_MS);
+    const figli = [...(q('.capitolo-piede') as HTMLElement).children].map((e) => e.className);
+    expect(figli).toEqual(['capitolo-punti', 'capitolo-azioni']);
+    expect(q('.capitolo-azioni [data-testid="capitolo-dopo"]')).not.toBeNull();
+    expect(q('.capitolo-azioni [data-testid="capitolo-continua"]')).not.toBeNull();
+    act(() => (q('[data-testid="capitolo-dopo"]') as HTMLButtonElement).click());
+    expect(onDopo).toHaveBeenCalledTimes(1);
+    expect(onContinua).not.toHaveBeenCalled();
+    // senza onDopo: "Continua" da solo, come prima
+    monta({ capitolo: cap(13, SEMPLICE.battute) });
+    for (let i = 0; i < SEMPLICE.battute.length; i++) avanti();
+    passa(ATTESA_CONTINUA_MS);
+    expect(q('.capitolo-azioni')).toBeNull();
+    expect(q('.capitolo-piede > [data-testid="capitolo-continua"]')).not.toBeNull();
+  });
+
   it('esce: aggiunge la classe dell\'uscita', () => {
     monta({ capitolo: SEMPLICE, esce: true });
     expect(scena().classList.contains('capitolo--esce')).toBe(true);
