@@ -32,6 +32,7 @@ import {
   SOLLETICO_OGNI_MS,
   accessorioDi,
   accessorioPermesso,
+  aMezzaVoce,
   chiacchieraPermessa,
   bonusVittoria,
   chiacchiera,
@@ -48,6 +49,7 @@ import {
   scegliFrase,
   senzaSemina,
   solletico,
+  sonnoPuoSostituire,
   sostituisci,
   stessiVisti,
   testoDi,
@@ -246,11 +248,14 @@ export function App() {
     return t;
   };
   const frase = (c: CategoriaFrase, chi: ChiParla, n?: number) => {
-    // svegliata nelle sue ore di sonno: una volta su due parla del sonno
+    // svegliata nelle sue ore di sonno: sulle mosse neutre una volta su due parla del sonno;
+    // errori e vittoria restano la loro frase (gli errori a mezza voce), mai "bella mossa" su un errore
     const sb = vivi.current.sbloccata;
-    if (dormePerOrario(chi) && Math.random() < 0.5)
+    const dorme = dormePerOrario(chi);
+    if (dorme && sonnoPuoSostituire(c) && Math.random() < 0.5)
       return usata('sonno', fraseSonno(chi, evita('sonno'), new Date(), Math.random, { mossa: true, sbloccata: sb }));
-    return usata(c, fraseMascotte(c, chi, evita(c), sost(n), Math.random, vivi.current.fiori, sb));
+    const t = usata(c, fraseMascotte(c, chi, evita(c), sost(n), Math.random, vivi.current.fiori, sb, vivi.current.mioRuolo));
+    return dorme ? aMezzaVoce(c, t) : t;
   };
   const fraseSemplice = (c: CategoriaFrase) => {
     const sb = vivi.current.sbloccata;

@@ -9,6 +9,7 @@ import { nuovaPartita } from '../stato';
 import type { Giocatore, StatoPartita } from '../stato';
 import { migra } from '../stato/archivio';
 import type { Archivio } from '../stato/archivio';
+import { aMezzaVoce, fraseMascotte, sonnoPuoSostituire } from './regole';
 import { AVVISO_ANNULLA_CAMBIATA, AVVISO_ANNULLA_DEFINITIVA, usePartita, useTimerPartita } from './usePartita';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
@@ -194,5 +195,44 @@ describe('P2 annulla in coppia', () => {
     expect(b().ref.current.partita!.celle[y.idx].v).toBe(y.giusto);
     expect(b().ref.current.partita!.celle[x.idx].v).toBe(0);
     expect(b().avvisi).toEqual([]);
+  });
+});
+
+/** caso ripetibile */
+function lcg(k: number) {
+  return () => (k = (k * 9301 + 49297) % 233280) / 233280;
+}
+
+describe('P4 prima di Semina, sul telefono di Blu', () => {
+  const s = { nome: 'Genna', io: 'Mati', reale: 'Mati', realePartner: 'Genna', n: 3 };
+  const categorie = ['giusta', 'intelligente', 'brillante', 'completato', 'serie', 'sbagliata', 'sbagliataSerie', 'regalo', 'vittoria'] as const;
+  it('Semino commenta le mosse di Mati senza chiamarla "Genna"', () => {
+    for (const c of categorie) {
+      const caso = lcg(7);
+      for (let i = 0; i < 400; i++) {
+        const t = fraseMascotte(c, 'semino', [], s, caso, 0, false, 'b');
+        expect(t, `${c}: ${t}`).not.toMatch(/\bGenna\b/);
+      }
+    }
+  });
+  it('sul telefono di Verde la voce di Semino resta intera (anche coi nomi)', () => {
+    const viste = new Set<string>();
+    const caso = lcg(1);
+    for (let i = 0; i < 2000; i++)
+      viste.add(fraseMascotte('sbagliata', 'semino', [], { ...s, reale: 'Genna', realePartner: 'Mati' }, caso, 0, false, 'a'));
+    expect([...viste].some((t) => /\bGenna\b/.test(t))).toBe(true);
+  });
+});
+
+describe('P7 frasi di sonno', () => {
+  it('solo al posto di una mossa giusta semplice, mai di errori, chiusure o vittoria', () => {
+    expect(sonnoPuoSostituire('giusta')).toBe(true);
+    for (const c of ['sbagliata', 'sbagliataSerie', 'vittoria', 'completato', 'brillante', 'intelligente', 'serie', 'regalo', 'suggerimento'])
+      expect(sonnoPuoSostituire(c), c).toBe(false);
+  });
+  it('un errore di notte resta la sua frase, a mezza voce', () => {
+    expect(aMezzaVoce('sbagliata', 'quasi')).toBe('zzz… quasi');
+    expect(aMezzaVoce('vittoria', 'GG')).toBe('GG');
+    expect(aMezzaVoce('sbagliata', '')).toBe('');
   });
 });
