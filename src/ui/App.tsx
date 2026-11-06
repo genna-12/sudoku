@@ -69,7 +69,7 @@ import type { Tono } from './Toasts';
 import { useArchivio } from './useArchivio';
 import { useSync } from './useSync';
 import { useMascotte, useOgniTanto, useUltimeFrasi } from './useMascotte';
-import { usePartita } from './usePartita';
+import { usePartita, useTimerPartita } from './usePartita';
 import type { Reazione } from './usePartita';
 import { useRete } from './useRete';
 import type { Destinazione, Origine } from './useRete';
@@ -391,6 +391,7 @@ export function App() {
       vibra: (schema) => {
         if (vivi.current.vibrazione) navigator.vibrate?.(schema);
       },
+      avviso: (testo) => annuncia(testo, { categoria: 'annulla', inPartita: true }),
       vittoria: () => {
         const p = ref.current.partita;
         if (!p) return;
@@ -577,14 +578,7 @@ export function App() {
   // mentre leggo un capitolo la partita nuova (aperta dal partner) aspetta: il mio timer è fermo
   const leggendo = !!lettore || rilettura !== null || !!cartaVai;
   const inGioco = schermata === 'partita' && !!partita && !partita.finita && !leggendo;
-  const tick = gioco.tick;
-  useEffect(() => {
-    if (!inGioco) return;
-    const t = window.setInterval(() => {
-      if (document.visibilityState === 'visible') tick();
-    }, 1000);
-    return () => window.clearInterval(t);
-  }, [inGioco, tick]);
+  useTimerPartita(inGioco, gioco.tick);
 
   // partita finita: punti di ciascuno e ultima cella restano per il dettaglio del fiore nel Giardino
   const chiaveFinita = partita?.finita

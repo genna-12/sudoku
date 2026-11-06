@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { LIVELLI_PARAMETRI } from '../config/livelli';
 import type { StatoConnessione } from '../net';
 import { griglia } from '../stato';
@@ -49,7 +49,8 @@ interface Props {
   /** regalo: Semino riempie la cella; false se non si può */
   onSuggerisci: (idx: number) => boolean;
   onMossa: (idx: number, v: number, note: number[]) => void;
-  onAnnulla: () => void;
+  /** annulla la mia ultima mossa; restituisce la cella interessata (si seleziona, così si vede cosa è cambiato) */
+  onAnnulla: () => number | null | void;
   puoAnnullare: boolean;
   onCursore: (idx: number | null) => void;
   /** manda una frase al partner: quella scelta, o una a caso */
@@ -156,7 +157,11 @@ export function Partita(p: Props) {
   useEffect(() => {
     tastiera.current = { premi, cancella, sel };
   });
-  const annulla = p.onAnnulla;
+  const onAnnulla = p.onAnnulla;
+  const annulla = useCallback(() => {
+    const i = onAnnulla();
+    if (typeof i === 'number') setSel(i);
+  }, [onAnnulla]);
   useEffect(() => {
     function suTasto(e: KeyboardEvent) {
       if (e.target instanceof HTMLInputElement) return;
@@ -321,7 +326,7 @@ export function Partita(p: Props) {
             onSolletico={p.onSolletico}
           />
           <div className="strumenti">
-            <button className="strumento" onClick={p.onAnnulla} disabled={!p.puoAnnullare}>
+            <button className="strumento" data-testid="annulla" onClick={annulla} disabled={!p.puoAnnullare}>
               <IconaAnnulla />
               <span>Annulla</span>
             </button>
