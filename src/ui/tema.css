@@ -1093,19 +1093,49 @@ input:focus-visible {
 
 .note {
   position: absolute;
-  inset: 11%;
+  inset: 6%;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
   place-items: center;
-  font-size: 2.9cqi;
+  /* 12 px da 390 in su; a 360 (celle da 35 px: tre righe da 12 non ci stanno) 11 px, più pesanti */
+  font-size: clamp(11px, 3.3cqi, 14px);
   line-height: 1;
-  font-weight: 650;
+  font-weight: 700;
   color: var(--tenue);
   pointer-events: none;
 }
 .griglia-killer .note {
-  inset: 16% 11% 9%;
+  inset: 11% 10% 7%;
+}
+/* cella con la somma della gabbia: la prima riga di note (1 2 3) si stringe a destra della somma,
+   le altre due righe restano al loro posto */
+.griglia-killer .cella.con-somma .note::before {
+  content: '';
+  grid-column: 1 / -1;
+  grid-row: 1;
+}
+.griglia-killer .cella.con-somma .note {
+  bottom: 4%;
+}
+/* 1 2 3 a destra della somma, un filo più piccole quando la cella è stretta (9,5 px a 360) */
+.griglia-killer .cella.con-somma .note i:nth-child(-n + 3) {
+  position: absolute;
+  top: 0;
+  height: calc(100% / 3);
+  width: 0.62em;
+  display: grid;
+  place-items: center;
+  font-size: clamp(9.5px, 3cqi, 14px);
+}
+.griglia-killer .cella.con-somma .note i:nth-child(1) {
+  right: 1.24em;
+}
+.griglia-killer .cella.con-somma .note i:nth-child(2) {
+  right: 0.62em;
+}
+.griglia-killer .cella.con-somma .note i:nth-child(3) {
+  right: 0;
 }
 .note i {
   font-style: normal;
@@ -3535,9 +3565,9 @@ input:focus-visible {
   }
 }
 
-/* killer: somme leggibili (min 11 px), staccate dal valore; tratteggio più deciso */
+/* killer: somme leggibili (12 px da 390 in su, 11 a 360 dove la cella è di 35 px), staccate dal valore */
 .somma {
-  font-size: max(11px, 2.65cqi);
+  font-size: max(11px, min(12px, 3.3cqi), 2.65cqi);
   padding: 0.1cqi 0.3cqi;
   top: 0.2cqi;
   left: 0.2cqi;

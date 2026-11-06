@@ -219,6 +219,7 @@ export function Griglia(p: Props) {
         if (errore) cls.push('errore');
         if (i === p.partnerCursore) cls.push('partner');
         const somma = killer?.somme.get(i);
+        if (somma) cls.push('con-somma');
         const ritardo = lampo.get(i);
         const descr = etichettaCella({
           r,
