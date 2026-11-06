@@ -5,7 +5,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FASCE_MOMENTO, momentoDa, msAlProssimoMomento } from '../config/sonno';
 import type { Momento } from '../config/sonno';
-import type { Tema } from './MenuHome';
+import type { Tema } from './Menu';
 import { momentoScena, useMomento } from './momento';
 import { Scena } from './Scena';
 

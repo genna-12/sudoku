@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react';
 import { momentoDa, msAlProssimoMomento } from '../config/sonno';
 import type { Momento } from '../config/sonno';
-import type { Tema } from './MenuHome';
+import type { Tema } from './Menu';
 
 /** Il timer si riarma almeno ogni tanto: i telefoni in sospensione ritardano i timeout lunghi. */
 const RIARMO_MAX_MS = 30 * 60 * 1000;
