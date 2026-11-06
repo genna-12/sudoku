@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 // Correzioni della revisione UI del 06/11 (area Partita e Vittoria): timer, annulla, voce, sonno.
-import { act, useCallback, useRef, useState } from 'react';
+import { act, useCallback, useEffect, useRef, useState } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { generaPuzzle } from '../engine';
@@ -9,6 +9,8 @@ import { nuovaPartita } from '../stato';
 import type { Giocatore, StatoPartita } from '../stato';
 import { migra } from '../stato/archivio';
 import type { Archivio } from '../stato/archivio';
+import { Griglia } from './Griglia';
+import type { Arrivo, Lampo } from './Griglia';
 import { aMezzaVoce, fraseMascotte, sonnoPuoSostituire } from './regole';
 import { AVVISO_ANNULLA_CAMBIATA, AVVISO_ANNULLA_DEFINITIVA, usePartita, useTimerPartita } from './usePartita';
 
@@ -24,7 +26,7 @@ interface Banco {
   rendi: () => void;
 }
 
-function Prova({ partita, mioRuolo, fuori }: { partita: StatoPartita; mioRuolo: Giocatore; fuori: { current: Banco | null } }) {
+function Prova({ partita, mioRuolo, esponi }: { partita: StatoPartita; mioRuolo: Giocatore; esponi: (b: Banco) => void }) {
   const [a, setA] = useState<Archivio>(() => ({ ...migra({}), partita }));
   const [, setN] = useState(0);
   const ref = useRef(a);
@@ -53,7 +55,9 @@ function Prova({ partita, mioRuolo, fuori }: { partita: StatoPartita; mioRuolo: 
     },
   });
   useTimerPartita(!!a.partita && !a.partita.finita, gioco.tick);
-  fuori.current = { gioco, ref, avvisi: avvisi.current, inviati: inviati.current, rendi: () => setN((n) => n + 1) };
+  useEffect(() => {
+    esponi({ gioco, ref, avvisi: avvisi.current, inviati: inviati.current, rendi: () => setN((n) => n + 1) });
+  });
   return null;
 }
 
@@ -64,7 +68,7 @@ const b = () => fuori.current!;
 
 function monta(mioRuolo: Giocatore = 'a') {
   const p = nuovaPartita(generaPuzzle('sudoku', 'facile', 12345), Date.now() - 10);
-  act(() => root.render(<Prova partita={p} mioRuolo={mioRuolo} fuori={fuori} />));
+  act(() => root.render(<Prova partita={p} mioRuolo={mioRuolo} esponi={(x) => (fuori.current = x)} />));
   return p;
 }
 /** celle vuote del puzzle, col valore giusto e uno sbagliato */
@@ -234,5 +238,36 @@ describe('P7 frasi di sonno', () => {
     expect(aMezzaVoce('sbagliata', 'quasi')).toBe('zzz… quasi');
     expect(aMezzaVoce('vittoria', 'GG')).toBe('GG');
     expect(aMezzaVoce('sbagliata', '')).toBe('');
+  });
+});
+
+describe('P8 lampo e arrivi non si ripetono su una griglia montata dopo', () => {
+  const puzzle = generaPuzzle('sudoku', 'facile', 777);
+  const props = (lampo: Lampo | null, arrivo: Arrivo | null) => ({
+    puzzle,
+    valori: puzzle.dati,
+    celle: {},
+    selezionata: null,
+    onSeleziona: () => {},
+    mostraErrori: true,
+    mioRuolo: 'a' as const,
+    partnerCursore: null,
+    lampo,
+    arrivo,
+    evidenziato: 0,
+    onDoppio: () => {},
+    sceltaRegalo: false,
+  });
+  it('un lampo nato prima del montaggio (rientro, griglia nuova) non si disegna; uno dopo sì', () => {
+    const vecchio: Lampo = { id: Date.now() - 4000, centro: 0, celle: [0, 1, 2, 3, 4, 5, 6, 7, 8] };
+    const arrivoVecchio: Arrivo = { id: Date.now() - 4000, idx: 3, tipo: 'mossa' };
+    act(() => root.render(<Griglia {...props(vecchio, arrivoVecchio)} />));
+    expect(box.querySelectorAll('.fx-lampo').length).toBe(0);
+    expect(box.querySelectorAll('.fx-arrivo').length).toBe(0);
+    act(() => vi.advanceTimersByTime(50));
+    const nuovo: Lampo = { id: Date.now(), centro: 0, celle: [0, 1, 2, 3, 4, 5, 6, 7, 8] };
+    act(() => root.render(<Griglia {...props(nuovo, { id: Date.now(), idx: 3, tipo: 'mossa' })} />));
+    expect(box.querySelectorAll('.fx-lampo').length).toBe(9);
+    expect(box.querySelectorAll('.fx-arrivo').length).toBe(1);
   });
 });

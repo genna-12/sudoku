@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 import type { ChiParla } from '../config/frasi';
 import type { Giocatore, StatoPartita } from '../stato';
@@ -42,6 +42,8 @@ export function Cruscotto(p: Props) {
   const disponibili = miei?.regaliDisponibili ?? 0;
   const sinistra: ChiParla = p.sbloccata ? mascotteDi(mioRuolo) : 'semino';
   const destra: ChiParla | null = p.sbloccata ? mascotteDi(altro(mioRuolo)) : null;
+  // errori già presenti quando si entra in partita: la scossa del contatore solo per quelli nuovi
+  const [erroriAllIngresso] = useState(() => ({ mio: miei?.errori ?? 0, suo: suoi?.errori ?? 0 }));
 
   return (
     <div
@@ -64,9 +66,9 @@ export function Cruscotto(p: Props) {
           <i className="crescita-sua" style={{ '--q': cr.sua } as CSSProperties} />
         </div>
         <div className="crescita-testo">
-          <Contatore lato="mio" punti={miei?.punti ?? 0} errori={miei?.errori ?? 0} mostraErrori={p.mostraErrori} />
+          <Contatore lato="mio" punti={miei?.punti ?? 0} errori={miei?.errori ?? 0} giaVisti={erroriAllIngresso.mio} mostraErrori={p.mostraErrori} />
           <span className="crescita-stadio">{NOMI_STADIO[stadio]}</span>
-          <Contatore lato="suo" punti={suoi?.punti ?? 0} errori={suoi?.errori ?? 0} mostraErrori={p.mostraErrori} />
+          <Contatore lato="suo" punti={suoi?.punti ?? 0} errori={suoi?.errori ?? 0} giaVisti={erroriAllIngresso.suo} mostraErrori={p.mostraErrori} />
         </div>
       </div>
       {destra && <Mascottina chi={destra} stadio={stadio} {...p} sguardo={sguardo(p.guarda, 0.8, -0.12)} />}
@@ -110,9 +112,13 @@ function Mascottina({
 }) {
   const m = mascotte[chi];
   const el = useRef<HTMLSpanElement>(null);
-  // a ogni reazione la mascottina si ingrandisce un attimo (fuori dal flusso: la griglia non si muove)
+  // a ogni reazione la mascottina si ingrandisce un attimo (fuori dal flusso: la griglia non si muove);
+  // non al montaggio: rientrando in partita la reazione di prima non si ripete
+  const impulsoVisto = useRef(m.impulso);
   useEffect(() => {
     const e = el.current;
+    if (m.impulso === impulsoVisto.current) return;
+    impulsoVisto.current = m.impulso;
     if (!m.impulso || !e || typeof e.animate !== 'function') return;
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
     e.animate(
@@ -141,17 +147,20 @@ function Contatore({
   lato,
   punti,
   errori,
+  giaVisti,
   mostraErrori,
 }: {
   lato: 'mio' | 'suo';
   punti: number;
   errori: number;
+  /** errori che c'erano già entrando in partita: per quelli niente scossa */
+  giaVisti: number;
   mostraErrori: boolean;
 }) {
   return (
     <span
       key={errori}
-      className={`contatore contatore-${lato}${errori > 0 && mostraErrori ? ' scatta' : ''}`}
+      className={`contatore contatore-${lato}${errori > giaVisti && mostraErrori ? ' scatta' : ''}`}
       role="group"
       aria-label={`${lato === 'mio' ? 'Tu' : 'Partner'}: ${punti} punti${mostraErrori ? `, ${errori} errori (annullare non li toglie)` : ''}`}
     >
