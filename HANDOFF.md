@@ -1,36 +1,38 @@
-# Handoff (06/11/2026, notte)
+# Handoff (06/11/2026, mattina)
 
 ## Stato
-T5, T6 e T7 (tutti i punti tranne il 12, opzionale) implementati, validati e DEPLOYATI su https://genna-12.github.io/sudoku/ (branch `main`). 473 test unitari e 5 E2E verdi (due-client, personale, tre-dispositivi, arrivo-semina, capitoli-di-fila). Ultimi punti: menù unico `src/ui/Menu.tsx` (ex MenuHome) con `vociMenu.ts`; Esc e focus dei dialoghi (`indietro.ts`, `dialogo.ts`); griglia accessibile (`Griglia.tsx`, `cella.ts`); scena con l'ora (`config/sonno.ts` FASCE_MOMENTO, `momento.ts`, `scena.css`); vestiti in Ingresso/Vittoria/Giardino (`vestiti.ts`, `regole.ts` vestitiSchermata). Report: `docs/REPORT-06-11-notte.md`.
+T5, T6, T7 e la revisione UI approfondita del 06/11 sono deployati su https://genna-12.github.io/sudoku/ (branch `main`): 69 difetti trovati da 4 revisori, corretti da 4 implementatori, validati a contesto separato. 518 test unitari, 5 E2E verdi. Report: `docs/REPORT-06-11-mattina.md` (prima: `docs/REPORT-06-11-notte.md`). Esiti per difetto: `docs/revisione/` (`ui-2026-11-06-*.md` = difetti, `correzioni-*.md` = esiti).
 
 ## Prossimo passo
-T8 collaudo reale (Genna e Mati dal telefono), poi le correzioni che ne escono: hanno la precedenza su tutto. Senza esiti del collaudo: Riserva (ROADMAP).
+T8 collaudo reale (Genna e Mati dal telefono), poi le correzioni che ne escono: hanno la precedenza su tutto. Poi le 7 scelte da confermare del report della mattina. Senza esiti: Riserva (ROADMAP).
 
 ## In sospeso
-- T7.12 `leggendo` nella presenza P2P: rimandato dalla lead (tocca `src/net/types.ts`; un client vecchio e uno nuovo durante il collaudo). Rivalutare dopo T8.
-- Minori: il toast "Frasi nuove…" copre la cima del menù aperto in Home; "Diagnostica rete" eredita lo stile grigio di `.menu-sezione`.
-- Di giorno con il sistema in modalità scura il cielo resta scuro (voluto dall'implementatore): chiedere a Genna.
-- Studio-ux extra non fatti (testate per atto nel diario, "il prossimo capitolo arriva col fiore N", ecc.): vedi ROADMAP "Dopo".
+- Le 7 scelte da confermare di `docs/REPORT-06-11-mattina.md` (S3 Esc senza segnare letto, bottone Giardino compatto, H7 frase sotto il foglio, H3 banner in Partita, T18 zoom bloccato, note a 11 px a 360, cassetta vicino al titolo).
+- T7.12 `leggendo` nella presenza P2P: rimandato (tocca `src/net/types.ts`).
+- Estetico: in orizzontale dopo "guarda la griglia" il tasto "Nuova partita" è una mattonella alta.
+- Cielo di giorno con sistema scuro: resta scuro (chiedere a Genna).
 
 ## Da Genna
-1. Telefono (T8): aggiornare la PWA su entrambi; arretrati; Mati vede il capitolo 5 anche se tu l'hai letto; "Dopo" e chiusura a metà; diario; eco; posta (dal fiore 12); vestiti dopo il capitolo 15.
-2. iPhone: tocco sulle celle senza tastiera né scorrimento; `100dvh` nel lettore. Android: indietro chiude menù → Home → resta nell'app.
-3. Cielo all'alba/tramonto e di giorno in modalità scura: va bene?
-4. Capitoli che suonano falsi: numeri → si correggono in `capitoli.md` + rigenera JSON.
-5. Ok alla BUSSOLA e ai 5 ADR (ancora da dare).
-6. Sul PC: `git pull` in C:\dev\sudoku; c'è un `worker/package-lock.json` non tracciato: va committato (il Worker lo usa) dal PC. `C:\dev\_tools` non era collegata neanche stavolta: push fatto dal cloud.
+1. Telefono (T8 + revisione): aggiornare la PWA su entrambi; arretrati e "Dopo"; Mati vede il capitolo 5; posta; vestiti; una partita in due (timer, Annulla dopo una mossa dell'altro, chiusure toccando fuori); orizzontale (vittoria, foglio frasi).
+2. iPhone: barra di stato col tema chiaro; tocco sulle celle senza tastiera. Android: indietro dalla PWA installata, anche dopo un ricaricamento.
+3. Capitoli che suonano falsi: numeri → `capitoli.md` + rigenera JSON.
+4. Ok alla BUSSOLA e ai 5 ADR; risposta alle 7 scelte.
+5. Sul PC: `git pull` in C:\dev\sudoku; committare `worker/package-lock.json` (non tracciato); eliminare su GitHub i branch d'appoggio `t7-resto` e `correzioni-ui` (dal cloud il proxy non permette di cancellarli).
 
 ## Attenzione
 - Il repo è PUBBLICO: niente parole personali nei file (ADR 005).
+- Scala z-index unica commentata in `tema.css` (aggiornamento 30, vittoria 40, toast 50, menù 54/55, fogli 60, lettore 70): non aprire livelli per schermata.
+- `.schermata` entra con fill `backwards`: un `both` lascerebbe una trasformazione e i `position: fixed` dentro si misurerebbero sulla schermata (causa di T1).
+- Veli dei fogli: chiudere con `chiudiToccandoFuori` (`src/ui/velo.ts`), mai su `pointerdown` (il tocco passa al bottone sotto).
+- Annulla: solo la propria ultima mossa ancora valida; nessun messaggio di rete nuovo.
+- Fondale: container query con riserva in vh/vw; `:has` per nascondere il merlo doppio (Safari 16+).
 - Visti per ruolo e per era; `payloadDa` conserva i campi sconosciuti; il client non scrive se `versioneDati` remota è più alta.
-- Gli E2E sul dev server chiamano il Worker vero (nel cloud bloccato dal proxy): da sistemare con `VITE_SYNC_URL` vuota (Riserva).
-- Agenti in worktree: le copie stanno in `.claude/worktrees/` (esclusa da vitest; aggiungi `.claude/` a `.git/info/exclude` nel clone).
-- Non far girare E2E mentre altri agenti toccano `src/` (HMR).
-- Semina mai prima del capitolo 5: vale anche per i vestiti salvati in `sudoku-vestiti-ultimi-a/b` (riverificati con `accessorioPermesso`).
-- Il tema forzato (notte/mattina) spegne il `momento`; il lettore dei capitoli resta sempre di notte.
-- Il browser integrato della chat occupa un posto nella stanza P2P; il connettore Cloudflare del Project è di un cliente.
+- Gli E2E sul dev server chiamano il Worker vero (nel cloud bloccato): `VITE_SYNC_URL` vuota in Riserva.
+- Agenti in worktree: `.claude/` in `.git/info/exclude` del clone; vitest esclude `.claude/**`.
+- Semina mai prima del capitolo 5 visto (anche secondari con `entra`, vestiti salvati).
+- 9 agenti Opus in una notte hanno esaurito il limite delle 5 ore: dosare (revisori Sonnet dove basta).
 
 ## Chat
-- Questa: LEAD · Sudoku · T8 collaudo · 06/11 (chiusa dopo T7).
+- Questa: LEAD · Sudoku · T8 collaudo · 06/11 (chiusa dopo T7 e revisione UI).
 - Da aprire: LEAD · Sudoku · T8 correzioni · gg/mm, con "riprendi", quando ci sono gli esiti del collaudo.
 - Altre attive: nessuna.

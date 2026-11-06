@@ -13,6 +13,8 @@ Genna e Mati giocano dal telefono: connessione 4G, mosse e reazioni identiche, i
 ## T6 — Luoghi visitati, vestiti e ricordi — chiuso 04/11, deployato; spec docs/specs/T6-luoghi-vestiti.md
 ## T7 — Dinamicità e usabilità — chiuso 06/11 (punti 1-11; 12 rimandato), deployato, commit cfbc483; spec docs/specs/T7-ux.md, report docs/REPORT-06-11-notte.md
 
+## Revisione UI approfondita — chiusa 06/11 mattina, deployata, commit 9eef5dc: 69 difetti (10 alti) corretti; docs/revisione/, report docs/REPORT-06-11-mattina.md
+
 ## T8 — Collaudo reale della storia (prossimo)
 Genna e Mati giocano dal telefono con la versione nuova: arretrati, lettura del capitolo su entrambi, vestiti, posta, gesto indietro Android, iOS PWA. Esiti in HANDOFF "Da Genna"; poi correzioni e i punti T7 rimasti.
 
