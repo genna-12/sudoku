@@ -378,8 +378,10 @@ input:focus-visible {
 
 .link {
   display: block;
-  margin: 14px auto 0;
-  padding: 8px 12px;
+  /* bersaglio di tocco di almeno 44 px (T17) */
+  min-height: 44px;
+  margin: 10px auto 0;
+  padding: 12px 14px;
   background: none;
   border: 0;
   color: var(--tenue);
@@ -3215,10 +3217,68 @@ input:focus-visible {
    della pagina, l'elemento nuovo entra da solo. */
 .app {
   overflow-x: clip;
+  /* anche in verticale: gli 8 px dell'entrata (translateY) non allungano la pagina e la barra di
+     scorrimento dei desktop non lampeggia (T13); i fogli fixed stanno nel viewport, non sono tagliati */
+  overflow-y: clip;
 }
 /* le schermate sotto il lettore dei capitoli (inert mentre è aperto): nessun box in più */
 .app-sotto {
   display: contents;
+}
+
+/* ---------- shell: cambi di schermata, carta che svanisce, pause (correzioni 06/11) ---------- */
+/* uscita annullata o griglia nuova sotto la carta che svanisce: la schermata c'è già, senza entrata */
+.app-sotto[data-senza-entrata] > .schermata {
+  animation: none;
+}
+/* la carta di vittoria lasciata ("Nuova partita", "guarda la griglia", "Vai") svanisce sopra la griglia (T3) */
+.app-sotto[data-carta-esce] > .vittoria {
+  pointer-events: none;
+  animation: esce-dissolvenza 0.2s ease-in both;
+}
+/* sotto il lettore dei capitoli e, finita la festa, sotto la carta: animazioni della schermata in pausa (T19) */
+.app-sotto[data-coperta] > .schermata * {
+  animation-play-state: paused !important;
+}
+/* il titolo che riceve il focus a cambio di schermata (T11): nessun anello, è solo un punto d'arrivo */
+[data-approdo]:focus {
+  outline: none;
+}
+/* lettore aperto dalla Home: "Dopo" accanto a "Continua" (S3) */
+.capitolo-azioni,
+.capitolo-continua-guscio:has(.capitolo-dopo) {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+  pointer-events: auto;
+}
+.capitolo-azioni .capitolo-continua,
+.capitolo-continua-guscio:has(.capitolo-dopo) .capitolo-continua {
+  flex: 2 1 0;
+  margin: 0;
+}
+.capitolo-dopo {
+  flex: 1 1 0;
+  pointer-events: auto;
+  background: color-mix(in srgb, var(--carta-2) 85%, transparent);
+  border: 1px solid var(--linea);
+  color: var(--testo);
+  animation: cap-sale 240ms var(--curva) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .capitolo-dopo {
+    animation: cap-dissolvi 120ms ease-out both;
+  }
+  /* T12: la carta di vittoria (ridefinita più su, dopo il blocco ridotto) e il pallino del chip del
+     partner in partita: solo dissolvenza, niente scala né spostamento */
+  .vittoria .vittoria-carta {
+    animation-name: entra-dissolvenza;
+  }
+  .partner-chip i {
+    animation: none;
+  }
 }
 
 /* Home: il giardino dietro titolo e mascotte, a tutta larghezza, sfuma nel fondo */
