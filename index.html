@@ -6,6 +6,30 @@
     <meta name="theme-color" content="#0a1613" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <script>
+      // T6/T7: il tema scelto (chiave 'sudoku-coppia-tema' di src/ui/util.ts, valore JSON) va sulla
+      // pagina prima del primo disegno, insieme al colore della barra di stato (src/ui/barra.ts).
+      (function () {
+        var t = null;
+        try {
+          t = JSON.parse(localStorage.getItem('sudoku-coppia-tema') || 'null');
+        } catch (e) {}
+        var chiaro = t === 'chiaro';
+        if (t === 'scuro' || t === 'chiaro') document.documentElement.setAttribute('data-tema', t);
+        else {
+          try {
+            chiaro = window.matchMedia('(prefers-color-scheme: light)').matches;
+          } catch (e) {}
+        }
+        var meta = function (nome, valore) {
+          var m = document.querySelector('meta[name="' + nome + '"]');
+          if (m) m.setAttribute('content', valore);
+        };
+        meta('theme-color', chiaro ? '#eef0e4' : '#0a1613');
+        // iPhone: con il cielo chiaro ora e batteria scure (la pagina non passa sotto la barra)
+        if (chiaro) meta('apple-mobile-web-app-status-bar-style', 'default');
+      })();
+    </script>
     <link rel="icon" href="/sudoku/favicon.ico" sizes="any" />
     <link rel="icon" href="/sudoku/icona.svg" type="image/svg+xml" />
     <link rel="icon" href="/sudoku/favicon-32.png" type="image/png" sizes="32x32" />

@@ -1,6 +1,6 @@
 // Regia dell'app: archivio, due stanze di rete, partita, mascotte, schermate.
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { CSSProperties } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import type { CSSProperties, ReactElement } from 'react';
 import { CARATTERE, FRASI } from '../config/frasi';
 import type { ChiParla } from '../config/frasi';
 import { dormePerOrario } from '../config/sonno';
@@ -61,6 +61,7 @@ import { accessorioValido } from './useMascotte';
 import { FESTA_MS, USCITA_MS, apriLettore, avanza, capitoloDelLettore, conCapitoloVisto, leggiAdesso } from './lettore';
 import type { Lettore, Riassunto } from './lettore';
 import { useChiudiConIndietro, useGestoIndietro } from './indietro';
+import { useColoreBarra } from './barra';
 import { useDialogo } from './dialogo';
 import { chiudiToccandoFuori } from './velo';
 import { CHIAVE_SUGGERIMENTI, TESTI_SUGGERIMENTI, suggerimentiVisti, suggerimentoDa } from './suggerimenti';
@@ -92,6 +93,10 @@ const AZZERAMENTO_RECENTE_MS = 10 * 60 * 1000;
 const DURATA_ECO_MS = 8000;
 /** uscita di una schermata (tema.css `esce`) */
 const USCITA_SCHERMATA_MS = 150;
+/** dissolvenza della carta di vittoria che se ne va (tema.css `[data-carta-esce]`) */
+const USCITA_CARTA_MS = 200;
+/** sotto la carta di vittoria la Partita si ferma (animazioni in pausa) dopo la festa */
+const COPERTA_DOPO_MS = 1200;
 
 /** I vestiti dei capitoli si disegnano solo se esistono già (T6 ne aggiunge altri). */
 const vestitoDisegnato = (id: string) => !!accessorioValido(id);
@@ -105,6 +110,18 @@ function riassuntoDi(p: StatoPartita, mio: Giocatore): Riassunto {
     puntiSuoi: p.contatori?.[altro(mio)]?.punti ?? 0,
     bonus: bonusVittoria(p.secondi),
   };
+}
+
+/**
+ * Il focus su una schermata appena arrivata (T11): il suo titolo (h1/h2) o, senza, la schermata stessa.
+ * Senza scorrere; il bersaglio diventa focalizzabile solo da script (tabindex -1, niente anello: tema.css).
+ */
+function approdo(schermata: HTMLElement | null) {
+  if (!schermata || schermata.closest('[inert]')) return;
+  const t = schermata.querySelector<HTMLElement>('h1, h2') ?? schermata;
+  if (!t.hasAttribute('tabindex')) t.setAttribute('tabindex', '-1');
+  t.dataset.approdo = '';
+  t.focus({ preventScroll: true });
 }
 
 function leggiTema(): Tema {
@@ -181,10 +198,28 @@ export function App() {
   const { battuta, dici, ferma: fermaBattute, riprendi: riprendiBattute } = useBattute();
   const { mascotte, reagisci, sveglia } = useMascotte();
 
+  /**
+   * La schermata nuova (o la stessa con una griglia nuova) compare senza l'entrata: quando un'uscita si
+   * annulla o quando la carta di vittoria svanisce sopra la griglia nuova. Vale fino al prossimo `vai`.
+   */
+  const [senzaEntrata, setSenzaEntrata] = useState(false);
+
   /** Va a un'altra schermata passando dall'uscita (niente se ci si è già e non si sta uscendo). */
   function vai(s: Schermata) {
+    if (versoRef.current !== null && s === vivi.current.schermata) {
+      // durante un'uscita si torna dove si è (indietro subito dopo "Continua"): l'uscita si annulla,
+      // senza finire la dissolvenza e rientrare (T10)
+      window.clearTimeout(timerVai.current);
+      versoRef.current = null;
+      setVerso(null);
+      setSenzaEntrata(true);
+      return;
+    }
     if (versoRef.current === null && s === vivi.current.schermata) return;
     setPostaAperta(false);
+    // una conferma aperta vale per la schermata di prima (es. un germoglio del Giardino): via (T15)
+    setDaConfermare(null);
+    setSenzaEntrata(false);
     versoRef.current = s;
     setVerso(s);
     window.clearTimeout(timerVai.current);
@@ -194,14 +229,16 @@ export function App() {
   useEffect(() => () => window.clearTimeout(timerVai.current), []);
 
   // valori letti dai gestori di rete (sempre gli ultimi)
-  const vivi = useRef({ nomeMio, nomePartner, sbloccata, mioRuolo, schermata, mostraErrori, vibrazione, mascotte, fiori, giorno, vistiMiei, luoghi });
+  const vivi = useRef({ nomeMio, nomePartner, sbloccata, mioRuolo, schermata, mostraErrori, vibrazione, mascotte, fiori, giorno, vistiMiei, luoghi, rilettura });
   useEffect(() => {
-    vivi.current = { nomeMio, nomePartner, sbloccata, mioRuolo, schermata, mostraErrori, vibrazione, mascotte, fiori, giorno, vistiMiei, luoghi };
+    vivi.current = { nomeMio, nomePartner, sbloccata, mioRuolo, schermata, mostraErrori, vibrazione, mascotte, fiori, giorno, vistiMiei, luoghi, rilettura };
   });
   const ultimaFrase = useRef('');
   const ultimoEvento = useRef(0);
   const ultimaChiacchieraRicevuta = useRef(0);
   const ultimoArrivo = useRef(0);
+  /** partita nuova del partner arrivata durante la rilettura: il banner da mostrare alla chiusura (S19) */
+  const nuovaInRilettura = useRef<string | null>(null);
   const prossimaChi = useRef<ChiParla>('semino');
   const inviate = useRef(new Map<string, number>());
   const timerChiacchiera = useRef(0);
@@ -212,6 +249,7 @@ export function App() {
   const invia = useCallback((m: Messaggio, dove?: Destinazione) => inviaRef.current(m, dove), []);
 
   // --- tema --------------------------------------------------------------------
+  // (al primo caricamento il tema salvato lo mette già lo script di index.html, prima del CSS: T6)
   useEffect(() => {
     const r = document.documentElement;
     if (tema === 'auto') delete r.dataset.tema;
@@ -226,6 +264,8 @@ export function App() {
   }, [blu]);
   // il cielo della scena segue l'ora (solo col tema "auto"; il lettore dei capitoli resta di notte)
   const momento = useMomento(tema);
+  // barra di stato del telefono: il colore del tema visto, di notte col capitolo aperto (T7)
+  useColoreBarra(tema, !!lettore || rilettura !== null);
   function cambiaTema(t: Tema) {
     setTema(t);
     scrivi(CHIAVI.tema, t === 'auto' ? null : t);
@@ -508,6 +548,11 @@ export function App() {
         if (esito !== 'nuova') break;
         setPartnerCursore(null);
         setVittoriaChiusa(null);
+        // durante la rilettura dal diario si resta dove si è: chiusa la rilettura, un banner lo dice (S19)
+        if (vivi.current.rilettura !== null) {
+          if (dalPartner(m, da)) nuovaInRilettura.current = `${vivi.current.nomePartner} ha iniziato una nuova partita`;
+          break;
+        }
         if (vivi.current.schermata !== 'ingresso') vai('partita');
         if (dalPartner(m, da)) {
           annuncia(eraGermoglio ? fraseSemplice('ripresa') : `${vivi.current.nomePartner} ha iniziato una nuova partita`, {
@@ -652,6 +697,31 @@ export function App() {
     window.setTimeout(() => {
       setEsce(false);
       setRilettura(null);
+      const nuova = nuovaInRilettura.current;
+      nuovaInRilettura.current = null;
+      if (nuova) mostra({ tipo: 'banner', testo: nuova });
+    }, USCITA_MS);
+  }
+
+  /**
+   * Lettore aperto dalla Home: si chiude quando si vuole (Esc, indietro, "Dopo" a fine capitolo, S3).
+   * `letto`: il capitolo a schermo è finito ("Dopo") e si segna visto; con Esc/indietro no, resta arretrato.
+   */
+  function chiudiDallaHome(letto: boolean) {
+    const l = lettore;
+    const c = capitoloDelLettore(l);
+    if (!l || esce) return;
+    if (letto && c) {
+      modifica((a) => conCapitoloVisto(a, mioRuolo, c.fiore));
+      if (c.fiore === SEMINA_ARRIVA_A) {
+        reagisci('semino', 'felice');
+        reagisci('semina', 'euforico');
+      }
+    }
+    setEsce(true);
+    window.setTimeout(() => {
+      setEsce(false);
+      setLettore((x) => (x === l ? null : x));
     }, USCITA_MS);
   }
 
@@ -720,6 +790,8 @@ export function App() {
   // --- chiacchiere: ogni 40–60 s, mai sopra la storia, in partita solo dopo 45 s di quiete ------
   useOgniTanto(!!io && (schermata === 'home' || schermata === 'partita'), () => {
     const ora = Date.now();
+    // a pagina nascosta (app in background) niente chiacchiere: né qui né verso il partner (T16)
+    if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
     if (leggendo || vittoriaAperta) return;
     if (vivi.current.schermata === 'partita' && ora - ultimoEvento.current < SILENZIO_PARTITA_MS) return;
     if (connessione === 'connesso' && ora - ultimaChiacchieraRicevuta.current < RISPETTA_CHIACCHIERA_MS) return;
@@ -745,14 +817,67 @@ export function App() {
   });
 
   // --- gesto indietro (Android): chiude l'ultimo foglio aperto o torna alla Home, mai fuori dall'app ----
+  // dentro un capitolo dopo la vittoria indietro non salta la storia; il foglio "Adesso/Dopo" (H12) e il
+  // lettore aperto dalla Home (S3) invece si chiudono, e i capitoli non letti restano arretrati
+  const lettoreBloccato = !!lettore && !lettore.chiedi && lettore.origine === 'vittoria';
   useGestoIndietro(
-    () => ({ schermata: versoRef.current ?? schermata, entrato: !!io && profiloConfermato(ref.current), bloccato: !!lettore }),
+    () => ({ schermata: versoRef.current ?? schermata, entrato: !!io && profiloConfermato(ref.current), bloccato: lettoreBloccato }),
     () => vai('home'),
   );
+  useChiudiConIndietro(!!lettore?.chiedi, () => lettore && chiudiLettore(lettore));
+  useChiudiConIndietro(lettore?.origine === 'home' && !lettore.chiedi, () => chiudiDallaHome(false));
   useChiudiConIndietro(rilettura !== null && !lettore, chiudiRilettura);
   useChiudiConIndietro(vittoriaAperta && !!partita, () => partita && setVittoriaChiusa(partita.iniziata));
   useChiudiConIndietro(!!cartaVai && !lettore, () => setCartaVai(null));
   useChiudiConIndietro(!!daConfermare, () => setDaConfermare(null));
+
+  // --- cambio di schermata: in cima alla pagina (T14) e focus sul titolo della nuova (T11) ----------
+  const primaSchermata = useRef(true);
+  useLayoutEffect(() => {
+    if (primaSchermata.current) return;
+    window.scrollTo(0, 0);
+  }, [schermata]);
+  useEffect(() => {
+    if (primaSchermata.current) {
+      primaSchermata.current = false;
+      return;
+    }
+    // chi ha già preso il focus (un autoFocus della schermata nuova) lo tiene
+    const att = document.activeElement;
+    if (att && att !== document.body && att.isConnected && !att.closest('[inert]')) return;
+    approdo(document.querySelector<HTMLElement>('.app-sotto > .schermata'));
+  }, [schermata]);
+
+  // chiusa la rilettura: il focus torna alla riga del diario che l'ha aperta (S16); chiuso il lettore
+  // della Home: torna sul bottone dei capitoli da leggere, o sul titolo se non c'è più (S3)
+  const rilettoPrima = useRef<number | null>(null);
+  useEffect(() => {
+    const prima = rilettoPrima.current;
+    rilettoPrima.current = rilettura;
+    if (prima === null || rilettura !== null) return;
+    document.querySelector<HTMLElement>(`[data-testid="diario-${prima}"]`)?.focus({ preventScroll: true });
+  }, [rilettura]);
+  const origineLettore = lettore?.origine ?? null;
+  const originePrima = useRef<string | null>(null);
+  useEffect(() => {
+    const prima = originePrima.current;
+    originePrima.current = origineLettore;
+    if (prima !== 'home' || origineLettore !== null) return;
+    const att = document.activeElement;
+    if (att && att !== document.body && att.isConnected) return;
+    const bottone = document.querySelector<HTMLElement>('[data-testid="capitoli-da-leggere"]');
+    if (bottone) bottone.focus({ preventScroll: true });
+    else approdo(document.querySelector<HTMLElement>('.app-sotto > .schermata'));
+  }, [origineLettore]);
+
+  // --- carta di vittoria che se ne va: svanisce sopra la griglia (nuova o la stessa), mai a vuoto (T3) ----
+  const [cartaUscente, setCartaUscente] = useState<{ dove: 'vittoria' | 'vai'; carta: ReactElement } | null>(null);
+  /** la carta resta a schermo, con gli stessi dati, finché la griglia sotto è pronta; poi svanisce */
+  function lasciaCarta(dove: 'vittoria' | 'vai', carta: ReactElement | null) {
+    if (!carta) return;
+    setCartaUscente({ dove, carta });
+    setSenzaEntrata(true);
+  }
 
   // --- suggerimenti una tantum sui gesti (uno per sessione, ognuno una volta per dispositivo) ----
   const suggerito = useRef(false);
@@ -907,14 +1032,102 @@ export function App() {
   } as CSSProperties;
   const testoVittoria = fraseVittoria && partita && fraseVittoria.iniziata === partita.iniziata ? fraseVittoria.testo : '';
 
+  // le due carte di vittoria (la partita finita qui; quella sostituita dal partner mentre leggevo, "Vai")
+  let carta: ReactElement | null = null;
+  if (vittoriaAperta && partita) {
+    carta = (
+      <Vittoria
+        secondi={partita.secondi}
+        frase={testoVittoria}
+        sbloccata={sbloccata}
+        mascotte={mascotte}
+        solletico={solleticoOra}
+        onSolletico={onSolletico}
+        puntiMiei={partita.contatori?.[mioRuolo]?.punti ?? 0}
+        puntiSuoi={partita.contatori?.[altro(mioRuolo)]?.punti ?? 0}
+        bonus={bonusVittoria(partita.secondi)}
+        fiori={fiori}
+        elementi={giardino.elementi}
+        bluPresenza={blu}
+        momento={momento}
+        vestiti={vestitiGrandi(mioRuolo, { visti: vistiMiei, sbloccata, giorno })}
+        onNuova={() => {
+          lasciaCarta('vittoria', carta);
+          iniziaNuova(partita.puzzle.modalita, partita.puzzle.livello);
+        }}
+        onChiudi={() => {
+          lasciaCarta('vittoria', carta);
+          setVittoriaChiusa(partita.iniziata);
+        }}
+      />
+    );
+  }
+  let cartaDelVai: ReactElement | null = null;
+  if (cartaVai && !lettore) {
+    cartaDelVai = (
+      <Vittoria
+        secondi={cartaVai.secondi}
+        frase={fraseVittoria?.iniziata === cartaVai.iniziata ? fraseVittoria.testo : ''}
+        sbloccata={sbloccata}
+        mascotte={mascotte}
+        solletico={solleticoOra}
+        onSolletico={onSolletico}
+        puntiMiei={cartaVai.puntiMiei}
+        puntiSuoi={cartaVai.puntiSuoi}
+        bonus={cartaVai.bonus}
+        fiori={fiori}
+        elementi={giardino.elementi}
+        bluPresenza={blu}
+        momento={momento}
+        vestiti={vestitiGrandi(mioRuolo, { visti: vistiMiei, sbloccata, giorno })}
+        vai
+        onNuova={() => {
+          lasciaCarta('vai', cartaDelVai);
+          setCartaVai(null);
+          if (ref.current.partita) vai('partita');
+        }}
+        onChiudi={() => {
+          lasciaCarta('vai', cartaDelVai);
+          setCartaVai(null);
+        }}
+      />
+    );
+  }
+  // la carta che svanisce prende lo stesso posto di quella viva: React tiene lo stesso componente (niente
+  // seconda entrata), cambia solo l'attributo che fa partire la dissolvenza
+  const cartaChiusa = (dove: 'vittoria' | 'vai', viva: ReactElement | null) => (!viva && cartaUscente?.dove === dove ? cartaUscente.carta : null);
+  const cartaEsce = (!!cartaUscente && cartaUscente.dove === 'vittoria' && !carta) || (cartaUscente?.dove === 'vai' && !cartaDelVai);
+
+  useEffect(() => {
+    if (!cartaEsce) return;
+    const t = window.setTimeout(() => setCartaUscente(null), USCITA_CARTA_MS);
+    return () => window.clearTimeout(t);
+  }, [cartaEsce]);
+
+  // sotto la carta di vittoria, finita la festa, la Partita mette in pausa le sue animazioni (T19)
+  const conCarta = !!carta || !!cartaDelVai;
+  const [coperta, setCoperta] = useState(false);
+  useEffect(() => {
+    if (!conCarta) {
+      setCoperta(false);
+      return;
+    }
+    const t = window.setTimeout(() => setCoperta(true), COPERTA_DOPO_MS);
+    return () => window.clearTimeout(t);
+  }, [conCarta]);
+
   return (
     <div className="app" style={stile}>
       <BannerAggiornamento />
       {/* sotto il lettore (o la rilettura) tutto è inert; la carta "Vai" invece si tocca */}
+      {/* inert anche durante l'uscita: tastiera e tocchi non agiscono sulla schermata che se ne va (T10) */}
       <div
         className="app-sotto"
-        inert={!!lettore || rilettura !== null}
+        inert={!!lettore || rilettura !== null || verso !== null}
         data-esce={verso !== null ? '' : undefined}
+        data-senza-entrata={senzaEntrata && verso === null ? '' : undefined}
+        data-carta-esce={cartaEsce ? '' : undefined}
+        data-coperta={(coperta && conCarta) || !!lettore || rilettura !== null ? '' : undefined}
         onAnimationEnd={(e) => {
           if (verso !== null && /^esce/.test(e.animationName) && (e.target as Element).classList?.contains('schermata')) arriva();
         }}
@@ -1030,50 +1243,8 @@ export function App() {
           arrivo={arrivo}
         />
       )}
-      {vittoriaAperta && partita && (
-        <Vittoria
-          secondi={partita.secondi}
-          frase={testoVittoria}
-          sbloccata={sbloccata}
-          mascotte={mascotte}
-          solletico={solleticoOra}
-          onSolletico={onSolletico}
-          puntiMiei={partita.contatori?.[mioRuolo]?.punti ?? 0}
-          puntiSuoi={partita.contatori?.[altro(mioRuolo)]?.punti ?? 0}
-          bonus={bonusVittoria(partita.secondi)}
-          fiori={fiori}
-          elementi={giardino.elementi}
-          bluPresenza={blu}
-          momento={momento}
-          vestiti={vestitiGrandi(mioRuolo, { visti: vistiMiei, sbloccata, giorno })}
-          onNuova={() => iniziaNuova(partita.puzzle.modalita, partita.puzzle.livello)}
-          onChiudi={() => setVittoriaChiusa(partita.iniziata)}
-        />
-      )}
-      {cartaVai && !lettore && (
-        <Vittoria
-          secondi={cartaVai.secondi}
-          frase={fraseVittoria?.iniziata === cartaVai.iniziata ? fraseVittoria.testo : ''}
-          sbloccata={sbloccata}
-          mascotte={mascotte}
-          solletico={solleticoOra}
-          onSolletico={onSolletico}
-          puntiMiei={cartaVai.puntiMiei}
-          puntiSuoi={cartaVai.puntiSuoi}
-          bonus={cartaVai.bonus}
-          fiori={fiori}
-          elementi={giardino.elementi}
-          bluPresenza={blu}
-          momento={momento}
-          vestiti={vestitiGrandi(mioRuolo, { visti: vistiMiei, sbloccata, giorno })}
-          vai
-          onNuova={() => {
-            setCartaVai(null);
-            if (ref.current.partita) vai('partita');
-          }}
-          onChiudi={() => setCartaVai(null)}
-        />
-      )}
+      {carta ?? cartaChiusa('vittoria', carta)}
+      {cartaDelVai ?? cartaChiusa('vai', cartaDelVai)}
       {postaAperta && (schermata === 'home' || schermata === 'giardino') && (
         <FoglioPosta
           posta={archivio.posta}
@@ -1114,6 +1285,7 @@ export function App() {
           accessoriDisegnati={vestitoDisegnato}
           sfondo={sfondoDi(capitoloAperto)}
           esce={esce}
+          onDopo={lettore.origine === 'home' && lettore.pos + 1 < lettore.coda.length ? () => chiudiDallaHome(true) : undefined}
         />
       )}
       {rilettura !== null && !lettore && capitoloDi(rilettura) && (

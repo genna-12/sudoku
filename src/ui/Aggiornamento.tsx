@@ -44,31 +44,38 @@ export function useAggiornamento() {
 export function BannerAggiornamento() {
   const { pronto, aggiorna } = useAggiornamento();
   const [inCorso, setInCorso] = useState(false);
-  if (!pronto || !aggiorna) return null;
+  // "Dopo": il banner sparisce per questa sessione (al prossimo avvio l'app nuova c'è già) (H3/T4)
+  const [rimandato, setRimandato] = useState(false);
+  if (!pronto || !aggiorna || rimandato) return null;
   return (
     <div className="aggiornamento" role="status" data-testid="aggiornamento">
       <span className="aggiornamento-testo">C'è una versione nuova del giardino.</span>
-      <button
-        type="button"
-        className="bottone piccolo"
-        data-testid="aggiorna"
-        disabled={inCorso}
-        onClick={() => {
-          setInCorso(true);
-          // ricarica quando il nuovo service worker prende il controllo; in ogni caso entro 4 s
-          let fatto = false;
-          const ricarica = () => {
-            if (fatto) return;
-            fatto = true;
-            window.location.reload();
-          };
-          navigator.serviceWorker?.addEventListener('controllerchange', ricarica, { once: true });
-          window.setTimeout(ricarica, 4000);
-          aggiorna().catch(ricarica);
-        }}
-      >
-        {inCorso ? 'Aggiorno…' : 'Aggiorna'}
-      </button>
+      <span className="aggiornamento-azioni">
+        <button type="button" className="bottone piccolo tenue" data-testid="aggiorna-dopo" disabled={inCorso} onClick={() => setRimandato(true)}>
+          Dopo
+        </button>
+        <button
+          type="button"
+          className="bottone primario piccolo"
+          data-testid="aggiorna"
+          disabled={inCorso}
+          onClick={() => {
+            setInCorso(true);
+            // ricarica quando il nuovo service worker prende il controllo; in ogni caso entro 4 s
+            let fatto = false;
+            const ricarica = () => {
+              if (fatto) return;
+              fatto = true;
+              window.location.reload();
+            };
+            navigator.serviceWorker?.addEventListener('controllerchange', ricarica, { once: true });
+            window.setTimeout(ricarica, 4000);
+            aggiorna().catch(ricarica);
+          }}
+        >
+          {inCorso ? 'Aggiorno…' : 'Aggiorna'}
+        </button>
+      </span>
     </div>
   );
 }

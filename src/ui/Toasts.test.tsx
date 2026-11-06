@@ -27,6 +27,11 @@ describe('durata dei toast con la coda', () => {
     expect(durataToast('grande', 'ciao', 0)).toBe(3600);
     expect(durataToast('grande', 'x'.repeat(90), 0)).toBe(6200);
   });
+  it('il banner lungo resta di più (+60 ms per carattere oltre i 40, H6)', () => {
+    expect(durataToast('banner', 'x'.repeat(40), 0)).toBe(2400);
+    expect(durataToast('banner', 'x'.repeat(60), 0)).toBe(3600);
+    expect(durataToast('banner', 'x'.repeat(500), 0)).toBe(6200);
+  });
   it('con altri in coda si accorcia, mai sotto il 40% né sotto 1,2 s', () => {
     expect(durataToast('banner', 'a', 1)).toBe(1920);
     expect(durataToast('banner', 'a', 2)).toBe(1440);

@@ -55,6 +55,8 @@ export interface CapitoloScenaProps {
   sfondo?: ReactNode;
   /** uscita in corso (150 ms, gestita dal genitore) */
   esce?: boolean;
+  /** lettore aperto dalla Home con altri capitoli dopo: "Dopo" accanto a "Continua" chiude (S3) */
+  onDopo?: () => void;
 }
 
 /** umore dell'ultima battuta di `chi` fino a `passo` compreso */
@@ -80,6 +82,7 @@ export function CapitoloScena({
   accessoriDisegnati,
   sfondo,
   esce = false,
+  onDopo,
 }: CapitoloScenaProps) {
   const battute = c.battute;
   const ultimo = Math.max(0, battute.length - 1);
@@ -130,6 +133,11 @@ export function CapitoloScena({
   // tastiera: → avanti, ← e Backspace indietro; Invio/Spazio li fa già il bottone che ha il focus
   useEffect(() => {
     function tasto(e: KeyboardEvent) {
+      // Invio/Spazio tenuti premuti: le ripetizioni non attraversano "Continua" e i capitoli dopo (S17)
+      if (e.repeat && (e.key === 'Enter' || e.key === ' ')) {
+        e.preventDefault();
+        return;
+      }
       const suBottone = e.target instanceof HTMLElement && e.target.closest('button');
       if (e.key === 'Escape' && rilettura) onContinua();
       else if (e.key === 'ArrowRight') avanti();
@@ -219,6 +227,19 @@ export function CapitoloScena({
       }}
     >
       {etichettaFinale}
+    </button>
+  );
+  const bottoneDopo = onDopo && (
+    <button
+      type="button"
+      className="bottone capitolo-dopo"
+      data-testid="capitolo-dopo"
+      onClick={(e) => {
+        e.stopPropagation();
+        onDopo();
+      }}
+    >
+      Dopo
     </button>
   );
 
@@ -366,6 +387,12 @@ export function CapitoloScena({
         {continua &&
           (rivelazione ? (
             <div className="capitolo-continua-guscio" data-testid="scena-andiamo">
+              {bottoneDopo}
+              {bottoneContinua}
+            </div>
+          ) : bottoneDopo ? (
+            <div className="capitolo-azioni">
+              {bottoneDopo}
               {bottoneContinua}
             </div>
           ) : (

@@ -29,7 +29,8 @@ export function durataBattuta(testo: string): number {
  * in coda si accorcia (−20% per ognuno, mai sotto il 40% né sotto 1,2 s) invece di scartarli.
  */
 export function durataToast(tipo: Toast['tipo'], testo: string, inCoda: number): number {
-  const base = tipo === 'grande' ? Math.max(DURATA.grande, durataBattuta(testo)) : DURATA.banner;
+  // il banner lungo resta di più: +60 ms per carattere oltre i 40 (come le battute, H6)
+  const base = tipo === 'grande' ? Math.max(DURATA.grande, durataBattuta(testo)) : DURATA.banner + durataBattuta(testo) - durataBattuta('');
   const fattore = Math.max(0.4, 1 - 0.2 * Math.max(0, inCoda));
   return Math.round(Math.max(1200, base * fattore));
 }
@@ -54,7 +55,7 @@ export function useToasts() {
       return;
     }
     occupato.current = true;
-    const ms = durataToast(t.tipo, t.testo, coda.current.length);
+    const ms = durataToast(t.tipo, t.prefisso ? `${t.prefisso} ${t.testo}` : t.testo, coda.current.length);
     setAttivi((a) => [...a, { ...t, ms }]);
     let fatto = false;
     const fine = () => {
