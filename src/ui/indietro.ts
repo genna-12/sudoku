@@ -18,6 +18,15 @@ export function azioneIndietro(c: { schermata: string; aperti: number; entrato: 
   return 'home';
 }
 
+/**
+ * Esc fa quello che fa "indietro" quando c'è un foglio o un menù aperto: chiude l'ultimo (stessa pila,
+ * stessa funzione del tasto chiudi; la guardia nella cronologia resta dov'è). Senza niente di aperto
+ * Esc non torna alla Home: in partita toglie la selezione (lo fa la Partita).
+ */
+export function chiudeConEsc(c: { schermata: string; aperti: number; entrato: boolean; bloccato?: boolean }): boolean {
+  return azioneIndietro(c) === 'chiudi';
+}
+
 /** Pila dei fogli aperti (l'ultimo aperto si chiude per primo). Pura, senza DOM. */
 export class PilaIndietro {
   private voci: Array<{ id: number; chiudi: () => void }> = [];
@@ -87,7 +96,21 @@ export function useGestoIndietro(stato: () => { schermata: string; entrato: bool
       else if (a === 'home') rif.current.home();
       mettiGuardia();
     }
+    // Esc: in cattura sulla finestra, prima di tutti gli altri ascoltatori (griglia, capitolo, fogli),
+    // così chiude una cosa sola e nessuno la tratta una seconda volta
+    function suEsc(e: KeyboardEvent) {
+      if (e.key !== 'Escape' || e.defaultPrevented) return;
+      const s = rif.current.stato();
+      if (!chiudeConEsc({ ...s, aperti: pila.aperti })) return;
+      e.preventDefault();
+      e.stopPropagation();
+      pila.chiudiUltimo();
+    }
     window.addEventListener('popstate', suPop);
-    return () => window.removeEventListener('popstate', suPop);
+    window.addEventListener('keydown', suEsc, true);
+    return () => {
+      window.removeEventListener('popstate', suPop);
+      window.removeEventListener('keydown', suEsc, true);
+    };
   }, []);
 }
