@@ -184,17 +184,102 @@ describe('CapitoloScena', () => {
     expect([...box.querySelectorAll('.capitolo-secondario')].map((e) => (e as HTMLElement).dataset.chi)).toEqual(['fischio']);
   });
 
-  it('nel capitolo 99 restano tutti quelli che hanno parlato', () => {
+  const chiIn = (sel: string) => [...box.querySelectorAll(sel)].map((e) => (e as HTMLElement).dataset.chi);
+
+  it('nel capitolo 99 ci sono tutti dalla prima battuta: in fila a terra, Fischio e il Gufo sul ramo', () => {
     monta({
       capitolo: cap(99, [
+        { chi: 'narra', testo: 'Ci sono tutti.' },
         { chi: 'nonnacapra', testo: 'Piove.' },
         { chi: 'grillo', testo: 'Un la?' },
-        { chi: 'fischio', testo: 'Un si.' },
+        { chi: 'gufo', testo: 'Buono.' },
       ]),
     });
+    expect(chiIn('.capitolo-secondari--terra > .capitolo-secondario')).toEqual(['nonnacapra', 'nuvola', 'grillo', 'pinza']);
+    expect(chiIn('.capitolo-secondari--ramo > .capitolo-secondario')).toEqual(['fischio', 'gufo']);
+    // Briciola dorme in groppa a Nuvola
+    expect(chiIn('[data-chi="nuvola"] .capitolo-groppa')).toEqual(['briciola']);
+    expect(scena().classList.contains('capitolo--ramo')).toBe(true);
+    avanti();
+    // la coda del fumetto va sull'x di Nonna Capra (prima della fila a terra: 1,5 posti a sinistra del centro)
+    const posto = q('.capitolo-fumetto-posto') as HTMLElement;
+    expect(posto.classList.contains('capitolo-fumetto-posto--alto')).toBe(false);
+    expect(posto.style.getPropertyValue('--cap-coda-dx')).toBe('-75px');
     avanti();
     avanti();
-    expect([...box.querySelectorAll('.capitolo-secondario')].map((e) => (e as HTMLElement).dataset.chi)).toEqual(['nonnacapra', 'grillo', 'fischio']);
+    const gufo = q('.capitolo-fumetto-posto') as HTMLElement;
+    expect(gufo.classList.contains('capitolo-fumetto-posto--alto')).toBe(true);
+    expect(gufo.style.getPropertyValue('--cap-coda-dx')).toBe('23px');
+  });
+
+  it('chi entra senza parlare è in scena dalla prima battuta (Briciola nel 68), senza fumetto', () => {
+    monta({
+      capitolo: cap(
+        68,
+        [
+          { chi: 'narra', testo: 'Un gatto entra dalla finestra.' },
+          { chi: 'semina', testo: 'Si chiama Briciola.' },
+          { chi: 'semino', testo: 'Dove va?' },
+        ],
+        { luogo: 'cucina', entra: 'briciola' },
+      ),
+    });
+    expect(chiIn('.capitolo-secondario')).toEqual(['briciola']);
+    expect(q('.capitolo-secondario[data-chi="briciola"] .sec-entra')).not.toBeNull();
+    expect(q('.capitolo-fumetto--secondario')).toBeNull();
+    avanti();
+    avanti();
+    expect(chiIn('.capitolo-secondario')).toEqual(['briciola']);
+    expect(q('.capitolo-nome')).toBeNull();
+  });
+
+  it('chi entra e poi parla non rifà l\'entrata quando parla; chi parla dopo prende il suo posto', () => {
+    monta({
+      capitolo: cap(
+        10,
+        [
+          { chi: 'narra', testo: 'Un merlo sul ramo.' },
+          { chi: 'fischio', testo: 'Fischio va bene.' },
+          { chi: 'pinza', testo: 'Clac.' },
+        ],
+        { luogo: 'giardino', entra: 'fischio' },
+      ),
+    });
+    expect(chiIn('.capitolo-secondari--ramo > .capitolo-secondario')).toEqual(['fischio']);
+    expect(scena().classList.contains('capitolo--ramo')).toBe(true);
+    avanti();
+    expect(q('.capitolo-secondario[data-chi="fischio"] .sec-entra')).toBeNull();
+    expect(q('.capitolo-fumetto-posto--alto')).not.toBeNull();
+    avanti();
+    expect(chiIn('.capitolo-secondario')).toEqual(['pinza']);
+    expect(scena().classList.contains('capitolo--ramo')).toBe(false);
+  });
+
+  it('il Mulo non entra in scena (è una lettera) anche se un capitolo lo facesse entrare', () => {
+    monta({ capitolo: cap(84, [{ chi: 'narra', testo: 'Treno.' }], { entra: 'mulo' }) });
+    expect(q('.capitolo-secondario')).toBeNull();
+  });
+
+  it('da solo (capitoli 0-4) Semino va verso il centro; con Semina o un secondario no', () => {
+    monta({ capitolo: cap(2, [{ chi: 'semino', testo: 'Notte.' }], { luogo: 'aiuola' }) });
+    expect(scena().classList.contains('capitolo--solo')).toBe(true);
+    monta({ capitolo: SEMPLICE });
+    expect(scena().classList.contains('capitolo--solo')).toBe(false);
+    monta({ capitolo: cap(83, [{ chi: 'nonnacapra', testo: 'Mastica.' }, { chi: 'semino', testo: 'Ciao.' }]) });
+    expect(scena().classList.contains('capitolo--solo')).toBe(false);
+  });
+
+  it('fra due capitoli della coda: prima battuta, fondale e palco nuovi in dissolvenza', () => {
+    monta({ capitolo: SEMPLICE, indice: 1, totale: 2 });
+    expect(scena().classList.contains('capitolo--cambio')).toBe(false);
+    const fondale = q('.capitolo-fondale');
+    avanti();
+    expect(battuta()).toBe(1);
+    monta({ capitolo: cap(13, [{ chi: 'semino', testo: 'Nuovo.' }], { luogo: 'giardino' }), indice: 2, totale: 2 });
+    expect(battuta()).toBe(0);
+    expect(scena().classList.contains('capitolo--cambio')).toBe(true);
+    expect(q('.capitolo-fondale')).not.toBe(fondale);
+    expect(scena().dataset.fondale).toBe('giardino');
   });
 
   it('le righe del Mulo si accumulano sullo stesso foglio', () => {

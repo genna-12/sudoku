@@ -119,9 +119,13 @@
   color-scheme: light;
 }
 
+/* la presenza del blu sale piano quando arriva un fiore, ma non all'avvio (data-cielo lo mette App dopo il
+   primo fotogramma) */
+:root[data-cielo='pronto'] {
+  transition: --blu-presenza 1.6s var(--curva);
+}
 /* valori derivati dalla presenza del blu (calcolati su :root, arrivano a tutti) */
 :root {
-  transition: --blu-presenza 1.6s var(--curva);
   --fondo: color-mix(in oklab, var(--notte-verde), var(--notte-blu) calc(var(--blu-presenza) * 55%));
   --cielo: color-mix(in oklab, var(--notte-verde), var(--notte-blu) calc(var(--blu-presenza) * 100%));
   --fondo-2: color-mix(in oklab, var(--terra), var(--notte-blu) calc(var(--blu-presenza) * 12%));
@@ -560,8 +564,38 @@ input:focus-visible {
   margin: 0;
   color: var(--tenue);
 }
+/* gli atti sono <details>: la riga del titolo apre e chiude */
+.diario-atto > summary {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-height: 44px;
+  padding: 12px 0 6px;
+  list-style: none;
+  cursor: pointer;
+}
+.diario-atto > summary::-webkit-details-marker {
+  display: none;
+}
+.diario-atto > summary::before {
+  content: '›';
+  align-self: center;
+  color: var(--tenue);
+  font-size: 18px;
+  line-height: 1;
+  transition: rotate 0.2s var(--curva);
+}
+.diario-atto[open] > summary::before {
+  rotate: 90deg;
+}
+.diario-intervallo {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--tenue);
+  font-variant-numeric: tabular-nums;
+}
 .diario-atto h3 {
-  margin: 0 0 6px;
+  margin: 0;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.06em;

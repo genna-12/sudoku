@@ -259,9 +259,17 @@ export function App() {
   const giardino = giardinoVisibile(fiori, vistiMiei);
   // quanto blu negli accenti di coppia: sul root, così arriva anche alla grana del body
   const blu = giardino.bluPresenza;
-  useEffect(() => {
+  // prima del primo disegno (niente viraggio all'avvio); la transizione si accende dopo il primo fotogramma
+  useLayoutEffect(() => {
     document.documentElement.style.setProperty('--blu-presenza', String(blu));
   }, [blu]);
+  useEffect(() => {
+    const r = document.documentElement;
+    let f = requestAnimationFrame(() => {
+      f = requestAnimationFrame(() => (r.dataset.cielo = 'pronto'));
+    });
+    return () => cancelAnimationFrame(f);
+  }, []);
   // il cielo della scena segue l'ora (solo col tema "auto"; il lettore dei capitoli resta di notte)
   const momento = useMomento(tema);
   // barra di stato del telefono: il colore del tema visto, di notte col capitolo aperto (T7)
