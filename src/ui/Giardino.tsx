@@ -4,6 +4,7 @@ import { LIVELLI_PARAMETRI } from '../config/livelli';
 import type { Giocatore, VoceStorico } from '../stato';
 import type { DettaglioFiore } from '../stato/archivio';
 import { useChiudiConIndietro } from './indietro';
+import { useDialogo } from './dialogo';
 import type { AttoDiario } from './capitoli';
 import type { Chiacchiera } from './Home';
 import { aCasoDiverso, accessoriSbloccati, numeriFiori, quotaBluFiore, statistiche } from './regole';
@@ -370,13 +371,15 @@ function FoglioFiore({
 }) {
   useChiudiConIndietro(true, onChiudi);
   const chiudi = useRef<HTMLButtonElement>(null);
-  useEffect(() => chiudi.current?.focus(), []);
+  const foglio = useRef<HTMLDivElement>(null);
+  useDialogo(foglio, true, { iniziale: chiudi });
   const quando = new Date(voce.finita ?? voce.iniziata);
   const livello = LIVELLI_PARAMETRI[voce.livello]?.etichetta ?? voce.livello;
   const chi = sbloccata && voce.modalita === 'killer' ? 'semina' : 'semino';
   return (
     <div className="foglio-velo foglio-velo-leggero" onPointerDown={(e) => e.target === e.currentTarget && onChiudi()}>
       <div
+        ref={foglio}
         className="foglio foglio-fiore"
         role="dialog"
         aria-modal="true"

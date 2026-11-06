@@ -977,6 +977,15 @@ input:focus-visible {
   touch-action: manipulation;
   transition: background-color 0.18s ease;
 }
+/* roving tabindex (T7.6): al tocco basta la selezione, l'anello solo per la tastiera */
+.cella:focus {
+  outline: none;
+}
+.cella:focus-visible {
+  outline: 2px solid var(--evid);
+  outline-offset: -3px;
+  z-index: 2;
+}
 .cella.mia {
   --bg: color-mix(in srgb, var(--mio) 9%, var(--carta));
 }

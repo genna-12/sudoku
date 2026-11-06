@@ -6,7 +6,10 @@ import type { Giocatore, StatoPartita } from '../stato';
 import { Cruscotto } from './Cruscotto';
 import { Griglia } from './Griglia';
 import type { Arrivo, Lampo } from './Griglia';
-import { IconaAnnulla, IconaCancella, IconaCuore, IconaIndietro, IconaMatita, IconaMenu } from './Icone';
+import { IconaAnnulla, IconaCancella, IconaCuore, IconaIndietro, IconaMatita } from './Icone';
+import { Menu } from './Menu';
+import type { Tema } from './Menu';
+import { useDialogo } from './dialogo';
 import type { Chiacchiera } from './Home';
 import { Tastierino } from './Tastierino';
 import { useChiudiConIndietro } from './indietro';
@@ -29,6 +32,10 @@ interface Props {
   mostraErrori: boolean;
   vibrazione: boolean;
   onImpostazione: (chiave: 'mostraErrori' | 'vibrazione', v: boolean) => void;
+  tema: Tema;
+  onTema: (t: Tema) => void;
+  /** dal menù: la partita resta nel giardino come germoglio e si torna alla Home */
+  onCancellaPartita: () => void;
   sbloccata: boolean;
   mascotte: Mascotte;
   chiacchiera: Chiacchiera | null;
@@ -66,13 +73,13 @@ export function Partita(p: Props) {
   const { partita } = p;
   const [sel, setSel] = useState<number | null>(null);
   const [matita, setMatita] = useState(false);
-  const [menu, setMenu] = useState(false);
   const [regaloAttivo, setRegaloAttivo] = useState(false);
   const [evidenziato, setEvidenziato] = useState(0);
   const [proposte, setProposte] = useState<string[] | null>(null);
-  // gesto indietro: chiude il foglio delle frasi o il menù prima di uscire dalla partita
-  useChiudiConIndietro(menu, () => setMenu(false));
+  // gesto indietro (ed Esc): chiude il foglio delle frasi (il menù lo fa da sé) prima di uscire dalla partita
   useChiudiConIndietro(proposte !== null, () => setProposte(null));
+  const foglioFrasi = useRef<HTMLDivElement>(null);
+  useDialogo(foglioFrasi, proposte !== null);
   const valori = useMemo(() => griglia(partita), [partita]);
   // "ne restano": con gli errori visibili contano solo i valori giusti, così un numero sbagliato non
   // esaurisce la cifra (senza errori visibili contano tutti: non si rivela cosa è sbagliato)
@@ -150,6 +157,8 @@ export function Partita(p: Props) {
   useEffect(() => {
     function suTasto(e: KeyboardEvent) {
       if (e.target instanceof HTMLInputElement) return;
+      // dentro il menù o un foglio i tasti sono loro (frecce tra le voci, cifre nei campi)
+      if (e.target instanceof Element && e.target.closest('[role="menu"], [role="dialog"], [role="alertdialog"]')) return;
       const t = tastiera.current;
       if (/^[1-9]$/.test(e.key)) t.premi(Number(e.key));
       else if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') t.cancella();
@@ -234,44 +243,18 @@ export function Partita(p: Props) {
             <b className="altro-dispositivo" data-testid="personale-connesso" title="Anche il tuo altro dispositivo è qui" aria-label="Anche il tuo altro dispositivo è qui" />
           )}
         </span>
-        <div className="menu-ancora">
-          <button
-            className="icona-bottone"
-            onClick={() => setMenu((m) => !m)}
-            aria-label="Opzioni"
-            aria-expanded={menu}
-          >
-            <IconaMenu />
-          </button>
-          {menu && (
-            <>
-              <div className="menu-velo" onPointerDown={() => setMenu(false)} />
-              <div className="menu" role="menu">
-                <label className="menu-voce">
-                  <span>Mostra errori</span>
-                  <input
-                    type="checkbox"
-                    className="interruttore"
-                    checked={p.mostraErrori}
-                    onChange={(e) => p.onImpostazione('mostraErrori', e.target.checked)}
-                  />
-                </label>
-                <label className="menu-voce">
-                  <span>Vibrazione</span>
-                  <input
-                    type="checkbox"
-                    className="interruttore"
-                    checked={p.vibrazione}
-                    onChange={(e) => p.onImpostazione('vibrazione', e.target.checked)}
-                  />
-                </label>
-                <button className="menu-voce" onClick={p.onEsci}>
-                  Torna alla home
-                </button>
-              </div>
-            </>
-          )}
-        </div>
+        <Menu
+          contesto="partita"
+          mostraErrori={p.mostraErrori}
+          vibrazione={p.vibrazione}
+          tema={p.tema}
+          inCorso={!partita.finita}
+          sbloccata={p.sbloccata}
+          onImpostazione={p.onImpostazione}
+          onTema={p.onTema}
+          onCancellaPartita={p.onCancellaPartita}
+          onEsci={p.onEsci}
+        />
       </header>
 
       <div className="tavolo">
@@ -312,6 +295,8 @@ export function Partita(p: Props) {
             sceltaRegalo={regaloAttivo}
             mostraErrori={p.mostraErrori}
             mioRuolo={p.mioRuolo}
+            nomePartner={p.partnerNome}
+            onFocalizza={setSel}
             partnerCursore={p.partnerCursore}
             lampo={p.lampo}
             arrivo={p.arrivo}
@@ -373,7 +358,7 @@ export function Partita(p: Props) {
       </div>
       {proposte && (
         <div className="foglio-velo foglio-velo-leggero" onPointerDown={(e) => e.target === e.currentTarget && setProposte(null)}>
-          <div className="foglio foglio-frasi" role="dialog" aria-modal="true" aria-label="Scegli una frase da mandare" data-testid="foglio-frasi">
+          <div ref={foglioFrasi} className="foglio foglio-frasi" role="dialog" aria-modal="true" aria-label="Scegli una frase da mandare" data-testid="foglio-frasi">
             <p className="foglio-frasi-titolo">Manda una frase</p>
             <div className="foglio-frasi-lista">
               {proposte.map((t, i) => (

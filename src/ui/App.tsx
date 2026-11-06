@@ -23,7 +23,7 @@ import type { Chiacchiera } from './Home';
 import { BannerAggiornamento } from './Aggiornamento';
 import { Ingresso } from './Ingresso';
 import { cancellaPartita, esporta, importa, ioDaArchivio, nomeFileEsportazione, profiloConfermato, ricomincia } from './memoria';
-import type { Tema } from './MenuHome';
+import type { Tema } from './Menu';
 import { Partita } from './Partita';
 import { FoglioPosta } from './Posta';
 import {
@@ -59,6 +59,7 @@ import { accessorioValido } from './useMascotte';
 import { FESTA_MS, USCITA_MS, apriLettore, avanza, capitoloDelLettore, conCapitoloVisto, leggiAdesso } from './lettore';
 import type { Lettore, Riassunto } from './lettore';
 import { useChiudiConIndietro, useGestoIndietro } from './indietro';
+import { useDialogo } from './dialogo';
 import { CHIAVE_SUGGERIMENTI, TESTI_SUGGERIMENTI, suggerimentiVisti, suggerimentoDa } from './suggerimenti';
 import type { EventoSuggerimento } from './suggerimenti';
 import { Toasts, useBattute, useToasts } from './Toasts';
@@ -878,6 +879,15 @@ export function App() {
     mostra({ tipo: 'banner', testo: 'La partita resta nel giardino, come germoglio' });
   }
 
+  /** Dal menù della partita: la partita va nel giardino e si torna subito alla Home (la Partita non c'è più). */
+  function cancellaDallaPartita() {
+    window.clearTimeout(timerVai.current);
+    versoRef.current = null;
+    setVerso(null);
+    setSchermata('home');
+    cancellaInCorso();
+  }
+
   function ricominciaDaZero() {
     const dopo = modifica((a: Archivio) => ricomincia(a, Date.now()));
     gioco.chiudi();
@@ -982,6 +992,9 @@ export function App() {
           mostraErrori={mostraErrori}
           vibrazione={vibrazione}
           onImpostazione={cambiaImpostazione}
+          tema={tema}
+          onTema={cambiaTema}
+          onCancellaPartita={cancellaDallaPartita}
           sbloccata={sbloccata}
           mascotte={mascotte}
           chiacchiera={chiacchieraOra}
@@ -1108,9 +1121,11 @@ export function App() {
 
 /** Prima di una coda lunga di capitoli dopo la vittoria: leggerli adesso o dopo (dalla Home). */
 function FoglioArretrati({ n, onAdesso, onDopo }: { n: number; onAdesso: () => void; onDopo: () => void }) {
+  const foglio = useRef<HTMLDivElement>(null);
+  useDialogo(foglio);
   return (
     <div className="foglio-velo">
-      <div className="foglio" role="alertdialog" aria-modal="true" aria-labelledby="arretrati-titolo" data-testid="capitoli-chiedi">
+      <div ref={foglio} className="foglio" role="alertdialog" aria-modal="true" aria-labelledby="arretrati-titolo" data-testid="capitoli-chiedi">
         <div className="foglio-passo">
           <h2 id="arretrati-titolo">Hai {n} capitoli da leggere</h2>
           <p>Li leggi adesso? Se no restano qui, in ordine, e li trovi nella Home.</p>
@@ -1130,9 +1145,12 @@ function FoglioArretrati({ n, onAdesso, onDopo }: { n: number; onAdesso: () => v
 
 /** Conferma leggera prima di lasciare una partita iniziata per un'altra. */
 function ConfermaNuova({ onNuova, onContinua, onChiudi }: { onNuova: () => void; onContinua: () => void; onChiudi: () => void }) {
+  const foglio = useRef<HTMLDivElement>(null);
+  const nuova = useRef<HTMLButtonElement>(null);
+  useDialogo(foglio, true, { iniziale: nuova });
   return (
     <div className="foglio-velo" onPointerDown={(e) => e.target === e.currentTarget && onChiudi()}>
-      <div className="foglio" role="alertdialog" aria-modal="true" aria-labelledby="conferma-nuova-titolo" data-testid="conferma-nuova">
+      <div ref={foglio} className="foglio" role="alertdialog" aria-modal="true" aria-labelledby="conferma-nuova-titolo" data-testid="conferma-nuova">
         <div className="foglio-passo">
           <h2 id="conferma-nuova-titolo">Nuova partita?</h2>
           <p>La partita in corso resta nel giardino come germoglio.</p>
@@ -1140,7 +1158,7 @@ function ConfermaNuova({ onNuova, onContinua, onChiudi }: { onNuova: () => void;
             <button className="bottone" data-testid="nuova-continua" onClick={onContinua}>
               Continua quella
             </button>
-            <button className="bottone primario" data-testid="nuova-conferma" onClick={onNuova}>
+            <button ref={nuova} className="bottone primario" data-testid="nuova-conferma" onClick={onNuova}>
               Nuova
             </button>
           </div>

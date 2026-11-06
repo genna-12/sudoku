@@ -34,6 +34,39 @@ interface Props {
   onDoppio: (idx: number) => void;
   /** regalo attivo: si sceglie la cella da far riempire a Semino */
   sceltaRegalo: boolean;
+  /** nome del partner nell'etichetta delle celle che ha scritto lui/lei ("Blu" prima di Semina) */
+  nomePartner?: string;
+  /** il focus della tastiera (Tab) è entrato in una cella: diventa la selezionata */
+  onFocalizza?: (idx: number) => void;
+}
+
+/** Roving tabindex: l'unica cella raggiungibile con Tab è la selezionata (o quella centrale). */
+export const CELLA_INIZIALE = 40;
+export function cellaConFocus(selezionata: number | null): number {
+  return selezionata ?? CELLA_INIZIALE;
+}
+
+/** Etichetta per i lettori di schermo: "riga 3, colonna 7, 5, di Blu" / "vuota, note 1 4". */
+export function etichettaCella(c: {
+  r: number;
+  c: number;
+  v: number;
+  data: boolean;
+  errore: boolean;
+  note: number[];
+  mia: boolean | null;
+  nomePartner?: string;
+  somma?: number;
+}): string {
+  const chi = c.mia === null ? '' : c.mia ? ', tuo' : `, di ${c.nomePartner || 'chi gioca con te'}`;
+  const cosa = c.data
+    ? `${c.v}, dato`
+    : c.v
+      ? `${c.v}${chi}${c.errore ? ', sbagliato' : ''}`
+      : c.note.length
+        ? `vuota, note ${c.note.join(' ')}`
+        : 'vuota';
+  return `riga ${c.r + 1}, colonna ${c.c + 1}, ${cosa}${c.somma ? `, gabbia da ${c.somma}` : ''}`;
 }
 
 const D = 9; // rientro del contorno della gabbia, in centesimi di cella
@@ -128,9 +161,30 @@ export function Griglia(p: Props) {
     });
   }, [lampoId, lampoBox]);
 
+  // il focus del DOM segue la selezione (frecce, Esc) se la tastiera è già sulla griglia o da nessuna parte
+  const celleEl = useRef<Array<HTMLDivElement | null>>([]);
+  const attiva = cellaConFocus(p.selezionata);
+  useEffect(() => {
+    const g = el.current;
+    const c = celleEl.current[attiva];
+    if (!g || !c || p.selezionata === null) return;
+    const att = document.activeElement;
+    if (att === c) return;
+    if (att && att !== document.body && !g.contains(att)) return;
+    c.focus({ preventScroll: true });
+  }, [attiva, p.selezionata]);
+
+  // un tocco dà anche il focus alla cella: lì la selezione l'ha già fatta il tocco
+  const ultimoPuntatore = useRef(0);
+  function focalizzata(i: number) {
+    if (performance.now() - ultimoPuntatore.current < 600) return;
+    if (i !== p.selezionata) p.onFocalizza?.(i);
+  }
+
   const ultimoTocco = useRef({ idx: -1, t: 0 });
   function tocca(i: number) {
     const ora = performance.now();
+    ultimoPuntatore.current = ora;
     const u = ultimoTocco.current;
     if (u.idx === i && ora - u.t < DOPPIO_TOCCO_MS) {
       ultimoTocco.current = { idx: -1, t: 0 };
@@ -190,12 +244,27 @@ export function Griglia(p: Props) {
         if (i === p.partnerCursore) cls.push('partner');
         const somma = killer?.somme.get(i);
         const ritardo = lampo.get(i);
-        const descr = `riga ${r + 1} colonna ${c + 1}, ${data ? `data ${v}` : v ? `valore ${v}${errore ? ', sbagliato' : ''}` : note.length ? `vuota, note ${note.join(' ')}` : 'vuota'}${somma ? `, gabbia da ${somma.somma}` : ''}`;
+        const descr = etichettaCella({
+          r,
+          c,
+          v,
+          data,
+          errore,
+          note,
+          mia: !data && v && cella ? cella.da === p.mioRuolo : null,
+          nomePartner: p.nomePartner,
+          somma: somma?.somma,
+        });
         return (
           <div
             key={i}
             className={cls.join(' ')}
+            ref={(e) => {
+              celleEl.current[i] = e;
+            }}
             onPointerDown={() => tocca(i)}
+            onFocus={() => focalizzata(i)}
+            tabIndex={i === attiva ? 0 : -1}
             role="gridcell"
             aria-colindex={c + 1}
             aria-label={descr}

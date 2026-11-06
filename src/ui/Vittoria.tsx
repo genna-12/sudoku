@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { useDialogo } from './dialogo';
 import type { CSSProperties } from 'react';
 import type { ChiParla } from '../config/frasi';
 import type { Chiacchiera } from './Home';
@@ -64,8 +65,12 @@ export function Vittoria({
   const umoreLei = solletico?.chi === 'semina' ? mascotte.semina.umore : umoreValido('euforico');
   // chi parla adesso (solletico): la sua bocca si muove
   const chiParla: ChiParla | null = solletico ? solletico.chi : null;
+  // focus su "Nuova partita" (o "Vai"); alla chiusura torna dov'era (la griglia)
+  const carta = useRef<HTMLDivElement>(null);
+  const primario = useRef<HTMLButtonElement>(null);
+  useDialogo(carta, true, { iniziale: primario });
   return (
-    <div className="vittoria" role="dialog" aria-modal="true" aria-label="Partita vinta">
+    <div ref={carta} className="vittoria" role="dialog" aria-modal="true" aria-label="Partita vinta">
       <div className="coriandoli" aria-hidden="true">
         {coriandoli.map((s, i) => (
           <i key={i} style={s} className={i % 3 === 0 ? 'tondo' : ''} />
@@ -128,7 +133,7 @@ export function Vittoria({
           <span className="vittoria-bonus">+{bonus} di bonus a testa</span>
         </div>
         {vai && <p className="vittoria-vai">È già iniziata una nuova partita</p>}
-        <button className="bottone primario" data-testid={vai ? 'vittoria-vai' : 'vittoria-nuova'} onClick={onNuova}>
+        <button ref={primario} className="bottone primario" data-testid={vai ? 'vittoria-vai' : 'vittoria-nuova'} onClick={onNuova}>
           {vai ? 'Vai' : 'Nuova partita'}
         </button>
         {!vai && (

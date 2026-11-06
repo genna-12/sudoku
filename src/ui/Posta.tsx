@@ -1,7 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import type { VocePosta } from '../stato/archivio';
 import type { Giocatore } from '../stato';
 import { useChiudiConIndietro } from './indietro';
+import { useDialogo } from './dialogo';
 import { nominaSemina } from './regole';
 
 /** quante frasi mostra il foglio (l'archivio ne tiene di più) */
@@ -36,12 +37,14 @@ export function FoglioPosta(p: {
 }) {
   useChiudiConIndietro(true, p.onChiudi);
   const chiudi = useRef<HTMLButtonElement>(null);
-  useEffect(() => chiudi.current?.focus(), []);
+  const foglio = useRef<HTMLDivElement>(null);
+  useDialogo(foglio, true, { iniziale: chiudi });
   const voci = postaDaMostrare(p.posta, p.sbloccata);
   const ora = Date.now();
   return (
     <div className="foglio-velo foglio-velo-leggero" onPointerDown={(e) => e.target === e.currentTarget && p.onChiudi()}>
       <div
+        ref={foglio}
         className="foglio foglio-posta"
         role="dialog"
         aria-modal="true"

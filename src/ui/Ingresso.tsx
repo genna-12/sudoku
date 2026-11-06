@@ -5,6 +5,8 @@ import type { ProfiloId } from '../config/giocatori';
 import { Semino } from './Semino';
 import { SemiTitolo } from './Icone';
 import type { Io } from './useStanza';
+import { useChiudiConIndietro } from './indietro';
+import { useDialogo } from './dialogo';
 
 /**
  * Ingresso: si sceglie il proprio colore (verde o blu) e si scrive la frase della stanza.
@@ -28,6 +30,11 @@ export function Ingresso({
   // questo browser ricorda già l'altro profilo: prima di sostituirlo, un avviso (mai al primo ingresso)
   const ricordato = iniziale ? profiloDiNome(iniziale.nome) : null;
   const [avviso, setAvviso] = useState(false);
+  // avviso aperto: Esc e indietro lo chiudono come "Annulla"; focus dentro e poi di nuovo su "Entra"
+  const avvisoAperto = avviso && !!profilo && !!ricordato;
+  useChiudiConIndietro(avvisoAperto, () => setAvviso(false));
+  const foglioAvviso = useRef<HTMLDivElement>(null);
+  useDialogo(foglioAvviso, avvisoAperto);
 
   function invia(e: FormEvent) {
     e.preventDefault();
@@ -101,7 +108,7 @@ export function Ingresso({
 
       {avviso && profilo && ricordato && (
         <div className="foglio-velo" onPointerDown={(e) => e.target === e.currentTarget && setAvviso(false)}>
-          <div className="foglio" role="alertdialog" aria-modal="true" aria-labelledby="avviso-profilo-titolo" data-testid="avviso-profilo">
+          <div ref={foglioAvviso} className="foglio" role="alertdialog" aria-modal="true" aria-labelledby="avviso-profilo-titolo" data-testid="avviso-profilo">
             <div className="foglio-passo">
               <h2 id="avviso-profilo-titolo">Questo browser ricorda già {nomeVisibile(ricordato, sbloccata)}</h2>
               <p>

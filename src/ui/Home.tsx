@@ -9,9 +9,9 @@ import { GIORNI_SPECIALI } from '../config/storia';
 import type { GiornoSpeciale } from '../config/storia';
 import type { StatoConnessione } from '../net';
 import type { Giocatore, StatoPartita } from '../stato';
-import { MenuHome } from './MenuHome';
+import { Menu } from './Menu';
 import { SemiTitolo } from './Icone';
-import type { Tema } from './MenuHome';
+import type { Tema } from './Menu';
 import type { InfoSync } from './useSync';
 import type { GiardinoVisibile } from './capitoli';
 import { aCasoDiverso, primaInHome, vestitiIniziali, vestitiRiposo } from './regole';
@@ -138,7 +138,8 @@ export function Home(p: Props) {
             Giardino · <span className="tabellare">{p.fiori}</span>
           </span>
         </button>
-        <MenuHome
+        <Menu
+          contesto="home"
           mostraErrori={p.mostraErrori}
           vibrazione={p.vibrazione}
           tema={p.tema}
