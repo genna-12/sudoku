@@ -1,5 +1,5 @@
 // Regia dell'app: archivio, due stanze di rete, partita, mascotte, schermate.
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { CARATTERE, FRASI } from '../config/frasi';
 import type { ChiParla } from '../config/frasi';
@@ -220,9 +220,17 @@ export function App() {
   const giardino = giardinoVisibile(fiori, vistiMiei);
   // quanto blu negli accenti di coppia: sul root, così arriva anche alla grana del body
   const blu = giardino.bluPresenza;
-  useEffect(() => {
+  // prima del primo disegno (niente viraggio all'avvio); la transizione si accende dopo il primo fotogramma
+  useLayoutEffect(() => {
     document.documentElement.style.setProperty('--blu-presenza', String(blu));
   }, [blu]);
+  useEffect(() => {
+    const r = document.documentElement;
+    let f = requestAnimationFrame(() => {
+      f = requestAnimationFrame(() => (r.dataset.cielo = 'pronto'));
+    });
+    return () => cancelAnimationFrame(f);
+  }, []);
   // il cielo della scena segue l'ora (solo col tema "auto"; il lettore dei capitoli resta di notte)
   const momento = useMomento(tema);
   function cambiaTema(t: Tema) {

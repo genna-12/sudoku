@@ -119,9 +119,13 @@
   color-scheme: light;
 }
 
+/* la presenza del blu sale piano quando arriva un fiore, ma non all'avvio (data-cielo lo mette App dopo il
+   primo fotogramma) */
+:root[data-cielo='pronto'] {
+  transition: --blu-presenza 1.6s var(--curva);
+}
 /* valori derivati dalla presenza del blu (calcolati su :root, arrivano a tutti) */
 :root {
-  transition: --blu-presenza 1.6s var(--curva);
   --fondo: color-mix(in oklab, var(--notte-verde), var(--notte-blu) calc(var(--blu-presenza) * 55%));
   --cielo: color-mix(in oklab, var(--notte-verde), var(--notte-blu) calc(var(--blu-presenza) * 100%));
   --fondo-2: color-mix(in oklab, var(--terra), var(--notte-blu) calc(var(--blu-presenza) * 12%));
