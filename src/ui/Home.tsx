@@ -357,7 +357,7 @@ function Eroe(p: Props) {
   // chi ha il fumetto aperto muove la bocca per il tempo della frase
   const frase = sol?.testo ?? p.chiacchiera?.testo ?? saluto;
   return (
-    <section className={`home-eroe parla-${parla}`} aria-live="polite">
+    <section className={`home-eroe parla-${parla}${coppia ? ' home-eroe--coppia' : ''}`} aria-live="polite">
       <span className="home-mascotte">
         {coppia ? (
           <SeminoCoppia

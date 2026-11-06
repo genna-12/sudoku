@@ -2087,11 +2087,23 @@ input:focus-visible {
   margin-left: 2px;
 }
 
+/* H5: l'altezza riservata copre il fumetto di quasi tutte le chiacchiere ed eco (98° percentile misurato
+   per larghezza, con la firma): quando il fumetto cambia, Continua e i livelli non saltano */
 .home-eroe {
   display: flex;
   align-items: center;
   gap: 14px;
-  min-height: 104px;
+  min-height: 110px;
+}
+@media (max-width: 419px) {
+  .home-eroe {
+    min-height: 130px;
+  }
+}
+@media (max-width: 379px) {
+  .home-eroe--coppia {
+    min-height: 150px;
+  }
 }
 .home-mascotte {
   flex: none;
