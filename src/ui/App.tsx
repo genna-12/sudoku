@@ -617,7 +617,9 @@ export function App() {
   // un azzeramento (anche dal partner) chiude il lettore: la coda di prima non vale più
   if (lettore && lettore.azzerato !== archivio.azzerato) setLettore(null);
   const capitoloAperto = capitoloDelLettore(lettore);
-  const vittoriaAperta = finitaQui && !lettore && !cartaVai && (coda.length === 0 || fattoPer === iniziataFinita);
+  // anche senza capitoli in coda la carta aspetta la festa sulla griglia (lampo e reazione dell'ultima cella)
+  const vittoriaAperta =
+    finitaQui && !lettore && !cartaVai && (fattoPer === iniziataFinita || (coda.length === 0 && festa === iniziataFinita));
 
   function chiudiLettore(l: Lettore) {
     setLettore(null);
