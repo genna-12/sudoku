@@ -774,7 +774,7 @@ export function App() {
     scrivi(CHIAVE_SUGGERIMENTI, [...visti, s]);
     const chi: ChiParla = v.sbloccata ? mascotteDi(v.mioRuolo) : 'semino';
     if (evento === 'home') mostraChiacchiera(chi, TESTI_SUGGERIMENTI[s], { ms: DURATA_CHIACCHIERA_MS });
-    else dici({ chi, testo: TESTI_SUGGERIMENTI[s], tono: 'mio', categoria: 'suggerimento' });
+    else dici({ chi, testo: TESTI_SUGGERIMENTI[s], tono: 'mio', categoria: 'gesto' });
   }
   // in Home, dopo 4 s fermi e senza fumetti aperti: "puoi toccarmi"
   const homeQuieta = schermata === 'home' && verso === null && !lettore && rilettura === null && fiori >= 1;
@@ -1029,6 +1029,7 @@ export function App() {
           onSuggerimento={suggerisci}
           frasiDaScegliere={frasiDaScegliere}
           onEsci={() => vai('home')}
+          onNuova={() => iniziaNuova(partita.puzzle.modalita, partita.puzzle.livello)}
           lampo={lampo}
           arrivo={arrivo}
         />

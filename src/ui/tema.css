@@ -1182,6 +1182,25 @@ input:focus-visible {
 .strumento-cuore {
   color: var(--mio-testo);
 }
+/* partita finita (dopo "guarda la griglia"): al posto di annulla/cancella/note, "Fiorita" e una nuova */
+.strumenti-fiorita {
+  grid-column: span 2;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  font-size: 17px;
+  font-weight: 850;
+  --casl: 1;
+  color: var(--inchiostro);
+}
+.strumento-nuova {
+  color: var(--inchiostro);
+  background: var(--carta);
+}
+.tastierino.spento {
+  opacity: 0.35;
+  filter: saturate(0.4);
+}
 
 .tastierino {
   display: grid;

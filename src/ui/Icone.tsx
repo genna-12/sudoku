@@ -39,6 +39,11 @@ export const IconaCuore = () => (
     <path d="M12 20s-7.5-4.4-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.6-7.5 10-7.5 10z" />
   </svg>
 );
+export const IconaNuova = () => (
+  <svg {...base}>
+    <path d="M12 5v14M5 12h14" />
+  </svg>
+);
 export const IconaMenu = () => (
   <svg {...base}>
     <circle cx="5.5" cy="12" r="1.2" fill="currentColor" />

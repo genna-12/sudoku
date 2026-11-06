@@ -76,7 +76,7 @@ export function Cruscotto(p: Props) {
         type="button"
         data-testid="regalo"
         data-disponibili={disponibili}
-        className={`regalo${disponibili > 0 ? ' disponibile' : ''}${p.regaloAttivo ? ' attivo' : ''}`}
+        className={`regalo${disponibili > 0 && !partita.finita ? ' disponibile' : ''}${p.regaloAttivo ? ' attivo' : ''}`}
         disabled={disponibili <= 0 || !!partita.finita}
         aria-pressed={p.regaloAttivo}
         aria-label={
@@ -87,7 +87,7 @@ export function Cruscotto(p: Props) {
         onClick={p.onRegalo}
       >
         <SemeOro />
-        {disponibili > 0 && <span className="regalo-n">{disponibili}</span>}
+        {disponibili > 0 && !partita.finita && <span className="regalo-n">{disponibili}</span>}
       </button>
     </div>
   );

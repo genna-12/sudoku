@@ -6,7 +6,7 @@ import type { Giocatore, StatoPartita } from '../stato';
 import { Cruscotto } from './Cruscotto';
 import { Griglia } from './Griglia';
 import type { Arrivo, Lampo } from './Griglia';
-import { IconaAnnulla, IconaCancella, IconaCuore, IconaIndietro, IconaMatita } from './Icone';
+import { IconaAnnulla, IconaCancella, IconaCuore, IconaIndietro, IconaMatita, IconaNuova } from './Icone';
 import { Menu } from './Menu';
 import type { Tema } from './Menu';
 import { useDialogo } from './dialogo';
@@ -60,9 +60,14 @@ interface Props {
   /** le frasi da proporre nel foglio (sei) */
   frasiDaScegliere: () => string[];
   onEsci: () => void;
+  /** partita finita (dopo "guarda la griglia"): una nuova dello stesso tipo */
+  onNuova?: () => void;
   lampo: Lampo | null;
   arrivo: Arrivo | null;
 }
+
+/** quanto resta a schermo il suggerimento una tantum dei gesti (se non lo si tocca prima) */
+const GESTO_MS = 4500;
 
 /** menù e fogli aperti (anche il lettore dei capitoli e la Vittoria): finché ce n'è uno, la griglia non sente i tasti */
 const DIALOGHI_APERTI = '[role="menu"], [role="dialog"], [role="alertdialog"]';
@@ -208,10 +213,33 @@ export function Partita(p: Props) {
   const [fermo, setFermo] = useState<Detto | null>(null);
   const [chiuso, setChiuso] = useState<number | null>(null);
   if (fermo && detto && detto.id > fermo.id && delPartner(detto)) setFermo(null);
+  // il suggerimento una tantum dei gesti si ferma da sé: resta GESTO_MS (o fino al tocco), le reazioni aspettano
+  const [gestoVisto, setGestoVisto] = useState<number | null>(null);
+  const gesto = p.battuta?.categoria === 'gesto' ? p.battuta : null;
+  if (gesto && gesto.id !== gestoVisto) {
+    setGestoVisto(gesto.id);
+    if (!regaloAttivo) setFermo(gesto);
+  }
   const mostrato: Detto | null = regaloAttivo ? detto : fermo ? fermo : detto && detto.id !== chiuso ? detto : null;
   const { onFerma, onRiprendi } = p;
   // uscendo dalla partita col fumetto fermato, le battute ripartono
   useEffect(() => () => onRiprendi?.(), [onRiprendi]);
+  const fermoOra = useRef(fermo);
+  useEffect(() => {
+    fermoOra.current = fermo;
+  });
+  const gestoFermo = fermo?.categoria === 'gesto' ? fermo.id : null;
+  useEffect(() => {
+    if (gestoFermo === null) return;
+    onFerma?.();
+    const t = window.setTimeout(() => {
+      if (fermoOra.current?.id !== gestoFermo) return;
+      setFermo(null);
+      setChiuso(gestoFermo);
+      onRiprendi?.(gestoFermo);
+    }, GESTO_MS);
+    return () => window.clearTimeout(t);
+  }, [gestoFermo, onFerma, onRiprendi]);
   function toccaFumetto(d: Detto) {
     if (d.id < 0) return;
     if (fermo?.id === d.id) {
@@ -325,24 +353,40 @@ export function Partita(p: Props) {
             guarda={guarda}
             onSolletico={p.onSolletico}
           />
-          <div className="strumenti">
-            <button className="strumento" data-testid="annulla" onClick={annulla} disabled={!p.puoAnnullare}>
-              <IconaAnnulla />
-              <span>Annulla</span>
-            </button>
-            <button className="strumento" data-testid="cancella" onClick={cancella}>
-              <IconaCancella />
-              <span>Cancella</span>
-            </button>
-            <button
-              className={`strumento${matita ? ' acceso' : ''}`}
-              data-testid="matita"
-              aria-pressed={matita}
-              onClick={() => setMatita((m) => !m)}
-            >
-              <IconaMatita />
-              <span>Note</span>
-            </button>
+          <div className={`strumenti${partita.finita ? ' strumenti-fine' : ''}`}>
+            {partita.finita ? (
+              <>
+                <p className="strumenti-fiorita" data-testid="partita-fiorita">
+                  {p.sbloccata ? 'Fiorita insieme!' : 'Fiorita!'}
+                </p>
+                {p.onNuova && (
+                  <button className="strumento strumento-nuova" data-testid="partita-nuova" onClick={p.onNuova}>
+                    <IconaNuova />
+                    <span>Nuova partita</span>
+                  </button>
+                )}
+              </>
+            ) : (
+              <>
+                <button className="strumento" data-testid="annulla" onClick={annulla} disabled={!p.puoAnnullare}>
+                  <IconaAnnulla />
+                  <span>Annulla</span>
+                </button>
+                <button className="strumento" data-testid="cancella" onClick={cancella}>
+                  <IconaCancella />
+                  <span>Cancella</span>
+                </button>
+                <button
+                  className={`strumento${matita ? ' acceso' : ''}`}
+                  data-testid="matita"
+                  aria-pressed={matita}
+                  onClick={() => setMatita((m) => !m)}
+                >
+                  <IconaMatita />
+                  <span>Note</span>
+                </button>
+              </>
+            )}
             <button
               className="strumento strumento-cuore"
               data-testid="manda-frase"
@@ -358,6 +402,7 @@ export function Partita(p: Props) {
           <Tastierino
             restano={restano}
             matita={matita}
+            spento={!!partita.finita}
             onCifra={(n, nota) => {
               p.onSuggerimento?.('tastierino');
               premi(n, nota);
