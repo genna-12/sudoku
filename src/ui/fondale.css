@@ -66,6 +66,14 @@
 .fd::before {
   --fd-w: max(56.25cqh, min(100cqw, 360px));
 }
+/* senza unità dei contenitori (Safari < 16, Chrome < 105) la misura sopra non vale e il disegno resterebbe
+   300×150 in un angolo: si usa lo schermo, che nel lettore coincide col fondale (a tutta pagina) */
+@supports not (width: 1cqh) {
+  .fd > svg,
+  .fd::before {
+    --fd-w: max(56.25vh, min(100vw, 360px));
+  }
+}
 .fd > svg {
   position: absolute;
   z-index: 1;
