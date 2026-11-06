@@ -123,7 +123,9 @@ export function Home(p: Props) {
           onClick={p.onPosta}
         />
       )}
-      <header className="home-testa">
+      {/* con il chip dell'altro dispositivo o la stanza occupata la testata si fa stretta: a telefono
+          stretto "Giardino ·" lascia il posto al pallino (H4) */}
+      <header className={`home-testa${p.personaleConnesso || p.occupata ? ' home-testa--piena' : ''}`}>
         <Pallino connessione={p.connessione} partner={p.partnerNome} occupata={p.occupata} femminile={p.mioRuolo === 'b'} />
         {p.personaleConnesso && (
           <span className="altro-dispositivo-chip" data-testid="personale-connesso" title="Anche il tuo altro dispositivo è qui">
@@ -140,7 +142,8 @@ export function Home(p: Props) {
             quotaBlu={p.fiori > 0 ? p.giardino.bluPresenza * 0.5 : undefined}
           />
           <span className="giardino-etichetta">
-            Giardino · <span className="tabellare">{p.fiori}</span>
+            <span className="giardino-parola">Giardino · </span>
+            <span className="tabellare">{p.fiori}</span>
           </span>
         </button>
         <Menu
@@ -419,14 +422,33 @@ export function Pallino({
   /** per il testo "sei già collegato/a" (Mati → collegata) */
   femminile?: boolean;
 }) {
+  const testo = testoPallino(connessione, partner, occupata, femminile);
+  const breve = testo.breve !== testo.intero;
   return (
-    <span className={`pallino pallino-${occupata ? 'occupata' : connessione}`}>
+    <span className={`pallino pallino-${occupata ? 'occupata' : connessione}`} title={breve ? testo.intero : undefined}>
       <i data-testid={connessione === 'connesso' ? 'connesso' : undefined} aria-hidden="true" />
-      <span className="pallino-testo">
-        {occupata ? `sei già ${femminile ? 'collegata' : 'collegato'} da un altro dispositivo` : testoConnessione(connessione, partner)}
+      <span className="pallino-testo" aria-hidden={breve || undefined}>
+        {testo.breve}
       </span>
+      {breve && <span className="nascosto-visivo">{testo.intero}</span>}
     </span>
   );
+}
+
+/**
+ * Il testo del pallino in testata: breve, al massimo due righe anche a 360 px (H4); la frase intera
+ * resta per il lettore di schermo e nel title.
+ */
+export function testoPallino(
+  connessione: StatoConnessione,
+  partner: string,
+  occupata = false,
+  femminile = false,
+): { breve: string; intero: string } {
+  const collegato = femminile ? 'collegata' : 'collegato';
+  if (occupata) return { breve: `già ${collegato} altrove`, intero: `sei già ${collegato} da un altro dispositivo` };
+  const intero = testoConnessione(connessione, partner);
+  return { breve: connessione === 'errore' ? 'non mi collego, riprovo' : intero, intero };
 }
 
 function MiniGriglia({ partita, mioRuolo }: { partita: StatoPartita; mioRuolo: Giocatore }) {

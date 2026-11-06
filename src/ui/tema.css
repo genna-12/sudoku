@@ -3447,16 +3447,35 @@ input:focus-visible {
   color: var(--tenue);
 }
 
-/* "sei già collegato/a da un altro dispositivo": va a capo invece di troncarsi */
+/* presenza in testata (H4): il testo va a capo al massimo su due righe e la testata ha altezza fissa,
+   così quando cambia lo stato la Home sotto non si sposta; il chip resta fuori dalla pillola */
+.home-testa {
+  height: 46px;
+}
 .home-testa .pallino {
   min-width: 0;
   flex: 0 1 auto;
+  padding-block: 6px;
 }
 .pallino-testo {
   white-space: normal;
-  overflow: visible;
   text-overflow: clip;
-  line-height: 1.2;
+  line-height: 1.15;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: break-word;
+}
+/* testata piena (chip o stanza occupata) a telefono stretto: il bottone del giardino tiene solo il numero */
+@media (max-width: 400px) {
+  .home-testa--piena .giardino-parola {
+    display: none;
+  }
+  .home-testa--piena .giardino-bottone {
+    padding-right: 10px;
+  }
 }
 
 /* ingresso: contenuto centrato, nessuna card che sembra già scelta */
