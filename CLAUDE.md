@@ -9,7 +9,7 @@ Vite + React 19 + TypeScript, CSS puro, nessuna libreria UI. Tempo reale P2P con
 ## Struttura
 - `src/engine/` generatore/risolutore e valutazione mosse (puro TS) · `src/stato/` riduttore, merge, archivio locale versionato · `src/net/` stanze P2P (coppia con posti per profilo, personale) · `src/ui/` React (hook: useArchivio, usePartita, useRete, useMascotte; regole di gioco in `regole.ts`; storia: regole dei capitoli `capitoli.ts`, lettore `lettore.ts`, schermata `CapitoloScena.tsx` con `Fondale.tsx` e `Secondari.tsx`, diario nel `Giardino.tsx`; mascotte `Semino.tsx`; scena del giardino `Scena.tsx`) · `src/config/` giocatori, punteggio, frasi, storia, sonno, livelli, ICE.
 - Contratti in `src/*/types.ts`: cambiarli solo con decisione della lead.
-- Spec dei traguardi: `docs/specs/traguardo.md`. Design: `docs/design/studio-ui.md` (palette, regole sui colori: verde e blu nei dettagli, mai a blocchi). Report per Genna: `docs/REPORT-04-11-sera.md` (prima: `docs/REPORT-notte-03-11.md`, `docs/REPORT-notte-04-11.md`).
+- Spec dei traguardi: `docs/specs/traguardo.md`. Design: `docs/design/studio-ui.md` (palette, regole sui colori: verde e blu nei dettagli, mai a blocchi). Report per Genna: `docs/REPORT-06-11-notte.md` (prima: `docs/REPORT-04-11-sera.md`, `docs/REPORT-notte-04-11.md`, `docs/REPORT-notte-03-11.md`).
 
 ## Comandi
 `npm run dev` · `npm test -- --run` · `npm run build` (output `dist/`, base `/sudoku/`). E2E: vedi README (peerjs locale su 9000 + vite 5173 con `VITE_PEER_*`).
@@ -35,6 +35,7 @@ GitHub Pages dal repo `genna-12/sudoku`, workflow `.github/workflows/deploy.yml`
 - 03/11 Backend minimo accettato da Genna per la memoria che segue la frase: Worker + KV gratuiti (nessuna sospensione per inattività), una chiave per coppia = sha256(frase). Il P2P resta per il tempo reale.
 - 03/11 Al riavvio si parte sempre dalla Home ("Continua"), mai dentro la partita.
 - 04/11 Storia a capitoli in primo piano dopo ogni partita, visti per giocatore; viaggio per luoghi con secondari; vestiti dai luoghi visitati; capitoli.md fonte unica; materiale personale fuori dal repo (pubblico). ADR 001-005.
+- 06/11 Menù unico (`Menu.tsx`) in Home e Partita; in partita niente esporta/importa né "Ricomincia da zero". Il tema forzato spegne il `momento` della scena.
 
 ## Strumenti
 Nessun connettore: Cloudflare si gestisce con wrangler dal PC di Genna (il connettore Cloudflare del Project è di un cliente, non usarlo); GitHub via git dalla sessione. Il browser integrato della chat occupa un posto nella stanza P2P: chiuderlo prima delle prove.

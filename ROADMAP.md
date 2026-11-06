@@ -11,13 +11,14 @@ Genna e Mati giocano dal telefono: connessione 4G, mosse e reazioni identiche, i
 
 ## T5 — La storia a capitoli — chiuso 04/11 (pomeriggio), deployato; spec docs/specs/traguardo.md; validato (docs/design/img/t5-*.png)
 ## T6 — Luoghi visitati, vestiti e ricordi — chiuso 04/11, deployato; spec docs/specs/T6-luoghi-vestiti.md
-## T7 — Dinamicità e usabilità — punti 1-5, 8, 11 chiusi 04/11; spec docs/specs/T7-ux.md
-Restano: 6 accessibilità della griglia (roving tabindex, Esc nei menù), 7 menù unico Home/Partita, 9 scena che conosce l'ora (`momento`), 10 accessori nelle schermate grandi, 12 `leggendo` nella presenza (opzionale). Scostamenti minori accettati: rotazione vestiti 0,75/90 s; posta: stessa frase entro 120 s = una voce.
+## T7 — Dinamicità e usabilità — chiuso 06/11 (punti 1-11; 12 rimandato), deployato, commit cfbc483; spec docs/specs/T7-ux.md, report docs/REPORT-06-11-notte.md
 
 ## T8 — Collaudo reale della storia (prossimo)
 Genna e Mati giocano dal telefono con la versione nuova: arretrati, lettura del capitolo su entrambi, vestiti, posta, gesto indietro Android, iOS PWA. Esiti in HANDOFF "Da Genna"; poi correzioni e i punti T7 rimasti.
 
 ## Dopo (solo se serve)
+- T7.12 `leggendo` nella presenza P2P ("Mati sta leggendo…"), dopo T8: tocca `src/net/types.ts`.
+- Toast "Frasi nuove…" che copre il menù aperto; stile di "Diagnostica rete" nel menù.
 - Capitoli oltre il 100 (nuovi atti con lo stesso metodo); "leggi dopo" più fine per gli arretrati.
 - Splash iOS; suoni opzionali; storico partite esportabile in immagine.
 
