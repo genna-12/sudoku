@@ -9,13 +9,15 @@ interface Props {
   matita: boolean;
   /** `nota` = scrivere come nota a matita invece che come valore */
   onCifra: (n: number, nota: boolean) => void;
+  /** partita finita: i tasti restano al loro posto ma spenti */
+  spento?: boolean;
 }
 
 /**
  * Tastierino 1–9. Tenere premuto un numero = note momentanee: quel numero (e gli altri toccati
  * mentre lo si tiene) va nelle note; al rilascio si torna a scrivere valori.
  */
-export function Tastierino({ restano, matita, onCifra }: Props) {
+export function Tastierino({ restano, matita, onCifra, spento = false }: Props) {
   const [tenuto, setTenuto] = useState<number | null>(null);
   const timer = useRef(0);
   const lungo = useRef<number | null>(null);
@@ -55,7 +57,7 @@ export function Tastierino({ restano, matita, onCifra }: Props) {
   }
 
   return (
-    <div className={`tastierino${matita ? ' in-matita' : ''}${tenuto !== null ? ' note-momentanee' : ''}`}>
+    <div className={`tastierino${matita ? ' in-matita' : ''}${tenuto !== null ? ' note-momentanee' : ''}${spento ? ' spento' : ''}`} inert={spento}>
       {CIFRE.map((n) => (
         <button
           key={n}

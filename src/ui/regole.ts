@@ -20,6 +20,7 @@ import { GIORNI_SPECIALI, QUOTA_ECO_CHIACCHIERE, SBLOCCHI } from '../config/stor
 import type { GiornoSpeciale, Sblocco } from '../config/storia';
 import { ORARI_SONNO, dormePerOrario, seminaDormeTardiOggi } from '../config/sonno';
 import type { ChiParla, FraseConAccessorio } from '../config/frasi';
+import { PROFILI } from '../config/giocatori';
 import type { Contatori, Giocatore, StatoPartita, VoceStorico } from '../stato';
 
 // --- punti -------------------------------------------------------------------
@@ -340,6 +341,9 @@ export function frasiDisponibili(
 /**
  * Frase detta da una mascotte su un evento del suo giocatore: metà delle volte dalla sua voce
  * (frasiDisponibili, se ne ha), metà da FRASI. Evita le ultime usate (`evita`).
+ * `perRuolo`: chi ha fatto la mossa (chi gioca su questo telefono). Se la mascotte che parla non è
+ * la sua (prima di Semina, sul telefono di Blu parla Semino), la voce non chiama per nome il
+ * giocatore della mascotte (Semino non dice "quasi, Genna" a Mati).
  */
 export function fraseMascotte(
   categoria: CategoriaFrase,
@@ -349,10 +353,28 @@ export function fraseMascotte(
   caso: () => number = Math.random,
   fiori: number = 0,
   sbloccata: boolean = arrivata(fiori),
+  perRuolo?: Giocatore,
 ): string {
-  const voce = frasiDisponibili(categoria, chi, fiori, sbloccata).map(testoDi);
+  let voce = frasiDisponibili(categoria, chi, fiori, sbloccata).map(testoDi);
+  if (perRuolo && mascotteDi(perRuolo) !== chi) {
+    const suo = PROFILI.find((p) => p.id === chi)?.nomeReale;
+    if (suo) voce = voce.filter((t) => !new RegExp(`\\b${suo}\\b`, 'i').test(t));
+  }
   const lista = voce.length && caso() < 0.5 ? voce : senzaSemina(FRASI[categoria], sbloccata);
   return scegliFrase(lista, evita, s, caso);
+}
+
+/**
+ * Di notte (la mascotte che parla è nelle sue ore di sonno) una frase di sonno può prendere il posto
+ * solo di una reazione neutra (cella giusta semplice): mai di un errore, di una chiusura o della vittoria.
+ */
+export function sonnoPuoSostituire(categoria: string): boolean {
+  return categoria === 'giusta';
+}
+
+/** Di notte un errore si commenta con la sua frase, a mezza voce ("zzz… quasi"). */
+export function aMezzaVoce(categoria: string, testo: string): string {
+  return testo && (categoria === 'sbagliata' || categoria === 'sbagliataSerie') ? `zzz… ${testo}` : testo;
 }
 
 /** Frasi da mandare al partner con questi fiori (FRASI.invio + pacchetti sbloccati). */

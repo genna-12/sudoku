@@ -32,6 +32,7 @@ import {
   SOLLETICO_OGNI_MS,
   accessorioDi,
   accessorioPermesso,
+  aMezzaVoce,
   chiacchieraPermessa,
   bonusVittoria,
   chiacchiera,
@@ -48,6 +49,7 @@ import {
   scegliFrase,
   senzaSemina,
   solletico,
+  sonnoPuoSostituire,
   sostituisci,
   stessiVisti,
   testoDi,
@@ -71,7 +73,7 @@ import type { Tono } from './Toasts';
 import { useArchivio } from './useArchivio';
 import { useSync } from './useSync';
 import { useMascotte, useOgniTanto, useUltimeFrasi } from './useMascotte';
-import { usePartita } from './usePartita';
+import { usePartita, useTimerPartita } from './usePartita';
 import type { Reazione } from './usePartita';
 import { useRete } from './useRete';
 import type { Destinazione, Origine } from './useRete';
@@ -295,11 +297,14 @@ export function App() {
     return t;
   };
   const frase = (c: CategoriaFrase, chi: ChiParla, n?: number) => {
-    // svegliata nelle sue ore di sonno: una volta su due parla del sonno
+    // svegliata nelle sue ore di sonno: sulle mosse neutre una volta su due parla del sonno;
+    // errori e vittoria restano la loro frase (gli errori a mezza voce), mai "bella mossa" su un errore
     const sb = vivi.current.sbloccata;
-    if (dormePerOrario(chi) && Math.random() < 0.5)
+    const dorme = dormePerOrario(chi);
+    if (dorme && sonnoPuoSostituire(c) && Math.random() < 0.5)
       return usata('sonno', fraseSonno(chi, evita('sonno'), new Date(), Math.random, { mossa: true, sbloccata: sb }));
-    return usata(c, fraseMascotte(c, chi, evita(c), sost(n), Math.random, vivi.current.fiori, sb));
+    const t = usata(c, fraseMascotte(c, chi, evita(c), sost(n), Math.random, vivi.current.fiori, sb, vivi.current.mioRuolo));
+    return dorme ? aMezzaVoce(c, t) : t;
   };
   const fraseSemplice = (c: CategoriaFrase) => {
     const sb = vivi.current.sbloccata;
@@ -368,7 +373,13 @@ export function App() {
     }
     if (!r.testo) return;
     const delPartner = v.sbloccata && dalPartner && chi === mascotteDi(altro(v.mioRuolo));
-    const prefisso = delPartner ? (PROFILI.find((p) => p.id === chi) ?? PROFILI[0]).nome : undefined;
+    // prima di Semina parla solo Semino anche per l'altro: la firma col nome vero (nel colore del tono,
+    // rosso sugli errori) dice che la mossa era sua e non mia
+    const prefisso = delPartner
+      ? (PROFILI.find((p) => p.id === chi) ?? PROFILI[0]).nome
+      : !v.sbloccata && dalPartner
+        ? v.nomePartner
+        : undefined;
     const errore = r.categoria === 'sbagliata' || r.categoria === 'sbagliataSerie';
     const tono: Tono = errore ? 'errore' : r.categoria === 'completato' ? 'completato' : dalPartner ? 'suo' : 'mio';
     if (v.schermata === 'partita') {
@@ -440,6 +451,7 @@ export function App() {
       vibra: (schema) => {
         if (vivi.current.vibrazione) navigator.vibrate?.(schema);
       },
+      avviso: (testo) => annuncia(testo, { categoria: 'annulla', inPartita: true }),
       vittoria: () => {
         const p = ref.current.partita;
         if (!p) return;
@@ -631,14 +643,7 @@ export function App() {
   // mentre leggo un capitolo la partita nuova (aperta dal partner) aspetta: il mio timer è fermo
   const leggendo = !!lettore || rilettura !== null || !!cartaVai;
   const inGioco = schermata === 'partita' && !!partita && !partita.finita && !leggendo;
-  const tick = gioco.tick;
-  useEffect(() => {
-    if (!inGioco) return;
-    const t = window.setInterval(() => {
-      if (document.visibilityState === 'visible') tick();
-    }, 1000);
-    return () => window.clearInterval(t);
-  }, [inGioco, tick]);
+  useTimerPartita(inGioco, gioco.tick);
 
   // partita finita: punti di ciascuno e ultima cella restano per il dettaglio del fiore nel Giardino
   const chiaveFinita = partita?.finita
@@ -666,7 +671,9 @@ export function App() {
   // un azzeramento (anche dal partner) chiude il lettore: la coda di prima non vale più
   if (lettore && lettore.azzerato !== archivio.azzerato) setLettore(null);
   const capitoloAperto = capitoloDelLettore(lettore);
-  const vittoriaAperta = finitaQui && !lettore && !cartaVai && (coda.length === 0 || fattoPer === iniziataFinita);
+  // anche senza capitoli in coda la carta aspetta la festa sulla griglia (lampo e reazione dell'ultima cella)
+  const vittoriaAperta =
+    finitaQui && !lettore && !cartaVai && (fattoPer === iniziataFinita || (coda.length === 0 && festa === iniziataFinita));
 
   function chiudiLettore(l: Lettore) {
     setLettore(null);
@@ -903,7 +910,7 @@ export function App() {
     scrivi(CHIAVE_SUGGERIMENTI, [...visti, s]);
     const chi: ChiParla = v.sbloccata ? mascotteDi(v.mioRuolo) : 'semino';
     if (evento === 'home') mostraChiacchiera(chi, TESTI_SUGGERIMENTI[s], { ms: DURATA_CHIACCHIERA_MS });
-    else dici({ chi, testo: TESTI_SUGGERIMENTI[s], tono: 'mio', categoria: 'suggerimento' });
+    else dici({ chi, testo: TESTI_SUGGERIMENTI[s], tono: 'mio', categoria: 'gesto' });
   }
   // in Home, dopo 4 s fermi e senza fumetti aperti: "puoi toccarmi"
   const homeQuieta = schermata === 'home' && verso === null && !lettore && rilettura === null && fiori >= 1;
@@ -1247,6 +1254,7 @@ export function App() {
           onSuggerimento={suggerisci}
           frasiDaScegliere={frasiDaScegliere}
           onEsci={() => vai('home')}
+          onNuova={() => iniziaNuova(partita.puzzle.modalita, partita.puzzle.livello)}
           lampo={lampo}
           arrivo={arrivo}
         />

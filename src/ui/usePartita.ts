@@ -44,6 +44,8 @@ export interface Effetti {
   vittoria: () => void;
   /** suggerimenti regalati dagli sblocchi, appena accreditati alla partita nuova */
   regaliGiardino?: (n: number) => void;
+  /** avviso breve in partita (es. "Annulla" su una cella cambiata nel frattempo) */
+  avviso?: (testo: string) => void;
 }
 
 interface Opzioni {
@@ -59,11 +61,19 @@ interface Opzioni {
   effetti: Effetti;
 }
 
+/** Una mia mossa annullabile: com'era la cella prima (`v`, `note`) e come l'ho lasciata io (`dopo`). */
 interface Passo {
   idx: number;
   v: number;
   note: number[];
+  dopo: { v: number; note: number[] };
 }
+
+export const AVVISO_ANNULLA_CAMBIATA = 'Quella cella è cambiata nel frattempo: la lascio com’è';
+export const AVVISO_ANNULLA_DEFINITIVA = 'Quella cella ormai è giusta: resta così';
+
+const stesseNote = (x: readonly number[], y: readonly number[]) =>
+  x.length === y.length && [...x].sort().every((n, i) => n === [...y].sort()[i]);
 
 const STORICO_OGNI_MS = 2000;
 const idDi = (s: StatoPartita) => `${s.puzzle.modalita}-${s.puzzle.seed}`;
@@ -76,6 +86,24 @@ export function cellaBloccata(p: StatoPartita, idx: number, mostraErrori: boolea
   if (p.puzzle.dati[idx] !== 0) return true;
   const v = p.celle[idx]?.v ?? 0;
   return mostraErrori && v !== 0 && v === p.puzzle.soluzione[idx];
+}
+
+/**
+ * Il secondo di gioco: un intervallo da 1 s finché `attivo` (e la pagina è visibile). Dipende solo da
+ * `attivo`: i render frequenti (mosse, battute, cursore) non lo ricreano, quindi il tempo non si ferma.
+ */
+export function useTimerPartita(attivo: boolean, tick: () => void) {
+  const t = useRef(tick);
+  useEffect(() => {
+    t.current = tick;
+  });
+  useEffect(() => {
+    if (!attivo) return;
+    const h = window.setInterval(() => {
+      if (document.visibilityState === 'visible') t.current();
+    }, 1000);
+    return () => window.clearInterval(h);
+  }, [attivo]);
 }
 
 export function usePartita(opzioni: Opzioni) {
@@ -186,8 +214,13 @@ export function usePartita(opzioni: Opzioni) {
     let n = applica(p, { tipo: 'cella', idx, v, note, da: mio, ts });
     if (n === p) return false;
     if (!daAnnulla) {
-      passi.current.push({ idx, v: prec?.v ?? 0, note: prec?.note ?? [] });
-      if (passi.current.length > 200) passi.current.shift();
+      if (cellaBloccata(n, idx, o.current.mostraErrori)) {
+        // giusta e definitiva: non si potrà annullare, e i miei passi vecchi su questa cella non valgono più
+        passi.current = passi.current.filter((x) => x.idx !== idx);
+      } else {
+        passi.current.push({ idx, v: prec?.v ?? 0, note: prec?.note ?? [], dopo: { v, note: [...note] } });
+        if (passi.current.length > 200) passi.current.shift();
+      }
       setNPassi(passi.current.length);
     }
     o.current.invia({ t: 'cella', idx, v, note, da: mio, ts });
@@ -245,12 +278,27 @@ export function usePartita(opzioni: Opzioni) {
     return true;
   }
 
-  /** Annulla l'ultimo passo che si può ancora annullare (le celle diventate definitive si saltano). */
-  function annulla() {
-    for (let passo = passi.current.pop(); passo; passo = passi.current.pop()) {
-      if (mossa(passo.idx, passo.v, passo.note, true)) break;
-    }
+  /**
+   * Annulla la mia ultima mossa, solo se la cella è ancora come l'ho lasciata io. Se nel frattempo
+   * l'ha cambiata il partner (o è diventata giusta e definitiva) non tocca niente: scarta quel passo,
+   * lo dice con un avviso breve e si ferma (mai un salto silenzioso a una mossa più vecchia).
+   * Restituisce la cella interessata (per selezionarla), o null.
+   */
+  function annulla(): number | null {
+    const passo = passi.current.pop();
     setNPassi(passi.current.length);
+    const p = o.current.ref.current.partita;
+    if (!passo || !p || p.finita) return null;
+    const c = p.celle[passo.idx];
+    const bloccata = cellaBloccata(p, passo.idx, o.current.mostraErrori);
+    const comeLaLasciai =
+      !bloccata && c?.da === o.current.mioRuolo && (c?.v ?? 0) === passo.dopo.v && stesseNote(c?.note ?? [], passo.dopo.note);
+    if (!comeLaLasciai) {
+      o.current.effetti.avviso?.(bloccata ? AVVISO_ANNULLA_DEFINITIVA : AVVISO_ANNULLA_CAMBIATA);
+      return passo.idx;
+    }
+    mossa(passo.idx, passo.v, passo.note, true);
+    return passo.idx;
   }
 
   /** Regalo di Semino: riempie `idx` col valore giusto (0 punti, attribuito a me). */
@@ -373,10 +421,11 @@ export function usePartita(opzioni: Opzioni) {
     return true;
   }
 
-  function tick() {
+  // stabile (legge tutto da `o.current`): l'intervallo del timer non deve ripartire a ogni render
+  const tick = useCallback(() => {
     const p = o.current.ref.current.partita;
     if (p && !p.finita) o.current.modifica((a) => (a.partita === p ? { ...a, partita: applica(p, { tipo: 'tick' }) } : a));
-  }
+  }, []);
 
   function chiudi() {
     azzeraPassi();

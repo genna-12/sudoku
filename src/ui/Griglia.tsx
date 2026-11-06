@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import type { Gabbia, Puzzle } from '../engine';
 import type { Cella, Giocatore } from '../stato';
@@ -104,6 +104,10 @@ const LINEE_SPESSE = [3, 6].map((k) => `M${k * 100} 0V900M0 ${k * 100}H900`).joi
 export function Griglia(p: Props) {
   const { puzzle, valori } = p;
   const gabbie = puzzle.gabbie;
+  // lampi e arrivi nati prima di questa griglia (rientro con "Continua", griglia nuova) non si ripetono
+  const [montata] = useState(() => Date.now());
+  const lampoVivo = p.lampo && p.lampo.id >= montata ? p.lampo : null;
+  const arrivoVivo = p.arrivo && p.arrivo.id >= montata ? p.arrivo : null;
 
   const killer = useMemo(() => {
     if (!gabbie) return null;
@@ -120,8 +124,8 @@ export function Griglia(p: Props) {
 
   // un box chiuso: la griglia "respira" (1.01 e ritorno), una volta per lampo
   const el = useRef<HTMLDivElement>(null);
-  const lampoId = p.lampo?.id;
-  const lampoBox = !!p.lampo && chiudeBox(p.lampo.centro, p.lampo.celle);
+  const lampoId = lampoVivo?.id;
+  const lampoBox = !!lampoVivo && chiudeBox(lampoVivo.centro, lampoVivo.celle);
   useEffect(() => {
     const e = el.current;
     if (!lampoId || !lampoBox || !e || typeof e.animate !== 'function') return;
@@ -171,10 +175,10 @@ export function Griglia(p: Props) {
   const sc = sel !== null ? sel % 9 : -1;
   const sb = sel !== null ? Math.floor(sr / 3) * 3 + Math.floor(sc / 3) : -1;
   const lampo = new Map<number, number>();
-  if (p.lampo) {
-    const cr = Math.floor(p.lampo.centro / 9);
-    const cc = p.lampo.centro % 9;
-    for (const i of p.lampo.celle) {
+  if (lampoVivo) {
+    const cr = Math.floor(lampoVivo.centro / 9);
+    const cc = lampoVivo.centro % 9;
+    for (const i of lampoVivo.celle) {
       lampo.set(i, Math.abs(Math.floor(i / 9) - cr) + Math.abs((i % 9) - cc));
     }
   }
@@ -215,6 +219,7 @@ export function Griglia(p: Props) {
         if (errore) cls.push('errore');
         if (i === p.partnerCursore) cls.push('partner');
         const somma = killer?.somme.get(i);
+        if (somma) cls.push('con-somma');
         const ritardo = lampo.get(i);
         const descr = etichettaCella({
           r,
@@ -260,18 +265,18 @@ export function Griglia(p: Props) {
                 {somma.somma}
               </span>
             )}
-            {ritardo !== undefined && p.lampo && (
+            {ritardo !== undefined && lampoVivo && (
               <span
-                key={`l${p.lampo.id}`}
+                key={`l${lampoVivo.id}`}
                 className="fx-lampo"
                 style={{ '--ritardo': `${ritardo * 30}ms` } as CSSProperties}
                 aria-hidden="true"
               />
             )}
-            {p.arrivo?.idx === i && (
+            {arrivoVivo?.idx === i && (
               <span
-                key={`a${p.arrivo.id}`}
-                className={p.arrivo.tipo === 'evento' ? 'fx-arrivo fx-evento' : 'fx-arrivo'}
+                key={`a${arrivoVivo.id}`}
+                className={arrivoVivo.tipo === 'evento' ? 'fx-arrivo fx-evento' : 'fx-arrivo'}
                 aria-hidden="true"
               />
             )}
