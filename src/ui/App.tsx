@@ -62,6 +62,7 @@ import { FESTA_MS, USCITA_MS, apriLettore, avanza, capitoloDelLettore, conCapito
 import type { Lettore, Riassunto } from './lettore';
 import { useChiudiConIndietro, useGestoIndietro } from './indietro';
 import { useDialogo } from './dialogo';
+import { chiudiToccandoFuori } from './velo';
 import { CHIAVE_SUGGERIMENTI, TESTI_SUGGERIMENTI, suggerimentiVisti, suggerimentoDa } from './suggerimenti';
 import type { EventoSuggerimento } from './suggerimenti';
 import { Toasts, useBattute, useToasts } from './Toasts';
@@ -1160,7 +1161,7 @@ function ConfermaNuova({ onNuova, onContinua, onChiudi }: { onNuova: () => void;
   const nuova = useRef<HTMLButtonElement>(null);
   useDialogo(foglio, true, { iniziale: nuova });
   return (
-    <div className="foglio-velo" onPointerDown={(e) => e.target === e.currentTarget && onChiudi()}>
+    <div className="foglio-velo" {...chiudiToccandoFuori(onChiudi)}>
       <div ref={foglio} className="foglio" role="alertdialog" aria-modal="true" aria-labelledby="conferma-nuova-titolo" data-testid="conferma-nuova">
         <div className="foglio-passo">
           <h2 id="conferma-nuova-titolo">Nuova partita?</h2>

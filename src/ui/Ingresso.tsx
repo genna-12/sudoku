@@ -8,6 +8,7 @@ import type { Indossati } from './useMascotte';
 import type { Io } from './useStanza';
 import { useChiudiConIndietro } from './indietro';
 import { useDialogo } from './dialogo';
+import { chiudiToccandoFuori } from './velo';
 
 /**
  * Ingresso: si sceglie il proprio colore (verde o blu) e si scrive la frase della stanza.
@@ -111,7 +112,7 @@ export function Ingresso({
       </form>
 
       {avviso && profilo && ricordato && (
-        <div className="foglio-velo" onPointerDown={(e) => e.target === e.currentTarget && setAvviso(false)}>
+        <div className="foglio-velo" {...chiudiToccandoFuori(() => setAvviso(false))}>
           <div ref={foglioAvviso} className="foglio" role="alertdialog" aria-modal="true" aria-labelledby="avviso-profilo-titolo" data-testid="avviso-profilo">
             <div className="foglio-passo">
               <h2 id="avviso-profilo-titolo">Questo browser ricorda già {nomeVisibile(ricordato, sbloccata)}</h2>

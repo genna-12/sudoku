@@ -3,6 +3,7 @@ import { useRef, useState, useEffect } from 'react';
 import type { ChangeEvent } from 'react';
 import { useChiudiConIndietro } from './indietro';
 import { useDialogo } from './dialogo';
+import { chiudiToccandoFuori } from './velo';
 import { IconaMenu } from './Icone';
 import type { InfoSync } from './useSync';
 import { muoviNelMenu, vociMenu } from './vociMenu';
@@ -140,7 +141,7 @@ export function Menu(p: Props) {
       </button>
       {aperto && (
         <>
-          <div className="menu-velo" onPointerDown={() => setAperto(false)} />
+          <div className="menu-velo" {...chiudiToccandoFuori(() => setAperto(false))} />
           <div
             ref={pannello}
             className={`menu menu-pannello menu-${p.contesto}`}
@@ -287,7 +288,7 @@ export function Menu(p: Props) {
       )}
 
       {conferma && (
-        <div className="foglio-velo" onPointerDown={(e) => e.target === e.currentTarget && chiudiTutto()}>
+        <div className="foglio-velo" {...chiudiToccandoFuori(chiudiTutto)}>
           <div ref={foglio} className="foglio" role="alertdialog" aria-modal="true" aria-labelledby="foglio-titolo" data-testid="menu-conferma">
             <div key={conferma} className={`foglio-passo${conferma === 'ricomincia-2' ? ' avanti' : ''}`}>
               {conferma === 'cancella' && (

@@ -3,6 +3,7 @@ import type { VocePosta } from '../stato/archivio';
 import type { Giocatore } from '../stato';
 import { useChiudiConIndietro } from './indietro';
 import { useDialogo } from './dialogo';
+import { chiudiToccandoFuori } from './velo';
 import { nominaSemina } from './regole';
 
 /** quante frasi mostra il foglio (l'archivio ne tiene di più) */
@@ -42,7 +43,7 @@ export function FoglioPosta(p: {
   const voci = postaDaMostrare(p.posta, p.sbloccata);
   const ora = Date.now();
   return (
-    <div className="foglio-velo foglio-velo-leggero" onPointerDown={(e) => e.target === e.currentTarget && p.onChiudi()}>
+    <div className="foglio-velo foglio-velo-leggero" {...chiudiToccandoFuori(p.onChiudi)}>
       <div
         ref={foglio}
         className="foglio foglio-posta"
