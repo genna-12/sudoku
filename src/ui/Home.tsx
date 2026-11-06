@@ -21,7 +21,8 @@ import { ELEMENTI_SCENA, Scena } from './Scena';
 import { Semino, SeminoCoppia, SeminoPianta } from './Semino';
 import { accessorioValido } from './useMascotte';
 import type { Indossati, Mascotte } from './useMascotte';
-import { CHIAVI, leggi, scrivi, tempo, testoConnessione } from './util';
+import { CHIAVI, leggi, scrivi, tempo } from './util';
+import { testoPallino } from './presenza';
 import { CHIAVE_ULTIMI_VESTITI } from './vestiti';
 
 export interface Chiacchiera {
@@ -32,6 +33,8 @@ export interface Chiacchiera {
   accessorio?: string;
   /** firma sotto il fumetto (l'eco di un capitolo: "Semino · dal capitolo 12") */
   firma?: string;
+  /** l'eco di un capitolo: il suo fiore (toccando la firma si rilegge) */
+  capitolo?: number;
 }
 
 interface Props {
@@ -61,6 +64,8 @@ interface Props {
   daLeggere: number;
   onLeggi: () => void;
   chiacchiera: Chiacchiera | null;
+  /** tocco sulla firma dell'eco: rilettura di quel capitolo (studio-ux §4) */
+  onRileggi?: (fiore: number) => void;
   /** reazione al solletico in corso (fumetto breve, sopra a tutto) */
   solletico: Chiacchiera | null;
   onSolletico: (chi: ChiParla) => void;
@@ -336,14 +341,17 @@ function useAccessoriRiposo(
 function Eroe(p: Props) {
   const stadio = Math.min(4, p.fiori);
   const sol = p.solletico;
-  const parla: ChiParla = sol ? sol.chi : p.chiacchiera ? p.chiacchiera.chi : 'semino';
+  // l'eco si chiude toccandola (studio-ux §4): la si nasconde qui, il timer di App la toglie poi
+  const [chiusa, setChiusa] = useState<number | null>(null);
+  const chiac = p.chiacchiera && p.chiacchiera.id !== chiusa ? p.chiacchiera : null;
+  const parla: ChiParla = sol ? sol.chi : chiac ? chiac.chi : 'semino';
   const coppia = p.sbloccata;
-  const riposo = useAccessoriRiposo(!sol && !p.chiacchiera, coppia, p.visti, p.giorno, p.mioRuolo, p.onVestitoNuovo, !!p.ecoInArrivo);
+  const riposo = useAccessoriRiposo(!sol && !chiac, coppia, p.visti, p.giorno, p.mioRuolo, p.onVestitoNuovo, !!p.ecoInArrivo);
   // l'accessorio della chiacchiera aperta lo indossa chi parla; il solletico non lo toglie
   const indossati: Indossati = { ...riposo };
-  if (!sol && p.chiacchiera) {
-    const a = accessorioValido(p.chiacchiera.accessorio);
-    if (a) indossati[p.chiacchiera.chi] = a;
+  if (!sol && chiac) {
+    const a = accessorioValido(chiac.accessorio);
+    if (a) indossati[chiac.chi] = a;
   }
   const variante = parla === 'semina' ? ' fumetto--semina' : '';
   const giorno = p.giorno ? GIORNI_SPECIALI[p.giorno] : null;
@@ -355,7 +363,7 @@ function Eroe(p: Props) {
         : `Ciao ${p.nome}. Nel giardino ${p.fiori === 1 ? 'c’è 1 fiore' : `ci sono ${p.fiori} fiori`}.`;
   const m = p.mascotte;
   // chi ha il fumetto aperto muove la bocca per il tempo della frase
-  const frase = sol?.testo ?? p.chiacchiera?.testo ?? saluto;
+  const frase = sol?.testo ?? chiac?.testo ?? saluto;
   return (
     <section className={`home-eroe parla-${parla}${coppia ? ' home-eroe--coppia' : ''}`} aria-live="polite">
       <span className="home-mascotte">
@@ -393,15 +401,41 @@ function Eroe(p: Props) {
         <p key={sol.id} className={`fumetto fumetto-solletico${variante}`} data-testid="fumetto-solletico">
           {sol.testo}
         </p>
-      ) : p.chiacchiera ? (
-        <p key={p.chiacchiera.id} className={`fumetto${variante}`} data-testid={p.chiacchiera.firma ? 'fumetto-eco' : undefined}>
-          {p.chiacchiera.testo}
-          {p.chiacchiera.firma && <span className="fumetto-firma">{p.chiacchiera.firma}</span>}
+      ) : chiac ? (
+        <p
+          key={chiac.id}
+          className={`fumetto${variante}`}
+          data-testid={chiac.firma ? 'fumetto-eco' : undefined}
+          onClick={chiac.firma ? () => setChiusa(chiac.id) : undefined}
+        >
+          {chiac.testo}
+          {chiac.firma && <FirmaEco chiacchiera={chiac} onRileggi={p.onRileggi} onChiudi={() => setChiusa(chiac.id)} />}
         </p>
       ) : (
         <p className="fumetto fumetto-quieto">{saluto}</p>
       )}
     </section>
+  );
+}
+
+/** La firma dell'eco ("Semino · dal capitolo 12"): toccandola si rilegge quel capitolo. */
+function FirmaEco({ chiacchiera: c, onRileggi, onChiudi }: { chiacchiera: Chiacchiera; onRileggi?: (fiore: number) => void; onChiudi: () => void }) {
+  const fiore = c.capitolo;
+  if (fiore === undefined || !onRileggi) return <span className="fumetto-firma">{c.firma}</span>;
+  return (
+    <button
+      type="button"
+      className="fumetto-firma fumetto-firma-tocca"
+      data-testid="eco-firma"
+      aria-label={`${c.firma}: rileggi il capitolo`}
+      onClick={(e) => {
+        e.stopPropagation();
+        onChiudi();
+        onRileggi(fiore);
+      }}
+    >
+      {c.firma}
+    </button>
   );
 }
 
@@ -433,22 +467,6 @@ export function Pallino({
       {breve && <span className="nascosto-visivo">{testo.intero}</span>}
     </span>
   );
-}
-
-/**
- * Il testo del pallino in testata: breve, al massimo due righe anche a 360 px (H4); la frase intera
- * resta per il lettore di schermo e nel title.
- */
-export function testoPallino(
-  connessione: StatoConnessione,
-  partner: string,
-  occupata = false,
-  femminile = false,
-): { breve: string; intero: string } {
-  const collegato = femminile ? 'collegata' : 'collegato';
-  if (occupata) return { breve: `già ${collegato} altrove`, intero: `sei già ${collegato} da un altro dispositivo` };
-  const intero = testoConnessione(connessione, partner);
-  return { breve: connessione === 'errore' ? 'non mi collego, riprovo' : intero, intero };
 }
 
 function MiniGriglia({ partita, mioRuolo }: { partita: StatoPartita; mioRuolo: Giocatore }) {

@@ -276,13 +276,13 @@ export function App() {
     } else mostra({ tipo: 'banner', testo, categoria: o.categoria });
   }
 
-  function mostraChiacchiera(chi: ChiParla, testo: string, o: { firma?: string; ms?: number; accessorio?: string } = {}) {
+  function mostraChiacchiera(chi: ChiParla, testo: string, o: { firma?: string; capitolo?: number; ms?: number; accessorio?: string } = {}) {
     // l'accessorio della frase solo se il suo luogo è visitato e se è del suo carattere (in partita sono separati)
     const v = vivi.current;
     // una chiacchiera di un luogo che qui non è ancora visitato (es. dal partner più avanti) non si dice
     if (!chiacchieraPermessa(chi, testo, v.luoghi)) return;
     const accessorio = o.accessorio ?? accessorioPermesso(chi, accessorioDi(chi, testo), v.vistiMiei, { inCoppia: v.sbloccata, giorno: v.giorno });
-    setChiacchieraOra({ id: Date.now(), chi, testo, accessorio, firma: o.firma });
+    setChiacchieraOra({ id: Date.now(), chi, testo, accessorio, firma: o.firma, capitolo: o.capitolo });
     window.clearTimeout(timerChiacchiera.current);
     timerChiacchiera.current = window.setTimeout(() => setChiacchieraOra(null), o.ms ?? DURATA_CHIACCHIERA_MS);
   }
@@ -685,7 +685,7 @@ export function App() {
     // prima dell'arrivo di Semina qui le sue eco non si dicono (non dovrebbero esserci: i dati lo garantiscono)
     if (ecoOra.chi === 'semino' || vivi.current.sbloccata) {
       const nome = ecoOra.chi === 'semina' ? 'Semina' : 'Semino';
-      mostraChiacchiera(ecoOra.chi, sostituisci(ecoOra.testo, sost()), { firma: `${nome} · dal capitolo ${ecoOra.fiore}`, ms: DURATA_ECO_MS });
+      mostraChiacchiera(ecoOra.chi, sostituisci(ecoOra.testo, sost()), { firma: `${nome} · dal capitolo ${ecoOra.fiore}`, capitolo: ecoOra.fiore, ms: DURATA_ECO_MS });
     }
     const k = ecoOra.chiave;
     modifica((a) => (a.ecoViste.includes(k) ? a : { ...a, ecoViste: [...a.ecoViste, k] }));
@@ -944,6 +944,7 @@ export function App() {
           daLeggere={coda.length}
           onLeggi={() => setLettore(apriLettore(fiori, vistiMiei, 'home', archivio.azzerato))}
           chiacchiera={chiacchieraOra}
+          onRileggi={setRilettura}
           solletico={solleticoOra}
           onSolletico={onSolletico}
           mascotte={mascotte}
