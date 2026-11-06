@@ -324,7 +324,13 @@ export function App() {
     }
     if (!r.testo) return;
     const delPartner = v.sbloccata && dalPartner && chi === mascotteDi(altro(v.mioRuolo));
-    const prefisso = delPartner ? (PROFILI.find((p) => p.id === chi) ?? PROFILI[0]).nome : undefined;
+    // prima di Semina parla solo Semino anche per l'altro: la firma col nome vero (nel colore del tono,
+    // rosso sugli errori) dice che la mossa era sua e non mia
+    const prefisso = delPartner
+      ? (PROFILI.find((p) => p.id === chi) ?? PROFILI[0]).nome
+      : !v.sbloccata && dalPartner
+        ? v.nomePartner
+        : undefined;
     const errore = r.categoria === 'sbagliata' || r.categoria === 'sbagliataSerie';
     const tono: Tono = errore ? 'errore' : r.categoria === 'completato' ? 'completato' : dalPartner ? 'suo' : 'mio';
     if (v.schermata === 'partita') {
