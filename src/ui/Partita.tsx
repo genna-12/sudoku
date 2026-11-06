@@ -63,6 +63,9 @@ interface Props {
   arrivo: Arrivo | null;
 }
 
+/** menù e fogli aperti (anche il lettore dei capitoli e la Vittoria): finché ce n'è uno, la griglia non sente i tasti */
+const DIALOGHI_APERTI = '[role="menu"], [role="dialog"], [role="alertdialog"]';
+
 const CHIP: Partial<Record<StatoConnessione, string>> = {
   connessione: 'mi collego',
   'in-attesa': 'in attesa',
@@ -157,8 +160,9 @@ export function Partita(p: Props) {
   useEffect(() => {
     function suTasto(e: KeyboardEvent) {
       if (e.target instanceof HTMLInputElement) return;
-      // dentro il menù o un foglio i tasti sono loro (frecce tra le voci, cifre nei campi)
-      if (e.target instanceof Element && e.target.closest('[role="menu"], [role="dialog"], [role="alertdialog"]')) return;
+      // con un menù o un foglio aperto i tasti sono loro (frecce tra le voci, cifre nei campi), anche se
+      // il focus è finito sul body (un clic su una parte non focalizzabile del menù, il lettore dei capitoli)
+      if (document.querySelector(DIALOGHI_APERTI)) return;
       const t = tastiera.current;
       if (/^[1-9]$/.test(e.key)) t.premi(Number(e.key));
       else if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') t.cancella();

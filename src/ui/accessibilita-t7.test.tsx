@@ -334,6 +334,23 @@ describe('partita: tastiera, menù e fogli insieme', () => {
     expect(onMossa).toHaveBeenCalledWith(10, 5, []);
   });
 
+  it('con il menù aperto e il focus finito sul body (clic su una parte non focalizzabile) le cifre non scrivono', () => {
+    const onMossa = vi.fn();
+    act(() => root.render(partita({ onMossa })));
+    act(() => celle()[10].focus());
+    act(() => box.querySelector<HTMLElement>('[data-testid="menu"]')!.click());
+    (document.activeElement as HTMLElement).blur();
+    expect(document.activeElement).toBe(document.body);
+    tasto('5', document.body);
+    tasto('ArrowRight', document.body);
+    expect(onMossa).not.toHaveBeenCalled();
+    expect(selezionata()).toBe(10);
+    tasto('Escape', document.body);
+    expect(box.querySelector('[role="menu"]')).toBeNull();
+    tasto('5', document.body);
+    expect(onMossa).toHaveBeenCalledWith(10, 5, []);
+  });
+
   it('il foglio delle frasi: focus dentro, Esc lo chiude e il focus torna al cuore', () => {
     act(() => root.render(partita()));
     const cuore = box.querySelector<HTMLElement>('[data-testid="manda-frase"]')!;
