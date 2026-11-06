@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { CSSProperties } from 'react';
 import type { ChiParla } from '../config/frasi';
+import type { Momento } from '../config/sonno';
 import type { Chiacchiera } from './Home';
 import { Scena } from './Scena';
 import { Semino, SeminoCoppia } from './Semino';
@@ -23,6 +24,7 @@ export function Vittoria({
   fiori,
   elementi,
   bluPresenza,
+  momento,
   vai = false,
   onNuova,
   onChiudi,
@@ -43,6 +45,8 @@ export function Vittoria({
   /** elementi visibili della scena (senza il tulipano di Semina prima del capitolo 5) */
   elementi: readonly string[];
   bluPresenza: number;
+  /** il momento del giorno per il cielo della scena (assente col tema forzato) */
+  momento?: Momento;
   /** il partner ha già aperto una partita nuova (mentre leggevo il capitolo): "Vai" al posto di "Nuova partita" */
   vai?: boolean;
   onNuova: () => void;
@@ -73,7 +77,7 @@ export function Vittoria({
       </div>
       <div className="vittoria-carta" data-testid="vittoria">
         <div className="vittoria-cielo">
-          <Scena elementi={elementi} fiori={fiori} bluPresenza={bluPresenza} altezza={118} festa={elementi.includes('fuochi')} />
+          <Scena elementi={elementi} fiori={fiori} bluPresenza={bluPresenza} momento={momento} altezza={118} festa={elementi.includes('fuochi')} />
         </div>
         <span className="vittoria-mascotte">
           {sbloccata ? (

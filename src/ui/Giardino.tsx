@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ChiParla } from '../config/frasi';
+import type { Momento } from '../config/sonno';
 import { LIVELLI_PARAMETRI } from '../config/livelli';
 import type { Giocatore, VoceStorico } from '../stato';
 import type { DettaglioFiore } from '../stato/archivio';
@@ -29,6 +30,8 @@ interface Props {
   elementi: readonly string[];
   /** presenza del blu (0..1) per il chiarore della scena */
   bluPresenza: number;
+  /** il momento del giorno per il cielo della scena (assente col tema forzato) */
+  momento?: Momento;
   mascotte: Mascotte;
   solletico: Chiacchiera | null;
   onSolletico: (chi: ChiParla) => void;
@@ -80,6 +83,7 @@ export function Giardino(p: Props) {
           elementi={p.elementi}
           fiori={st.fiori}
           bluPresenza={p.bluPresenza}
+          momento={p.momento}
           altezza={180}
           sfuma={vuoto}
           onCassetta={p.onPosta}

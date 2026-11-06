@@ -19,6 +19,7 @@ import { codaCapitoli, diario, ecoDaMostrare, ecoDi, giardinoDelCapitolo, giardi
 import { Giardino } from './Giardino';
 import type { Arrivo, Lampo } from './Griglia';
 import { Home } from './Home';
+import { useMomento } from './momento';
 import type { Chiacchiera } from './Home';
 import { BannerAggiornamento } from './Aggiornamento';
 import { Ingresso } from './Ingresso';
@@ -220,6 +221,8 @@ export function App() {
   useEffect(() => {
     document.documentElement.style.setProperty('--blu-presenza', String(blu));
   }, [blu]);
+  // il cielo della scena segue l'ora (solo col tema "auto"; il lettore dei capitoli resta di notte)
+  const momento = useMomento(tema);
   function cambiaTema(t: Tema) {
     setTema(t);
     scrivi(CHIAVI.tema, t === 'auto' ? null : t);
@@ -923,6 +926,7 @@ export function App() {
           giardino={giardino}
           giorno={giorno}
           visti={vistiMiei}
+          momento={momento}
           onVestitoNuovo={vestitoNuovo}
           ecoInArrivo={!!ecoOra}
           daLeggere={coda.length}
@@ -958,6 +962,7 @@ export function App() {
           visti={vistiMiei}
           elementi={giardino.elementi}
           bluPresenza={blu}
+          momento={momento}
           mascotte={mascotte}
           solletico={solleticoOra}
           onSolletico={onSolletico}
@@ -1022,6 +1027,7 @@ export function App() {
           fiori={fiori}
           elementi={giardino.elementi}
           bluPresenza={blu}
+          momento={momento}
           onNuova={() => iniziaNuova(partita.puzzle.modalita, partita.puzzle.livello)}
           onChiudi={() => setVittoriaChiusa(partita.iniziata)}
         />
@@ -1040,6 +1046,7 @@ export function App() {
           fiori={fiori}
           elementi={giardino.elementi}
           bluPresenza={blu}
+          momento={momento}
           vai
           onNuova={() => {
             setCartaVai(null);

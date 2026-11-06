@@ -7,6 +7,7 @@ import type { ChiParla } from '../config/frasi';
 import { LIVELLI_PARAMETRI } from '../config/livelli';
 import { GIORNI_SPECIALI } from '../config/storia';
 import type { GiornoSpeciale } from '../config/storia';
+import type { Momento } from '../config/sonno';
 import type { StatoConnessione } from '../net';
 import type { Giocatore, StatoPartita } from '../stato';
 import { MenuHome } from './MenuHome';
@@ -49,6 +50,8 @@ interface Props {
   giorno: GiornoSpeciale | null;
   /** capitoli letti da chi tiene il telefono: i vestiti vengono dai luoghi visitati */
   visti: readonly string[];
+  /** il momento del giorno per il cielo della scena (assente col tema forzato) */
+  momento?: Momento;
   /** la prima volta che un vestito compare in Home (per giocatore): chiacchiera del suo luogo */
   onVestitoNuovo?: (chi: ChiParla, id: string) => void;
   /** l'eco di un capitolo sta per essere detta: il vestito nuovo aspetta (studio-ux §4) */
@@ -105,6 +108,7 @@ export function Home(p: Props) {
         altezza={220}
         sfuma
         titolo
+        momento={p.momento}
         nuovi={inEvidenza(p)}
       />
       {/* la cassetta della scena si tocca: un bottone trasparente sopra di lei (la scena sta sotto
