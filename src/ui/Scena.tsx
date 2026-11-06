@@ -6,9 +6,12 @@
 //   - un elemento nuovo (mai visto su questo dispositivo, o comparso mentre la scena è montata) entra con un fade/scale
 //   - festa: i fuochi d'artificio partono (se sbloccati) e l'arcobaleno si accende
 //   - sfuma: in basso sfuma nel fondo della pagina (per la Home)
+//   - momento: alba/giorno/crepuscolo/notte (ui/momento.ts): un cielo tinto dietro le sagome e il sole di giorno
+//     (variabili --sc-cielo-* in scena.css); senza, la scena segue solo il tema (il lettore dei capitoli)
 //   - figli: slot sul prato (x relativa al centro, y=0 al suolo PRATO_Y) per le mascotte del Giardino
 // Colori dal tema (--verde, --blu, --fondo, --testo…) con fallback; tinte della scena in scena.css.
 import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import type { Momento } from '../config/sonno';
 import './scena.css';
 
 /** gli id che la scena sa disegnare (devono coprire i ricordi degli ATTI in config/luoghi.ts) */
@@ -402,6 +405,8 @@ interface Props {
   senzaEntrate?: boolean;
   /** in alto a sinistra c'è il titolo (Home): sul telefono la tavola e i razzi stanno alla sua destra */
   titolo?: boolean;
+  /** momento del giorno (dall'ora locale, se il tema non è forzato): tinge il cielo; senza, solo il tema */
+  momento?: Momento;
   /** cose in piedi sul prato (es. le mascotte): origine al centro del prato, y = 0 al suolo (PRATO_Y), unità del viewBox */
   figli?: ReactNode;
   /** tocco sulla cassetta della posta (se c'è): un bersaglio trasparente sopra di lei */
@@ -421,6 +426,7 @@ export function Scena({
   nuovi: nuoviForzati,
   senzaEntrate = false,
   titolo = false,
+  momento,
   figli,
   onCassetta,
   className,
@@ -621,9 +627,12 @@ export function Scena({
   const xCavallo = 60;
 
   // la luna (con le stelle) e il suo riflesso nello stagno
-  const luna = ha.has('stelle');
+  const luna = ha.has('stelle') && momento !== 'giorno';
   const xLuna = xStagno - 4;
   const yLuna = 36;
+  // il sole di giorno: a destra del centro, sotto le barre della Home e lontano dal titolo
+  const xSole = Math.min(dx - 60, 40);
+  const ySole = 70;
 
   const el = (k: ElementoScena, contenuto: ReactNode, extra = '') =>
     ha.has(k) ? (
@@ -650,6 +659,7 @@ export function Scena({
       className={`sc-scena${sfuma ? ' sc-sfuma' : ''}${festa ? ' sc-festa' : ''}${className ? ` ${className}` : ''}`}
       viewBox={`${f1(sx)} 0 ${f1(W)} ${H}`}
       preserveAspectRatio={intera ? 'xMidYMax meet' : 'xMidYMax slice'}
+      data-momento={momento}
       role={figli ? 'group' : 'img'}
       aria-label={descrizione(elementi, fiori)}
       style={{ height: altezza, '--sc-p': `${p}%`, ...style } as CSSProperties}
@@ -668,11 +678,27 @@ export function Scena({
           <stop offset="0" className="sc-stagno-0" />
           <stop offset="1" className="sc-stagno-1" />
         </radialGradient>
+        {momento && (
+          <linearGradient id={`cielo-${id}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" className="sc-cielo-0" />
+            <stop offset="0.3" className="sc-cielo-1" />
+            <stop offset="0.82" className="sc-cielo-2" />
+          </linearGradient>
+        )}
         <mask id={`luna-${id}`}>
           <rect x={xLuna - 20} y={yLuna - 20} width={40} height={40} fill="#fff" />
           <circle cx={xLuna + 5} cy={yLuna - 3} r={10} fill="#000" />
         </mask>
       </defs>
+
+      {/* il cielo del momento (sopra sfuma nella pagina: nessun bordo sotto le barre) e il sole di giorno */}
+      {momento && <rect x={f1(sx - 20)} y={0} width={f1(W + 40)} height={ORIZZONTE + 24} fill={`url(#cielo-${id})`} className="sc-cielo" />}
+      {momento === 'giorno' && (
+        <g className="sc-sole" aria-hidden="true">
+          <circle cx={xSole} cy={ySole} r={17} className="sc-sole-alone" />
+          <circle cx={xSole} cy={ySole} r={9} className="sc-sole-disco" />
+        </g>
+      )}
 
       {/* chiarore all'orizzonte: dal verde al blu con la presenza */}
       <rect x={f1(sx - 20)} y={56} width={f1(W + 40)} height={ORIZZONTE + 20 - 56} fill={`url(#chiarore-${id})`} />

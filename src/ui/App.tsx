@@ -18,7 +18,8 @@ import { CapitoloScena } from './CapitoloScena';
 import { codaCapitoli, diario, ecoDaMostrare, ecoDi, giardinoDelCapitolo, giardinoVisibile, seminaSbloccata, vistiDi } from './capitoli';
 import { Giardino } from './Giardino';
 import type { Arrivo, Lampo } from './Griglia';
-import { Home } from './Home';
+import { Home, vestitiGrandi } from './Home';
+import { useMomento } from './momento';
 import type { Chiacchiera } from './Home';
 import { BannerAggiornamento } from './Aggiornamento';
 import { Ingresso } from './Ingresso';
@@ -221,6 +222,8 @@ export function App() {
   useEffect(() => {
     document.documentElement.style.setProperty('--blu-presenza', String(blu));
   }, [blu]);
+  // il cielo della scena segue l'ora (solo col tema "auto"; il lettore dei capitoli resta di notte)
+  const momento = useMomento(tema);
   function cambiaTema(t: Tema) {
     setTema(t);
     scrivi(CHIAVI.tema, t === 'auto' ? null : t);
@@ -915,7 +918,7 @@ export function App() {
         }}
       >
       {schermata === 'ingresso' && (
-        <Ingresso key="ingresso" iniziale={io} sbloccata={sbloccata} onEntra={entra} />
+        <Ingresso key="ingresso" iniziale={io} sbloccata={sbloccata} vestiti={vestitiGrandi(mioRuolo, { visti: vistiMiei, sbloccata, giorno })} onEntra={entra} />
       )}
       {schermata === 'home' && io && (
         <Home
@@ -933,6 +936,7 @@ export function App() {
           giardino={giardino}
           giorno={giorno}
           visti={vistiMiei}
+          momento={momento}
           onVestitoNuovo={vestitoNuovo}
           ecoInArrivo={!!ecoOra}
           daLeggere={coda.length}
@@ -966,8 +970,10 @@ export function App() {
           inCorso={partita && !partita.finita ? `${partita.puzzle.modalita}-${partita.puzzle.seed}` : null}
           sbloccata={sbloccata}
           visti={vistiMiei}
+          vestiti={vestitiGrandi(mioRuolo, { visti: vistiMiei, sbloccata, giorno })}
           elementi={giardino.elementi}
           bluPresenza={blu}
+          momento={momento}
           mascotte={mascotte}
           solletico={solleticoOra}
           onSolletico={onSolletico}
@@ -1035,6 +1041,8 @@ export function App() {
           fiori={fiori}
           elementi={giardino.elementi}
           bluPresenza={blu}
+          momento={momento}
+          vestiti={vestitiGrandi(mioRuolo, { visti: vistiMiei, sbloccata, giorno })}
           onNuova={() => iniziaNuova(partita.puzzle.modalita, partita.puzzle.livello)}
           onChiudi={() => setVittoriaChiusa(partita.iniziata)}
         />
@@ -1053,6 +1061,8 @@ export function App() {
           fiori={fiori}
           elementi={giardino.elementi}
           bluPresenza={blu}
+          momento={momento}
+          vestiti={vestitiGrandi(mioRuolo, { visti: vistiMiei, sbloccata, giorno })}
           vai
           onNuova={() => {
             setCartaVai(null);

@@ -73,6 +73,62 @@
   --sc-luce-casa: color-mix(in oklab, var(--sc-blu) 25%, #fff);
 }
 
+/* ---------- il momento del giorno (ui/momento.ts) ----------
+   Solo col tema che segue il sistema (data-momento c'è solo allora) e mai nel lettore dei capitoli.
+   Le tinte si mescolano col fondo del tema: al buio il cielo resta scuro abbastanza per il testo crema,
+   di mattina chiaro abbastanza per l'inchiostro. In alto il cielo sfuma nella pagina (nessun bordo). */
+.sc-scena .sc-cielo-0 {
+  stop-color: var(--sc-cielo-medio);
+  stop-opacity: 0;
+}
+.sc-scena .sc-cielo-1 {
+  stop-color: var(--sc-cielo-medio);
+}
+.sc-scena .sc-cielo-2 {
+  stop-color: var(--sc-cielo-basso);
+}
+.sc-scena .sc-sole-alone {
+  fill: var(--sc-oro);
+  opacity: 0.22;
+}
+.sc-scena .sc-sole-disco {
+  fill: color-mix(in oklab, var(--sc-oro) 45%, #fff6dc);
+}
+:root .sc-scena[data-momento='alba']:not(.capitolo *) {
+  --sc-cielo-medio: color-mix(in oklab, var(--sc-fondo), #8f9cc8 34%);
+  --sc-cielo-basso: color-mix(in oklab, var(--sc-fondo), #f4b0a0 50%);
+  --sc-stella: color-mix(in oklab, #fff2cf 40%, transparent);
+  --sc-luna: color-mix(in oklab, #fff4d8 55%, transparent);
+  --sc-luce-casa: color-mix(in oklab, var(--sc-oro) 35%, var(--sc-muro));
+}
+:root .sc-scena[data-momento='giorno']:not(.capitolo *) {
+  --sc-cielo-medio: color-mix(in oklab, var(--sc-fondo), #5a95c8 42%);
+  --sc-cielo-basso: color-mix(in oklab, var(--sc-fondo), #a9d4e0 50%);
+  --sc-stella: color-mix(in oklab, #fff2cf 28%, transparent);
+  --sc-luce-casa: color-mix(in oklab, var(--sc-blu) 22%, var(--sc-muro));
+}
+:root .sc-scena[data-momento='crepuscolo']:not(.capitolo *) {
+  --sc-cielo-medio: color-mix(in oklab, var(--sc-fondo), #4b3a86 44%);
+  --sc-cielo-basso: color-mix(in oklab, var(--sc-fondo), #ef8a4a 54%);
+  --sc-stella: color-mix(in oklab, #fff2cf 75%, transparent);
+  --sc-luna: #fff4d8;
+  --sc-luce-casa: var(--sc-oro);
+}
+:root .sc-scena[data-momento='notte']:not(.capitolo *) {
+  --sc-cielo-medio: color-mix(in oklab, var(--sc-fondo), #1c2c62 28%);
+  --sc-cielo-basso: color-mix(in oklab, var(--sc-fondo), #2a4078 22%);
+  --sc-luce-casa: var(--sc-oro);
+}
+/* di mattina (sistema chiaro) la notte è un blu medio: stelle e luna bianche, finestre accese */
+@media (prefers-color-scheme: light) {
+  :root:not([data-tema]) .sc-scena[data-momento='notte']:not(.capitolo *) {
+    --sc-cielo-medio: color-mix(in oklab, var(--sc-fondo), #2c3a6a 44%);
+    --sc-cielo-basso: color-mix(in oklab, var(--sc-fondo), #4a5c8c 32%);
+    --sc-stella: #ffffff;
+    --sc-luna: #ffffff;
+  }
+}
+
 /* sotto sfuma nel fondo della pagina (Home) */
 .sc-sfuma {
   -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent 100%);

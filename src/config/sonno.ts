@@ -38,6 +38,40 @@ export function seminaDormeTardiOggi(d: Date = new Date()): boolean {
   return giornoDellAnno(d) % SEMINA_DORME_TARDI_OGNI === 0;
 }
 
+// --- il momento del giorno della scena (studio-ux §5 punto 9) ---------------------------------
+
+export type Momento = 'alba' | 'giorno' | 'crepuscolo' | 'notte';
+
+/** Fasce della scena in ora locale (decimali): ognuna va da `da` (incluso) all'inizio della seguente; la notte passa la mezzanotte. */
+export const FASCE_MOMENTO: readonly { momento: Momento; da: number }[] = [
+  { momento: 'alba', da: 5.5 },
+  { momento: 'giorno', da: 8 },
+  { momento: 'crepuscolo', da: 18 },
+  { momento: 'notte', da: 20.5 },
+];
+
+/** Il momento del giorno all'ora locale di `d`. */
+export function momentoDa(d: Date = new Date()): Momento {
+  const ora = oraDecimale(d);
+  let m: Momento = FASCE_MOMENTO[FASCE_MOMENTO.length - 1].momento;
+  for (const f of FASCE_MOMENTO) if (ora >= f.da) m = f.momento;
+  return m;
+}
+
+/** Millisecondi da `d` al prossimo cambio di fascia (con setHours: giusto anche nei giorni del cambio d'ora). */
+export function msAlProssimoMomento(d: Date = new Date()): number {
+  let min = Infinity;
+  for (const giorni of [0, 1]) {
+    for (const f of FASCE_MOMENTO) {
+      const t = new Date(d.getFullYear(), d.getMonth(), d.getDate() + giorni);
+      t.setHours(Math.floor(f.da), Math.round((f.da % 1) * 60), 0, 0);
+      const ms = t.getTime() - d.getTime();
+      if (ms > 0 && ms < min) min = ms;
+    }
+  }
+  return min;
+}
+
 /** La mascotte sta dormendo per orario (indipendentemente dall'attività). */
 export function dormePerOrario(chi: 'semino' | 'semina', d: Date = new Date()): boolean {
   const ora = oraDecimale(d);
