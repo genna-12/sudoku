@@ -113,6 +113,8 @@ try {
   if (!(await visibile(B.page, 'capitolo-scena'))) fallisci('B: il lettore si è chiuso con la "Nuova" di A');
   if ((await B.page.getByTestId('capitolo-scena').getAttribute('data-fiore')) !== '8') fallisci('B: il lettore ha cambiato capitolo');
   if (!(await B.page.evaluate(() => document.querySelector('.app-sotto')?.inert))) fallisci('B: la partita sotto il lettore non è inert');
+  // l'archivio si scrive poco dopo la griglia: si misura il timer della partita nuova, non della vecchia
+  await finche(async () => String((await archivioDi(B.page))?.partita?.puzzle?.seed) === nuovo, 5000, 'B: la partita nuova non arriva nell’archivio');
   const s1 = (await archivioDi(B.page)).partita.secondi;
   await attendi(2600);
   const s2 = (await archivioDi(B.page)).partita.secondi;
