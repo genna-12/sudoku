@@ -61,6 +61,7 @@ import { accessorioValido } from './useMascotte';
 import { FESTA_MS, USCITA_MS, apriLettore, avanza, capitoloDelLettore, conCapitoloVisto, leggiAdesso } from './lettore';
 import type { Lettore, Riassunto } from './lettore';
 import { useChiudiConIndietro, useGestoIndietro } from './indietro';
+import { useColoreBarra } from './barra';
 import { useDialogo } from './dialogo';
 import { CHIAVE_SUGGERIMENTI, TESTI_SUGGERIMENTI, suggerimentiVisti, suggerimentoDa } from './suggerimenti';
 import type { EventoSuggerimento } from './suggerimenti';
@@ -211,6 +212,7 @@ export function App() {
   const invia = useCallback((m: Messaggio, dove?: Destinazione) => inviaRef.current(m, dove), []);
 
   // --- tema --------------------------------------------------------------------
+  // (al primo caricamento il tema salvato lo mette già lo script di index.html, prima del CSS: T6)
   useEffect(() => {
     const r = document.documentElement;
     if (tema === 'auto') delete r.dataset.tema;
@@ -225,6 +227,8 @@ export function App() {
   }, [blu]);
   // il cielo della scena segue l'ora (solo col tema "auto"; il lettore dei capitoli resta di notte)
   const momento = useMomento(tema);
+  // barra di stato del telefono: il colore del tema visto, di notte col capitolo aperto (T7)
+  useColoreBarra(tema, !!lettore || rilettura !== null);
   function cambiaTema(t: Tema) {
     setTema(t);
     scrivi(CHIAVI.tema, t === 'auto' ? null : t);
