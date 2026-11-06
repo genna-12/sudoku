@@ -27,12 +27,26 @@
   --fd-luce: var(--fd-oro);
   --fd-filo-v: color-mix(in oklab, var(--fd-verde) 34%, transparent);
 
+  /* riempimento dei lati quando il disegno è più stretto dello schermo: cielo fino all'orizzonte, poi il
+     suolo del luogo (le varianti sotto ridefiniscono --fd-lato-*) */
+  --fd-suolo-y: var(--cap-suolo, 70%);
+  --fd-lato-0: var(--fd-c0);
+  --fd-lato-1: var(--fd-c1);
+  /* una fascia fra orizzonte e suolo (il mare): quanto sta sopra il suolo, in unità del disegno */
+  --fd-lato-o: 0;
+  --fd-lato-banda-0: var(--fd-lato-1);
+  --fd-lato-banda-1: var(--fd-lato-1);
+  --fd-lato-terra: var(--fd-suolo);
+
   position: absolute;
   inset: 0;
   overflow: hidden;
   pointer-events: none;
   user-select: none;
-  background: var(--fd-terra);
+  container-type: size;
+  /* i livelli interni (lati, stelle, disegno) restano dentro il fondale */
+  isolation: isolate;
+  background: var(--fd-lato-terra);
 }
 /* mattina (tema chiaro): neve, schiuma e luna restano chiare */
 @media (prefers-color-scheme: light) {
@@ -45,12 +59,100 @@
   --fd-neve: #ffffff;
   --fd-schiuma: #ffffff;
 }
+/* il disegno scala sull'altezza, ma non è mai più stretto di 360 px: così in orizzontale resta leggibile.
+   Il suolo del disegno (y 448 di 640) cade su --fd-suolo-y, come il palco; se il disegno è più largo
+   dello schermo i lati si tagliano (come lo slice di prima sui telefoni). */
+.fd > svg,
+.fd::before {
+  --fd-w: max(56.25cqh, min(100cqw, 360px));
+}
 .fd > svg {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  z-index: 1;
+  left: 50%;
+  top: calc(var(--fd-suolo-y) - var(--fd-w) * 1.24444);
+  width: var(--fd-w);
+  height: calc(var(--fd-w) * 1.77778);
+  translate: -50% 0;
   display: block;
+}
+/* schermi più larghi del disegno: i bordi sfumano nel riempimento dei lati */
+@container (min-aspect-ratio: 9 / 16) and (min-width: 361px) {
+  .fd > svg {
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 14%, #000 86%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 14%, #000 86%, transparent);
+  }
+}
+/* il riempimento dei lati, sotto il disegno: cielo, la fascia del luogo (se c'è) e il suolo */
+.fd::before {
+  --fd-oriz: calc(var(--fd-suolo-y) - var(--fd-w) * var(--fd-lato-o) / 360);
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    var(--fd-lato-0) 0%,
+    var(--fd-lato-1) var(--fd-oriz),
+    var(--fd-lato-banda-0) var(--fd-oriz),
+    var(--fd-lato-banda-1) calc(var(--fd-suolo-y) - 14px),
+    var(--fd-lato-terra) calc(var(--fd-suolo-y) - 10px),
+    var(--fd-lato-terra) 100%
+  );
+}
+/* di notte qualche stella anche nel cielo dei lati (sotto il disegno, che la copre al centro) */
+.fd[data-notte='1']::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: calc(var(--fd-suolo-y) - 30%);
+  opacity: var(--stelle, 0.6);
+  /* tre trame di misure diverse: nessuna griglia visibile */
+  background-image:
+    radial-gradient(circle at 18% 22%, #fff2cf 0 1px, transparent 1.6px),
+    radial-gradient(circle at 63% 58%, #fff2cf 0 1.2px, transparent 1.8px),
+    radial-gradient(circle at 84% 14%, #fff2cf 0 0.9px, transparent 1.4px),
+    radial-gradient(circle at 38% 78%, #fff2cf 0 0.8px, transparent 1.3px),
+    radial-gradient(circle at 71% 33%, #fff2cf 0 1px, transparent 1.6px);
+  background-size:
+    173px 151px,
+    173px 151px,
+    241px 197px,
+    241px 197px,
+    317px 263px;
+}
+/* il suolo dei lati, luogo per luogo (gli stessi colori dei disegni) */
+.fd-giardino {
+  --fd-lato-terra: color-mix(in oklab, var(--fd-terra), var(--fd-verde) 11%);
+}
+.fd-mare {
+  --fd-lato-o: 148;
+  --fd-lato-banda-0: var(--fd-mare-0);
+  --fd-lato-banda-1: var(--fd-mare-1);
+  --fd-lato-terra: var(--fd-sabbia);
+}
+.fd-citta {
+  --fd-lato-terra: color-mix(in oklab, var(--fd-terra), #1a2030 30%);
+}
+.fd-piazza {
+  --fd-lato-terra: color-mix(in oklab, var(--fd-terra), #8a7a64 12%);
+}
+.fd-stazione {
+  --fd-lato-terra: color-mix(in oklab, var(--fd-terra), #8a8a80 12%);
+}
+.fd-treno {
+  --fd-lato-0: color-mix(in oklab, var(--fd-fondo), #7a6a58 14%);
+  --fd-lato-1: var(--fd-lato-0);
+  --fd-lato-terra: color-mix(in oklab, var(--fd-fondo), #7a6a58 7%);
+}
+.fd-cucina {
+  --fd-lato-0: color-mix(in oklab, var(--fd-fondo), #c9a27a 20%);
+  --fd-lato-1: color-mix(in oklab, var(--fd-fondo), #c9a27a 8%);
+  --fd-lato-terra: color-mix(in oklab, var(--fd-fondo), #8a6a4a 10%);
+}
+.fd-laboratorio {
+  --fd-lato-0: color-mix(in oklab, var(--fd-fondo), #a8c4c0 13%);
+  --fd-lato-1: var(--fd-lato-0);
+  --fd-lato-terra: color-mix(in oklab, var(--fd-fondo), #a8c4c0 6%);
 }
 
 /* giorno (notte={false}): petrolio chiaro in alto, crema rosata all'orizzonte, mai così chiaro da

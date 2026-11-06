@@ -1,8 +1,10 @@
 // I fondali ("quinte") dei luoghi della storia, dietro la schermata del capitolo.
 // <Fondale luogo="mare" />  ·  <Fondale luogo="oltre" fondale="treno" notte={false} />
 //   - variante: `fondale` se c'è, altrimenti `luogo`; 'aiuola' → giardino; sconosciuto → giardino
-//   - viewBox 360×640 (telefono verticale), xMidYMax slice: il suolo resta in basso su ogni schermo;
-//     tutto ciò che conta sta fra x 40 e 320 (sui telefoni stretti i bordi si tagliano)
+//   - viewBox 360×640 (telefono verticale). Il disegno scala sull'altezza (mai meno largo di 360 px) e il
+//     suolo (y 448) cade sempre su --cap-suolo (70%, come il palco): sui telefoni stretti i bordi si
+//     tagliano, sugli schermi larghi e in orizzontale i lati si riempiono di cielo e terra (fondale.css);
+//     tutto ciò che conta sta fra x 40 e 320
 //   - il palco: suolo a y 448 (70%); sotto y 416 niente sagome alte, solo terra e cose basse a contrasto debole
 //   - giardino: cielo, prato, ciuffi e lucciole (sopra si monta la Scena della Home, intera)
 //   - notte (default true) cambia il cielo; cucina e laboratorio sono interni e la ignorano
@@ -534,7 +536,7 @@ export function Fondale({ luogo, fondale, notte = true }: { luogo: string; fonda
   }
   return (
     <div className={`fd fd-${v}`} data-notte={interno ? undefined : notte ? '1' : '0'} data-fondale={v} aria-hidden="true">
-      <svg viewBox="0 0 360 640" preserveAspectRatio="xMidYMax slice" focusable="false">
+      <svg viewBox="0 0 360 640" preserveAspectRatio="xMidYMax meet" focusable="false">
         {disegno}
       </svg>
     </div>
