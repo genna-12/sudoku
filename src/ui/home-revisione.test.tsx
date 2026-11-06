@@ -8,6 +8,7 @@ import type { Chiacchiera } from './Home';
 import { Ingresso } from './Ingresso';
 import { FoglioPosta } from './Posta';
 import { pila, useGestoIndietro } from './indietro';
+import { frecciaRadio } from './radio';
 import { testoPallino } from './presenza';
 import type { Mascotte } from './useMascotte';
 
@@ -169,5 +170,39 @@ describe('H11: Ingresso, Invio senza colore', () => {
     act(() => q('[data-testid="scegli-semina"]')!.click());
     expect(q('[data-testid="manca-colore"]')).toBeNull();
     expect(onEntra).not.toHaveBeenCalled();
+  });
+});
+
+describe('H14: modalità e livello come radiogroup', () => {
+  it('frecce in tondo, Inizio e Fine; gli altri tasti no', () => {
+    expect(frecciaRadio('ArrowRight', 5, 6)).toBe(0);
+    expect(frecciaRadio('ArrowDown', 1, 6)).toBe(2);
+    expect(frecciaRadio('ArrowLeft', 0, 6)).toBe(5);
+    expect(frecciaRadio('ArrowUp', 3, 6)).toBe(2);
+    expect(frecciaRadio('Home', 3, 6)).toBe(0);
+    expect(frecciaRadio('End', 0, 2)).toBe(1);
+    expect(frecciaRadio('Enter', 0, 2)).toBeNull();
+  });
+
+  it('una sola fermata di Tab per gruppo (la scelta), le frecce cambiano scelta e focus', () => {
+    localStorage.clear();
+    act(() => root.render(home()));
+    const radio = (sel: string) => Array.from(box.querySelectorAll<HTMLElement>(`${sel} [role="radio"]`));
+    const fermate = (sel: string) => radio(sel).filter((r) => r.tabIndex === 0);
+    expect(fermate('.segmentato').map((r) => r.dataset.testid)).toEqual(['modalita-sudoku']);
+    expect(fermate('.livelli').map((r) => r.dataset.testid)).toEqual(['livello-facile']);
+    const facile = q('[data-testid="livello-facile"]')!;
+    facile.focus();
+    tasto('ArrowRight', facile);
+    expect(q('[data-testid="livello-medio"]')!.getAttribute('aria-checked')).toBe('true');
+    expect(document.activeElement).toBe(q('[data-testid="livello-medio"]'));
+    expect(fermate('.livelli').map((r) => r.dataset.testid)).toEqual(['livello-medio']);
+    const sudoku = q('[data-testid="modalita-sudoku"]')!;
+    sudoku.focus();
+    tasto('ArrowLeft', sudoku);
+    expect(q('[data-testid="modalita-killer"]')!.getAttribute('aria-checked')).toBe('true');
+    expect(document.activeElement).toBe(q('[data-testid="modalita-killer"]'));
+    // il livello scelto resta anche cambiando modalità
+    expect(q('[data-testid="livello-medio"]')!.getAttribute('aria-checked')).toBe('true');
   });
 });

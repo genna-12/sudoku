@@ -23,6 +23,7 @@ import { accessorioValido } from './useMascotte';
 import type { Indossati, Mascotte } from './useMascotte';
 import { CHIAVI, leggi, scrivi, tempo } from './util';
 import { testoPallino } from './presenza';
+import { tastieraRadio } from './radio';
 import { CHIAVE_ULTIMI_VESTITI } from './vestiti';
 
 export interface Chiacchiera {
@@ -91,6 +92,7 @@ interface Props {
 }
 
 const NOMI_MODALITA: Record<Modalita, string> = { sudoku: 'Sudoku', killer: 'Killer' };
+const MODALITA = ['sudoku', 'killer'] as const;
 
 export function Home(p: Props) {
   const scelta = leggi<{ modalita: Modalita; livello: Livello }>(CHIAVI.scelta);
@@ -199,13 +201,20 @@ export function Home(p: Props) {
       )}
 
       <section className="scelta" aria-label="Nuova partita">
-        <div className="segmentato" role="radiogroup" aria-label="Modalità">
-          {(['sudoku', 'killer'] as const).map((m) => (
+        {/* radiogroup (H14): una fermata di Tab per gruppo, le frecce cambiano la scelta */}
+        <div
+          className="segmentato"
+          role="radiogroup"
+          aria-label="Modalità"
+          onKeyDown={tastieraRadio(MODALITA, modalita, (m) => scegli(m, livello))}
+        >
+          {MODALITA.map((m) => (
             <button
               key={m}
               data-testid={`modalita-${m}`}
               role="radio"
               aria-checked={modalita === m}
+              tabIndex={modalita === m ? 0 : -1}
               className={modalita === m ? 'attivo' : ''}
               onClick={() => scegli(m, livello)}
             >
@@ -215,13 +224,14 @@ export function Home(p: Props) {
           <span className="segmentato-cursore" data-pos={modalita === 'sudoku' ? 0 : 1} aria-hidden="true" />
         </div>
 
-        <div className="livelli" role="radiogroup" aria-label="Livello">
+        <div className="livelli" role="radiogroup" aria-label="Livello" onKeyDown={tastieraRadio(LIVELLI, livello, (l) => scegli(modalita, l))}>
           {LIVELLI.map((l, i) => (
             <button
               key={l}
               data-testid={`livello-${l}`}
               role="radio"
               aria-checked={livello === l}
+              tabIndex={livello === l ? 0 : -1}
               className={`livello${livello === l ? ' attivo' : ''}`}
               onClick={() => scegli(modalita, l)}
             >
