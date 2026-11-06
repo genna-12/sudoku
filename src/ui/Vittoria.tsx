@@ -6,7 +6,7 @@ import type { Chiacchiera } from './Home';
 import { Scena } from './Scena';
 import { Semino, SeminoCoppia } from './Semino';
 import { umoreValido } from './useMascotte';
-import type { Mascotte } from './useMascotte';
+import type { Indossati, Mascotte } from './useMascotte';
 import { tempo } from './util';
 
 const COLORI = ['var(--a)', 'var(--b)', 'var(--evid)', 'var(--inchiostro)'];
@@ -25,6 +25,7 @@ export function Vittoria({
   elementi,
   bluPresenza,
   momento,
+  vestiti,
   vai = false,
   onNuova,
   onChiudi,
@@ -47,6 +48,8 @@ export function Vittoria({
   bluPresenza: number;
   /** il momento del giorno per il cielo della scena (assente col tema forzato) */
   momento?: Momento;
+  /** i vestiti della Home (`vestitiGrandi`): prima dell'arrivo di Semina solo quello di Semino */
+  vestiti?: Indossati;
   /** il partner ha già aperto una partita nuova (mentre leggevo il capitolo): "Vai" al posto di "Nuova partita" */
   vai?: boolean;
   onNuova: () => void;
@@ -86,6 +89,8 @@ export function Vittoria({
               umore={umoreLui}
               umoreSemina={umoreLei}
               taglia={92}
+              accessorioSemino={vestiti?.semino}
+              accessorioSemina={vestiti?.semina}
               impulso={solletico ? `s${solletico.id}` : 'vittoria'}
               onSolletico={onSolletico}
               parla={chiParla}
@@ -99,6 +104,7 @@ export function Vittoria({
               impulso={solletico ? `s${solletico.id}` : 'vittoria'}
               onSolletico={() => onSolletico('semino')}
               taglia={112}
+              accessorio={vestiti?.semino}
               parla={chiParla === 'semino'}
               frase={solletico?.testo}
               seguiPuntatore

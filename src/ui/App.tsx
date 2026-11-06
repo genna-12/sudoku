@@ -18,7 +18,7 @@ import { CapitoloScena } from './CapitoloScena';
 import { codaCapitoli, diario, ecoDaMostrare, ecoDi, giardinoDelCapitolo, giardinoVisibile, seminaSbloccata, vistiDi } from './capitoli';
 import { Giardino } from './Giardino';
 import type { Arrivo, Lampo } from './Griglia';
-import { Home } from './Home';
+import { Home, vestitiGrandi } from './Home';
 import { useMomento } from './momento';
 import type { Chiacchiera } from './Home';
 import { BannerAggiornamento } from './Aggiornamento';
@@ -908,7 +908,7 @@ export function App() {
         }}
       >
       {schermata === 'ingresso' && (
-        <Ingresso key="ingresso" iniziale={io} sbloccata={sbloccata} onEntra={entra} />
+        <Ingresso key="ingresso" iniziale={io} sbloccata={sbloccata} vestiti={vestitiGrandi(mioRuolo, { visti: vistiMiei, sbloccata, giorno })} onEntra={entra} />
       )}
       {schermata === 'home' && io && (
         <Home
@@ -960,6 +960,7 @@ export function App() {
           inCorso={partita && !partita.finita ? `${partita.puzzle.modalita}-${partita.puzzle.seed}` : null}
           sbloccata={sbloccata}
           visti={vistiMiei}
+          vestiti={vestitiGrandi(mioRuolo, { visti: vistiMiei, sbloccata, giorno })}
           elementi={giardino.elementi}
           bluPresenza={blu}
           momento={momento}
@@ -1028,6 +1029,7 @@ export function App() {
           elementi={giardino.elementi}
           bluPresenza={blu}
           momento={momento}
+          vestiti={vestitiGrandi(mioRuolo, { visti: vistiMiei, sbloccata, giorno })}
           onNuova={() => iniziaNuova(partita.puzzle.modalita, partita.puzzle.livello)}
           onChiudi={() => setVittoriaChiusa(partita.iniziata)}
         />
@@ -1047,6 +1049,7 @@ export function App() {
           elementi={giardino.elementi}
           bluPresenza={blu}
           momento={momento}
+          vestiti={vestitiGrandi(mioRuolo, { visti: vistiMiei, sbloccata, giorno })}
           vai
           onNuova={() => {
             setCartaVai(null);

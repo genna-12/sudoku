@@ -7,11 +7,11 @@ import type { DettaglioFiore } from '../stato/archivio';
 import { useChiudiConIndietro } from './indietro';
 import type { AttoDiario } from './capitoli';
 import type { Chiacchiera } from './Home';
-import { aCasoDiverso, accessoriSbloccati, numeriFiori, quotaBluFiore, statistiche } from './regole';
+import { numeriFiori, quotaBluFiore, statistiche } from './regole';
 import { Scena } from './Scena';
-import { ACCESSORI_DI, Semino, SeminoPianta, stadioDaCrescita } from './Semino';
+import { Semino, SeminoPianta, stadioDaCrescita } from './Semino';
 import type { SeminoAzione } from './Semino';
-import type { Mascotte } from './useMascotte';
+import type { Indossati, Mascotte } from './useMascotte';
 import { IconaIndietro } from './Icone';
 import { tempo } from './util';
 
@@ -26,6 +26,8 @@ interface Props {
   sbloccata: boolean;
   /** capitoli letti da chi tiene il telefono (i vestiti vengono dai luoghi visitati) */
   visti: readonly string[];
+  /** i vestiti delle mascotte in testa (gli stessi della Home: `vestitiGrandi`); senza, nessuno */
+  vestiti?: Indossati;
   /** elementi visibili della scena (senza il tulipano di Semina prima del capitolo 5) */
   elementi: readonly string[];
   /** presenza del blu (0..1) per il chiarore della scena */
@@ -53,11 +55,8 @@ interface Props {
 export function Giardino(p: Props) {
   const st = statistiche(p.storico);
   const numeri = numeriFiori(p.storico);
-  // le mascotte in testa al giardino, ciascuna con un vestito a caso dei luoghi visitati (fisso per questa visita)
-  const [accessori] = useState(() => ({
-    semino: aCasoDiverso(accessoriSbloccati(ACCESSORI_DI.semino, p.visti), undefined),
-    semina: aCasoDiverso(accessoriSbloccati(ACCESSORI_DI.semina, p.visti), undefined),
-  }));
+  // le mascotte in testa al giardino coi vestiti della Home (fissi per questa visita)
+  const [accessori] = useState<Indossati>(() => p.vestiti ?? {});
   const vuoto = p.storico.length === 0;
   const chi: ChiParla[] = p.sbloccata ? ['semino', 'semina'] : ['semino'];
   const stadio = Math.min(4, st.fiori);

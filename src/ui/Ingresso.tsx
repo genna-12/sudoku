@@ -4,6 +4,7 @@ import { PROFILI, nomeVisibile, profiloDiNome } from '../config/giocatori';
 import type { ProfiloId } from '../config/giocatori';
 import { Semino } from './Semino';
 import { SemiTitolo } from './Icone';
+import type { Indossati } from './useMascotte';
 import type { Io } from './useStanza';
 
 /**
@@ -13,10 +14,13 @@ import type { Io } from './useStanza';
 export function Ingresso({
   iniziale,
   sbloccata,
+  vestiti,
   onEntra,
 }: {
   iniziale: Io | null;
   sbloccata: boolean;
+  /** i vestiti degli ultimi passati in Home (`vestitiGrandi`), solo dopo l'arrivo di Semina */
+  vestiti?: Indossati;
   onEntra: (io: Io) => void;
 }) {
   const [scelto, setScelto] = useState<ProfiloId | null>(() => (iniziale ? profiloDiNome(iniziale.nome).id : null));
@@ -65,7 +69,7 @@ export function Ingresso({
               onClick={() => setScelto(p.id)}
             >
               {sbloccata ? (
-                <Semino chi={p.id} stadio={2} umore="felice" impulso={scelto === p.id ? 1 : 0} taglia={72} />
+                <Semino chi={p.id} stadio={2} umore="felice" impulso={scelto === p.id ? 1 : 0} taglia={72} accessorio={vestiti?.[p.id]} />
               ) : (
                 <span className="profilo-goccia" aria-hidden="true" />
               )}

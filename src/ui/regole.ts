@@ -15,7 +15,7 @@ import type { Griglia, Livello, Modalita, Puzzle, Valutazione } from '../engine'
 import { SEMINA_ARRIVA_A, capitolo } from '../config/capitoli';
 import type { Luogo } from '../config/capitoli';
 import { CHIACCHIERE_LUOGO, FRASI, FRASI_EXTRA, SONNO, SONNO_MOSSA, VOCE, VOCE_SUGGERIMENTO } from '../config/frasi';
-import { attiVisitati, luogoDelVestito, vestitoArrivato } from '../config/luoghi';
+import { attiVisitati, luogoDelVestito, vestitiDisponibili, vestitoArrivato } from '../config/luoghi';
 import { GIORNI_SPECIALI, QUOTA_ECO_CHIACCHIERE, SBLOCCHI } from '../config/storia';
 import type { GiornoSpeciale, Sblocco } from '../config/storia';
 import { ORARI_SONNO, dormePerOrario, seminaDormeTardiOggi } from '../config/sonno';
@@ -587,6 +587,43 @@ export function vestitiRiposo(o: OpzioniVestiti & { prima?: VestitiRiposo; caso?
     if (semina) out.semina = semina;
   }
   return out;
+}
+
+/** Gli ultimi vestiti a riposo in Home (per giocatore, in localStorage) e quanti capitoli erano letti allora. */
+export interface UltimiVestiti extends VestitiRiposo {
+  letti: number;
+}
+
+/**
+ * I vestiti delle schermate dove i personaggi sono grandi: Ingresso, Vittoria, Giardino (studio-ux §5
+ * punto 8). Gli ultimi indossati a riposo in Home, così si ritrovano gli stessi; se da allora è stato letto
+ * un capitolo (o non ce ne sono) quelli d'entrata in Home (`vestitiIniziali`: dell'ultimo capitolo letto o
+ * del giorno speciale). Ognuno solo i suoi vestiti, dei luoghi visitati e permessi (`accessorioPermesso`);
+ * prima dell'arrivo di Semina (`sbloccata`) solo Semino, qualunque cosa ci sia nei salvati.
+ */
+export function vestitiSchermata(o: OpzioniVestiti & { ultimi?: unknown }): VestitiRiposo {
+  const iniziali = vestitiIniziali(o);
+  const u = o.ultimi as Partial<UltimiVestiti> | null | undefined;
+  const freschi = !!u && typeof u === 'object' && u.letti === o.visti.length;
+  const chi: ChiParla[] = o.sbloccata ? ['semino', 'semina'] : ['semino'];
+  const out: VestitiRiposo = {};
+  for (const c of chi) {
+    let id: string | undefined = iniziali[c];
+    if (freschi) {
+      const salvato = u![c];
+      if (salvato === undefined) id = undefined;
+      else if (typeof salvato === 'string' && vestitoDiChi(c, salvato, o)) id = salvato;
+    }
+    if (id) out[c] = id;
+  }
+  return out;
+}
+
+/** `id` è un vestito di `chi` adesso: dei suoi nei luoghi visitati o del giorno speciale, e permesso. */
+function vestitoDiChi(chi: ChiParla, id: string, o: OpzioniVestiti): boolean {
+  if (!accessorioPermesso(chi, id, o.visti, { inCoppia: o.sbloccata, giorno: o.giorno })) return false;
+  if (o.giorno && GIORNI_SPECIALI[o.giorno].accessori[chi] === id) return true;
+  return vestitiDisponibili(chi, o.visti).includes(id);
 }
 
 /** Chiave stabile di uno sblocco (gli id dei tipi diversi possono somigliarsi). */
