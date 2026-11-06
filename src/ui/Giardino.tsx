@@ -220,17 +220,31 @@ export function Giardino(p: Props) {
   );
 }
 
-/** Il diario: i capitoli già letti, per atto; un tocco li rilegge. */
+/** Fino a quanti capitoli letti il diario resta tutto aperto. */
+const DIARIO_APERTO_FINO = 15;
+
+/**
+ * Il diario: i capitoli già letti, per atto; un tocco li rilegge. Oltre 15 capitoli gli atti prima
+ * dell'ultimo sono chiusi (una riga con nome e capitoli): così i fiori sotto restano vicini anche con 100.
+ */
 function Diario({ atti, onRileggi }: { atti: AttoDiario[]; onRileggi: (fiore: number) => void }) {
+  const lungo = atti.reduce((n, a) => n + a.capitoli.length, 0) > DIARIO_APERTO_FINO;
   return (
     <section className="diario" data-testid="diario" aria-labelledby="diario-titolo">
       <h2 className="diario-titolo" id="diario-titolo">
         Diario
       </h2>
       {atti.length === 0 && <p className="diario-vuoto">Ancora nessun capitolo letto.</p>}
-      {atti.map((atto) => (
-        <div className="diario-atto" key={atto.nome}>
-          <h3>{atto.nome}</h3>
+      {atti.map((atto, i) => (
+        <details className="diario-atto" key={atto.nome} open={!lungo || i === atti.length - 1 || undefined}>
+          <summary>
+            <h3>{atto.nome}</h3>
+            <span className="diario-intervallo">
+              {atto.capitoli.length === 1
+                ? `capitolo ${atto.capitoli[0].fiore}`
+                : `capitoli ${atto.capitoli[0].fiore}-${atto.capitoli[atto.capitoli.length - 1].fiore}`}
+            </span>
+          </summary>
           <ol>
             {atto.capitoli.map((c) => (
               <li key={c.fiore}>
@@ -241,7 +255,7 @@ function Diario({ atti, onRileggi }: { atti: AttoDiario[]; onRileggi: (fiore: nu
               </li>
             ))}
           </ol>
-        </div>
+        </details>
       ))}
     </section>
   );
