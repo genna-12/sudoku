@@ -21,6 +21,7 @@ import type { ChiParla } from '../config/frasi';
 import { altro, sguardo, tempo, testoConnessione } from './util';
 import { delPartner } from './Toasts';
 import type { Battuta, Tono } from './Toasts';
+import { chiudiToccandoFuori } from './velo';
 
 interface Props {
   partita: StatoPartita;
@@ -411,7 +412,7 @@ export function Partita(p: Props) {
         </div>
       </div>
       {proposte && (
-        <div className="foglio-velo foglio-velo-leggero" onPointerDown={(e) => e.target === e.currentTarget && setProposte(null)}>
+        <div className="foglio-velo foglio-velo-leggero" {...chiudiToccandoFuori(() => setProposte(null))}>
           <div ref={foglioFrasi} className="foglio foglio-frasi" role="dialog" aria-modal="true" aria-label="Scegli una frase da mandare" data-testid="foglio-frasi">
             <p className="foglio-frasi-titolo">Manda una frase</p>
             <div className="foglio-frasi-lista">

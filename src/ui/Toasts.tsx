@@ -106,7 +106,7 @@ export function Toasts({ attivi, onChiudi }: { attivi: Array<Toast & { ms?: numb
             role="button"
             tabIndex={-1}
             aria-label={`${t.testo}${t.firma ? `, da ${t.firma}` : ''}. Tocca per chiudere`}
-            onPointerDown={() => onChiudi?.(t.id)}
+            onClick={() => onChiudi?.(t.id)}
           >
             <span className="toast-grande-testo">{t.testo}</span>
             {t.firma && <span className="toast-firma">{t.firma}</span>}

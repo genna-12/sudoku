@@ -15,6 +15,7 @@ import type { SeminoAzione } from './Semino';
 import type { Indossati, Mascotte } from './useMascotte';
 import { IconaIndietro } from './Icone';
 import { tempo } from './util';
+import { chiudiToccandoFuori } from './velo';
 
 const NOMI_MODALITA = { sudoku: 'Sudoku', killer: 'Killer' } as const;
 const DATA = new Intl.DateTimeFormat('it-IT', { day: 'numeric', month: 'short' });
@@ -395,7 +396,7 @@ function FoglioFiore({
   const livello = LIVELLI_PARAMETRI[voce.livello]?.etichetta ?? voce.livello;
   const chi = sbloccata && voce.modalita === 'killer' ? 'semina' : 'semino';
   return (
-    <div className="foglio-velo foglio-velo-leggero" onPointerDown={(e) => e.target === e.currentTarget && onChiudi()}>
+    <div className="foglio-velo foglio-velo-leggero" {...chiudiToccandoFuori(onChiudi)}>
       <div
         ref={foglio}
         className="foglio foglio-fiore"
