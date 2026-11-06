@@ -3569,6 +3569,10 @@ input:focus-visible {
 }
 .foglio-frasi {
   padding: 16px 14px 12px;
+  /* mai più alto dello schermo (orizzontale): la lista scorre, "Chiudi" e "A caso" restano raggiungibili */
+  max-height: calc(100dvh - 32px - env(safe-area-inset-bottom));
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .foglio-frasi-titolo {
   margin: 0 4px 10px;
@@ -3581,6 +3585,15 @@ input:focus-visible {
   flex-direction: column;
   gap: 6px;
   margin-bottom: 12px;
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  .foglio-frasi {
+    width: min(100%, 640px);
+  }
+  .foglio-frasi-lista {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
 }
 .frase-proposta {
   min-height: 44px;
