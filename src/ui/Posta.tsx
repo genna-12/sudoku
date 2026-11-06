@@ -57,7 +57,8 @@ export function FoglioPosta(p: {
         {voci.length === 0 ? (
           <p className="posta-vuota">Ancora niente. Le frasi che vi mandate in partita finiscono qui.</p>
         ) : (
-          <ol className="posta-lista">
+          // focusabile: da tastiera la lista si scorre con le frecce (H10)
+          <ol className="posta-lista" tabIndex={0} aria-label="Le frasi, dalla più recente">
             {voci.map((v) => {
               const mia = v.da === p.mioRuolo;
               return (

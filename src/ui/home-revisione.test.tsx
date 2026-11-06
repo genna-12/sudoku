@@ -5,6 +5,9 @@ import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Home, Pallino } from './Home';
 import type { Chiacchiera } from './Home';
+import { Ingresso } from './Ingresso';
+import { FoglioPosta } from './Posta';
+import { pila, useGestoIndietro } from './indietro';
 import { testoPallino } from './presenza';
 import type { Mascotte } from './useMascotte';
 
@@ -120,5 +123,51 @@ describe('H8: eco in Home, firma toccabile e fumetto che si chiude al tocco', ()
     act(() => root.render(home({ chiacchiera: { ...eco, capitolo: undefined }, onRileggi: () => {} })));
     expect(q('[data-testid="eco-firma"]')).toBeNull();
     expect(q('.fumetto-firma')?.tagName).toBe('SPAN');
+  });
+});
+
+function ConIndietro({ children }: { children: React.ReactNode }) {
+  useGestoIndietro(() => ({ schermata: 'home', entrato: true, bloccato: false }), () => {});
+  return <>{children}</>;
+}
+const tasto = (key: string, su: Element = document.activeElement ?? document.body, shiftKey = false) =>
+  act(() => void su.dispatchEvent(new KeyboardEvent('keydown', { key, shiftKey, bubbles: true, cancelable: true })));
+
+describe('H10: Posta, lista raggiungibile da tastiera', () => {
+  it('la lista è focusabile (si scorre con le frecce) ed è nel giro del Tab con "Chiudi"', () => {
+    const posta = Array.from({ length: 25 }, (_, i) => ({ ts: 1000 + i, da: (i % 2 ? 'a' : 'b') as 'a' | 'b', testo: `frase ${i}` }));
+    act(() =>
+      root.render(
+        <ConIndietro>
+          <FoglioPosta posta={posta} mioRuolo="a" nomePartner="Blu" sbloccata={false} onChiudi={() => {}} />
+        </ConIndietro>,
+      ),
+    );
+    const lista = q('.posta-lista')!;
+    expect(lista.tabIndex).toBe(0);
+    expect(lista.getAttribute('aria-label')).toBeTruthy();
+    expect(document.activeElement).toBe(q('[data-testid="posta-chiudi"]'));
+    // Chiudi è l'ultimo: Tab gira alla lista (la prima); Maiusc+Tab dalla lista torna a Chiudi
+    tasto('Tab');
+    expect(document.activeElement).toBe(lista);
+    tasto('Tab', lista, true);
+    expect(document.activeElement).toBe(q('[data-testid="posta-chiudi"]'));
+    expect(pila.aperti).toBe(1);
+  });
+});
+
+describe('H11: Ingresso, Invio senza colore', () => {
+  it('lo dice sotto le card e porta il focus alla prima; scegliendo il colore il messaggio sparisce', () => {
+    const onEntra = vi.fn();
+    act(() => root.render(<Ingresso iniziale={null} sbloccata={false} onEntra={onEntra} />));
+    const frase = q('[data-testid="frase"]') as HTMLInputElement;
+    frase.focus();
+    tasto('Enter', frase);
+    expect(q('[data-testid="manca-colore"]')?.textContent).toBe('Scegli il tuo colore.');
+    expect(q('[data-testid="manca-colore"]')?.getAttribute('role')).toBe('alert');
+    expect(document.activeElement).toBe(q('[data-testid="scegli-semino"]'));
+    act(() => q('[data-testid="scegli-semina"]')!.click());
+    expect(q('[data-testid="manca-colore"]')).toBeNull();
+    expect(onEntra).not.toHaveBeenCalled();
   });
 });

@@ -31,7 +31,9 @@ export function Ingresso({
   const profilo = PROFILI.find((p) => p.id === scelto) ?? null;
   const pronto = !!profilo && frase.trim().length >= 4;
   const [manca, setManca] = useState(false);
+  const [mancaColore, setMancaColore] = useState(false);
   const campo = useRef<HTMLInputElement>(null);
+  const profili = useRef<HTMLFieldSetElement>(null);
   // questo browser ricorda già l'altro profilo: prima di sostituirlo, un avviso (mai al primo ingresso)
   const ricordato = iniziale ? profiloDiNome(iniziale.nome) : null;
   const [avviso, setAvviso] = useState(false);
@@ -49,7 +51,13 @@ export function Ingresso({
       // colore scelto ma frase troppo corta: si va al campo e lo si dice
       setManca(true);
       campo.current?.focus();
-    }
+    } else chiediColore();
+  }
+
+  /** frase scritta ma colore no (H11): lo si dice sotto le card e il focus va alla prima */
+  function chiediColore() {
+    setMancaColore(true);
+    profili.current?.querySelector<HTMLButtonElement>('.profilo')?.focus();
   }
 
   return (
@@ -65,7 +73,7 @@ export function Ingresso({
       </div>
 
       <form className="ingresso-form" onSubmit={invia}>
-        <fieldset className="profili">
+        <fieldset className="profili" ref={profili}>
           <legend className="campo-etichetta">Il tuo colore</legend>
           {PROFILI.map((p) => (
             <button
@@ -74,7 +82,10 @@ export function Ingresso({
               data-testid={`scegli-${p.id}`}
               className={`profilo profilo-${p.id}${scelto === p.id ? ' scelto' : ''}`}
               aria-pressed={scelto === p.id}
-              onClick={() => setScelto(p.id)}
+              onClick={() => {
+                setScelto(p.id);
+                setMancaColore(false);
+              }}
             >
               {sbloccata ? (
                 <Semino chi={p.id} stadio={2} umore="felice" impulso={scelto === p.id ? 1 : 0} taglia={72} accessorio={vestiti?.[p.id]} />
@@ -85,6 +96,11 @@ export function Ingresso({
               <span className="profilo-desc">{p.descrizione}</span>
             </button>
           ))}
+          {mancaColore && (
+            <p className="campo-aiuto campo-manca profili-manca" role="alert" data-testid="manca-colore">
+              Scegli il tuo colore.
+            </p>
+          )}
         </fieldset>
         <label className="campo">
           <span className="campo-etichetta">Frase segreta</span>
@@ -97,6 +113,13 @@ export function Ingresso({
               setManca(false);
             }}
             aria-invalid={manca || undefined}
+            onKeyDown={(e) => {
+              // con il bottone disabilitato l'Invio non manda il modulo: senza colore lo si chiede qui
+              if (e.key === 'Enter' && !profilo) {
+                e.preventDefault();
+                chiediColore();
+              }
+            }}
             autoComplete="off"
             autoCapitalize="none"
             spellCheck={false}

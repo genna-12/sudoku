@@ -3084,6 +3084,12 @@ input:focus-visible {
   padding-top: var(--s3);
   border-top: 1px solid var(--linea);
 }
+/* H9: "Diagnostica rete" è una voce come le altre, solo separata da un filetto */
+.menu-diagnostica:not(:first-child) {
+  margin-top: var(--s2);
+  padding-top: var(--s2);
+  border-top: 1px solid var(--linea);
+}
 .foglio {
   animation: foglio-sale 0.28s var(--curva) both;
 }
@@ -3240,7 +3246,7 @@ input:focus-visible {
 .cassetta-bottone {
   position: absolute;
   z-index: 2;
-  top: 158px;
+  top: 162px;
   left: calc(50% - 72px - 22px);
   width: 44px;
   height: 44px;
@@ -3253,6 +3259,13 @@ input:focus-visible {
 }
 .cassetta-bottone:active {
   background: color-mix(in srgb, var(--testo) 8%, transparent);
+}
+/* H13: il bersaglio scende di 4 px (meno titolo sotto il dito) e il fumetto gli sta sopra: toccarne
+   il bordo non apre la Posta. Il titolo resta sotto: in largo il disegno della cassetta cade nella
+   sua riga e deve restare toccabile */
+.home-eroe .fumetto {
+  position: relative;
+  z-index: 3;
 }
 .home-scena {
   position: absolute;
@@ -3528,6 +3541,11 @@ input:focus-visible {
   color: var(--errore);
   font-weight: 650;
 }
+/* H11: "Scegli il tuo colore." sotto le due card */
+.profili-manca {
+  grid-column: 1 / -1;
+  margin: 0;
+}
 
 /* vittoria: titolo fisso, la frase sotto più piccola */
 .vittoria-titolo {
@@ -3639,6 +3657,15 @@ input:focus-visible {
 }
 .posta-vuota {
   color: var(--testo-2);
+}
+/* H10: un solo bottone, largo quanto il foglio; la lista si scorre anche da tastiera */
+.foglio-posta .foglio-azioni {
+  grid-template-columns: 1fr;
+}
+.posta-lista:focus-visible {
+  outline: 2px solid var(--evid);
+  outline-offset: 2px;
+  border-radius: 10px;
 }
 
 /* telefono in orizzontale: griglia a sinistra alta quanto lo schermo, a destra barra, cruscotto e

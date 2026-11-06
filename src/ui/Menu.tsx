@@ -60,7 +60,7 @@ function Diagnostica() {
   }, [aperta]);
   const testo = REGISTRO.join('\n');
   return (
-    <div className="menu-sezione" role="none">
+    <div className="menu-gruppo menu-diagnostica" role="none">
       <button className="menu-voce" type="button" role="menuitem" onClick={() => setAperta((v) => !v)} aria-expanded={aperta}>
         Diagnostica rete {aperta ? '▴' : '▾'}
       </button>
