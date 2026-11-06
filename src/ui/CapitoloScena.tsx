@@ -4,11 +4,15 @@
 //   - all'ultima battuta il tocco non fa niente: dopo 400 ms compare il bottone vero "Continua"
 //   - "‹" in alto a sinistra = indietro; tastiera: Invio/Spazio/→ avanti, Backspace/← indietro, Esc chiude (solo in rilettura)
 //   - narra = didascalia nel cielo; mulo = una lettera che si riempie una riga per tocco
-//   - Semina solo dal capitolo 5 (nel 5 sbuca alla sua prima battuta); un secondario alla volta (nel 99 tutti)
+//   - Semina solo dal capitolo 5 (nel 5 sbuca alla sua prima battuta); un secondario alla volta: l'ultimo che ha
+//     parlato o, finché non parla nessuno, quello che il capitolo fa entrare (`entra`, es. Briciola nel 68);
+//     nel 99 ci sono tutti dalla prima battuta (in fila a terra, Fischio e il Gufo sullo stesso ramo)
+//   - Fischio e il Gufo stanno "in alto": su un ramo (fuori), su una mensola (cucina), su un filo (città)
+//   - fra due capitoli della coda il fondale e il palco ripartono con una dissolvenza (360 ms)
 //   - rilettura: "Dal diario" e "Chiudi"; esce: la classe dell'uscita (150 ms), la gestisce il genitore
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import type { BattutaCapitolo, Capitolo, Luogo, Voce } from '../config/capitoli';
-import { Fondale } from './Fondale';
+import { Fondale, scegliFondale } from './Fondale';
 import { NOMI_SECONDARI, PersonaggioSecondario, type Secondario } from './Secondari';
 import { Semino, type SeminoChi, type SeminoUmore } from './Semino';
 import { accessorioValido, umoreValido } from './useMascotte';
@@ -38,6 +42,14 @@ function disegnato(v: Voce): v is Secondario {
 }
 /** dove sta un secondario: Fischio e il Gufo in alto (ramo, filo), gli altri a terra */
 const IN_ALTO: readonly Secondario[] = ['fischio', 'gufo'];
+/** nel 99, in ordine da sinistra: a terra (Briciola dorme in groppa a Nuvola) e sul ramo */
+const FILA_TERRA: readonly Secondario[] = ['nonnacapra', 'nuvola', 'grillo', 'pinza'];
+const FILA_RAMO: readonly Secondario[] = ['fischio', 'gufo'];
+/** lato dei secondari in px: uno solo, nella fila a terra del 99, sul ramo del 99; spazio fra due vicini */
+const TAGLIA_SECONDARIO = 72;
+const TAGLIA_FILA = 48;
+const TAGLIA_RAMO = 44;
+const SPAZIO_FILA = 2;
 
 export interface CapitoloScenaProps {
   capitolo: Capitolo;
@@ -90,11 +102,14 @@ export function CapitoloScena({
   const avantiRef = useRef<HTMLButtonElement>(null);
   const fine = passo >= ultimo;
 
-  // si riparte dalla prima battuta se cambia capitolo (coda di arretrati)
+  // si riparte dalla prima battuta se cambia capitolo (coda di arretrati); da lì in poi fondale e palco
+  // entrano con una dissolvenza (al primo capitolo la fa già tutta la schermata)
   const [fioreVisto, setFioreVisto] = useState(c.fiore);
+  const [cambiato, setCambiato] = useState(false);
   if (fioreVisto !== c.fiore) {
     setFioreVisto(c.fiore);
     setPasso(0);
+    setCambiato(true);
   }
 
   // guardia: per 300 ms dopo ogni cambio (e all'apertura) i tocchi sono ignorati
@@ -154,10 +169,14 @@ export function CapitoloScena({
   const conLui = presente(c, 'semino');
   const conLei = presente(c, 'semina') && (!rivelazione || (primaDiLei >= 0 && passo >= primaDiLei));
 
-  // secondari: l'ultimo che ha parlato (nel 99 tutti quelli che hanno parlato, in fila)
-  const primaBattuta = new Map<Secondario, number>();
+  // secondari: l'ultimo che ha parlato; finché non parla nessuno, quello che il capitolo fa entrare
+  // (fermo, senza fumetto: Briciola nel 68, Nuvola nel 30); nel 99 tutti dalla prima battuta
+  const tutti = c.fiore === CAPITOLO_DI_TUTTI;
+  const entra = c.entra && disegnato(c.entra) ? c.entra : null;
+  const primaVolta = new Map<Secondario, number>();
+  if (entra) primaVolta.set(entra, 0);
   battute.forEach((x, i) => {
-    if (disegnato(x.chi) && !primaBattuta.has(x.chi)) primaBattuta.set(x.chi, i);
+    if (disegnato(x.chi) && !primaVolta.has(x.chi)) primaVolta.set(x.chi, i);
   });
   const parlati: Secondario[] = [];
   for (let i = 0; i <= passo && i < battute.length; i++) {
@@ -168,8 +187,12 @@ export function CapitoloScena({
       parlati.push(v);
     }
   }
-  const tutti = c.fiore === CAPITOLO_DI_TUTTI;
-  const secondari = tutti ? [...primaBattuta.keys()].filter((s) => parlati.includes(s)) : parlati.slice(-1);
+  const secondari: Secondario[] = tutti ? [...FILA_TERRA, 'briciola', ...FILA_RAMO] : parlati.length ? parlati.slice(-1) : entra ? [entra] : [];
+  const inAlto = (s: Secondario) => IN_ALTO.includes(s);
+  const aTerra = tutti ? FILA_TERRA : secondari.filter((s) => !inAlto(s));
+  const sulRamo = tutti ? FILA_RAMO : secondari.filter(inAlto);
+  // uno solo dei due e nessun secondario (capitoli 0-4, 85, 91): va verso il centro, vicino all'aiuola
+  const solo = !rivelazione && conLui !== presente(c, 'semina') && secondari.length === 0;
 
   // la lettera del Mulo: le righe mulo consecutive fino a qui
   let lettera: string[] = [];
@@ -196,6 +219,9 @@ export function CapitoloScena({
     colori && 'capitolo--colori',
     chi === 'mulo' && 'capitolo--lettera',
     tutti && 'capitolo--tutti',
+    sulRamo.length > 0 && 'capitolo--ramo',
+    solo && 'capitolo--solo',
+    cambiato && 'capitolo--cambio',
     fine && 'capitolo--fine',
     esce && 'capitolo--esce',
   ]
@@ -205,7 +231,30 @@ export function CapitoloScena({
   // fumetto: sopra chi parla (Semino a sinistra, Semina a destra, il secondario al centro)
   const parlaSecondario = chi && disegnato(chi) && secondari.includes(chi) ? chi : null;
   const lato = chi === 'semino' ? 'sinistra' : chi === 'semina' ? 'destra' : 'centro';
-  const alto = parlaSecondario && !tutti && IN_ALTO.includes(parlaSecondario);
+  const alto = parlaSecondario !== null && inAlto(parlaSecondario);
+  // nel 99 la coda del fumetto punta a chi parla, nella sua fila (x dal centro, prima della scala)
+  let codaDx = 0;
+  if (tutti && parlaSecondario) {
+    const fila = alto ? FILA_RAMO : FILA_TERRA;
+    const t = alto ? TAGLIA_RAMO : TAGLIA_FILA;
+    codaDx = (fila.indexOf(parlaSecondario) - (fila.length - 1) / 2) * (t + SPAZIO_FILA);
+  }
+  const tagliaSec = (posto: 'terra' | 'ramo') => (tutti ? (posto === 'ramo' ? TAGLIA_RAMO : TAGLIA_FILA) : TAGLIA_SECONDARIO);
+  const gruppo = (lista: readonly Secondario[], posto: 'terra' | 'ramo') =>
+    lista.length > 0 && (
+      <span className={`capitolo-secondari capitolo-secondari--${posto}${tutti ? ' capitolo-secondari--fila' : ''}`}>
+        {lista.map((s) => (
+          <span key={s} className={`capitolo-secondario${s === parlaSecondario ? ' parla' : ''}`} data-chi={s} data-posto={posto === 'ramo' ? 'alto' : 'terra'}>
+            <PersonaggioSecondario id={s} taglia={tagliaSec(posto)} parla={s === chi} entrata={primaVolta.get(s) === passo} />
+            {tutti && s === 'nuvola' && (
+              <span className="capitolo-secondario capitolo-groppa" data-chi="briciola" data-posto="terra">
+                <PersonaggioSecondario id="briciola" taglia={Math.round(TAGLIA_FILA * 0.55)} />
+              </span>
+            )}
+          </span>
+        ))}
+      </span>
+    );
 
   const bottoneContinua = (
     <button
@@ -227,18 +276,19 @@ export function CapitoloScena({
       className={classi}
       data-testid="capitolo-scena"
       data-fiore={c.fiore}
+      data-fondale={scegliFondale(c.luogo, c.fondale)}
       data-battuta={passo}
       role="dialog"
       aria-modal="true"
       aria-label={`Capitolo ${c.fiore}: ${c.titolo}`}
     >
-      <div className="capitolo-fondale">
+      <div className="capitolo-fondale" key={`fondale-${c.fiore}`}>
         <Fondale luogo={c.luogo} fondale={c.fondale} />
         {sfondo}
         <div className="capitolo-velo" aria-hidden="true" />
       </div>
 
-      <div className="capitolo-palco" data-testid={rivelazione ? 'scena-sblocco' : undefined}>
+      <div className="capitolo-palco" key={`palco-${c.fiore}`} data-testid={rivelazione ? 'scena-sblocco' : undefined}>
         {rivelazione && (
           <div className={`scena-foglie capitolo-foglie${conLei ? ' capitolo-foglie--quiete' : ''}`} aria-hidden="true">
             {Array.from({ length: 9 }, (_, i) => (
@@ -263,20 +313,8 @@ export function CapitoloScena({
               />
             </span>
           )}
-          {secondari.length > 0 && (
-            <span className={`capitolo-secondari${tutti ? ' capitolo-secondari--fila' : ''}`}>
-              {secondari.map((s) => (
-                <span
-                  key={s}
-                  className={`capitolo-secondario${s === parlaSecondario ? ' parla' : ''}`}
-                  data-chi={s}
-                  data-posto={!tutti && IN_ALTO.includes(s) ? 'alto' : 'terra'}
-                >
-                  <PersonaggioSecondario id={s} taglia={tutti ? 48 : 72} parla={s === chi} entrata={primaBattuta.get(s) === passo} />
-                </span>
-              ))}
-            </span>
-          )}
+          {gruppo(aTerra, 'terra')}
+          {gruppo(sulRamo, 'ramo')}
           {conLei && (
             <span className={`capitolo-attore capitolo-lei${chi === 'semina' ? ' parla' : ''}`} data-chi="semina">
               <Semino
@@ -346,6 +384,7 @@ export function CapitoloScena({
           <div
             key={passo}
             className={`capitolo-fumetto-posto capitolo-fumetto-posto--${lato}${alto ? ' capitolo-fumetto-posto--alto' : ''}${tutti ? ' capitolo-fumetto-posto--fila' : ''}`}
+            style={codaDx ? ({ '--cap-coda-dx': `${codaDx}px` } as CSSProperties) : undefined}
           >
             {chi !== 'semino' && chi !== 'semina' && <span className="capitolo-nome">{nome(chi!)}</span>}
             <p className={`capitolo-fumetto capitolo-fumetto--${chi === 'semino' || chi === 'semina' ? chi : 'secondario'}`}>
@@ -357,7 +396,7 @@ export function CapitoloScena({
       </div>
 
       <footer className="capitolo-piede">
-        <ol className="capitolo-punti" aria-hidden="true">
+        <ol className="capitolo-punti" key={c.fiore} aria-hidden="true">
           {battute.map((_, i) => (
             <li key={i} className={i <= passo ? 'pieno' : undefined} />
           ))}
