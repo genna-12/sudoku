@@ -803,6 +803,11 @@ input:focus-visible {
   font-size: 19px;
   font-weight: 850;
   --casl: 1;
+  /* "supersemini" non passa sotto il timer: si stringe e, al limite, finisce coi puntini */
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .barra-modalita {
   font-size: 13px;
@@ -829,6 +834,31 @@ input:focus-visible {
 .partner-chip span {
   overflow: hidden;
   text-overflow: ellipsis;
+}
+/* larghezza minima quanto "in attesa": quando arriva il partner timer e titolo non si spostano */
+.partita .partner-chip {
+  min-width: 7.4em;
+  justify-content: center;
+}
+/* telefoni stretti: barra della partita un po' più compatta, così "supersemini" ci sta intero */
+@media (max-width: 400px) {
+  .partita .barra {
+    gap: 4px;
+  }
+  .partita .barra-livello {
+    font-size: clamp(15px, 4.4vw, 19px);
+    letter-spacing: -0.01em;
+  }
+  .partita .timer {
+    font-size: 16px;
+    padding: 0;
+  }
+  .partita .partner-chip {
+    min-width: 7.1em;
+    gap: 5px;
+    padding: 6px 8px 6px 7px;
+    font-size: 12.5px;
+  }
 }
 .partner-chip.pallino-connesso {
   color: var(--suo-testo);
