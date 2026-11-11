@@ -7,7 +7,6 @@
 //   - la rilettura dal diario (prima e ultima battuta) e il diario del Giardino con 0-8 letti
 //   - ora e data fisse (timer finti, Date, performance, rAF), Math.random fisso; gli id di useId
 //     (contatore globale di React) rinumerati per ordine di comparsa dentro ogni snapshot
-import { createHash } from 'node:crypto';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -52,7 +51,11 @@ function html(): string {
   });
 }
 
-const sha = (s: string) => createHash('sha256').update(s).digest('hex');
+/** sha256 esadecimale (Web Crypto: niente tipi di Node nel tsconfig dell'app) */
+async function sha(s: string): Promise<string> {
+  const h = new Uint8Array(await globalThis.crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)));
+  return Array.from(h, (b) => b.toString(16).padStart(2, '0')).join('');
+}
 
 const vestitoDisegnato =(id: string) => !!accessorioValido(id);
 
@@ -97,7 +100,7 @@ function finoAllaFine(c: Capitolo) {
 }
 
 describe('Segreto per Matilde: i capitoli 0-8 non cambiano', () => {
-  it.each(PRIMI.map((c) => [c.fiore, c] as const))('capitolo %i, lettura: ogni battuta', (_, c) => {
+  it.each(PRIMI.map((c) => [c.fiore, c] as const))('capitolo %i, lettura: ogni battuta', async (_, c) => {
     monta(c);
     const viste: string[] = [html()];
     for (let i = 1; i < c.battute.length; i++) {
@@ -110,7 +113,7 @@ describe('Segreto per Matilde: i capitoli 0-8 non cambiano', () => {
     // render completo della prima battuta e della fine; in mezzo lo sha256 del render completo (stessa esattezza)
     expect(viste[0]).toMatchSnapshot('battuta 0');
     expect(viste[viste.length - 1]).toMatchSnapshot('fine con Continua');
-    expect(viste.slice(1, -1).map(sha)).toMatchSnapshot('sha256 delle battute in mezzo');
+    expect(await Promise.all(viste.slice(1, -1).map(sha))).toMatchSnapshot('sha256 delle battute in mezzo');
   });
 
   it.each(PRIMI.map((c) => [c.fiore, c] as const))('capitolo %i, rilettura dal diario: prima e ultima battuta', (_, c) => {
