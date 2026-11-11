@@ -673,6 +673,253 @@
   stroke-linecap: round;
 }
 
+/* ---------- momento del capitolo (T9 C, data-momento: solo dal capitolo 9) ----------
+   Vince sui cieli dei luoghi; 'notte' non ridefinisce niente (è il fondale di sempre). Il cielo in alto
+   resta abbastanza scuro da tenere leggibile il testo crema della testa. */
+.fd[data-momento='alba'] {
+  --fd-c0: color-mix(in oklab, var(--fd-fondo), #6c7aa6 40%);
+  --fd-c1: color-mix(in oklab, var(--fd-fondo), #f2b2a6 46%);
+}
+.fd[data-momento='mattina'] {
+  --fd-c0: color-mix(in oklab, var(--fd-fondo), #6aa2aa 46%);
+  --fd-c1: color-mix(in oklab, var(--fd-fondo), #e6dcc0 42%);
+}
+.fd[data-momento='giorno'] {
+  --fd-c0: color-mix(in oklab, var(--fd-fondo), #66a8be 62%);
+  --fd-c1: color-mix(in oklab, var(--fd-fondo), #d6e8e0 54%);
+}
+.fd[data-momento='tramonto'] {
+  --fd-c0: color-mix(in oklab, var(--fd-fondo), #6a5888 42%);
+  --fd-c1: color-mix(in oklab, var(--fd-fondo), #f0a062 48%);
+  --fd-lontano: color-mix(in oklab, var(--fd-fondo), #a08aa0 30%);
+  --fd-luce: var(--fd-oro);
+}
+/* sera: cielo blu senza stelle, sagome e luci come di notte */
+.fd[data-momento='sera'] {
+  --fd-c0: color-mix(in oklab, var(--fd-cielo), #0e1c4a 42%);
+  --fd-c1: color-mix(in oklab, var(--fd-fondo), #3e5c92 36%);
+  --fd-lontano: color-mix(in oklab, var(--fd-fondo), #8ea2b4 20%);
+  --fd-medio: color-mix(in oklab, var(--fd-terra), #6f8a8a 15%);
+  --fd-suolo: color-mix(in oklab, var(--fd-terra), var(--fd-verde) 9%);
+  --fd-mare-0: color-mix(in oklab, var(--fd-fondo), #4f8796 34%);
+  --fd-mare-1: color-mix(in oklab, var(--fd-terra), #2f5a6a 30%);
+  --fd-sabbia: color-mix(in oklab, var(--fd-terra), var(--fd-oro) 17%);
+  --fd-luce: var(--fd-oro);
+}
+/* lati (orizzontale e desktop): col momento il cielo dei lati segue lo stesso gradiente del disegno, ancorato
+   alla cima del disegno e al suo orizzonte (--fd-cielo-o, in unità del disegno), così il cielo chiaro arriva
+   a tutta larghezza senza la colonna centrale coi bordi scuri. Senza momento (0-8) i lati restano come prima. */
+.fd-giardino {
+  --fd-cielo-o: 422;
+}
+.fd-mare {
+  --fd-cielo-o: 301;
+}
+.fd-montagna,
+.fd-piazza {
+  --fd-cielo-o: 320;
+}
+.fd-bosco,
+.fd-stazione {
+  --fd-cielo-o: 384;
+}
+.fd-citta {
+  --fd-cielo-o: 397;
+}
+.fd-lontano {
+  --fd-cielo-o: 358;
+}
+.fd[data-momento]:is(.fd-giardino, .fd-mare, .fd-montagna, .fd-bosco, .fd-citta, .fd-lontano, .fd-piazza, .fd-stazione)::before {
+  background: linear-gradient(
+    to bottom,
+    var(--fd-lato-0) calc(var(--fd-suolo-y) - var(--fd-w) * 1.24444),
+    var(--fd-lato-1) calc(var(--fd-suolo-y) - var(--fd-w) * (448 - var(--fd-cielo-o)) / 360),
+    var(--fd-lato-1) var(--fd-oriz),
+    var(--fd-lato-banda-0) var(--fd-oriz),
+    var(--fd-lato-banda-1) calc(var(--fd-suolo-y) - 14px),
+    var(--fd-lato-terra) calc(var(--fd-suolo-y) - 10px),
+    var(--fd-lato-terra) 100%
+  );
+}
+/* cucina in orizzontale (dal 9, col momento): il tavolo in primo piano (y 548) cadrebbe sotto il bordo dello
+   schermo; sale di 56 unità con le sue tazze, e con lui le cose posate sopra (ambiente.css, --amb-alza) */
+@media (max-height: 500px) {
+  .fd-cucina[data-momento] :is(.fd-tavolo, .fd-tavolo-luce, .fd-tazza) {
+    transform: translateY(-56px);
+  }
+}
+/* negli interni il momento si vede solo dai vetri */
+.fd[data-momento='alba'] .fd-vetro-cielo {
+  fill: color-mix(in oklab, var(--fd-fondo), #f2b2a6 40%);
+}
+.fd[data-momento='mattina'] .fd-vetro-cielo,
+.fd[data-momento='giorno'] .fd-vetro-cielo {
+  fill: color-mix(in oklab, var(--fd-fondo), #8fc0c8 50%);
+}
+.fd[data-momento='tramonto'] .fd-vetro-cielo {
+  fill: color-mix(in oklab, var(--fd-fondo), #e8986a 44%);
+}
+.fd[data-momento='sera'] .fd-vetro-cielo {
+  fill: color-mix(in oklab, var(--fd-cielo), #24408a 40%);
+}
+.fd[data-momento]:not([data-momento='notte']) .fd-vetro-cielo ~ circle {
+  opacity: 0;
+}
+
+/* ---------- meteo del capitolo (T9 C, data-meteo) ---------- */
+/* cielo coperto: un velo grigio leggero (più scuro col temporale), le stelle si vedono appena */
+.fd .fd-coperto {
+  fill: #7d8a94;
+  opacity: 0.14;
+}
+.fd .fd-meteo-temporale .fd-coperto {
+  fill: #2a3240;
+  opacity: 0.32;
+}
+.fd .fd-meteo-nebbia .fd-coperto {
+  fill: #c8d2d0;
+  opacity: 0.08;
+}
+.fd[data-meteo='pioggia'],
+.fd[data-meteo='temporale'],
+.fd[data-meteo='neve'],
+.fd[data-meteo='nuvole'] {
+  --stelle: 0.18;
+}
+.fd[data-meteo='pioggia']::before,
+.fd[data-meteo='temporale']::before,
+.fd[data-meteo='nebbia']::before {
+  filter: saturate(0.7) brightness(0.9);
+}
+.fd .fd-nuvole {
+  fill: color-mix(in oklab, var(--fd-testo) 34%, var(--fd-lontano));
+  opacity: 0.4;
+  animation: fd-nuvole 40s ease-in-out infinite alternate;
+}
+.fd[data-notte='1'] .fd-nuvole {
+  opacity: 0.2;
+}
+.fd .fd-meteo-pioggia .fd-nuvole,
+.fd .fd-meteo-temporale .fd-nuvole {
+  fill: color-mix(in oklab, var(--fd-lontano), #000 25%);
+  opacity: 0.55;
+}
+@keyframes fd-nuvole {
+  to {
+    transform: translateX(22px);
+  }
+}
+/* pioggia a righe: la piastrella scende della sua altezza (160) e ricomincia */
+.fd .fd-pioggia {
+  fill: none;
+  stroke: color-mix(in oklab, var(--fd-testo) 60%, #9fc2d8);
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  opacity: 0.32;
+  animation: fd-pioggia 0.8s linear infinite;
+}
+.fd .fd-pioggia-fitta {
+  opacity: 0.4;
+  animation-duration: 0.55s;
+}
+@keyframes fd-pioggia {
+  to {
+    transform: translateY(160px);
+  }
+}
+/* il lampo: raro (una volta ogni 11 s, doppio e breve), mai pieno; fermo è spento */
+.fd .fd-lampo {
+  fill: #f4f1ff;
+  opacity: 0;
+  animation: fd-lampo 11s linear infinite;
+  animation-delay: 4s;
+}
+@keyframes fd-lampo {
+  0%,
+  90%,
+  91.4%,
+  92.4%,
+  100% {
+    opacity: 0;
+  }
+  90.6% {
+    opacity: 0.32;
+  }
+  91.9% {
+    opacity: 0.2;
+  }
+}
+/* neve: fiocchi che scendono lenti (piastrella di 200) */
+.fd .fd-neve-cade {
+  fill: color-mix(in oklab, var(--fd-testo) 88%, #fff);
+  opacity: 0.7;
+  animation: fd-neve 16s linear infinite;
+}
+@keyframes fd-neve {
+  to {
+    transform: translateY(200px);
+  }
+}
+/* nebbia: bande velate che vanno e vengono */
+.fd .fd-nebbia-0 {
+  stop-color: #d6dedb;
+  stop-opacity: 0;
+}
+.fd .fd-nebbia-1 {
+  stop-color: #d6dedb;
+  stop-opacity: 0.2;
+}
+.fd .fd-nebbia rect {
+  animation: fd-nebbia 22s ease-in-out infinite alternate;
+}
+.fd .fd-nebbia .fd-nebbia-bassa {
+  animation-duration: 30s;
+  animation-direction: alternate-reverse;
+}
+@keyframes fd-nebbia {
+  to {
+    transform: translateX(36px);
+  }
+}
+/* vento: righe d'aria che passano e qualche foglia */
+.fd .fd-aria {
+  fill: none;
+  stroke: color-mix(in oklab, var(--fd-testo) 40%, transparent);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-dasharray: 40 360;
+  opacity: 0.5;
+  animation: fd-aria 5s linear infinite;
+}
+@keyframes fd-aria {
+  from {
+    stroke-dashoffset: 400;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.fd .fd-foglia {
+  transform-box: fill-box;
+  transform-origin: center;
+  fill: color-mix(in oklab, #6f9a5a, var(--fd-terra) 30%);
+  animation: fd-foglia 9s linear infinite;
+}
+@keyframes fd-foglia {
+  0% {
+    transform: translate(-160px, 30px) rotate(0deg);
+    opacity: 0;
+  }
+  15%,
+  85% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate(200px, -40px) rotate(540deg);
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .fd *,
   .fd *::before,

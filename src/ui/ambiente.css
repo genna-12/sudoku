@@ -1,0 +1,459 @@
+/* Comparse e oggetti nel lettore dei capitoli (Ambiente.tsx, T9 C). z 0 nel lettore (scala in tema.css):
+   sopra il fondale (e la Scena di aiuola e giardino), sotto secondari (1), mascotte (2), fumetto (4).
+   Due modi:
+   - fondale: un punto del Fondale (unità 360×640, suolo a 448) convertito con la stessa misura del Fondale
+     (fondale.css: larghezza max(56.25% dell'altezza, min(100% della larghezza, 360px)), suolo a --cap-suolo)
+   - striscia: a terra davanti al suolo, fra il palco e il piede, in px come le mascotte */
+.capitolo-ambiente {
+  --amb-fdw: max(56.25vh, min(100vw, 360px));
+  --amb-tratto: #2a1c0e;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+@supports (height: 1dvh) {
+  .capitolo-ambiente {
+    --amb-fdw: max(56.25dvh, min(100vw, 360px));
+  }
+}
+.amb-pezzo {
+  position: absolute;
+  display: block;
+  line-height: 0;
+  /* il punto è il centro in basso del disegno */
+  translate: -50% -100%;
+  transform-origin: 50% 100%;
+}
+.amb-pezzo > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.amb-pezzo--fondale {
+  left: calc(50% + (var(--cx) - 180) * var(--amb-fdw) / 360);
+  top: calc(var(--cap-suolo) + (var(--by) - var(--amb-alza, 0) - 448) * var(--amb-fdw) / 360);
+  width: calc(var(--w) * var(--amb-fdw) / 360);
+  height: calc(var(--h) * var(--amb-fdw) / 360);
+}
+/* nella striscia 1 unità del disegno = 1,35 px (a --cap-scala 1): lo zaino è alto mezza mascotte */
+.amb-pezzo--striscia {
+  --amb-base: 54px;
+  left: calc(50% + (var(--f) - 0.5) * var(--cap-col));
+  top: calc(var(--cap-suolo) + var(--amb-base));
+  width: calc(var(--w) * 1.35px);
+  height: calc(var(--h) * 1.35px);
+  scale: var(--cap-scala);
+}
+/* le comparse un filo più in basso degli oggetti: due file sfalsate */
+.amb-pezzo--striscia.amb-pezzo--comparsa {
+  --amb-base: 70px;
+}
+/* orizzontale: la striscia è bassa, i pezzi più piccoli e attaccati al suolo; il tavolo della cucina
+   (e le cose sopra) sale di 56 unità come nel Fondale, sennò finirebbe sotto il bordo e i puntini */
+@media (max-height: 500px) {
+  .amb-pezzo--tavolo {
+    --amb-alza: 56;
+  }
+  /* le colonne centrali ai lati: al centro, a fine capitolo, c'è "Continua" */
+  .amb-pezzo--striscia {
+    left: calc(50% + (var(--f-oriz, var(--f)) - 0.5) * var(--cap-col));
+  }
+  .amb-pezzo--striscia {
+    --amb-base: 30px;
+    width: calc(var(--w) * 1px);
+    height: calc(var(--h) * 1px);
+  }
+  .amb-pezzo--striscia.amb-pezzo--comparsa {
+    --amb-base: 36px;
+  }
+}
+/* un'ombra morbida sotto ciò che sta a terra nella striscia */
+.amb-pezzo--striscia::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  left: 12%;
+  right: 12%;
+  bottom: -2px;
+  height: 5px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(0 0 0 / 0.32), transparent);
+}
+.amb-pezzo--striscia.amb-farfalle::after {
+  display: none;
+}
+
+/* ---------- tratti ---------- */
+.capitolo-ambiente .amb-t {
+  stroke: var(--amb-tratto);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.capitolo-ambiente .amb-t:not([fill]) {
+  fill: none;
+}
+.capitolo-ambiente .amb-t-fine {
+  stroke-width: 0.8;
+}
+.capitolo-ambiente .amb-pieno {
+  fill: var(--amb-tratto);
+}
+.capitolo-ambiente .amb-segno {
+  fill: none;
+  stroke-width: 0.8;
+  stroke-linecap: round;
+}
+.capitolo-ambiente .amb-segno-forte {
+  stroke-width: 1.3;
+}
+.capitolo-ambiente .amb-cifra {
+  stroke-width: 1.15;
+  stroke-linejoin: round;
+}
+.capitolo-ambiente .amb-toppa {
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+.capitolo-ambiente .amb-riga {
+  fill: none;
+  stroke-width: 1.6;
+}
+.capitolo-ambiente .amb-graffio {
+  fill: none;
+  stroke: #8a7d68;
+  stroke-width: 0.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.capitolo-ambiente .amb-palo {
+  fill: none;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+.capitolo-ambiente .amb-palo-bordo {
+  fill: none;
+  stroke: var(--amb-tratto);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+.capitolo-ambiente .amb-corda {
+  fill: none;
+  stroke-width: 1;
+  opacity: 0.8;
+}
+.capitolo-ambiente .amb-corda-bordo {
+  fill: none;
+  stroke: var(--amb-tratto);
+  stroke-width: 3.6;
+  stroke-linecap: round;
+}
+.capitolo-ambiente .amb-corda-spessa {
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+.capitolo-ambiente .amb-bastone-bordo {
+  fill: none;
+  stroke: var(--amb-tratto);
+  stroke-width: 4.4;
+  stroke-linecap: round;
+}
+.capitolo-ambiente .amb-bastone {
+  fill: none;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+}
+.capitolo-ambiente .amb-stelo {
+  fill: none;
+  stroke-width: 1.1;
+  stroke-linecap: round;
+}
+.capitolo-ambiente .amb-zampa {
+  fill: none;
+  stroke: #8a8f96;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+.capitolo-ambiente .amb-zampa-rosa {
+  stroke: #e8a0a0;
+}
+.capitolo-ambiente .amb-gabbiano {
+  fill: none;
+  stroke: #ece5d6;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.capitolo-ambiente .amb-gabbiano-lontano {
+  stroke-width: 1.6;
+  opacity: 0.8;
+}
+.capitolo-ambiente .amb-vapore {
+  fill: none;
+  stroke: #ece6da;
+  stroke-width: 0.9;
+  stroke-linecap: round;
+  opacity: 0.55;
+}
+.capitolo-ambiente .amb-raggio {
+  fill: none;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+.capitolo-ambiente .amb-briciole {
+  fill: none;
+  stroke: #8a5a2a;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+/* sagome scure sul fondo notte: un filo di luce sul bordo perché si leggano (come Fischio) */
+.amb-piccione svg,
+.amb-pc svg,
+.amb-custodia svg {
+  filter: drop-shadow(0 0 0.8px color-mix(in oklab, #f1ead7 40%, transparent));
+}
+
+/* ---------- animazioni: piccole e lente ---------- */
+.amb-lucciola {
+  animation: amb-lucciola 3.4s ease-in-out infinite;
+}
+@keyframes amb-lucciola {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.amb-granchio {
+  animation: amb-granchio 7s steps(1) infinite;
+}
+@keyframes amb-granchio {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  45% {
+    transform: translateX(2px);
+  }
+  55% {
+    transform: translateX(4px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+}
+.amb-plana {
+  animation: amb-plana 14s ease-in-out infinite;
+}
+@keyframes amb-plana {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(6px, -3px);
+  }
+  50% {
+    transform: translate(10px, 1px);
+  }
+  75% {
+    transform: translate(4px, 4px);
+  }
+}
+.amb-gola {
+  animation: amb-gola 5s ease-in-out infinite;
+}
+@keyframes amb-gola {
+  0%,
+  70%,
+  100% {
+    transform: scale(1);
+  }
+  80% {
+    transform: scale(1.5);
+  }
+}
+.amb-farfalla {
+  animation: amb-zigzag 6s ease-in-out infinite;
+}
+@keyframes amb-zigzag {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(3px, -4px);
+  }
+  50% {
+    transform: translate(6px, 0);
+  }
+  75% {
+    transform: translate(3px, -3px);
+  }
+}
+.amb-ali {
+  animation: amb-ali 0.9s ease-in-out infinite alternate;
+}
+@keyframes amb-ali {
+  to {
+    transform: scaleX(0.55);
+  }
+}
+.amb-marmotta {
+  animation: amb-marmotta 9s ease-in-out infinite;
+}
+@keyframes amb-marmotta {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  40% {
+    transform: scaleY(1.08);
+  }
+  70%,
+  85% {
+    transform: scaleY(0.45);
+  }
+}
+.amb-coda {
+  animation: amb-coda 4s steps(1) infinite;
+}
+@keyframes amb-coda {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  60% {
+    transform: rotate(-8deg);
+  }
+  66% {
+    transform: rotate(4deg);
+  }
+}
+.amb-tram {
+  animation: amb-tram 28s ease-in-out infinite alternate;
+}
+@keyframes amb-tram {
+  from {
+    transform: translateX(-46px);
+  }
+  to {
+    transform: translateX(46px);
+  }
+}
+.amb-falena {
+  animation: amb-gira 4s linear infinite;
+}
+@keyframes amb-gira {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.amb-becca {
+  animation: amb-becca 5s ease-in-out infinite;
+}
+@keyframes amb-becca {
+  0%,
+  60%,
+  100% {
+    transform: rotate(0);
+  }
+  70%,
+  80% {
+    transform: rotate(-28deg);
+  }
+}
+.amb-rotola {
+  animation: amb-rotola 8s ease-in-out infinite alternate;
+}
+@keyframes amb-rotola {
+  to {
+    transform: rotate(5deg);
+  }
+}
+.amb-cursore {
+  animation: amb-cursore 1.2s steps(1) infinite;
+}
+@keyframes amb-cursore {
+  50% {
+    opacity: 0;
+  }
+}
+.amb-ruota {
+  animation: amb-gira 12s linear infinite;
+}
+.amb-vapore {
+  animation: amb-vapore 3.6s ease-in-out infinite;
+}
+@keyframes amb-vapore {
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: translateY(1px);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translateY(-1px);
+  }
+}
+.amb-foglie {
+  animation: amb-oscilla 5s ease-in-out infinite alternate;
+}
+.amb-piuma {
+  animation: amb-oscilla 4s ease-in-out infinite alternate;
+}
+@keyframes amb-oscilla {
+  from {
+    transform: rotate(-3deg);
+  }
+  to {
+    transform: rotate(3deg);
+  }
+}
+.amb-fuoco {
+  animation: amb-fuoco 5s ease-out infinite;
+}
+@keyframes amb-fuoco {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  60% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  85%,
+  100% {
+    transform: scale(1.05);
+    opacity: 0;
+  }
+}
+.amb-angolo {
+  animation: amb-angolo 6s ease-in-out infinite;
+}
+@keyframes amb-angolo {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  50% {
+    transform: rotate(-14deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .capitolo-ambiente *,
+  .capitolo-ambiente *::before,
+  .capitolo-ambiente *::after {
+    animation: none !important;
+  }
+}

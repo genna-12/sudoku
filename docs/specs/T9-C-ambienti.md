@@ -9,6 +9,7 @@ Parte da `docs/specs/T9-collaudo.md` §C e da `docs/storia/inventario-comparse.m
 @oggetti: id, id       (al massimo 3; vuoto ammesso)
 ```
 - Solo dal capitolo 9 al 100. I capitoli 0-8 NON hanno queste righe: `controlla.py` lo verifica (errore se presenti prima del 9).
+- `@ambiente` può avere in fondo `luce=spenta` (opzionale, solo dal 9; lo valida `controlla.py`, il JSON lo porta solo se c'è): la lanterna del vestito di Semino si disegna spenta anche di sera e di notte (43, 52); di giorno (alba, mattina, giorno) è spenta comunque.
 - `momento` e `meteo` sono obbligatori dal 9 al 100. Dove il testo li dice, si seguono; dove tace, si scelgono coerenti con battute, eco, capitolo prima e dopo.
 - Vocabolario chiuso: gli id validi di comparse (max 10) e oggetti (max 30) sono elencati in `docs/storia/ambienti.md` e in `src/config/ambienti.ts`; `controlla.py` rifiuta id sconosciuti.
 - Le comparse non parlano, non hanno nome sullo schermo, non sono secondari. Possono essere creature citate nel testo (lucciole, granchi, rane, piccione, tram) o creature di sfondo tipiche del luogo, se non contraddicono il testo.

@@ -7,13 +7,32 @@ Uso:
   python3 scripts/storia/controlla.py FILE --json OUT.json
 
 Esce con 1 se ci sono errori. Gli avvisi (lista nera) non fermano.
-Formato: vedi docs/storia/guida-dialoghi.md §5.
+Formato: vedi docs/storia/guida-dialoghi.md §5; righe d'ambiente (T9 C): docs/specs/T9-C-ambienti.md.
+
+Ambienti (solo dal capitolo 9 al 100, vietati da 0 a 8):
+  @ambiente: momento=<alba|mattina|giorno|tramonto|sera|notte> meteo=<sereno|nuvole|...> [luce=spenta]
+  @comparse: id, id   /   @oggetti: id, id   (al massimo 3; vuoto ammesso; id da src/config/ambienti.json)
+  L'obbligo di @ambiente dal 9 al 100 vale con AMBIENTE_OBBLIGATORIO = True o con --ambiente-obbligatorio;
+  spento, la riga se c'è si controlla lo stesso.
 """
 import argparse
 import json
 import re
 import sys
 from pathlib import Path
+
+# vocabolario unico degli ambienti, letto anche dall'app (src/config/ambienti.ts)
+AMBIENTI = json.loads((Path(__file__).resolve().parents[2] / "src" / "config" / "ambienti.json").read_text(encoding="utf-8"))
+MOMENTI = set(AMBIENTI["momenti"])
+METEO = set(AMBIENTI["meteo"])
+COMPARSE = set(AMBIENTI["comparse"])
+OGGETTI = set(AMBIENTI["oggetti"])
+MAX_VOC_COMPARSE, MAX_VOC_OGGETTI = 10, 30
+MAX_AMBIENTE = 3  # comparse e oggetti per capitolo
+LUCI = {"spenta"}  # @ambiente luce=: opzionale, la lanterna del vestito spenta anche di sera e di notte (43, 52)
+AMBIENTE_DA, AMBIENTE_A = 9, 100
+# acceso dalla lead quando capitoli.md ha le righe @ambiente dal 9 al 100 (o con --ambiente-obbligatorio)
+AMBIENTE_OBBLIGATORIO = True
 
 LUOGHI = {"aiuola", "giardino", "mare", "montagna", "bosco", "citta", "cucina", "lontano"}
 PRINCIPALI = {"semino", "semina"}
@@ -42,7 +61,7 @@ NERA = [
 ]
 
 RE_TITOLO = re.compile(r"^## (\d+) · ([a-z]+) · (.+)$")
-RE_META = re.compile(r"^@(vestiti|entra|elemento|eco|fondale):\s*(.*)$")
+RE_META = re.compile(r"^@(vestiti|entra|elemento|eco|fondale|ambiente|comparse|oggetti):\s*(.*)$")
 RE_BATTUTA = re.compile(r"^- ([a-z]+)(?: \(([a-z]+)\))?: (.*)$")
 
 
@@ -83,6 +102,24 @@ def parse(testo):
                 cap["elemento"] = v or None
             elif k == "fondale":
                 cap["fondale"] = v or None
+            elif k == "ambiente":
+                if "_ambiente" in cap:
+                    errori.append(f"riga {n}: @ambiente ripetuto")
+                amb = {}
+                for pezzo in v.split():
+                    if "=" not in pezzo:
+                        errori.append(f"riga {n}: ambiente malformato '{pezzo}'")
+                        continue
+                    chiave, val = pezzo.split("=", 1)
+                    if chiave not in ("momento", "meteo", "luce") or chiave in amb:
+                        errori.append(f"riga {n}: ambiente con chiave '{chiave}' sconosciuta o ripetuta")
+                        continue
+                    amb[chiave] = val
+                cap["_ambiente"] = amb
+            elif k in ("comparse", "oggetti"):
+                if f"_{k}" in cap:
+                    errori.append(f"riga {n}: @{k} ripetuto")
+                cap[f"_{k}"] = [x.strip() for x in v.split(",") if x.strip()]
             elif k == "eco":
                 if v:
                     if ":" not in v:
@@ -99,7 +136,48 @@ def parse(testo):
     return capitoli, errori
 
 
-def controlla(capitoli, da=None, a=None, salta=()):
+def controlla_vocabolario():
+    errori = []
+    if len(COMPARSE) > MAX_VOC_COMPARSE:
+        errori.append(f"ambienti.json: {len(COMPARSE)} comparse > {MAX_VOC_COMPARSE}")
+    if len(OGGETTI) > MAX_VOC_OGGETTI:
+        errori.append(f"ambienti.json: {len(OGGETTI)} oggetti > {MAX_VOC_OGGETTI}")
+    return errori
+
+
+def controlla_ambiente(c, p, errori, obbligatorio):
+    """@ambiente/@comparse/@oggetti: vietati prima del 9, id dal vocabolario, @ambiente obbligatorio se acceso."""
+    dentro = AMBIENTE_DA <= c["fiore"] <= AMBIENTE_A
+    if not dentro:
+        for k in ("ambiente", "comparse", "oggetti"):
+            if f"_{k}" in c:
+                errori.append(f"{p}: @{k} ammesso solo dal capitolo {AMBIENTE_DA} al {AMBIENTE_A}")
+        return
+    amb = c.get("_ambiente")
+    if amb is None:
+        if obbligatorio:
+            errori.append(f"{p}: manca @ambiente (obbligatorio dal {AMBIENTE_DA} al {AMBIENTE_A})")
+    else:
+        if amb.get("momento") not in MOMENTI:
+            errori.append(f"{p}: momento '{amb.get('momento')}' non valido ({'|'.join(AMBIENTI['momenti'])})")
+        if amb.get("meteo") not in METEO:
+            errori.append(f"{p}: meteo '{amb.get('meteo')}' non valido ({'|'.join(AMBIENTI['meteo'])})")
+        if "luce" in amb and amb["luce"] not in LUCI:
+            errori.append(f"{p}: luce '{amb['luce']}' non valida ({'|'.join(sorted(LUCI))}, o niente)")
+    for k, voc in (("comparse", COMPARSE), ("oggetti", OGGETTI)):
+        ids = c.get(f"_{k}", [])
+        if len(ids) > MAX_AMBIENTE:
+            errori.append(f"{p}: {len(ids)} {k} > {MAX_AMBIENTE}")
+        if len(set(ids)) != len(ids):
+            errori.append(f"{p}: @{k} con id ripetuti")
+        for x in ids:
+            if x not in voc:
+                errori.append(f"{p}: @{k} '{x}' non è nel vocabolario (src/config/ambienti.json)")
+
+
+def controlla(capitoli, da=None, a=None, salta=(), obbligatorio=None):
+    if obbligatorio is None:
+        obbligatorio = AMBIENTE_OBBLIGATORIO
     errori, avvisi = [], []
     attesi = None
     if da is not None and a is not None:
@@ -136,6 +214,7 @@ def controlla(capitoli, da=None, a=None, salta=()):
                 errori.append(f"{p}: vestito '{v}' non esiste per {chi}")
             if c["fiore"] < SEMINA_DA and chi == "semina":
                 errori.append(f"{p}: vestiti di Semina prima del fiore {SEMINA_DA}")
+        controlla_ambiente(c, p, errori, obbligatorio)
         if c["entra"] and c["entra"] not in SECONDARI:
             errori.append(f"{p}: @entra '{c['entra']}' non è un secondario")
         testo_tutto = " ".join(b["testo"] for b in c["battute"]) + " " + (c["eco"]["testo"] if c["eco"] else "")
@@ -182,12 +261,14 @@ def main():
     ap.add_argument("--salta", default="")
     ap.add_argument("--json")
     ap.add_argument("--silenzioso", action="store_true", help="non stampare gli avvisi")
+    ap.add_argument("--ambiente-obbligatorio", action="store_true",
+                    help=f"@ambiente obbligatorio dal {AMBIENTE_DA} al {AMBIENTE_A} anche con AMBIENTE_OBBLIGATORIO spento")
     args = ap.parse_args()
     testo = Path(args.file).read_text(encoding="utf-8")
     capitoli, err_parse = parse(testo)
     salta = {int(x) for x in args.salta.split(",") if x.strip()}
-    errori, avvisi = controlla(capitoli, args.da, args.a, salta)
-    errori = err_parse + errori
+    errori, avvisi = controlla(capitoli, args.da, args.a, salta, AMBIENTE_OBBLIGATORIO or args.ambiente_obbligatorio)
+    errori = controlla_vocabolario() + err_parse + errori
     for e in errori:
         print("ERRORE", e)
     if not args.silenzioso:
@@ -202,6 +283,14 @@ def main():
         pulito = [{"_sorgente_sha256": hashlib.sha256(testo.encode("utf-8")).hexdigest(), "_nota": "generato da controlla.py: non modificare a mano"}]
         for c in capitoli:
             d = {k: v for k, v in c.items() if not k.startswith("_")}
+            # campi d'ambiente solo se presenti: i capitoli senza righe (0-8, e tutti oggi) restano identici
+            if c.get("_ambiente"):
+                d["ambiente"] = {"momento": c["_ambiente"]["momento"], "meteo": c["_ambiente"]["meteo"]}
+                if c["_ambiente"].get("luce"):
+                    d["ambiente"]["luce"] = c["_ambiente"]["luce"]
+            for k in ("comparse", "oggetti"):
+                if c.get(f"_{k}"):
+                    d[k] = c[f"_{k}"]
             d["battute"] = [{k: v for k, v in b.items() if not k.startswith("_") and v is not None} for b in c["battute"]]
             pulito.append(d)
         out.write_text(json.dumps(pulito, ensure_ascii=False, indent=1), encoding="utf-8")

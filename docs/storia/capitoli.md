@@ -124,6 +124,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=occhiali semina=corona
 @entra:
 @elemento:
+@ambiente: momento=sera meteo=sereno
+@comparse:
+@oggetti: pc
 @eco: semina: Alle sei c'era una sveglia che suonava da un'ora. Lui dormiva sulla j.
 - narra: Sera. Semino al PC. Semina ha già un occhio chiuso.
 - semina (dorme): Il giardino lo apro io. Alle sei.
@@ -138,6 +141,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=occhiali semina=animale
 @entra: fischio
 @elemento: merlo
+@ambiente: momento=alba meteo=sereno
+@comparse:
+@oggetti:
 @eco: semina: Fischio è puntuale una volta al giorno. Alle quattro.
 - narra: Un merlo sul ramo sopra l'aiuola. Fischia, si ferma, si gratta, fischia. Mai a tempo.
 - semina (euforico): FISCHIO. Si chiama Fischio.
@@ -152,6 +158,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=occhiali semina=corona
 @entra:
 @elemento:
+@ambiente: momento=tramonto meteo=sereno
+@comparse:
+@oggetti: piatto
 @eco: semino: Il dito sta bene. Lo controllo ogni tanto, per scrupolo.
 - narra: Semino cucina su un fuoco di rametti. Tocca il bordo della pentola e ritira la mano.
 - semino (neutro): Pasta al pomodoro. Niente di che.
@@ -165,6 +174,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=occhiali semina=animale
 @entra:
 @elemento: cassetta
+@ambiente: momento=giorno meteo=sereno
+@comparse: farfalle
+@oggetti: lettera
 @eco: semina: La lettera arriva domani. Ho lasciato lo sportello aperto, per farla entrare.
 - narra: In fondo al sentiero è spuntata una cassetta della posta. Ha lo sportello che cigola.
 - semina (euforico): Qui dentro finiscono TUTTE le frasi che vi mandate, giganti. Le leggo io.
@@ -179,6 +191,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=occhiali semina=corona
 @entra:
 @elemento:
+@ambiente: momento=giorno meteo=nuvole
+@comparse: rane
+@oggetti: sasso-misura
 @eco: semina: Io ho detto forse. Lui l'ha scritto su un sasso.
 - semino (neutro): Domanda tecnica. Vuoi stare nella stessa aiuola?
 - semina (neutro): Forse.
@@ -193,6 +208,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=occhiali semina=animale
 @entra:
 @elemento:
+@ambiente: momento=alba meteo=nuvole
+@comparse:
+@oggetti: sasso-misura, bastoncino
 @eco: semina: Trentanove è un bel numero. Più bello di quaranta, non so perché.
 - narra: Alba. Semino dorme. Semina tira le sue radici di un centimetro, verso quelle di lui.
 - semina (imbarazzato): Non diteglielo.
@@ -204,6 +222,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=surf semina=paglia
 @entra:
 @elemento: mare
+@ambiente: momento=giorno meteo=sereno
+@comparse: gabbiani
+@oggetti:
 @eco: semino: Sulla sabbia c'è il sasso di Semina. Ci passo vicino con la palla, piano.
 - narra: Il mare è arrivato fino in fondo al giardino. Semino è già in acqua, con la palla.
 - semino (euforico): Onde vere. Una ogni otto secondi.
@@ -218,6 +239,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=surf semina=paglia
 @entra:
 @elemento:
+@ambiente: momento=giorno meteo=sereno
+@comparse: gabbiani
+@oggetti:
 @eco: semino: Con la tavola al guinzaglio non si cade. Si va pochissimo, però.
 - semino (neutro): Piedi larghi, quaranta centimetri. E guarda avanti, non i piedi.
 - narra: Semina cade. Risale. Cade. Risale. La terza volta cade la tavola, e lei resta in piedi nell'acqua.
@@ -232,6 +256,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=surf semina=paglia
 @entra: pinza
 @elemento:
+@ambiente: momento=giorno meteo=sereno
+@comparse: gabbiani
+@oggetti:
 @eco: semino: Ho camminato di lato tutto il pomeriggio. L'alluce è ancora mio, credo.
 - narra: Semino esce dall'acqua. Dall'alluce gli pende un granchio.
 - semino (sorpreso): Ho un granchio. Attaccato.
@@ -246,6 +273,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=surf semina=paglia
 @entra:
 @elemento:
+@ambiente: momento=giorno meteo=nuvole
+@comparse: gabbiani
+@oggetti:
 @eco: semino: Ho contato novantadue onde. La novantatreesima non l'ho vista.
 - narra: Semina cammina lungo la riva. Si allontana.
 - semino (neutro): Dove vai?
@@ -260,6 +290,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=surf semina=paglia
 @entra:
 @elemento:
+@ambiente: momento=tramonto meteo=sereno
+@comparse:
+@oggetti: conchiglia
 @eco: semina: La conchiglia è bucata. Suona lo stesso.
 - narra: Semina torna. Ha una conchiglia in mano. La posa accanto alla tavola.
 - semino (neutro): Cos'è?
@@ -274,6 +307,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=surf semina=paglia
 @entra:
 @elemento: stelle
+@ambiente: momento=notte meteo=sereno
+@comparse:
+@oggetti:
 @eco: semino: Stanotte ho contato quaranta stelle. Venti erano sue.
 - narra: Notte sulla spiaggia. In cielo sono uscite venti stelle, una per fiore.
 - semino (neutro): Una. Due.
@@ -287,6 +323,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=palla semina=paglia
 @entra:
 @elemento:
+@ambiente: momento=mattina meteo=sereno
+@comparse: granchi
+@oggetti:
 @eco: semino: C'è un Semino Due, sulla scogliera. Io resto la versione 1.0.
 - narra: Semina sulla scogliera, in mezzo ai granchi. Ne prende uno alla volta e gli dà un nome.
 - semina (euforico): UGO. Rita. Pancrazio. Bombo. Lilli. E questo è Zeffirino.
@@ -301,6 +340,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=palla semina=paglia
 @entra:
 @elemento:
+@ambiente: momento=giorno meteo=sereno
+@comparse:
+@oggetti:
 @eco: semino: La palla adesso pende a sinistra. Ho corretto il tiro di dieci gradi.
 - narra: La palla rotola verso l'acqua. Pinza la blocca con tutte e due le chele.
 - pinza: Presa. Così non rotola via.
@@ -315,6 +357,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=surf semina=paglia
 @entra:
 @elemento:
+@ambiente: momento=giorno meteo=sereno
+@comparse: gabbiani
+@oggetti: ombrellone
 @eco: semina: L'ombra è arrivata al muretto un minuto dopo di me. L'ho aspettata.
 - semina (neutro): Vado agli scogli. Torno quando l'ombra arriva al muretto.
 - narra: Disegna una freccia nella sabbia, dall'ombrellone al muretto. Semino prende la tavola ed entra in acqua.
@@ -329,6 +374,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=surf semina=paglia
 @entra:
 @elemento:
+@ambiente: momento=giorno meteo=sereno
+@comparse: gabbiani
+@oggetti: ombrellone, conchiglia
 @eco: semino: La settima era l'ottava. Ho ricontrollato: avevo contato anche la schiuma.
 - semina (neutro): Questa è muta. Quella bucata suona.
 - semino (sorpreso): Perché quella bucata?
@@ -343,6 +391,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=palla semina=paglia
 @entra:
 @elemento:
+@ambiente: momento=sera meteo=vento
+@comparse:
+@oggetti:
 @eco: semina: Ho ancora la sabbia in un orecchio. Non la tolgo. Niente.
 - semina (arrabbiato): Ho la sabbia nelle orecchie. Nelle orecchie.
 - semino (neutro): In montagna hai i sassi nelle scarpe.
@@ -354,9 +405,12 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 - narra: Pinza resta in mezzo, sulla sabbia, sveglio. Una chela verso gli scogli, una verso l'acqua.
 
 ## 26 · mare · La tavola sul muretto
-@vestiti: semino=surf semina=paglia
+@vestiti: semino=palla semina=paglia
 @entra:
 @elemento: tavola
+@ambiente: momento=mattina meteo=sereno
+@comparse:
+@oggetti: tavola
 @eco: semino: Sulla tavola c'è una montagna graffiata. In acqua fa meno attrito, secondo me.
 - narra: Mattina. Semino porta la tavola fino al muretto e la appoggia lì, dritta.
 - semino (neutro): Resta qui. Così pensi al mare.
@@ -367,9 +421,12 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 - semino (neutro): Undici centimetri.
 
 ## 27 · mare · Una chela sola
-@vestiti: semino=surf semina=paglia
+@vestiti: semino=palla semina=paglia
 @entra:
 @elemento:
+@ambiente: momento=mattina meteo=sereno
+@comparse: gabbiani
+@oggetti: tavola, zaino
 @eco: semino: La cinghia dello zaino è rotta. La sistemo in salita. Pare che ci sia una salita.
 - narra: Si parte. Pinza si aggrappa alla cinghia dello zaino di Semino, con tutte e due le chele. Crac.
 - semino (neutro): Prova con una chela sola.
@@ -384,6 +441,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=zaino-storto semina=montagna
 @entra:
 @elemento:
+@ambiente: momento=mattina meteo=sereno
+@comparse: marmotta
+@oggetti:
 @eco: semino: Nello zaino c'è una conchiglia. Non so a cosa serva, lassù.
 - semina (neutro): Fermo. Hai lo zaino storto.
 - semino (neutro): Pende di dodici gradi. È voluto.
@@ -397,6 +457,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=zaino-storto semina=montagna
 @entra:
 @elemento: montagna
+@ambiente: momento=giorno meteo=sereno
+@comparse: farfalle
+@oggetti: cartina
 @eco: semino: Sulla mappa ho segnato le pause panorama. Quarantuno. Tutte necessarie.
 - narra: Salita. Semino si ferma ogni dieci passi. A ogni curva, Semina lo aspetta seduta su un sasso.
 - semino (neutro): Pausa panorama.
@@ -411,6 +474,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=zaino-storto semina=cavallo
 @entra: nuvola
 @elemento: cavallino
+@ambiente: momento=giorno meteo=sereno
+@comparse: farfalle
+@oggetti:
 @eco: semina: Nuvola non conosce il "dai". Io lo dico lo stesso, ogni tanto.
 - semina (euforico): UNA CAVALLA. Si chiama Nuvola. VIENI.
 - semino (neutro): La vedo benissimo anche da qui.
@@ -425,6 +491,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=zaino-storto semina=cavallo
 @entra:
 @elemento:
+@ambiente: momento=giorno meteo=sereno
+@comparse: marmotta
+@oggetti:
 @eco: semino: Record personale a cavallo: tre secondi e mezzo. Lei dice quattro.
 - semina (felice): Sali. Nuvola, ferma.
 - semino (preoccupato): Sono su. Uno, due, tre, quat...
@@ -438,6 +507,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=zaino-storto semina=montagna
 @entra:
 @elemento:
+@ambiente: momento=mattina meteo=sereno
+@comparse:
+@oggetti: zaino
 @eco: semino: Stamattina sereno dappertutto. Tranne in un punto.
 - semino (felice): Buongiorno. Le dieci e cinque. I cinque minuti sono passati, più o meno.
 - narra: Sopra la testa di Semina c'è una nuvoletta grigia. Nuvola, accanto a lei, non muove la coda.
@@ -451,6 +523,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=zaino-storto semina=montagna
 @entra: nonnacapra
 @elemento:
+@ambiente: momento=mattina meteo=nuvole
+@comparse:
+@oggetti: zaino, fiore-cima
 @eco: semina: In cima c'era un fiore solo. Adesso sta in uno zaino storto.
 - narra: Semino non la segue. Ricuce lo zaino di lei sotto una roccia. Arriva una capra vecchissima. Mastica.
 - semino (neutro): Si era scucita la cinghia. Tre punti e regge.
@@ -465,6 +540,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=zaino-storto semina=montagna
 @entra:
 @elemento:
+@ambiente: momento=giorno meteo=sereno
+@comparse:
+@oggetti: carrucola, secchio
 @eco: semina: Ho chiesto cosa c'era scritto sul biglietto. Nonna Capra ha masticato.
 - narra: Alla baita. Da una ruota che cigola parte una corda che scende fino a valle. Nonna Capra mastica.
 - semina (sorpreso): Dove va la corda?
@@ -478,6 +556,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=zaino-storto semina=cavallo
 @entra:
 @elemento:
+@ambiente: momento=tramonto meteo=sereno
+@comparse:
+@oggetti:
 @eco: semina: Sul sentiero lungo ci sono quarantadue sassi. Li ha contati lui, piano.
 - narra: Un bivio, due cartelli. Sopra Semina c'è ancora una nuvoletta, piccola come una noce.
 - semino (neutro): Lungo o corto?
@@ -492,6 +573,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=zaino-storto semina=cavallo
 @entra:
 @elemento:
+@ambiente: momento=alba meteo=sereno
+@comparse:
+@oggetti: cappello
 @eco: semino: L'alba dura undici minuti. Il resto del giorno l'ho dormito.
 - semina (neutro): È l'ora.
 - semino (dorme): Cinque minu...
@@ -505,6 +589,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=zaino-storto semina=montagna
 @entra:
 @elemento: sasso di quota
+@ambiente: momento=giorno meteo=vento
+@comparse:
+@oggetti: sasso-quota, conchiglia
 @eco: semino: Nello zaino c'è un sasso di quota. Adesso pende dall'altra parte.
 - semina (regalo): Un sasso di quota. Per il muretto.
 - semino (sorpreso): Quello del mare?
@@ -518,6 +605,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=zaino-storto semina=montagna
 @entra:
 @elemento:
+@ambiente: momento=tramonto meteo=nuvole
+@comparse:
+@oggetti: cappello, tazze
 @eco: semina: Il tè caldo era giusto. Quello freddo non l'ha bevuto nessuno.
 - narra: Baita. Il cappello di Semina è sul tavolo, capovolto. Semino lo guarda e mette su l'acqua.
 - semino (neutro): Ne ho fatta una calda e una fredda. Scegli tu.
@@ -529,6 +619,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=zaino-storto semina=cavallo
 @entra:
 @elemento:
+@ambiente: momento=sera meteo=sereno
+@comparse:
+@oggetti: tazze
 @eco: semino: Nuovo dato: pigne in fila vuol dire sonno. Ho aggiornato l'elenco.
 - narra: Sul prato, Semina mette in fila le pigne. È la terza volta che le rifà.
 - semino (preoccupato): Tre volte. Secondo i miei calcoli, è grave.
@@ -542,6 +635,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=zaino-storto semina=montagna
 @entra:
 @elemento:
+@ambiente: momento=sera meteo=sereno
+@comparse:
+@oggetti:
 @eco: semina: La canzone della capra la so tutta. Le parole no.
 - narra: Sera. Nonna Capra canta verso la valle, malissimo. Da giù risponde una campanella.
 - semina (euforico): LALALÀ. Le parole non le so.
@@ -554,6 +650,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=zaino-storto semina=montagna
 @entra:
 @elemento:
+@ambiente: momento=mattina meteo=sereno
+@comparse: marmotta
+@oggetti: nodo, carrucola
 @eco: semina: Lui il nodo non lo tocca. Lo guarda, ogni tanto, dalla cerniera.
 - narra: Si parte. Nonna Capra è sulla porta della baita. Mastica un pezzo di corda.
 - semina (neutro): Una cosa che ti è piaciuta. Una.
@@ -568,6 +667,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=zaino-storto semina=cavallo
 @entra:
 @elemento:
+@ambiente: momento=tramonto meteo=sereno
+@comparse:
+@oggetti:
 @eco: semino: Lo zaino è dritto da stamattina. Non è grave.
 - narra: Il prato finisce dove cominciano gli alberi. Nuvola è ancora dietro di loro.
 - semina (neutro): Nuvola. Resta.
@@ -579,6 +681,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=lanterna semina=lucciola
 @entra:
 @elemento:
+@ambiente: momento=sera meteo=sereno luce=spenta
+@comparse: lucciole
+@oggetti:
 @eco: semino: La lanterna funziona. È la lucciola che dentro non fa luce. Ho controllato.
 - semina (dorme): Sei sveglio?
 - semino (dorme): È presto.
@@ -593,6 +698,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=lanterna semina=lucciola
 @entra: gufo
 @elemento:
+@ambiente: momento=notte meteo=sereno
+@comparse: lucciole
+@oggetti: pc, piuma
 @eco: semino: Il gufo dice tre parole alla volta. Massimo. Ho contato.
 - narra: Notte fonda. Semino al PC su un ceppo. Sul ramo sopra di lui, due occhi gialli.
 - gufo: Anche tu?
@@ -607,6 +715,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=lanterna semina=lucciola
 @entra:
 @elemento:
+@ambiente: momento=alba meteo=sereno
+@comparse: scoiattolo
+@oggetti: piuma, bacca
 @eco: semina: Ho lasciato una bacca rossa sul ramo basso. Non so per chi, di preciso.
 - narra: Alba. Sul ramo basso c'è una piuma grigia. Semina se la prova nella corona, di qua e poi di là.
 - fischio: Fiù. Ferma. Quella è posta mia.
@@ -620,6 +731,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=lanterna semina=lucciola
 @entra:
 @elemento:
+@ambiente: momento=sera meteo=pioggia
+@comparse:
+@oggetti:
 @eco: semina: La corona è rimasta su quel ramo. Da lassù vede il fango.
 - narra: Semina è seduta nel fango fino alla vita. La sua corona di foglie è rimasta su un ramo, in alto.
 - semina (arrabbiato): Oggi no.
@@ -633,6 +747,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=lanterna semina=lucciola
 @entra:
 @elemento:
+@ambiente: momento=sera meteo=nuvole
+@comparse:
+@oggetti: pc
 @eco: semino: Il bug della riga 212 l'ho risolto. Il tasto invio adesso fa luce.
 - semino (arrabbiato): Si è spento. E adesso: errore alla riga 212.
 - semina (neutro): Vieni a vedere le lucciole?
@@ -647,6 +764,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=lanterna semina=lucciola
 @entra:
 @elemento:
+@ambiente: momento=notte meteo=sereno
+@comparse: lucciole
+@oggetti:
 @eco: semino: Ho cercato "sei mini" sul dizionario. Non c'è. Lo diciamo lo stesso.
 - semina (euforico): UN FUNGO. Alto un'unghia. Sei mini.
 - semino (neutro): Sei? Ne vedo uno.
@@ -661,6 +781,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=lanterna semina=lucciola
 @entra:
 @elemento:
+@ambiente: momento=tramonto meteo=sereno
+@comparse:
+@oggetti: foglio
 @eco: semina: Sul tronco c'è una luna storta. Era così, dice lui.
 - narra: Crepuscolo. Semino arriva al tronco con un foglio piegato. Semina con una foglia chiusa a cucchiaio.
 - semino (regalo): Questa l'ho fatta stanotte. Apri prima tu, però.
@@ -673,6 +796,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=lanterna semina=lucciola
 @entra:
 @elemento: fuochi
+@ambiente: momento=sera meteo=sereno
+@comparse:
+@oggetti: fuochi
 @eco: semina: Fischio è offeso col cielo. Dice che stasera ha cantato fuori orario.
 - semino (neutro): Angolo sessanta gradi. Scoppia fra tre secondi.
 - semina (festa): AAAAH.
@@ -686,6 +812,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=lanterna semina=lucciola
 @entra:
 @elemento:
+@ambiente: momento=mattina meteo=sereno
+@comparse: scoiattolo
+@oggetti: lettera
 @eco: semina: Il disegno del Mulo l'ho appeso al tronco. A testa in giù, credo.
 - fischio: Fiù. Posta dalla montagna. Di corsa.
 - semina (euforico): È di Nonna Capra. C'È UN DISEGNO.
@@ -699,6 +828,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=lanterna semina=lucciola
 @entra:
 @elemento:
+@ambiente: momento=notte meteo=nuvole luce=spenta
+@comparse:
+@oggetti:
 @eco: semino: Stanotte il sentiero l'ha fatto un altro. Io tenevo un'ala.
 - narra: Notte. La lanterna fa ffft e si spegne.
 - semino (preoccupato): Il sentiero era a quaranta gradi. Poi due curve. Poi...
@@ -713,6 +845,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=lanterna semina=lucciola
 @entra:
 @elemento:
+@ambiente: momento=notte meteo=sereno
+@comparse: lucciole
+@oggetti: pc
 @eco: semina: Alle sei il tronco era vuoto. Ci sono entrata. Era ancora tiepido.
 - semino (neutro): Io dormo nel tronco cavo. Ci sto giusto io col PC.
 - semina (felice): Io nel muschio. Alle dieci in punto.
@@ -726,6 +861,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=lanterna semina=lucciola
 @entra:
 @elemento: lanterna
+@ambiente: momento=sera meteo=sereno
+@comparse:
+@oggetti: piuma, zaino
 @eco: semino: Ho una piuma da consegnare. Il destinatario è sempre di corsa.
 - narra: Fine del bosco. Laggiù, le luci di una città. Gufo è sull'ultimo ramo.
 - gufo: Per Fischio.
@@ -738,6 +876,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=chitarra semina=giacca
 @entra:
 @elemento:
+@ambiente: momento=notte meteo=sereno
+@comparse: tram, falene
+@oggetti:
 @eco: semina: Il tram delle due si chiama Fieno. Quello delle due e venti non l'ho ancora conosciuto.
 - narra: Notte in città. Semino cammina sicuro, la chitarra a tracolla. Semina ha gli occhiali da sole.
 - semino (felice): Forno a destra, apre alle quattro. Poi tre lampioni rotti e il ponte.
@@ -752,6 +893,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=chitarra semina=giacca
 @entra: grillo
 @elemento:
+@ambiente: momento=sera meteo=sereno
+@comparse:
+@oggetti: custodia
 @eco: semino: La giacca di Semina ha un bottone in meno. So dov'è.
 - narra: Sotto un portico un grillo suona per chi passa. Semino si ferma. Ha la chitarra sulla schiena.
 - grillo: Suoni?
@@ -766,6 +910,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=chitarra semina=giacca
 @entra:
 @elemento:
+@ambiente: momento=sera meteo=sereno
+@comparse:
+@oggetti: zaino
 @eco: semino: Al secondo giro ho sbagliato un re. Nessuno in particolare dice che non si sentiva.
 - semina (euforico): C'È SCRITTO "CHI VUOLE".
 - semino (preoccupato): Ho letto. Sono undici minuti che leggo.
@@ -778,6 +925,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=chitarra semina=giacca
 @entra:
 @elemento:
+@ambiente: momento=notte meteo=sereno
+@comparse: tram
+@oggetti: pc
 @eco: semino: Ho una foglia con scritto tram. La tengo sotto il mouse.
 - narra: Notte. Semino scrive un programma. Semina, sulla sedia accanto, guarda i tram che passano sotto la finestra.
 - semina (neutro): Sei mini?
@@ -790,6 +940,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=chitarra semina=giacca
 @entra:
 @elemento:
+@ambiente: momento=notte meteo=sereno
+@comparse: falene
+@oggetti: palla
 @eco: semina: Stanotte Semino ha fatto quaranta vasche. Le ho contate io, quindi sono quaranta.
 - narra: Piscina, di notte. Semino fa vasche. Semina, seduta sul bordo coi piedi in acqua, conta ad alta voce.
 - semina (euforico): Diciannove. VENTI. Trenta. QUARANTA.
@@ -802,6 +955,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=chitarra semina=giacca
 @entra:
 @elemento:
+@ambiente: momento=sera meteo=sereno
+@comparse:
+@oggetti:
 @eco: semina: Sul vetro di quella finestra c'è ancora il mio naso. Prima o poi passo a riprenderlo.
 - narra: Una finestra accesa a pianterreno: provette, un microscopio, un camice su una sedia. Semina ci schiaccia il naso.
 - semina (estasiato): Io lì dentro guarderei le cose piccole.
@@ -814,6 +970,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=chitarra semina=giacca
 @entra:
 @elemento:
+@ambiente: momento=notte meteo=sereno
+@comparse: tram
+@oggetti: pc
 @eco: semino: Il timer diceva venti. Ho chiuso a diciannove.
 - narra: Dopo la finestra. Semino apre il PC e mette un timer: 20:00.
 - semino (neutro): Venti minuti.
@@ -828,6 +987,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=chitarra semina=giacca
 @entra:
 @elemento:
+@ambiente: momento=mattina meteo=nebbia
+@comparse:
+@oggetti: custodia, plettro
 @eco: semino: Il plettro di Grillo è giallo, un po' mangiato su un lato. Non l'ho ancora usato.
 - narra: Mattina presto. Grillo chiude la custodia: dentro, la moneta e il bottone. Semino ha le mani in tasca.
 - grillo: Vado dove c'è la mia piazza.
@@ -841,6 +1003,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=chitarra semina=giacca
 @entra:
 @elemento: chitarra
+@ambiente: momento=giorno meteo=sereno
+@comparse:
+@oggetti:
 @eco: semino: La canzone non ha ancora un titolo. Ha un due sbagliato, però. Sempre lo stesso.
 - semino (neutro): Uno, due, tre, quattro. Si entra sul quattro.
 - semina (euforico): LA LA LAAA.
@@ -854,6 +1019,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=chitarra semina=giacca
 @entra:
 @elemento:
+@ambiente: momento=giorno meteo=sereno
+@comparse: piccione
+@oggetti: pc
 @eco: semina: Semino Tre ha scritto una riga di g. Sei mini, gli ho detto. Semino dice che compila.
 - semina (euforico): UN PICCIONE. HA UNA ZAMPA ROSA E UNA GRIGIA.
 - narra: Semino non stacca gli occhi dallo schermo. Alza un dito.
@@ -868,6 +1036,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=chitarra semina=giacca
 @entra:
 @elemento: locandina
+@ambiente: momento=sera meteo=sereno
+@comparse: tram
+@oggetti: locandina, zaino
 @eco: semina: La locandina è piegata male. Se la apro si strappa, quindi non la apro.
 - narra: Su un muro, tra un trasloco e un corso di tuba: SEMINO, CHITARRRA, PALCO DI CHI VUOLE. Ieri sera.
 - semina (euforico): SEI TU. Sei tu sul muro.
@@ -882,6 +1053,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=chitarra semina=giacca
 @entra:
 @elemento:
+@ambiente: momento=sera meteo=sereno
+@comparse: falene
+@oggetti:
 @eco: semina: Semino ha allungato una cinghia sola dello zaino. L'altra dice che va bene così.
 - narra: Ultimo lampione della città. Semina si gira a guardare le luci, poi la strada che sale.
 - semina (neutro): Se la piazza fosse lontana?
@@ -895,6 +1069,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=cuoco semina=grembiule
 @entra:
 @elemento: casetta
+@ambiente: momento=mattina meteo=sereno
+@comparse:
+@oggetti:
 @eco: semino: Sul cappello da cuoco c'è una mano di farina. Non lo lavo: è catalogata.
 - semina (euforico): UNA CUCINA. CON DUE FINESTRE.
 - semino (felice): Una sul mare, una sulla montagna. Il fornello è mio.
@@ -908,6 +1085,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=cuoco semina=grembiule
 @entra: briciola
 @elemento:
+@ambiente: momento=giorno meteo=sereno
+@comparse:
+@oggetti:
 @eco: semino: Briciola pesa tre chili e mezzo. Li ho sentiti tutti, per un minuto.
 - narra: Un gatto entra dalla finestra del mare, si siede sulle gambe di Semino, sta lì un minuto. Poi esce dall'altra.
 - semina (euforico): BRICIOLA. Si chiama Briciola.
@@ -922,6 +1102,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=cuoco semina=grembiule
 @entra:
 @elemento:
+@ambiente: momento=sera meteo=vento
+@comparse:
+@oggetti: tazze, pianta
 @eco: semina: La pianta sul tavolo beve tè. Il nome non gliel'ho ancora dato.
 - semina (neutro): Leggo un po'. Io e il libro.
 - semino (felice): Ti lascio il tè qui, sul bracciolo.
@@ -935,6 +1118,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=cuoco semina=grembiule
 @entra:
 @elemento:
+@ambiente: momento=mattina meteo=sereno
+@comparse:
+@oggetti: tazze, pianta
 @eco: semina: Stamattina Briciola aveva i baffi al tè. La pianta è rimasta a secco.
 - narra: Mattina. Il cuscino è tornato sul divano. Semino posa sul tavolo due tazze: una fuma, una no.
 - semina (neutro): Quale?
@@ -946,6 +1132,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=cuoco semina=grembiule
 @entra:
 @elemento:
+@ambiente: momento=giorno meteo=nuvole
+@comparse:
+@oggetti: sasso-quota, tazze, pianta
 @eco: semino: Ho contato le finestre della casetta: due. Ho ricontato: due.
 - narra: Sul tavolo, il sasso di quota, capovolto. Semino lo gira piano e si siede dall'altra parte. Il tè si fredda.
 - semina (neutro): È per la finestra.
@@ -957,6 +1146,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=cuoco semina=grembiule
 @entra:
 @elemento:
+@ambiente: momento=giorno meteo=sereno
+@comparse:
+@oggetti: pianta
 @eco: semina: Mi sono svegliata a mezzogiorno. Fischio dice che all'alba non c'era nessuno.
 - narra: Mezzogiorno. Sul divano dormono Semino, Semina e, in mezzo, Briciola a pancia in su.
 - semina (dorme): Che ore sono?
@@ -969,6 +1161,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=cuoco semina=grembiule
 @entra:
 @elemento:
+@ambiente: momento=alba meteo=sereno
+@comparse:
+@oggetti: piatto, foglio, pianta
 @eco: semina: Semino adesso si alza alle cinque. L'ho detto a Fischio. Non ci credeva.
 - narra: Le sei. Sul tavolo un piatto di pasta e un biglietto. Semino dorme sul ricettario, col cappello da cuoco in testa.
 - semina (felice): "Sveglia alle cinque. Pasta. Buona alba."
@@ -981,6 +1176,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=cuoco semina=grembiule
 @entra:
 @elemento:
+@ambiente: momento=giorno meteo=sereno
+@comparse:
+@oggetti: pianta
 @eco: semina: Sabato è di Semino, dalle nove sue. Ho chiesto: sono le undici.
 - semina (neutro): Domenica vado a cavallo da sola.
 - semino (neutro): Ok.
@@ -993,6 +1191,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=cuoco semina=grembiule
 @entra:
 @elemento:
+@ambiente: momento=mattina meteo=sereno
+@comparse:
+@oggetti: fiore-cima, palla, pianta
 @eco: semino: Nel cassetto delle posate c'è una cosa che non è una posata. La lascio lì.
 - semina (neutro): Piscina no. Oggi è domenica.
 - semino (neutro): Già.
@@ -1004,6 +1205,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=cuoco semina=grembiule
 @entra:
 @elemento:
+@ambiente: momento=sera meteo=sereno
+@comparse:
+@oggetti: pianta
 @eco: semino: La porta della cucina resta aperta di un palmo. Ci passa un gatto e un po' d'aria.
 - narra: Sera. Briciola dorme su Semino, poi su Semina, poi scende e si siede davanti alla porta.
 - semino (neutro): Dove...
@@ -1015,6 +1219,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=cuoco semina=grembiule
 @entra:
 @elemento:
+@ambiente: momento=mattina meteo=nuvole
+@comparse:
+@oggetti: lettera, piatto, pianta
 @eco: semino: Briciola ha un posto nuovo per dormire. È piatto e fa rumore di carta.
 - fischio: Posta. Viene dall'altra parte della montagna. Vado, vado.
 - semina (sorpreso): Per me?
@@ -1028,6 +1235,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=cuffie semina=camice
 @entra:
 @elemento:
+@ambiente: momento=giorno meteo=nuvole
+@comparse:
+@oggetti: lettera, piatto, pianta
 @eco: semina: Il mio biglietto aveva il retro bianco. Adesso c'è un cavallo.
 - narra: Semino posa sul tavolo due biglietti del treno. Su uno è stampato anche il ritorno.
 - semina (sorpreso): Due?
@@ -1043,6 +1253,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=cuffie semina=camice
 @entra:
 @elemento:
+@ambiente: momento=mattina meteo=sereno
+@comparse:
+@oggetti:
 @eco: semino: Sul treno c'è un finestrino pulito solo in quarantun punti. Li ho ripassati io.
 - narra: Treno. Semina alita sul finestrino e ci disegna col dito un cerchio pieno di puntini.
 - semina (euforico): GIRA FORTISSIMO. Le cose pesanti vanno in fondo, le leggere restano su.
@@ -1058,6 +1271,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=cuffie semina=camice
 @entra:
 @elemento:
+@ambiente: momento=giorno meteo=sereno
+@comparse: piccione
+@oggetti:
 @eco: semina: Nella tasca del camice c'è una cosa piccola e a punta. Non è un'ape.
 - narra: Una piazza con una fontana storta. In mezzo, Grillo suona per un piccione e una signora.
 - semina (euforico): GRILLO.
@@ -1073,6 +1289,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=cuffie semina=camice
 @entra:
 @elemento:
+@ambiente: momento=giorno meteo=sereno
+@comparse:
+@oggetti: plettro, mela
 @eco: semino: Al ventesimo passo mi sono girato. La finestra era grande come un francobollo.
 - narra: Semina entra nel laboratorio. Dietro il vetro mette il plettro di Grillo sotto un vetrino e ci avvicina la faccia.
 - narra: Semino alza le nocche verso il vetro. Le abbassa. Si gira verso la strada.
@@ -1085,6 +1304,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=cuffie
 @entra:
 @elemento:
+@ambiente: momento=tramonto meteo=nuvole
+@comparse:
+@oggetti: vetrino, foglio, pianta
 @eco: semina: Mi è arrivato un foglio con un 408 cerchiato. L'ho appeso lo stesso.
 - narra: Crepuscolo. Fischio atterra sul tavolo di Semino con un fazzoletto. Dentro, un vetrino rotto in due.
 - fischio: Da lei. Taglia. Ha detto: è andata così.
@@ -1098,6 +1320,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=cuffie
 @entra:
 @elemento:
+@ambiente: momento=sera meteo=nuvole
+@comparse:
+@oggetti: carrucola, secchio
 @eco: semino: Ho calato un formaggio per quaranta palmi di corda. Giù, dal camino, usciva fumo.
 - narra: Sulla strada del ritorno, la baita. Nonna Capra mastica accanto alla carrucola. Nel secchio, un formaggio.
 - nonnacapra: D'inverno scendo io. D'estate sale lui, che ha le ginocchia buone.
@@ -1112,6 +1337,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=cuffie
 @entra:
 @elemento:
+@ambiente: momento=mattina meteo=nuvole
+@comparse:
+@oggetti: lettera, nodo, zaino
 @eco: semino: Il Mulo scrive tre righe. Io ne ho scritte undici e ne ho cancellate otto.
 - narra: Treno. Fischio infila una busta dal finestrino e riparte. Al posto della firma c'è uno zoccolo.
 - mulo: La capra russa.
@@ -1124,6 +1352,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=cuoco
 @entra:
 @elemento:
+@ambiente: momento=notte meteo=sereno
+@comparse:
+@oggetti: pianta, piatto, lettera
 @eco: semino: Briciola ha messo la zampa sulla casella giusta. Un sette. Sei mini, le ho detto.
 - narra: Cucina, porta socchiusa. Semino innaffia la pianta sul tavolo. Due dita d'acqua, non di più.
 - semino (neutro): La prima riga è chiusa. Anche la seconda.
@@ -1134,6 +1365,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=cuffie semina=camice
 @entra:
 @elemento:
+@ambiente: momento=tramonto meteo=sereno
+@comparse:
+@oggetti: mela, pianta
 @eco: semino: Avevo un elenco di sette cose. Gliene dico una al giorno, così durano.
 - narra: Semina sulla porta, il camice stropicciato, le occhiaie fino al mento. Semino ha in mano un foglio scritto fitto.
 - semino (felice): Ho sette cose. La uno è Briciola, la due è la pianta, la tre...
@@ -1147,6 +1381,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=cuffie semina=camice
 @entra:
 @elemento:
+@ambiente: momento=sera meteo=sereno
+@comparse:
+@oggetti: lettera, piatto, pianta
 @eco: semina: La centrifuga che cammina adesso si chiama Ugo. In laboratorio non lo sa nessuno.
 - semina (neutro): Una brutta e una bella. Brutta: la centrifuga.
 - semino (sorpreso): Che ha fatto?
@@ -1161,6 +1398,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=cuffie semina=camice
 @entra:
 @elemento: cartina
+@ambiente: momento=giorno meteo=sereno
+@comparse:
+@oggetti: cartina, matita, pianta
 @eco: semino: La cartina ha due strade e una puntina. La puntina l'ho messa storta.
 - narra: Un foglio sul tavolo. Lei disegna una montagna e passa la matita. Lui, sotto, le onde. Due strade.
 - semina (neutro): Questa è la mia. Fino al quattordici marzo.
@@ -1175,6 +1415,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=cuffie semina=camice
 @entra:
 @elemento:
+@ambiente: momento=sera meteo=sereno
+@comparse:
+@oggetti: cartina, matita, pianta
 @eco: semina: La montagna non si è spostata. L'ho controllato stamattina dalla finestra.
 - semina (neutro): Una cosa che non lasci. Una sola.
 - semino (neutro): Il mare.
@@ -1190,6 +1433,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=cuffie semina=camice
 @entra:
 @elemento:
+@ambiente: momento=mattina meteo=nebbia
+@comparse: piccione
+@oggetti:
 @eco: semino: Il nodo tiene. Lo controllo una volta al giorno, con un dito solo.
 - narra: Stazione. Semina prende il nodo sulla cinghia di Semino e tira. Il nodo tiene.
 - semino (neutro): Non stringerlo.
@@ -1202,6 +1448,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=occhiali
 @entra:
 @elemento:
+@ambiente: momento=giorno meteo=sereno
+@comparse: rane
+@oggetti: bastoncino, sasso-misura
 @eco: semino: Il bastoncino adesso è di Gianfranca. Me lo presta per le misure.
 - narra: Semino al cancello. Sulla cassetta c'è la locandina, piegata in otto. Nello stagno galleggia il bastoncino.
 - semino (sorpreso): Gianfranca, scendi da lì. Quello è il bastoncino delle misure.
@@ -1214,6 +1463,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=palla
 @entra:
 @elemento:
+@ambiente: momento=giorno meteo=sereno
+@comparse:
+@oggetti: secchio, tavola
 @eco: semino: Pinza ha tenuto il secchio con una chela per tutto il viaggio. Il secchio è intero.
 - narra: Fischio atterra di traverso con un secchio appeso alle zampe. Dal bordo spunta una chela. Una sola.
 - fischio: Consegna. Pesa. Vado.
@@ -1227,6 +1479,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=occhiali
 @entra:
 @elemento:
+@ambiente: momento=mattina meteo=sereno
+@comparse:
+@oggetti: lettera, foglio
 @eco: semino: Nella posta c'era un cane alto. Fischio dice cavallo. Ho deciso cavallo.
 - narra: Semino apre lo sportello. Le lettere di Semina vengono giù a valanga e gli coprono i piedi.
 - fischio: Fiù. Erano in fila, una al giorno. Poi ho starnutito.
@@ -1241,6 +1496,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=occhiali
 @entra:
 @elemento:
+@ambiente: momento=giorno meteo=sereno
+@comparse:
+@oggetti: tazze, zaino
 @eco: semino: Nuvola ha trovato una cosa storta: la puntina della cartina. Adesso è dritta.
 - narra: Dal sentiero scendono Nonna Capra e Nuvola. La capra mastica. Nuvola ha un secchio appeso al collo.
 - nonnacapra: È inverno, scendo. Qui si sta: poco vento, e l'erba è bassa.
@@ -1253,6 +1511,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=occhiali semina=corona
 @entra:
 @elemento:
+@ambiente: momento=giorno meteo=sereno
+@comparse:
+@oggetti: bastoncino, sasso-misura
 @eco: semina: Trentotto. Sei mini, ha detto lui. Parlava delle radici, credo.
 - narra: Semina al cancello, lo zaino in spalla. Dalla cerniera esce una manica del camice.
 - semina (sorpreso): Hai spostato lo stagno?
@@ -1267,6 +1528,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=lanterna semina=lucciola
 @entra:
 @elemento:
+@ambiente: momento=tramonto meteo=sereno
+@comparse:
+@oggetti: piuma, bacca
 @eco: semina: Fischio e Gufo si sono visti. Stamattina il ramo era uguale.
 - narra: Crepuscolo. Sul ramo sopra la cassetta c'è Fischio. Accanto si posa Gufo.
 - fischio: Ah. Ciao.
@@ -1281,6 +1545,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=chitarra semina=giacca
 @entra:
 @elemento:
+@ambiente: momento=giorno meteo=sereno
+@comparse:
+@oggetti: custodia
 @eco: semina: Grillo dice che al nord la cantano partendo al due. Ho fatto scuola.
 - narra: Grillo al cancello, la custodia aperta per terra. Suona la canzone senza titolo. Semina attacca al due.
 - semino (neutro): Al due.
@@ -1294,6 +1561,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=occhiali semina=corona
 @entra:
 @elemento: arcobaleno
+@ambiente: momento=giorno meteo=nuvole
+@comparse:
+@oggetti: cartina, matita
 @eco: semino: La terza strada passa dallo stagno. Ho già preso le misure per il ponte.
 - narra: La cartina è appesa alla casetta. Sopra le due strade ce n'è una terza, a matita rossa.
 - semina (neutro): È storta.
@@ -1307,6 +1577,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=occhiali semina=animale
 @entra:
 @elemento:
+@ambiente: momento=tramonto meteo=nuvole
+@comparse:
+@oggetti: palla, piatto
 @eco: semino: La toppa sulla palla regge da settantasette fiori.
 - narra: Crepuscolo. Ci sono tutti. Briciola dorme sulla schiena di Nuvola, Nonna Capra mastica la tovaglia.
 - nonnacapra: Domani piove. O no.
@@ -1321,6 +1594,9 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=occhiali semina=corona
 @entra:
 @elemento:
+@ambiente: momento=tramonto meteo=sereno
+@comparse:
+@oggetti: bastoncino, biscotti, sasso-misura
 @eco: semina: Al bordo dell'aiuola ci sono due biscotti. Non li tocco. Sono per il vento.
 - narra: Crepuscolo nel giardino. I due davanti all'aiuola, il bastoncino in mano a lui.
 - semina (felice): Cento.

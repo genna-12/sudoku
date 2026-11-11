@@ -9,9 +9,12 @@
 //     nel 99 ci sono tutti dalla prima battuta (in fila a terra, Fischio e il Gufo sullo stesso ramo)
 //   - Fischio e il Gufo stanno "in alto": su un ramo (fuori), su una mensola (cucina), su un filo (città)
 //   - fra due capitoli della coda il fondale e il palco ripartono con una dissolvenza (360 ms)
+//   - dal capitolo 9 (T9 C): momento e meteo al Fondale, comparse e oggetti nella striscia davanti al suolo (Ambiente)
 //   - rilettura: "Dal diario" e "Chiudi"; esce: la classe dell'uscita (150 ms), la gestisce il genitore
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { AMBIENTE_DA } from '../config/ambienti';
 import type { BattutaCapitolo, Capitolo, Luogo, Voce } from '../config/capitoli';
+import { Ambiente } from './Ambiente';
 import { Fondale, scegliFondale } from './Fondale';
 import { NOMI_SECONDARI, PersonaggioSecondario, type Secondario } from './Secondari';
 import { Semino, type SeminoChi, type SeminoUmore } from './Semino';
@@ -24,6 +27,8 @@ export const ATTESA_CONTINUA_MS = 400;
 const CAPITOLO_DI_TUTTI = 99;
 /** la nota del capitolo 5 su cui si accendono i colori */
 const NOTA_COLORI = 'Il verde è Semino';
+/** i momenti di luce piena: la lanterna del vestito resta spenta */
+const GIORNO: readonly string[] = ['alba', 'mattina', 'giorno'];
 
 const LUOGHI: Record<Luogo, string> = {
   aiuola: "nell'aiuola",
@@ -216,7 +221,14 @@ export function CapitoloScena({
   };
 
   const nome = (v: Voce) => (v === 'semino' ? 'Semino' : v === 'semina' ? 'Semina' : disegnato(v) ? NOMI_SECONDARI[v] : 'Il Mulo');
-  const etichettaFinale = rilettura ? 'Chiudi' : c.fiore === 0 || rivelazione ? 'Andiamo' : 'Continua';
+  // T9 C: ambiente, comparse e oggetti solo dal 9 (i capitoli 0-8 restano identici anche con dati sbagliati)
+  const vivo = c.fiore >= AMBIENTE_DA;
+  const ambiente = vivo ? c.ambiente : undefined;
+  // la lanterna del vestito è spenta di giorno (45, 51) e dove il capitolo lo dice (luce=spenta: 43, 52);
+  // le lucciole del fondale solo se il capitolo le chiama
+  const lanternaSpenta = vestito('semino') === 'lanterna' && !!ambiente && (GIORNO.includes(ambiente.momento) || ambiente.luce === 'spenta');
+  const lucciole = ambiente ? (c.comparse ?? []).includes('lucciole') : undefined;
+  const etichettaFinale =rilettura ? 'Chiudi' : c.fiore === 0 || rivelazione ? 'Andiamo' : 'Continua';
   const aiuto = !rilettura && c.fiore <= 2 && passo < 2;
 
   const classi = [
@@ -230,6 +242,7 @@ export function CapitoloScena({
     sulRamo.length > 0 && 'capitolo--ramo',
     solo && 'capitolo--solo',
     cambiato && 'capitolo--cambio',
+    ambiente && 'capitolo--ambiente',
     fine && 'capitolo--fine',
     esce && 'capitolo--esce',
   ]
@@ -304,7 +317,7 @@ export function CapitoloScena({
       aria-label={`Capitolo ${c.fiore}: ${c.titolo}`}
     >
       <div className="capitolo-fondale" key={`fondale-${c.fiore}`}>
-        <Fondale luogo={c.luogo} fondale={c.fondale} />
+        <Fondale luogo={c.luogo} fondale={c.fondale} momento={ambiente?.momento} meteo={ambiente?.meteo} lucciole={lucciole} />
         {sfondo}
         <div className="capitolo-velo" aria-hidden="true" />
       </div>
@@ -317,9 +330,10 @@ export function CapitoloScena({
             ))}
           </div>
         )}
+        {vivo && <Ambiente comparse={c.comparse} oggetti={c.oggetti} fondale={scegliFondale(c.luogo, c.fondale)} fiore={c.fiore} />}
         <div className="capitolo-suolo">
           {conLui && (
-            <span className={`capitolo-attore capitolo-lui${chi === 'semino' ? ' parla' : ''}`} data-chi="semino">
+            <span className={`capitolo-attore capitolo-lui${chi === 'semino' ? ' parla' : ''}${lanternaSpenta ? ' capitolo-lanterna-spenta' : ''}`} data-chi="semino">
               <Semino
                 chi="semino"
                 stadio={stadio}
