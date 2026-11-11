@@ -1,0 +1,13 @@
+{
+  "_nota": "Vocabolario chiuso degli ambienti dei capitoli 9-100 (T9 C). Lo leggono scripts/storia/controlla.py e src/config/ambienti.ts. SEGNAPOSTO: gli id di comparse e oggetti qui sotto sono provvisori e verranno sostituiti con quelli di docs/storia/ambienti.md (fase 2).",
+  "momenti": ["alba", "mattina", "giorno", "tramonto", "sera", "notte"],
+  "meteo": ["sereno", "nuvole", "vento", "pioggia", "temporale", "nebbia", "neve"],
+  "comparse": {
+    "segnaposto-creatura": "Creatura segnaposto",
+    "segnaposto-volatile": "Volatile segnaposto"
+  },
+  "oggetti": {
+    "segnaposto-oggetto": "Oggetto segnaposto",
+    "segnaposto-sasso": "Sasso segnaposto"
+  }
+}

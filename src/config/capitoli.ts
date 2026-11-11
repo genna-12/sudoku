@@ -1,6 +1,7 @@
 // I 101 capitoli della storia (fiore 0 → 100). Fonte unica: docs/storia/capitoli.md, da cui
 // scripts/storia/controlla.py genera capitoli.json. Qui solo tipi e accesso: mai testi a mano.
 import dati from './capitoli.json';
+import type { Ambiente } from './ambienti';
 
 export type Luogo = 'aiuola' | 'giardino' | 'mare' | 'montagna' | 'bosco' | 'citta' | 'cucina' | 'lontano';
 export type Secondario = 'fischio' | 'pinza' | 'nuvola' | 'nonnacapra' | 'gufo' | 'grillo' | 'briciola' | 'mulo';
@@ -24,6 +25,12 @@ export interface Capitolo {
   elemento?: string;
   /** variante del fondale (es. 'laboratorio'); default = luogo */
   fondale?: string;
+  /** momento del giorno e meteo (solo dal capitolo 9; T9 C) */
+  ambiente?: Ambiente;
+  /** creature di sfondo senza nome e senza voce (id di ambienti.json, al massimo 3; solo dal 9) */
+  comparse?: string[];
+  /** oggetti in scena (id di ambienti.json, al massimo 3; solo dal 9) */
+  oggetti?: string[];
   eco: { chi: 'semino' | 'semina'; testo: string };
   battute: BattutaCapitolo[];
 }
@@ -37,6 +44,10 @@ interface CapitoloGrezzo {
   entra?: Secondario | null;
   elemento?: string | null;
   fondale?: string | null;
+  /** ambiente, comparse e oggetti: assenti nel JSON se il capitolo non li dichiara */
+  ambiente?: Ambiente;
+  comparse?: string[];
+  oggetti?: string[];
   eco: { chi: 'semino' | 'semina'; testo: string };
   battute: Array<{ chi: Voce; umore?: string | null; testo: string }>;
 }
@@ -54,6 +65,9 @@ function normalizza(c: CapitoloGrezzo): Capitolo {
   if (c.entra != null) out.entra = c.entra;
   if (c.elemento != null) out.elemento = c.elemento;
   if (c.fondale != null) out.fondale = c.fondale;
+  if (c.ambiente != null) out.ambiente = { momento: c.ambiente.momento, meteo: c.ambiente.meteo };
+  if (c.comparse?.length) out.comparse = [...c.comparse];
+  if (c.oggetti?.length) out.oggetti = [...c.oggetti];
   return out;
 }
 
