@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import type { Messaggio, StatoConnessione } from '../net';
 import type { StatoPartita } from '../stato';
 import { ruoloDiNome } from '../config/giocatori';
+import { DETTAGLIO_OCCUPATA, DETTAGLIO_RICOLLEGO } from '../net/logica';
 import { useStanza } from './useStanza';
 import type { Io } from './useStanza';
 
@@ -49,7 +50,12 @@ export function useRete(
       setSospetto(false);
     };
   }, [inStallo]);
-  const occupata = (inStallo && sospetto) || /occupat/i.test(coppia.dettaglio ?? '');
+  // "già collegato altrove" solo con la prova di un mio altro dispositivo collegato (stanza personale):
+  // senza, il posto è preso da un mio ID vecchio che si libera da sé, e si dice "mi ricollego…"
+  const postoPreso = coppia.dettaglio === DETTAGLIO_OCCUPATA;
+  const occupata = (inStallo && sospetto) || (postoPreso && personaleConnesso);
+  const ricollego =
+    coppia.connessione === 'in-attesa' && (coppia.dettaglio === DETTAGLIO_RICOLLEGO || (postoPreso && !personaleConnesso));
 
   const inviaCoppia = coppia.invia;
   const inviaPersonale = personale.invia;
@@ -62,5 +68,5 @@ export function useRete(
   );
 
   const connessione: StatoConnessione = coppia.connessione;
-  return { connessione, personaleConnesso, occupata, invia };
+  return { connessione, personaleConnesso, occupata, ricollego, invia };
 }

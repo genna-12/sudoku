@@ -12,6 +12,7 @@ import { COLORI_RUOLO, PROFILI, nomeVisibile, profiloDiNome } from '../config/gi
 import type { Livello, Modalita } from '../engine';
 import type { Messaggio } from '../net';
 import type { Giocatore, StatoPartita, VoceStorico } from '../stato';
+import { accettaNuova } from '../stato';
 import type { Archivio } from '../stato/archivio';
 import { conDettaglioFiore, conPosta, unisciStoricoRemoto } from '../stato/archivio';
 import { CapitoloScena } from './CapitoloScena';
@@ -48,6 +49,7 @@ import {
   partitaToccata,
   scegliFrase,
   senzaSemina,
+  stessoPuzzle,
   solletico,
   sonnoPuoSostituire,
   sostituisci,
@@ -535,9 +537,16 @@ export function App() {
       case 'ciao': {
         const mioAltroDispositivo = profiloDiNome(m.nome ?? '').id === profilo.id;
         if (da === 'coppia' && !mioAltroDispositivo) arrivoPartner(m.nome);
+        // "Nuova partita" del partner persa a canale giù (T9 A, H5): arriva col `ciao`. In partita la si
+        // tratta come una `nuova` (griglia nuova e banner); in Home lo dice un banner, senza portare dentro.
+        const nuovaPersa = !mioAltroDispositivo && dalPartner(m, da) && nuovaDalCiao(prima, m.stato);
+        if (nuovaPersa && vivi.current.schermata === 'partita') suMessaggio({ t: 'nuova', stato: m.stato! }, da);
         const unita = gioco.riceviStato(m.stato);
         if (unita) invia({ t: 'stato', stato: unita }, da);
         if (cambiata()) inoltra({ t: 'stato', stato: ref.current.partita! }, da);
+        if (nuovaPersa && vivi.current.schermata === 'home' && cambiata()) {
+          mostra({ tipo: 'banner', testo: `${vivi.current.nomePartner} ha iniziato una nuova partita` });
+        }
         if (m.storico) riceviStorico(m.storico, m.azzerato, da);
         inviaStoricoCompleto(da);
         break;
@@ -605,6 +614,16 @@ export function App() {
         if (!m.inoltrato) inoltra(m, da);
         ricevieEvento(m, da);
         break;
+    }
+  }
+
+  /** Il `ciao` porta una partita diversa e più recente della mia (una `nuova` che non è arrivata)? */
+  function nuovaDalCiao(mia: StatoPartita | null, arrivata: StatoPartita | null | undefined): boolean {
+    if (!mia || !arrivata?.puzzle) return false;
+    try {
+      return !stessoPuzzle(mia, arrivata) && accettaNuova(mia, arrivata);
+    } catch {
+      return false;
     }
   }
 
@@ -1158,6 +1177,7 @@ export function App() {
           connessione={connessione}
           personaleConnesso={rete.personaleConnesso}
           occupata={rete.occupata}
+          ricollego={rete.ricollego}
           partita={partita}
           mioRuolo={mioRuolo}
           generando={generando}
@@ -1224,6 +1244,7 @@ export function App() {
           mioRuolo={mioRuolo}
           partnerNome={nomePartner}
           connessione={connessione}
+          ricollego={rete.ricollego}
           personaleConnesso={rete.personaleConnesso}
           partnerCursore={partnerCursore}
           mostraErrori={mostraErrori}
