@@ -537,24 +537,27 @@ export function App() {
       case 'ciao': {
         const mioAltroDispositivo = profiloDiNome(m.nome ?? '').id === profilo.id;
         if (da === 'coppia' && !mioAltroDispositivo) arrivoPartner(m.nome);
-        // "Nuova partita" del partner persa a canale giù (T9 A, H5): arriva col `ciao`. In partita la si
-        // tratta come una `nuova` (griglia nuova e banner); in Home lo dice un banner, senza portare dentro.
         const nuovaPersa = !mioAltroDispositivo && dalPartner(m, da) && nuovaDalCiao(prima, m.stato);
         if (nuovaPersa && vivi.current.schermata === 'partita') suMessaggio({ t: 'nuova', stato: m.stato! }, da);
         const unita = gioco.riceviStato(m.stato);
         if (unita) invia({ t: 'stato', stato: unita }, da);
         if (cambiata()) inoltra({ t: 'stato', stato: ref.current.partita! }, da);
-        if (nuovaPersa && vivi.current.schermata === 'home' && cambiata()) {
-          mostra({ tipo: 'banner', testo: `${vivi.current.nomePartner} ha iniziato una nuova partita` });
-        }
+        if (nuovaPersa && cambiata()) annunciaNuovaPersa();
         if (m.storico) riceviStorico(m.storico, m.azzerato, da);
         inviaStoricoCompleto(da);
         break;
       }
-      case 'stato':
+      case 'stato': {
+        const nuovaPersa = dalPartner(m, da) && nuovaDalCiao(prima, m.stato);
+        if (nuovaPersa && vivi.current.schermata === 'partita') {
+          suMessaggio({ t: 'nuova', stato: m.stato }, da);
+          break;
+        }
         gioco.riceviStato(m.stato);
         if (cambiata()) inoltra({ t: 'stato', stato: ref.current.partita! }, da);
+        if (nuovaPersa && cambiata()) annunciaNuovaPersa();
         break;
+      }
       case 'storico':
         riceviStorico(m.storico, m.azzerato, da);
         break;
@@ -617,7 +620,17 @@ export function App() {
     }
   }
 
-  /** Il `ciao` porta una partita diversa e più recente della mia (una `nuova` che non è arrivata)? */
+  /**
+   * "Nuova partita" del partner persa a canale giù (T9 A, H5): la partita nuova arriva poi col `ciao`
+   * o con lo `stato` del riallineamento. In partita la si tratta come una `nuova` (griglia nuova e
+   * banner); in Home lo dice un banner, senza portare dentro (al riavvio si parte sempre dalla Home).
+   */
+  function annunciaNuovaPersa() {
+    if (vivi.current.schermata !== 'home' || vivi.current.rilettura !== null) return;
+    mostra({ tipo: 'banner', testo: `${vivi.current.nomePartner} ha iniziato una nuova partita` });
+  }
+
+  /** Arriva una partita diversa e più recente della mia (una `nuova` che non è arrivata)? */
   function nuovaDalCiao(mia: StatoPartita | null, arrivata: StatoPartita | null | undefined): boolean {
     if (!mia || !arrivata?.puzzle) return false;
     try {
