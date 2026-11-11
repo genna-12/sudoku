@@ -785,7 +785,7 @@
    Il testo non si sposta (margine negativo uguale al padding). I capitoli 0-8 non hanno la classe. */
 .capitolo--ambiente .capitolo-etichetta,
 .capitolo--ambiente .capitolo-nome {
-  --cap-pastiglia: rgb(4 10 8 / 0.6);
+  --cap-pastiglia: rgb(4 10 8 / 0.7);
   width: fit-content;
   padding: 1px 6px;
   border-radius: 999px;
@@ -797,7 +797,7 @@
 /* il velo dietro la nota più pieno: il cielo del giorno è più chiaro di quello di notte e le note lunghe
    arrivano ai bordi del velo tondo; qui è uniforme sul testo e sfuma fuori (ombra morbida, non un fumetto) */
 .capitolo--ambiente .capitolo-nota {
-  --cap-velo-nota: rgb(4 10 8 / 0.5);
+  --cap-velo-nota: rgb(4 10 8 / 0.58);
   background: var(--cap-velo-nota);
   border-radius: 28px;
   box-shadow: 0 0 26px 10px var(--cap-velo-nota);

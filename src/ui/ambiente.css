@@ -56,6 +56,10 @@
   .amb-pezzo--tavolo {
     --amb-alza: 56;
   }
+  /* le colonne centrali ai lati: al centro, a fine capitolo, c'è "Continua" */
+  .amb-pezzo--striscia {
+    left: calc(50% + (var(--f-oriz, var(--f)) - 0.5) * var(--cap-col));
+  }
   .amb-pezzo--striscia {
     --amb-base: 30px;
     width: calc(var(--w) * 1px);

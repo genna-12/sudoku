@@ -2,6 +2,7 @@
 // Uso: node scripts/qa/ambienti-foto.mjs [urlBase] [cartella] [capitoli]
 //   default http://localhost:5173/sudoku/ e docs/design/img; basta il dev server (niente PeerJS).
 //   capitoli (es. 21,50,62): foto solo di quelli, a 390×844 e alla prima battuta, al posto della lista sotto.
+//   Senza: la lista a 390×844, qualcuno a 360×640 e in orizzontale a 844×390 (ALTRE).
 //   CHROME=/percorso/del/browser per usare un Chrome installato.
 // Per ogni capitolo della lista apre il lettore come dopo una vittoria (scripts/qa/lettore-ambienti.tsx),
 // va alla battuta indicata e salva t9-ambienti-<n>-<luogo>-<L>x<A>.png, con reduced-motion (immagini
@@ -24,16 +25,18 @@ const CAPITOLI = scelti ? scelti.map((n) => [n, 0, 'a scelta']) : [
   [48, 1, 'bosco: notte con le lucciole'],
   [55, 1, 'città: notte, tram e falene al lampione'],
   [77, 1, 'cucina: lettera sotto il piatto, piantina'],
-  [83, 1, 'montagna: sera con la neve, carrucola e secchio'],
+  [83, 1, 'montagna: sera coperta, carrucola sul pendio e secchio'],
   [84, 1, 'lontano (treno): lettera sulla mensola, zaino e nodo'],
   [100, 1, 'ritorno: tramonto, bastoncino, biscotti, sasso delle misure'],
 ];
-const STRETTI = [55, 77];
+/** capitoli fotografati anche alle altre misure (oltre a 390×844, dove ci sono tutti) */
+const ALTRE = { '360x640': [55, 77], '844x390': [41, 77] };
 const MISURE = scelti
   ? [[390, 844]]
   : [
       [390, 844],
       [360, 640],
+      [844, 390],
     ];
 
 /**
@@ -49,7 +52,12 @@ function controlla() {
       '.capitolo-attore > .semino, .capitolo-secondario, .capitolo-fumetto, .capitolo-nota, .capitolo-lettera, .capitolo-testa, .capitolo-punti, .capitolo-continua',
     ),
   ].map((a) => [String(a.className.baseVal ?? a.className).split(' ')[0], box(a)]);
-  altri.push(['posto di Continua', { left: 0, right: innerWidth, top: innerHeight - 92, bottom: innerHeight }]);
+  // in orizzontale "Continua" è un bottone di 180 px al centro (capitolo.css), in verticale si tiene tutta la riga
+  const orizzontale = innerHeight <= 500;
+  altri.push([
+    'posto di Continua',
+    { left: orizzontale ? innerWidth / 2 - 96 : 0, right: orizzontale ? innerWidth / 2 + 96 : innerWidth, top: innerHeight - 92, bottom: innerHeight },
+  ]);
   const urti = [];
   const fuori = [];
   const pezzi = [...document.querySelectorAll('.amb-pezzo')];
@@ -73,7 +81,7 @@ for (const [w, h] of MISURE) {
   // la pagina dell'app (col preambolo di React di Vite); il banco di prova sostituisce il body
   await page.goto(base);
   for (const [fiore, battuta, perche] of CAPITOLI) {
-    if (w !== 390 && !STRETTI.includes(fiore)) continue;
+    if (w !== 390 && !(ALTRE[`${w}x${h}`] ?? []).includes(fiore)) continue;
     const luogo = await page.evaluate(async (f) => {
       const root = location.pathname;
       const m = await import(`${root}scripts/qa/lettore-ambienti.tsx`);

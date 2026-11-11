@@ -752,6 +752,9 @@ const NELLA_SCENA: readonly string[] = ['tavola', 'cartina'];
 /** colonne della striscia (frazione della colonna): oggetti e comparse alternati, da sinistra */
 const COLONNE_OGGETTI = [0.1, 0.9, 0.42] as const;
 const COLONNE_COMPARSE = [0.26, 0.74, 0.58] as const;
+/** in orizzontale le due colonne centrali finirebbero sotto "Continua" (a fine capitolo): vanno fuori dalla
+ * colonna, ai lati (lo schermo è più largo); le altre restano dove sono (ambiente.css, --f-oriz) */
+const ORIZZONTALE: Readonly<Record<number, number>> = { 0.42: -0.06, 0.58: 1.06 };
 
 interface Pezzo {
   chiave: string;
@@ -833,7 +836,10 @@ export function Ambiente({ comparse, oggetti, fondale, fiore }: AmbienteProps) {
         if (p.posto.modo === 'fondale') {
           stile['--cx'] = p.posto.cx;
           stile['--by'] = p.posto.by;
-        } else stile['--f'] = p.posto.f;
+        } else {
+          stile['--f'] = p.posto.f;
+          if (ORIZZONTALE[p.posto.f] !== undefined) stile['--f-oriz'] = ORIZZONTALE[p.posto.f];
+        }
         return (
           <span
             key={p.chiave}
