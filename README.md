@@ -35,3 +35,12 @@ node scripts/qa/arrivo-semina.mjs http://127.0.0.1:5173/sudoku/     # archivio v
 node scripts/qa/capitoli-di-fila.mjs http://127.0.0.1:5173/sudoku/  # un capitolo per vittoria, chiuso a metà, "Nuova" del partner mentre leggo, diario
 ```
 (anche `personale.mjs` e `tre-dispositivi.mjs`, stesso uso; `scripts/qa/comune.mjs` ha gli aiuti dei due E2E della storia.)
+
+E2E della riconnessione (T9 A): avviano da soli un proxy di segnalazione sulla porta 9000 e il server PeerJS su 9001 (`scripts/qa/proxy-segnale.mjs`), quindi **senza** `npx peerjs` su 9000; vite come sopra. Criterio: i due si rivedono da soli entro 8 s e la partita è uguale (`scripts/qa/rete-comune.mjs`). `QA_LOG=1` stampa le righe della stanza con i tempi.
+```
+node scripts/qa/background-ios.mjs http://127.0.0.1:5173/sudoku/        # pagina nascosta/ferma 30-75 s, socket pulito/fantasma/zombie, offline; cambio di rete
+node scripts/qa/server-riavviato.mjs http://127.0.0.1:5173/sudoku/      # server PeerJS ucciso e riavviato a metà partita (anche con B in background)
+node scripts/qa/nuova-mentre-arriva.mjs http://127.0.0.1:5173/sudoku/   # "Nuova partita" mentre il partner si collega (3 momenti × 3, nei due sensi)
+node scripts/qa/rientro-brusco.mjs http://127.0.0.1:5173/sudoku/        # chiusura brusca e rientro subito con lo stesso profilo (ID fantasma)
+node scripts/qa/storico-grande.mjs http://127.0.0.1:5173/sudoku/        # 20 fiori e 5 germogli killer per lato: storico a lotti
+```
