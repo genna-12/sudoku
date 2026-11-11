@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ICE_SERVERS } from '../config/ice';
-import { _azzeraCacheIce, caricaIce, TIMEOUT_ICE_MS } from './ice';
+import { _azzeraCacheIce, caricaIce, SCADENZA_ICE_MS, TIMEOUT_ICE_MS } from './ice';
 
 const URL = 'https://worker.example';
 const TURN: RTCIceServer[] = [
@@ -65,5 +65,34 @@ describe('caricaIce', () => {
     vi.stubGlobal('fetch', f);
     expect(await caricaIce('')).toEqual({ server: ICE_SERVERS, fonte: 'statico' });
     expect(f).not.toHaveBeenCalled();
+  });
+});
+
+describe('caricaIce: scadenza della cache (N3)', () => {
+  beforeEach(() => _azzeraCacheIce());
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
+  });
+
+  it('dopo 12 h richiede di nuovo le credenziali; prima no', async () => {
+    vi.useFakeTimers();
+    const f = vi.fn(() => risposta({ iceServers: TURN }));
+    vi.stubGlobal('fetch', f);
+    await caricaIce(URL);
+    vi.setSystemTime(Date.now() + SCADENZA_ICE_MS - 1000);
+    await caricaIce(URL);
+    expect(f).toHaveBeenCalledTimes(1);
+    vi.setSystemTime(Date.now() + 2000);
+    await caricaIce(URL);
+    expect(f).toHaveBeenCalledTimes(2);
+  });
+
+  it('forza: scarta la cache', async () => {
+    const f = vi.fn(() => risposta({ iceServers: TURN }));
+    vi.stubGlobal('fetch', f);
+    await caricaIce(URL);
+    await caricaIce(URL, { forza: true });
+    expect(f).toHaveBeenCalledTimes(2);
   });
 });

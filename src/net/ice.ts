@@ -10,7 +10,11 @@ export interface IceCaricati {
   fonte: 'cloudflare' | 'statico';
 }
 
+/** Le credenziali TURN del Worker durano 24 h: la cache si rinnova dopo 12 h (ricerca 2026-11-11 N3). */
+export const SCADENZA_ICE_MS = 12 * 3600 * 1000;
+
 let inCorso: Promise<IceCaricati> | null = null;
+let chiestaAlle = 0;
 
 async function chiedi(url: string): Promise<IceCaricati> {
   const ctrl = new AbortController();
@@ -28,14 +32,22 @@ async function chiedi(url: string): Promise<IceCaricati> {
   }
 }
 
-/** Server ICE e loro origine; una sola richiesta per sessione (le credenziali durano 24 h). */
-export function caricaIce(url: string = URL_SYNC): Promise<IceCaricati> {
+/**
+ * Server ICE e loro origine. Una richiesta e poi la cache, che scade dopo 12 h (una PWA può restare
+ * in memoria per giorni) o si scarta con `forza` (connessioni dirette che non riescono più).
+ */
+export function caricaIce(url: string = URL_SYNC, o: { forza?: boolean } = {}): Promise<IceCaricati> {
   if (!url) return Promise.resolve({ server: ICE_SERVERS, fonte: 'statico' });
-  // se la richiesta fallisce non resta in cache: al prossimo avvio di stanza si riprova
-  inCorso ??= chiedi(url).then((r) => {
-    if (r.fonte === 'statico') inCorso = null;
-    return r;
-  });
+  if (inCorso && (o.forza || Date.now() - chiestaAlle >= SCADENZA_ICE_MS)) inCorso = null;
+  if (!inCorso) {
+    chiestaAlle = Date.now();
+    // se la richiesta fallisce non resta in cache: al prossimo avvio di stanza si riprova
+    const p: Promise<IceCaricati> = chiedi(url).then((r) => {
+      if (r.fonte === 'statico' && inCorso === p) inCorso = null;
+      return r;
+    });
+    inCorso = p;
+  }
   return inCorso;
 }
 
@@ -46,4 +58,5 @@ export async function caricaIceServers(): Promise<RTCIceServer[]> {
 /** solo per i test */
 export function _azzeraCacheIce() {
   inCorso = null;
+  chiestaAlle = 0;
 }
