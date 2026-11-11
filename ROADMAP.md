@@ -17,8 +17,10 @@ Genna e Mati giocano dal telefono: connessione 4G, mosse e reazioni identiche, i
 
 ## T8 — Collaudo reale — primo giro fatto l'11/11 da Genna e Matilde (iPhone, PWA, capitolo 8): esiti in docs/specs/T9-collaudo.md
 
-## T9 — Correzioni dal collaudo (prossimo): spec docs/specs/T9-collaudo.md
-A connessione (riconnessione automatica al rientro da background su iPhone, ID fantasma, battito) → C storia viva dal capitolo 9 (comparse disegnate, ambienti per capitolo; 0-8 invariati) → B colori della griglia (studio, scelta di Genna, implementazione).
+## T9 — Correzioni dal collaudo: spec docs/specs/T9-collaudo.md
+- A connessione — chiuso 11/11, deployato (ADR 006, ricerca 2026-11-11-connessione-ios); report docs/REPORT-11-11-notte.md
+- C storia viva dal capitolo 9 — chiuso 11/11, deployato (spec T9-C-ambienti.md, docs/storia/ambienti.md)
+- B colori della griglia — studio pronto (docs/design/studio-colori-griglia.md), in attesa della scelta di Genna, poi implementazione (prossimo)
 
 ## Dopo (solo se serve)
 - T7.12 `leggendo` nella presenza P2P ("Mati sta leggendo…"), dopo T8: tocca `src/net/types.ts`.
@@ -27,6 +29,8 @@ A connessione (riconnessione automatica al rientro da background su iPhone, ID f
 - Splash iOS; suoni opzionali; storico partite esportabile in immagine.
 
 ## Riserva
+- Instabilità dell'E2E arrivo-semina ("niente eco del capitolo 5 in Home", 1 volta su più giri) prima di metterlo in CI.
+- Oggetti dell'ambiente coperti dal fumetto (scripts/qa/ambienti-coperti.mjs).
 - E2E nel workflow CI (peer in devDependencies, playwright da installare in CI).
 - Lazy load di Scena/Giardino se il bundle cresce.
 - Riverificare le fonti [C] di docs/storico/ricerca/2026-11-04-coppia-lezioni.md (Sonnet, solo WebSearch).
