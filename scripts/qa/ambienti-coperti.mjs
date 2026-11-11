@@ -39,6 +39,7 @@ let coperti = 0;
 for (const [w, h] of MISURE) {
   const page = await browser.newPage({ viewport: { width: w, height: h }, reducedMotion: 'reduce', deviceScaleFactor: 1 });
   await page.goto(base);
+  await page.waitForLoadState('networkidle').catch(() => {});
   const lista = scelti ?? (await page.evaluate(async () => {
     const { CAPITOLI } = await import(`${location.pathname}src/config/capitoli.ts`);
     return CAPITOLI.filter((c) => c.fiore >= 9 && (c.comparse?.length || c.oggetti?.length)).map((c) => c.fiore);
