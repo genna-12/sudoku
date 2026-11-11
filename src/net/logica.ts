@@ -526,6 +526,9 @@ export function creaStanza(o: OpzioniStanza): StanzaInterna {
         return;
       }
       case 'peer-unavailable':
+        // il server ha risposto (EXPIRE, anche in ritardo per una chiamata già lasciata perdere): la mia
+        // segnalazione è viva, è `a` che non c'è; niente rinnovi per "nessuna risposta"
+        if (tentato === 'b') senzaRisposta = 0;
         // risposte o candidati in ritardo verso un partner sparito: non toccano un canale vivo (N4)
         if (conn) return;
         if (tentato === 'b' && pendente) chiamataFallita('a non c’è', false, false);
@@ -592,6 +595,9 @@ export function creaStanza(o: OpzioniStanza): StanzaInterna {
     clearTimeout(tChiamata);
     tChiamata = setTimeout(() => {
       tChiamata = undefined;
+      // pagina nascosta: niente chiamate a vuoto (ricerca §6.3); al ritorno verifica() richiama subito,
+      // e uno squillo di `a` fa richiamare anche prima
+      if (nascosta) return;
       // due chiamate di fila senza alcuna risposta: forse è la mia segnalazione a essere zombie
       if (senzaRisposta >= 2) {
         senzaRisposta = 0;

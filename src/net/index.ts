@@ -153,7 +153,10 @@ export const apriStanza: ApriStanza = (frase, nome, statoIniziale, ruolo, ice) =
   };
   const suPageshow = () => s.primoPiano('pageshow');
   const suPagehide = () => s.sospendi();
-  const suOnline = () => s.primoPiano('online');
+  // a pagina nascosta la rete che torna non vale come ritorno: lo farà visibilitychange/pageshow
+  const suOnline = () => {
+    if (document.visibilityState !== 'hidden') s.primoPiano('online');
+  };
   const conDom = typeof document !== 'undefined' && typeof window !== 'undefined';
   if (conDom) {
     document.addEventListener('visibilitychange', suVisibilita);

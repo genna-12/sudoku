@@ -518,6 +518,43 @@ describe('chiamate di b verso a', () => {
     await avanza(1000);
     expect(pb.chiamate()).toHaveLength(2);
   });
+
+  it('a assente con EXPIRE in ritardo (dopo i 3 s): niente rinnovi della segnalazione, solo richiamate', async () => {
+    const t = prepara('b');
+    await avvio();
+    const pb = t.ultimo();
+    pb.g.aperto();
+    for (let k = 0; k < 6; k++) {
+      await avanza(RISPOSTA_MS); // "a non risponde"
+      pb.g.errore('peer-unavailable'); // l'EXPIRE della chiamata appena lasciata perdere
+      await avanza(8000);
+    }
+    expect(pb.chiamate().length).toBeGreaterThanOrEqual(5);
+    expect(pb.scollegamenti).toBe(0);
+    expect(t.peers).toHaveLength(1);
+  });
+
+  it('pagina nascosta: niente richiamate a vuoto; al ritorno richiama subito; uno squillo di a fa richiamare anche nascosta', async () => {
+    const t = prepara('b');
+    await avvio();
+    const pb = t.ultimo();
+    pb.g.aperto();
+    t.s.sospendi();
+    pb.g.errore('peer-unavailable');
+    await avanza(60_000);
+    expect(pb.chiamate()).toHaveLength(1);
+    // squillo di a: b richiama anche a pagina nascosta
+    pb.g.connessione(new ConnFinta(A));
+    expect(pb.chiamate()).toHaveLength(2);
+    pb.g.errore('peer-unavailable');
+    await avanza(60_000);
+    expect(pb.chiamate()).toHaveLength(2);
+    // ritorno: rinnovo della segnalazione e chiamata
+    t.s.primoPiano('visibile');
+    await avanza(PAUSA_RINNOVO_MS);
+    pb.g.aperto();
+    expect(pb.chiamate()).toHaveLength(3);
+  });
 });
 
 // ---------- macchina a stati: perdite e segnalazione ----------
