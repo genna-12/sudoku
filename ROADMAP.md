@@ -15,8 +15,10 @@ Genna e Mati giocano dal telefono: connessione 4G, mosse e reazioni identiche, i
 
 ## Revisione UI approfondita — chiusa 06/11 mattina, deployata, commit 9eef5dc: 69 difetti (10 alti) corretti; docs/revisione/, report docs/REPORT-06-11-mattina.md
 
-## T8 — Collaudo reale della storia (prossimo)
-Genna e Mati giocano dal telefono con la versione nuova: arretrati, lettura del capitolo su entrambi, vestiti, posta, gesto indietro Android, iOS PWA. Esiti in HANDOFF "Da Genna"; poi correzioni e i punti T7 rimasti.
+## T8 — Collaudo reale — primo giro fatto l'11/11 da Genna e Matilde (iPhone, PWA, capitolo 8): esiti in docs/specs/T9-collaudo.md
+
+## T9 — Correzioni dal collaudo (prossimo): spec docs/specs/T9-collaudo.md
+A connessione (riconnessione automatica al rientro da background su iPhone, ID fantasma, battito) → C storia viva dal capitolo 9 (comparse disegnate, ambienti per capitolo; 0-8 invariati) → B colori della griglia (studio, scelta di Genna, implementazione).
 
 ## Dopo (solo se serve)
 - T7.12 `leggendo` nella presenza P2P ("Mati sta leggendo…"), dopo T8: tocca `src/net/types.ts`.
