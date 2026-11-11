@@ -1,6 +1,6 @@
 [
  {
-  "_sorgente_sha256": "02b393e98eb286fa47cf218690018acb03f8e5e4df1c345076100197b9b7817b",
+  "_sorgente_sha256": "21a793c81828a6c6bd09f3174a0df72829bb9df31c7d46eb5ab81d94383063b4",
   "_nota": "generato da controlla.py: non modificare a mano"
  },
  {
@@ -1487,7 +1487,7 @@
   "luogo": "mare",
   "titolo": "La tavola sul muretto",
   "vestiti": {
-   "semino": "surf",
+   "semino": "palla",
    "semina": "paglia"
   },
   "entra": null,
@@ -1545,7 +1545,7 @@
   "luogo": "mare",
   "titolo": "Una chela sola",
   "vestiti": {
-   "semino": "surf",
+   "semino": "palla",
    "semina": "paglia"
   },
   "entra": null,

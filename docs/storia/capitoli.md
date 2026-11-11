@@ -405,7 +405,7 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 - narra: Pinza resta in mezzo, sulla sabbia, sveglio. Una chela verso gli scogli, una verso l'acqua.
 
 ## 26 · mare · La tavola sul muretto
-@vestiti: semino=surf semina=paglia
+@vestiti: semino=palla semina=paglia
 @entra:
 @elemento: tavola
 @ambiente: momento=mattina meteo=sereno
@@ -421,7 +421,7 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 - semino (neutro): Undici centimetri.
 
 ## 27 · mare · Una chela sola
-@vestiti: semino=surf semina=paglia
+@vestiti: semino=palla semina=paglia
 @entra:
 @elemento:
 @ambiente: momento=mattina meteo=sereno
