@@ -24,7 +24,7 @@ Scopo: dare a ogni capitolo dal 9 al 100 un'ora del giorno, un tempo, poche crea
 |---|---|---|
 | `lucciole` | tre-cinque puntini giallo caldo con un alone morbido, ognuno grande come un'unghia di mascotte; galleggiano piano e si accendono a turno. Il Fondale del bosco ne ha già di suoi (vedi Punti dubbi). | 43-44, 48, 53 |
 | `granchi` | tre-quattro granchietti corallo spento, larghi un terzo della testa di una mascotte, più piccoli e più semplici di Pinza (niente occhi a stelo marcati); sugli scogli, ogni tanto uno fa due passi di lato. | 21 |
-| `gabbiani` | due sagome a "m" morbida, bianco sporco, alte nel cielo e lontane; planano in un cerchio lento. | 15-18, 23-24, 27 |
+| `gabbiani` | due sagome a "m" morbida, bianco sporco, lontane nel cielo sopra l'orizzonte (non sotto la nota del narratore); planano in un cerchio lento. | 15-18, 23-24, 27 |
 | `rane` | una o due ranocchie verde salvia (non verde fluo), alte mezza testa di mascotte, sul bordo dello stagno; ogni tanto gonfiano la gola. | 13, 91 |
 | `farfalle` | due farfalline crema e pesca, minuscole, basse sul prato; volo a zigzag lento. | 12, 29-30 |
 | `marmotta` | marmotta color sabbia, alta come mezza mascotte, lontana sul prato; sbuca dalla tana, si alza dritta e torna giù. | 28, 31, 41 |
@@ -45,7 +45,7 @@ Tutti piccoli, nel palco o nel fondale, mai sopra le mascotte o il fumetto. Le m
 | `conchiglia` | conchiglia a ventaglio rosa pallido con un forellino, grande come il pugno di una mascotte, posata a terra o in cima a un ometto di sassi. | 19, 24, 37 |
 | `palla` | la palla da pallanuoto gialla coi solchi blu del vestito `palla`, con una toppa di nastro bianco a croce (si usa solo dopo il 22); a terra, rotola di un niente. | 59, 75, 99 |
 | `pc` | portatile aperto grigio scuro con un bagliore azzurrino sullo schermo, grande come una mascotte seduta; il cursore lampeggia. | 9, 44, 47, 53, 58, 61, 64 |
-| `sasso-misura` | sasso piatto grigio chiaro, ovale, piantato tra le radici, con un numero scritto a mano reso come due tratti scuri illeggibili (così vale per 40, 39 e 38). | 13-14, 91, 95, 100 |
+| `sasso-misura` | sasso piatto grigio chiaro, ovale, piantato tra le radici, con il numero scritto a mano che si legge, come nel testo: 40 al 13, 39 al 14 e al 91, 38 al 95 e al 100 (corretto in C3). | 13-14, 91, 95, 100 |
 | `bastoncino` | rametto dritto marrone chiaro con tre tacche, lungo come una mascotte, appoggiato al sasso o per terra. | 14, 91, 95, 100 |
 | `sasso-quota` | il sasso di quota: stesso disegno dell'elemento `sasso` della Scena, più piccolo, posato a terra o sul tavolo. | 37, 71 |
 | `cartina` | foglio di carta beige aperto con due linee a matita e una macchiolina (al 29 è la mappa dei sentieri con la marmellata, dal 88 la cartina a due strade): a terra o sul tavolo. | 29, 88-89, 98 |
@@ -59,7 +59,7 @@ Tutti piccoli, nel palco o nel fondale, mai sopra le mascotte o il fumetto. Le m
 | `piatto` | piatto bianco con un ciuffo di pasta al pomodoro, piccolo, posato; quando c'è anche `lettera` (77-87) la lettera spunta da sotto il piatto. | 11, 73, 77-78, 85, 87, 99 |
 | `lettera` | una o più lettere bianche piegate, con un angolo che spunta; posate (tavolo, sedile, a terra). | 12, 51, 77-78, 84-85, 87, 93 |
 | `foglio` | foglio bianco con due-tre righe a matita (scarabocchi grigi), posato. | 49, 73, 82, 93 |
-| `piuma` | piuma grigia sul ramo basso o a terra, ondeggia appena. | 44-45, 54, 96 |
+| `piuma` | piuma grigia posata sul ramo (nel bosco sdraiata sul ramo, sopra il posto dei fumetti) o a terra, ondeggia appena. | 44-45, 54, 96 |
 | `bacca` | bacca rossa tonda con una fogliolina, accanto alla piuma sul ramo basso. | 45, 96 |
 | `fuochi` | due-tre fuochi d'artificio a raggiera nel cielo (oro, rosa, bianco) che si aprono e svaniscono lenti; si può riusare il disegno `fuochi` della Scena. | 50 |
 | `custodia` | custodia di chitarra aperta per terra, marrone scuro con l'interno petrolio e due-tre monete. | 56, 62, 97 |

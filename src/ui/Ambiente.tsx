@@ -104,6 +104,49 @@ function farfalla(x: number, y: number, colore: string, d: number) {
   );
 }
 
+/** cifre scritte a mano (tratto, scatola 5×8) per il sasso delle misure */
+const CIFRE: Record<string, string> = {
+  '0': 'M2.5 0.5 C0.2 0.5 0.2 7.6 2.5 7.6 C4.8 7.6 4.8 0.5 2.5 0.5Z',
+  '3': 'M0.6 1.2 C1.6 0 4.4 0.2 4.2 2 C4 3.4 2.6 3.8 1.8 3.9 C3.4 3.9 4.8 4.6 4.6 6 C4.4 7.8 1.4 8 0.4 6.8',
+  '4': 'M3.6 8 V0.4 L0.4 5.6 H5',
+  '8': 'M2.5 3.8 C0.4 3.4 0.6 0.4 2.5 0.4 C4.4 0.4 4.6 3.4 2.5 3.8 C0.2 4.2 0.2 7.8 2.5 7.8 C4.8 7.8 4.8 4.2 2.5 3.8Z',
+  '9': 'M4.4 3 C4.4 0.2 0.6 0.2 0.6 2.6 C0.6 4.6 3.6 4.8 4.4 3 C4.4 5.6 3.6 7.6 1 7.8',
+};
+
+/** il sasso piatto delle misure col numero scritto sopra (40, 39, 38: si legge) */
+function sassoMisura(n: number): Disegno {
+  const cifre = String(n).split('');
+  return {
+    w: 30,
+    h: 26,
+    el: (
+      <>
+        <path d="M3 24.6 C2 14 7 4 15 4 C23 4 28 14 27 24.6 Z" fill={K.pietra} className="amb-t" />
+        <g data-numero={n}>
+          {cifre.map((c, i) => (
+            <path key={i} d={CIFRE[c]} transform={`translate(${9 + i * 6.8} 10.6)`} stroke="#3a3430" className="amb-segno amb-cifra" />
+          ))}
+        </g>
+        <path d="M1 24.8 H29" className="amb-t amb-t-fine" />
+      </>
+    ),
+  };
+}
+
+/** la piuma posata sul ramo alto del bosco (sdraiata: in piedi finirebbe sotto il fumetto di Fischio e del Gufo) */
+const PIUMA_SUL_RAMO: Disegno = {
+  w: 28,
+  h: 10,
+  el: (
+    <g className="amb-piuma" style={perno(26, 5)}>
+      <g transform="translate(0 10) rotate(-90)">
+        <path d="M5 27 C3 20 1 12 4 2.6 C7.6 8 9 16 5 27Z" fill="#b8bcbc" className="amb-t amb-t-fine" />
+        <path d="M5 27 Q5 15 4.4 3.6" stroke="#7c8282" className="amb-segno" />
+      </g>
+    </g>
+  ),
+};
+
 const COMPARSE_DISEGNI: Record<string, Disegno> = {
   lucciole: {
     w: 60,
@@ -371,17 +414,7 @@ const OGGETTI_DISEGNI: Record<string, Disegno> = {
       </>
     ),
   },
-  'sasso-misura': {
-    w: 30,
-    h: 26,
-    el: (
-      <>
-        <path d="M3 24.6 C2 14 7 4 15 4 C23 4 28 14 27 24.6 Z" fill={K.pietra} className="amb-t" />
-        <path d="M10.6 12.6 L11.6 18.6 M14.6 12 Q18.4 12.6 16 18.6" stroke="#4a4440" className="amb-segno amb-segno-forte" />
-        <path d="M1 24.8 H29" className="amb-t amb-t-fine" />
-      </>
-    ),
-  },
+  'sasso-misura': sassoMisura(40),
   bastoncino: {
     w: 46,
     h: 14,
@@ -644,9 +677,16 @@ const OGGETTI_DISEGNI: Record<string, Disegno> = {
   },
 };
 
+/** il numero scritto sul sasso delle misure, capitolo per capitolo (come nel testo): 40 al 13, 39 dal 14, 38 dal 95 */
+function numeroSasso(fiore: number): number {
+  return fiore >= 95 ? 38 : fiore >= 14 ? 39 : 40;
+}
+
 /** varianti dette in ambienti.md (poche, per capitolo) */
 function disegnoDi(id: string, tipo: 'comparsa' | 'oggetto', fondale: Fondale, fiore: number): Disegno | undefined {
   if (tipo === 'comparsa') return COMPARSE_DISEGNI[id];
+  if (id === 'sasso-misura') return sassoMisura(numeroSasso(fiore));
+  if (id === 'piuma' && fondale === 'bosco') return PIUMA_SUL_RAMO;
   if (id === 'mela' && fiore === 86) return { w: 30, h: 18, el: <>{mela(0)}{mela(13)}</> };
   if (id === 'tazze' && (fiore === 39 || fiore === 69)) return { w: 20, h: 22, el: tazza(4, true) };
   if (id === 'fiore-cima' && fiore >= 75) return { w: 16, h: 20, el: fioreCima(true) };
@@ -667,24 +707,25 @@ function disegnoDi(id: string, tipo: 'comparsa' | 'oggetto', fondale: Fondale, f
 
 /* ------------------------------------------------------------ dove stanno */
 
-/** punto del Fondale (unità 360×640, suolo a 448): centro in basso del disegno */
-type PuntoFondale = { modo: 'fondale'; cx: number; by: number; k?: number };
+/** punto del Fondale (unità 360×640, suolo a 448): centro in basso del disegno; `tavolo`: sul tavolo della
+ * cucina, che in orizzontale il Fondale alza (fondale.css) e i pezzi con lui (ambiente.css) */
+type PuntoFondale = { modo: 'fondale'; cx: number; by: number; k?: number; tavolo?: boolean };
 
 /** legati a un punto del disegno, per fondale ('*' = ovunque): [x, y, ingrandimento] */
 const PUNTI: Record<string, Partial<Record<Fondale | '*', [number, number, number?]>>> = {
-  gabbiani: { '*': [232, 132] },
+  gabbiani: { '*': [262, 240] },
   falene: { '*': [70, 316] },
   tram: { '*': [180, 440] },
   marmotta: { montagna: [48, 292, 1.5] },
-  scoiattolo: { bosco: [88, 300, 1.5] },
+  scoiattolo: { bosco: [293, 214, 1.5] },
   lucciole: { '*': [180, 420] },
   tavola: { mare: [206, 440] },
   ombrellone: { mare: [160, 436] },
-  carrucola: { montagna: [248, 352, 1.25] },
+  carrucola: { montagna: [276, 262, 1.25] },
   fuochi: { '*': [180, 200] },
   locandina: { citta: [152, 360] },
-  piuma: { bosco: [236, 268] },
-  bacca: { bosco: [254, 236] },
+  piuma: { bosco: [234, 230] },
+  bacca: { bosco: [258, 229] },
 };
 /** piani d'appoggio: [y del piano, x dei posti, ingrandimento] (il tavolo della cucina in primo piano, il banco del laboratorio) */
 const PIANI: Partial<Record<Fondale, [number, number[], number]>> = {
@@ -743,10 +784,10 @@ function disponi(comparse: readonly string[], oggetti: readonly string[], fondal
       if (!disegno) continue;
       if (tipo === 'oggetto' && id === 'tazze' && fondale === 'cucina') {
         disegno = VAPORE_CUCINA;
-        posto = { modo: 'fondale', cx: 241, by: 524 };
+        posto = { modo: 'fondale', cx: 241, by: 524, tavolo: true };
       } else if (punto) posto = { modo: 'fondale', cx: punto[0], by: punto[1], k: punto[2] };
       else if (tipo === 'oggetto' && piano && suPiano < piano[1].length) {
-        posto = { modo: 'fondale', cx: piano[1][suPiano++], by: piano[0], k: piano[2] };
+        posto = { modo: 'fondale', cx: piano[1][suPiano++], by: piano[0], k: piano[2], tavolo: fondale === 'cucina' };
       } else if (tipo === 'oggetto' && fondale === 'treno' && id === 'lettera') {
         posto = { modo: 'fondale', cx: MENSOLA_TRENO[0], by: MENSOLA_TRENO[1] };
       }
@@ -761,7 +802,7 @@ function disponi(comparse: readonly string[], oggetti: readonly string[], fondal
   const piatto = out.find((p) => p.id === 'piatto' && p.tipo === 'oggetto');
   const lettera = out.find((p) => p.id === 'lettera' && p.tipo === 'oggetto');
   if (piatto && lettera && piatto.posto.modo === 'fondale' && lettera.posto.modo === 'fondale') {
-    lettera.posto = { modo: 'fondale', cx: piatto.posto.cx - 10, by: piatto.posto.by - 1, k: piatto.posto.k };
+    lettera.posto = { ...piatto.posto, cx: piatto.posto.cx - 10, by: piatto.posto.by - 1 };
     out.splice(out.indexOf(lettera), 1);
     out.splice(out.indexOf(piatto), 0, lettera);
   }
@@ -796,7 +837,7 @@ export function Ambiente({ comparse, oggetti, fondale, fiore }: AmbienteProps) {
         return (
           <span
             key={p.chiave}
-            className={`amb-pezzo amb-pezzo--${p.tipo} amb-pezzo--${p.posto.modo} amb-${p.id}`}
+            className={`amb-pezzo amb-pezzo--${p.tipo} amb-pezzo--${p.posto.modo}${p.posto.modo === 'fondale' && p.posto.tavolo ? ' amb-pezzo--tavolo' : ''} amb-${p.id}`}
             {...{ [p.tipo === 'comparsa' ? 'data-comparsa' : 'data-oggetto']: p.id }}
             data-posto={p.posto.modo}
             style={stile as CSSProperties}

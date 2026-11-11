@@ -112,6 +112,33 @@ describe('Ambiente nel lettore', () => {
     expect(ids('data-oggetto')).toEqual(['tavola']);
   });
 
+  it('sasso delle misure: il numero si legge e segue il testo (40, 39, 38)', () => {
+    const numeri = [13, 14, 91, 95, 100].map((n) => {
+      monta(CAPITOLI[n]);
+      expect(box.querySelectorAll('[data-oggetto="sasso-misura"] .amb-cifra').length).toBe(2);
+      return Number(box.querySelector('[data-oggetto="sasso-misura"] [data-numero]')!.getAttribute('data-numero'));
+    });
+    expect(numeri).toEqual([40, 39, 39, 38, 38]);
+  });
+
+  it('bosco: piuma e bacca sul ramo alto, lo scoiattolo sul tronco, sopra il posto dei fumetti', () => {
+    monta(cap(45, { luogo: 'bosco', comparse: ['scoiattolo'], oggetti: ['piuma', 'bacca'] }));
+    for (const [attr, id] of [
+      ['data-oggetto', 'piuma'],
+      ['data-oggetto', 'bacca'],
+      ['data-comparsa', 'scoiattolo'],
+    ]) {
+      const el = box.querySelector<HTMLElement>(`[${attr}="${id}"]`)!;
+      expect(el.dataset.posto).toBe('fondale');
+      expect(Number(el.style.getPropertyValue('--by')), id).toBeLessThanOrEqual(232);
+    }
+  });
+
+  it('cucina: le cose sul tavolo sono marcate per salire col tavolo in orizzontale', () => {
+    monta(cap(77, { luogo: 'cucina', oggetti: ['lettera', 'piatto', 'tazze'] }));
+    for (const id of ['lettera', 'piatto', 'tazze']) expect(box.querySelector(`[data-oggetto="${id}"]`)!.classList.contains('amb-pezzo--tavolo'), id).toBe(true);
+  });
+
   it("l'ambiente arriva al Fondale", () => {
     monta(cap(30, { ambiente: { momento: 'tramonto', meteo: 'vento' } }));
     const fd = box.querySelector<HTMLElement>('.fd')!;
