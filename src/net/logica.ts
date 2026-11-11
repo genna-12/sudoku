@@ -217,6 +217,7 @@ export function creaStanza(o: OpzioniStanza): StanzaInterna {
   let nOccupata = 0;
   let ultimoRinfresco = 0;
   let ultimaVerifica = -Infinity;
+  let silenzioso = false; // rinfresco periodico: una riga sola nel registro
 
   // canale dati
   let conn: ConnMinima | null = null; // aperta
@@ -389,7 +390,7 @@ export function creaStanza(o: OpzioniStanza): StanzaInterna {
     tPausa = setTimeout(() => {
       tPausa = undefined;
       if (gen !== generazione || chiuso) return;
-      log(`rinnovo la segnalazione come ${tentato}`);
+      if (!silenzioso) log(`rinnovo la segnalazione come ${tentato}`);
       try {
         p.riconnetti!();
       } catch (e) {
@@ -409,6 +410,7 @@ export function creaStanza(o: OpzioniStanza): StanzaInterna {
     clearTimeout(tSegnale);
     tSegnale = undefined;
     log(`rinnovo della segnalazione (${motivo})`);
+    silenzioso = motivo === 'rinfresco';
     rinnova();
   }
 
@@ -418,6 +420,7 @@ export function creaStanza(o: OpzioniStanza): StanzaInterna {
    */
   function programmaRinnovo(motivo: string) {
     if (chiuso || base === null || tSegnale !== undefined || tPausa !== undefined) return;
+    silenzioso = false;
     const n = nRinnovi++;
     const ms = ritardo(BACKOFF_RINNOVO, n, casuale);
     log(`segnalazione da rifare fra ${(ms / 1000).toFixed(1)} s (${motivo})`);
@@ -471,7 +474,8 @@ export function creaStanza(o: OpzioniStanza): StanzaInterna {
     nRinnovi = 0;
     nOccupata = 0;
     ultimoRinfresco = ora();
-    log(come === 'open' ? `ruolo: ${tentato}` : `ruolo: ${tentato} (${come})`);
+    if (!silenzioso || come !== 'open') log(come === 'open' ? `ruolo: ${tentato}` : `ruolo: ${tentato} (${come})`);
+    silenzioso = false;
     if (conn) return; // il canale c'è già: era solo la segnalazione da rinfrescare
     if (tentato === 'a') {
       attesa('aspetto il partner');

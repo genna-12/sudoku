@@ -147,4 +147,30 @@ describe('client vecchio (main) ↔ messaggi nuovi', () => {
     vecchio.chiudi();
     nuovo.chiudi();
   });
+
+  it('squillo di un a nuovo verso un b vecchio: il b vecchio lo chiude e basta, senza errori', async () => {
+    const righe: string[] = [];
+    let g!: GestoriPeer;
+    const vecchioB = creaStanzaMain({
+      frase: 'f',
+      nome: 'Semina',
+      ruolo: 'b',
+      statoIniziale: () => null,
+      deriva: async () => BASE,
+      webrtcDisponibile: () => true,
+      log: (...a) => righe.push(a.map(String).join(' ')),
+      creaPeer: (_id, gg) => {
+        g = gg;
+        return { distrutto: false, disconnesso: false, connetti: () => ({ peer: `${BASE}-a`, invia: () => {}, chiudi: () => {}, ascolta: () => {} }), distruggi: () => {} };
+      },
+    });
+    await vi.advanceTimersByTimeAsync(0);
+    g.aperto();
+    let chiusa = false;
+    g.connessione({ peer: `${BASE}-a`, invia: () => {}, chiudi: () => void (chiusa = true), ascolta: () => {} });
+    expect(chiusa).toBe(true);
+    expect(vecchioB.stato).toBe('in-attesa');
+    expect(righe.some((r) => /errore/.test(r))).toBe(false);
+    vecchioB.chiudi();
+  });
 });

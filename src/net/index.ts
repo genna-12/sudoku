@@ -33,7 +33,12 @@ function opzioniPeer(iceServers: RTCIceServer[]): PeerOptions {
     config: { iceServers },
     debug: 1,
     // gli errori di PeerJS (rete, ID preso, partner assente) finiscono nella Diagnostica, non in console.error
-    logFunction: (_livello: unknown, ...resto: unknown[]) => log('peerjs', ...resto.map(testoDi)),
+    logFunction: (_livello: unknown, ...resto: unknown[]) => {
+      const testo = resto.map(testoDi);
+      // partner assente: lo dice già la stanza ("a non c’è"); lo squillo di a senza b ne farebbe una riga ogni 30 s
+      if (testo.some((t) => /Could not connect to peer/.test(t))) return;
+      log('peerjs', ...testo);
+    },
   } as PeerOptions;
   if (gestoreToken) base.token = gestoreToken.token();
   if (!host) return base;
