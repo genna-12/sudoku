@@ -44,6 +44,8 @@ interface Props {
   connessione: StatoConnessione;
   personaleConnesso: boolean;
   occupata: boolean;
+  /** la connessione si sta ricostruendo da sola */
+  ricollego?: boolean;
   partita: StatoPartita | null;
   mioRuolo: Giocatore;
   generando: boolean;
@@ -133,7 +135,7 @@ export function Home(p: Props) {
       {/* con il chip dell'altro dispositivo o la stanza occupata la testata si fa stretta: a telefono
           stretto "Giardino ·" lascia il posto al pallino (H4) */}
       <header className={`home-testa${p.personaleConnesso || p.occupata ? ' home-testa--piena' : ''}`}>
-        <Pallino connessione={p.connessione} partner={p.partnerNome} occupata={p.occupata} femminile={p.mioRuolo === 'b'} />
+        <Pallino connessione={p.connessione} partner={p.partnerNome} occupata={p.occupata} ricollego={p.ricollego} femminile={p.mioRuolo === 'b'} />
         {p.personaleConnesso && (
           <span className="altro-dispositivo-chip" data-testid="personale-connesso" title="Anche il tuo altro dispositivo è qui">
             <b className="altro-dispositivo" aria-hidden="true" />
@@ -459,14 +461,17 @@ export function Pallino({
   partner,
   occupata = false,
   femminile = false,
+  ricollego = false,
 }: {
   connessione: StatoConnessione;
   partner: string;
   occupata?: boolean;
+  /** la connessione si sta ricostruendo (dopo una perdita): "mi ricollego…" */
+  ricollego?: boolean;
   /** per il testo "sei già collegato/a" (Mati → collegata) */
   femminile?: boolean;
 }) {
-  const testo = testoPallino(connessione, partner, occupata, femminile);
+  const testo = testoPallino(connessione, partner, occupata, femminile, ricollego);
   const breve = testo.breve !== testo.intero;
   return (
     <span className={`pallino pallino-${occupata ? 'occupata' : connessione}`} title={breve ? testo.intero : undefined}>

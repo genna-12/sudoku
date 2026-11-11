@@ -28,6 +28,8 @@ interface Props {
   mioRuolo: Giocatore;
   partnerNome: string;
   connessione: StatoConnessione;
+  /** la connessione si sta ricostruendo da sola: il chip dice "mi ricollego" */
+  ricollego?: boolean;
   personaleConnesso: boolean;
   partnerCursore: number | null;
   mostraErrori: boolean;
@@ -276,7 +278,7 @@ export function Partita(p: Props) {
           title={testoConnessione(p.connessione, p.partnerNome)}
         >
           <i aria-hidden="true" />
-          <span>{CHIP[p.connessione] ?? (p.partnerNome || 'in due')}</span>
+          <span>{p.ricollego && p.connessione === 'in-attesa' ? 'mi ricollego' : (CHIP[p.connessione] ?? (p.partnerNome || 'in due'))}</span>
           {p.personaleConnesso && (
             <b className="altro-dispositivo" data-testid="personale-connesso" title="Anche il tuo altro dispositivo è qui" aria-label="Anche il tuo altro dispositivo è qui" />
           )}
