@@ -9,6 +9,7 @@
 //       sei colonne fisse (oggetti e comparse alternati, le comparse un filo più in basso): mai una sopra l'altra
 //   - lucciole nel bosco: le disegna il Fondale (CapitoloScena gliele accende solo se il capitolo le chiama)
 //   - tazze in cucina: le tazze sono già del fondale, qui solo il vapore
+//   - tavola e cartina in giardino: le disegna già la Scena della Home (92, 98), qui niente doppioni
 //   - poche varianti dette in ambienti.md: due mele al 86, una tazza al 39 e al 69, il fiore di cima secco
 //     dal 75, il plettro sotto il vetrino in laboratorio, la lettera che spunta da sotto il piatto
 //   - id fuori vocabolario ignorati, al massimo 3 per lista; aria-hidden (le comparse non hanno nome)
@@ -704,6 +705,9 @@ const VAPORE_CUCINA: Disegno = {
   ),
 };
 
+/** oggetti che in giardino disegna già la Scena (sbloccati al 26 e al 88: la tavola sul muretto, la cartina sulla casetta) */
+const NELLA_SCENA: readonly string[] = ['tavola', 'cartina'];
+
 /** colonne della striscia (frazione della colonna): oggetti e comparse alternati, da sinistra */
 const COLONNE_OGGETTI = [0.1, 0.9, 0.42] as const;
 const COLONNE_COMPARSE = [0.26, 0.74, 0.58] as const;
@@ -729,8 +733,9 @@ function disponi(comparse: readonly string[], oggetti: readonly string[], fondal
   ];
   for (const [tipo, ids] of liste) {
     for (const id of ids) {
-      // le lucciole del bosco sono quelle del Fondale
+      // le lucciole del bosco sono quelle del Fondale; in giardino tavola e cartina le disegna già la Scena
       if (tipo === 'comparsa' && id === 'lucciole' && fondale === 'bosco') continue;
+      if (tipo === 'oggetto' && fondale === 'giardino' && NELLA_SCENA.includes(id)) continue;
       const punti = PUNTI[id];
       const punto = punti?.[fondale] ?? punti?.['*'];
       let posto: PuntoFondale | undefined;

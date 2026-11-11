@@ -426,7 +426,7 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @elemento:
 @ambiente: momento=mattina meteo=sereno
 @comparse: gabbiani
-@oggetti: tavola
+@oggetti: tavola, zaino
 @eco: semino: La cinghia dello zaino è rotta. La sistemo in salita. Pare che ci sia una salita.
 - narra: Si parte. Pinza si aggrappa alla cinghia dello zaino di Semino, con tutte e due le chele. Crac.
 - semino (neutro): Prova con una chela sola.
@@ -558,7 +558,7 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @elemento:
 @ambiente: momento=tramonto meteo=sereno
 @comparse:
-@oggetti: zaino
+@oggetti:
 @eco: semina: Sul sentiero lungo ci sono quarantadue sassi. Li ha contati lui, piano.
 - narra: Un bivio, due cartelli. Sopra Semina c'è ancora una nuvoletta, piccola come una noce.
 - semino (neutro): Lungo o corto?
@@ -1320,7 +1320,7 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=cuffie
 @entra:
 @elemento:
-@ambiente: momento=sera meteo=neve
+@ambiente: momento=sera meteo=nuvole
 @comparse:
 @oggetti: carrucola, secchio
 @eco: semino: Ho calato un formaggio per quaranta palmi di corda. Giù, dal camino, usciva fumo.
@@ -1465,7 +1465,7 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @elemento:
 @ambiente: momento=giorno meteo=sereno
 @comparse:
-@oggetti: secchio
+@oggetti: secchio, tavola
 @eco: semino: Pinza ha tenuto il secchio con una chela per tutto il viaggio. Il secchio è intero.
 - narra: Fischio atterra di traverso con un secchio appeso alle zampe. Dal bordo spunta una chela. Una sola.
 - fischio: Consegna. Pesa. Vado.
@@ -1563,7 +1563,7 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @elemento: arcobaleno
 @ambiente: momento=giorno meteo=nuvole
 @comparse:
-@oggetti:
+@oggetti: cartina, matita
 @eco: semino: La terza strada passa dallo stagno. Ho già preso le misure per il ponte.
 - narra: La cartina è appesa alla casetta. Sopra le due strade ce n'è una terza, a matita rossa.
 - semina (neutro): È storta.

@@ -70,13 +70,14 @@ describe('Ambiente nel lettore', () => {
     expect(ids('data-oggetto')).toEqual(['zaino', 'pc', 'palla']);
   });
 
-  it('ogni capitolo 9-100 disegna tutte le sue comparse e i suoi oggetti (nel bosco le lucciole sono del Fondale)', () => {
+  it('ogni capitolo 9-100 disegna tutte le sue comparse e i suoi oggetti (nel bosco le lucciole sono del Fondale, in giardino tavola e cartina della Scena)', () => {
     for (const c of CAPITOLI.filter((x) => x.fiore >= 9)) {
       monta(c);
       const comparse = (c.comparse ?? []).filter((id) => !(id === 'lucciole' && c.luogo === 'bosco'));
       expect(ids('data-comparsa'), `capitolo ${c.fiore}`).toEqual(expect.arrayContaining(comparse));
       expect(ids('data-comparsa').length, `capitolo ${c.fiore}`).toBe(comparse.length);
-      expect([...ids('data-oggetto')].sort(), `capitolo ${c.fiore}`).toEqual([...(c.oggetti ?? [])].sort());
+      const oggetti = (c.oggetti ?? []).filter((id) => !(c.luogo === 'giardino' && !c.fondale && ['tavola', 'cartina'].includes(id)));
+      expect([...ids('data-oggetto')].sort(), `capitolo ${c.fiore}`).toEqual([...oggetti].sort());
       box.querySelectorAll('.amb-pezzo svg').forEach((s) => expect(s.childElementCount).toBeGreaterThan(0));
     }
   });
@@ -88,7 +89,7 @@ describe('Ambiente nel lettore', () => {
       expect(ids('data-comparsa').length).toBe(Object.keys(COMPARSE).slice(i, i + 3).length);
     }
     for (let i = 0; i < Object.keys(OGGETTI).length; i += 3) {
-      monta(cap(40 + i, { luogo: 'giardino', oggetti: Object.keys(OGGETTI).slice(i, i + 3) }));
+      monta(cap(40 + i, { luogo: 'mare', oggetti: Object.keys(OGGETTI).slice(i, i + 3) }));
       expect(ids('data-oggetto').length).toBe(Object.keys(OGGETTI).slice(i, i + 3).length);
     }
   });
@@ -100,6 +101,15 @@ describe('Ambiente nel lettore', () => {
     expect(box.querySelectorAll('[data-oggetto="tazze"] .amb-vapore').length).toBeGreaterThan(0);
     expect(box.querySelector('[data-oggetto="tazze"] path[d^="M4 8h10"]')).toBeNull();
     expect(ids('data-oggetto').indexOf('lettera')).toBeLessThan(ids('data-oggetto').indexOf('piatto'));
+  });
+
+  it('in giardino tavola e cartina sono quelle della Scena: nessun doppione (92, 98)', () => {
+    monta(cap(92, { luogo: 'giardino', oggetti: ['secchio', 'tavola'] }));
+    expect(ids('data-oggetto')).toEqual(['secchio']);
+    monta(cap(98, { luogo: 'giardino', oggetti: ['cartina', 'matita'] }));
+    expect(ids('data-oggetto')).toEqual(['matita']);
+    monta(cap(26, { luogo: 'mare', oggetti: ['tavola'] }));
+    expect(ids('data-oggetto')).toEqual(['tavola']);
   });
 
   it("l'ambiente arriva al Fondale", () => {

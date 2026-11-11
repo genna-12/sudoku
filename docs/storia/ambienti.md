@@ -39,8 +39,8 @@ Tutti piccoli, nel palco o nel fondale, mai sopra le mascotte o il fumetto. Le m
 
 | id | come si disegna | capitoli |
 |---|---|---|
-| `zaino` | zainetto da escursione ocra con la patta più scura, alto mezza mascotte, posato a terra o appeso (sella, porta); mai indossato: addosso lo disegnano i vestiti. | 32-33, 35, 54, 57, 65, 84, 94 |
-| `tavola` | tavola da surf crema con una riga petrolio, dritta in verticale contro il muretto, poco più alta di una mascotte; graffiate sopra una montagna e un'onda piccola. | 26-27 |
+| `zaino` | zainetto da escursione ocra con la patta più scura, alto mezza mascotte, posato a terra o appeso (sella, porta); mai indossato: addosso lo disegnano i vestiti. | 27, 32-33, 54, 57, 65, 84, 94 |
+| `tavola` | tavola da surf crema con una riga petrolio, dritta in verticale contro il muretto, poco più alta di una mascotte; graffiate sopra una montagna e un'onda piccola. | 26-27, 92 |
 | `ombrellone` | ombrellone a spicchi crema e petrolio piantato nella sabbia, in fondale, con un'ombra lunga a terra che punta al muretto. | 23-24 |
 | `conchiglia` | conchiglia a ventaglio rosa pallido con un forellino, grande come il pugno di una mascotte, posata a terra o in cima a un ometto di sassi. | 19, 24, 37 |
 | `palla` | la palla da pallanuoto gialla coi solchi blu del vestito `palla`, con una toppa di nastro bianco a croce (si usa solo dopo il 22); a terra, rotola di un niente. | 59, 75, 99 |
@@ -48,8 +48,8 @@ Tutti piccoli, nel palco o nel fondale, mai sopra le mascotte o il fumetto. Le m
 | `sasso-misura` | sasso piatto grigio chiaro, ovale, piantato tra le radici, con un numero scritto a mano reso come due tratti scuri illeggibili (così vale per 40, 39 e 38). | 13-14, 91, 95, 100 |
 | `bastoncino` | rametto dritto marrone chiaro con tre tacche, lungo come una mascotte, appoggiato al sasso o per terra. | 14, 91, 95, 100 |
 | `sasso-quota` | il sasso di quota: stesso disegno dell'elemento `sasso` della Scena, più piccolo, posato a terra o sul tavolo. | 37, 71 |
-| `cartina` | foglio di carta beige aperto con due linee a matita e una macchiolina (al 29 è la mappa dei sentieri con la marmellata, dal 88 la cartina a due strade): a terra o sul tavolo. | 29, 88-89 |
-| `matita` | matita rossa corta, lunga quanto una mano di mascotte, posata sul tavolo accanto alla cartina; rotola di un millimetro. | 88-89 |
+| `cartina` | foglio di carta beige aperto con due linee a matita e una macchiolina (al 29 è la mappa dei sentieri con la marmellata, dal 88 la cartina a due strade): a terra o sul tavolo. | 29, 88-89, 98 |
+| `matita` | matita rossa corta, lunga quanto una mano di mascotte, posata sul tavolo accanto alla cartina; rotola di un millimetro. | 88-89, 98 |
 | `carrucola` | ruota di legno su un palo accanto alla baita, con una corda che scende fuori quadro verso valle; la ruota gira piano. | 34, 41, 83 |
 | `secchio` | secchio di latta grigio azzurro col manico, alto un terzo di mascotte, a terra o appeso alla corda della carrucola. | 34, 83, 92 |
 | `nodo` | pezzo di corda color canapa con un nodo grosso in mezzo, posato a terra o sul sedile. | 41, 84 |
@@ -101,7 +101,7 @@ Tutti piccoli, nel palco o nel fondale, mai sopra le mascotte o il fumetto. Le m
 | 24 | La settima | giorno | sereno | gabbiani | ombrellone, conchiglia | stessa spiaggia del 23, l'ombrellone resta |
 | 25 | Acqua che non sta ferma | sera (t) | vento | — | — | dormono alle dieci; vento: la sabbia nelle orecchie |
 | 26 | La tavola sul muretto | mattina (t) | sereno | — | tavola | «Mattina.»; il vento della sera è calato |
-| 27 | Una chela sola | mattina | sereno | gabbiani | tavola | si parte la stessa mattina; tavola sul muretto |
+| 27 | Una chela sola | mattina | sereno | gabbiani | tavola, zaino | si parte la stessa mattina; tavola sul muretto; lo zaino a cui Pinza si aggrappa (C3) |
 
 ### Atto 3 · montagna (28-42)
 
@@ -114,7 +114,7 @@ Tutti piccoli, nel palco o nel fondale, mai sopra le mascotte o il fumetto. Le m
 | 32 | Il temporale | mattina (t) | sereno (t) | — | zaino | «le dieci e cinque»; eco: sereno tranne su di lei |
 | 33 | Sotto la roccia | mattina | nuvole | — | zaino, fiore-cima | venti minuti dopo; la nuvola è salita in cima |
 | 34 | La carrucola | giorno | sereno | — | carrucola, secchio | la nuvola è passata, come dice Nonna Capra |
-| 35 | Due sentieri | tramonto | sereno | — | zaino | «tre ombre sul sentiero»: ombre lunghe; l'alba segue |
+| 35 | Due sentieri | tramonto | sereno | — | — | «tre ombre sul sentiero»: ombre lunghe; l'alba segue; niente zaino a terra: Semino lo appende alla sella e ha lo zaino-storto (C3) |
 | 36 | L'alba, una volta | alba (t) | sereno (t) | — | cappello | «Il sole esce da dietro la cima» |
 | 37 | Il sasso di quota | giorno | vento (t) | — | sasso-quota, conchiglia | «Il vento gira»; stesso giorno dell'alba |
 | 38 | Il cappello capovolto | tramonto | nuvole | — | cappello, tazze | il vento del 37 porta nuvole; tè alla baita |
@@ -182,7 +182,7 @@ Tutti piccoli, nel palco o nel fondale, mai sopra le mascotte o il fumetto. Le m
 | 80 | La piazza | giorno | sereno | piccione | — | piazza di giorno; domani c'è il mercato |
 | 81 | Il vetrino | giorno | sereno | — | plettro, mela | stesso giorno della piazza; il plettro sotto il vetrino |
 | 82 | La sera storta | tramonto (t) | nuvole | — | vetrino, foglio, pianta | «Crepuscolo.»; nuvole per la sera storta |
-| 83 | Il fuoco acceso | sera | neve | — | carrucola, secchio | fumo dal camino; l'inverno arriva (Nonna Capra scende al 94) |
+| 83 | Il fuoco acceso | sera | nuvole | — | carrucola, secchio | fumo dal camino; cielo coperto come all'82 e all'84; non neve: «D'inverno scendo io» dice che l'inverno non c'è ancora, arriva al 94 «È inverno» (C3) |
 | 84 | La lettera del Mulo | mattina | nuvole | — | lettera, nodo, zaino | il giorno dopo la baita, in treno; grigio |
 | 85 | Una riga a metà (di nuovo) | notte | sereno | — | pianta, piatto, lettera | Semino da solo all'ora sua; la lettera del 77 |
 | 86 | Torna (per un po') | tramonto | sereno | — | mela, pianta | lei arriva stanca dal treno; la sera segue |
@@ -196,13 +196,13 @@ Tutti piccoli, nel palco o nel fondale, mai sopra le mascotte o il fumetto. Le m
 | n | titolo | momento | meteo | comparse | oggetti | perché |
 |---|---|---|---|---|---|---|
 | 91 | Il giardino cresciuto | giorno | sereno | rane | bastoncino, sasso-misura | arrivo dopo il treno del mattino; Gianfranca |
-| 92 | Pinza arriva | giorno | sereno | — | secchio | Fischio vola di giorno; la tavola è nella Scena |
+| 92 | Pinza arriva | giorno | sereno | — | secchio, tavola | Fischio vola di giorno; Pinza sale «accanto alla tavola» (C3) |
 | 93 | La posta | mattina | sereno | — | lettera, foglio | si apre la posta di mattina |
 | 94 | Nuvola a valle | giorno | sereno (t) | — | tazze, zaino | «poco vento»: niente vento; inverno senza neve |
 | 95 | Torna | giorno | sereno | — | bastoncino, sasso-misura | lei arriva; il bastoncino del 91 al sasso |
 | 96 | Stesso ramo, stessa ora | tramonto (t) | sereno | — | piuma, bacca | «Crepuscolo.» = tramonto |
 | 97 | Grillo passa | giorno | sereno | — | custodia | Grillo suona di giorno al cancello |
-| 98 | La terza strada | giorno | nuvole | — | — | sole tra le nuvole per l'arcobaleno della Scena |
+| 98 | La terza strada | giorno | nuvole | — | cartina, matita | sole tra le nuvole per l'arcobaleno della Scena; la cartina con la terza strada e la matita rossa (C3) |
 | 99 | L'ora | tramonto (t) | nuvole | — | palla, piatto | «Crepuscolo.»; nuvole: «Domani piove. O no.» |
 | 100 | Cento | tramonto (t) | sereno | — | bastoncino, biscotti, sasso-misura | «Crepuscolo nel giardino»; cielo aperto |
 
@@ -215,9 +215,9 @@ Conta: momento detto dal testo in 33 capitoli su 92, scelto in 59; meteo detto d
 2. **Le lucciole dei fondali sono sempre accese.** Il Fondale del bosco le disegna sempre, quello del giardino di notte. Al 46 ("Le lucciole non vengono"), alla fine del 47 ("Sono andate a dormire") e al 52 ("Non vedo") contraddicono il testo. Proposta per C3: nel bosco il Fondale mostra le sue lucciole solo se `@comparse` ha `lucciole` (43, 44, 48, 53).
    - *Deciso in C3 (lead, 11/11):* fatto così. Nei capitoli con `@ambiente` (dal 9) il Fondale mostra le sue lucciole (bosco, e giardino di notte) solo se `@comparse` ha `lucciole`; senza ambiente (0-8) resta com'era.
 3. **Alcuni vestiti disegnano già l'oggetto e in certi capitoli lo contraddicono.** `surf`: Semino ha la tavola in mano anche al 26-27, quando è appoggiata al muretto. `lanterna`: accesa anche al 43 ("spenta sulle ginocchia"), al 52 ("si spegne") e al 54, dove resta sul ramo. `montagna` di Semina: lo zaino è addosso anche al 32-33, quando è per terra. Per non avere due lanterne al 54 non ho messo un oggetto `lanterna`. Si decide in C3 (o con i vestiti), fuori da questo lavoro.
-   - *Deciso in C3 (lead, 11/11):* il vestito `surf` è solo la tavola in mano (non separabile), quindi dove `@oggetti` ha `tavola` è cambiato il vestito di Semino in `capitoli.md`: 26 e 27 `surf` → `palla`, l'altro vestito di Semino dell'atto del mare (la tavola resta sul muretto; al 27 lo zaino di "Pinza si aggrappa alla cinghia dello zaino" non è disegnato: `zaino-storto` è un vestito della montagna e i vestiti seguono l'atto, `luoghi.ts`). La lanterna del vestito si disegna spenta quando il momento è alba, mattina o giorno (45, 51). Le altre contraddizioni (lanterna accesa al 43, 52 e 54, zaino di `montagna` al 32-33) restano.
+   - *Deciso in C3 (lead, 11/11):* il vestito `surf` è solo la tavola in mano (non separabile), quindi dove `@oggetti` ha `tavola` è cambiato il vestito di Semino in `capitoli.md`: 26 e 27 `surf` → `palla`, l'altro vestito di Semino dell'atto del mare (la tavola resta sul muretto; al 27 lo zaino di "Pinza si aggrappa alla cinghia dello zaino" non è un vestito, perché `zaino-storto` è della montagna e i vestiti seguono l'atto, `luoghi.ts`: in C3 è l'oggetto `zaino` a terra). La lanterna del vestito si disegna spenta quando il momento è alba, mattina o giorno (45, 51). Le altre contraddizioni (lanterna accesa al 43, 52 e 54, zaino di `montagna` al 32-33) restano.
 4. **Due ore nello stesso capitolo.** Ho preso l'ora della scena in cui si parla: 9 `sera` (salto alle 4:10), 14 `alba` (poi "Pomeriggio" per due battute), 36 `alba` (poi "Mezzogiorno"), 53 `notte` (fino alle sei). Il dubbio più grosso è il 10: ho scelto `alba` (Fischio "fischia dalle sei", Semino ha l'umore `dorme`), ma la nota finale e l'eco dicono "alle quattro", cioè notte.
 5. **"Crepuscolo" l'ho reso `tramonto`** (49, 82, 96, 99, 100) perché è caldo e chiude bene la giornata. La bibbia chiama "crepuscolo" anche il 43, ma lì servono buio e lucciole, quindi ho messo `sera`. Se si preferisce il crepuscolo blu, quei cinque capitoli diventano `sera`.
-6. **Meteo scelti per l'umore e non detti dal testo:** 25 e 69 `vento` (la sabbia nelle orecchie; "se ti viene freddo"), 46 `pioggia` (il fango, le lucciole che non vengono), 62 e 90 `nebbia` (le due partenze del mattino), 83 `neve` (l'unica: arriva l'inverno che al 94 fa scendere Nonna Capra), qualche `nuvole` nei capitoli in ombra (13, 18, 38, 71, 77-78, 82). Se sembrano troppo "detti", tornano tutti a `sereno` senza toccare nient'altro.
-7. **Oggetti che non si vedono perché sono addosso a qualcuno:** il nodo sulla cinghia al 90, lo zaino in spalla al 27, 52, 66 e 95, il secchio al collo di Nuvola al 94, il foglio in mano al 86, la conchiglia al 28. Per mostrarli servirebbe agganciare gli oggetti alle mascotte e ai secondari, cosa che la spec esclude.
-8. **Giardino del ritorno (91-100) quasi senza aggiunte.** La Scena della Home disegna già cassetta, tavola sul muretto, locandina, cartina e arcobaleno, quindi il 98 resta senza oggetti: la matita rossa sta "sul tavolo", dentro, e non si vede. L'inverno del 94 è senza neve ("poco vento, e l'erba è bassa") e le rane ci sono solo al 91 (Gianfranca).
+6. **Meteo scelti per l'umore e non detti dal testo:** 25 e 69 `vento` (la sabbia nelle orecchie; "se ti viene freddo"), 46 `pioggia` (il fango, le lucciole che non vengono), 62 e 90 `nebbia` (le due partenze del mattino), 83 `nuvole` (era `neve`; corretto in C3: al 83 Nonna Capra dice «D'inverno scendo io», quindi l'inverno non è ancora arrivato, e il 94 «È inverno» viene dopo; coperto come i vicini 82 e 84), qualche `nuvole` nei capitoli in ombra (13, 18, 38, 71, 77-78, 82). Se sembrano troppo "detti", tornano tutti a `sereno` senza toccare nient'altro.
+7. **Oggetti che non si vedono perché sono addosso a qualcuno:** il nodo sulla cinghia al 90, lo zaino in spalla al 52, 66 e 95, il secchio al collo di Nuvola al 94, il foglio in mano al 86, la conchiglia al 28. Per mostrarli servirebbe agganciare gli oggetti alle mascotte e ai secondari, cosa che la spec esclude.
+8. **Giardino del ritorno (91-100) quasi senza aggiunte.** La Scena della Home disegna già cassetta, tavola sul muretto, locandina, cartina e arcobaleno, quindi il 98 restava senza oggetti. *Corretto in C3:* al 98 ci sono `cartina` e `matita` (il testo le nomina tutte e due), al 92 la `tavola` ("accanto alla tavola"). In giardino tavola e cartina le disegna già la Scena (sbloccate al 26 e al 88): `Ambiente` non le ripete, la riga serve a dire che sono in scena; la matita rossa del 98 si vede a terra. L'inverno del 94 è senza neve ("poco vento, e l'erba è bassa") e le rane ci sono solo al 91 (Gianfranca).

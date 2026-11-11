@@ -1,6 +1,6 @@
 [
  {
-  "_sorgente_sha256": "21a793c81828a6c6bd09f3174a0df72829bb9df31c7d46eb5ab81d94383063b4",
+  "_sorgente_sha256": "b6bd1859b14aee5ee13a29f8b4a6ff3c89d24754fa7b6488d1b182298c1b8367",
   "_nota": "generato da controlla.py: non modificare a mano"
  },
  {
@@ -1601,7 +1601,8 @@
    "gabbiani"
   ],
   "oggetti": [
-   "tavola"
+   "tavola",
+   "zaino"
   ]
  },
  {
@@ -2084,10 +2085,7 @@
   "ambiente": {
    "momento": "tramonto",
    "meteo": "sereno"
-  },
-  "oggetti": [
-   "zaino"
-  ]
+  }
  },
  {
   "fiore": 36,
@@ -4821,7 +4819,7 @@
   ],
   "ambiente": {
    "momento": "sera",
-   "meteo": "neve"
+   "meteo": "nuvole"
   },
   "oggetti": [
    "carrucola",
@@ -5338,7 +5336,8 @@
    "meteo": "sereno"
   },
   "oggetti": [
-   "secchio"
+   "secchio",
+   "tavola"
   ]
  },
  {
@@ -5684,7 +5683,11 @@
   "ambiente": {
    "momento": "giorno",
    "meteo": "nuvole"
-  }
+  },
+  "oggetti": [
+   "cartina",
+   "matita"
+  ]
  },
  {
   "fiore": 99,
