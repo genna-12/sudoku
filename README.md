@@ -35,3 +35,4 @@ node scripts/qa/arrivo-semina.mjs http://127.0.0.1:5173/sudoku/     # archivio v
 node scripts/qa/capitoli-di-fila.mjs http://127.0.0.1:5173/sudoku/  # un capitolo per vittoria, chiuso a metà, "Nuova" del partner mentre leggo, diario
 ```
 (anche `personale.mjs` e `tre-dispositivi.mjs`, stesso uso; `scripts/qa/comune.mjs` ha gli aiuti dei due E2E della storia.)
+`node scripts/qa/ambienti-foto.mjs http://127.0.0.1:5173/sudoku/` (basta il dev server): screenshot del lettore con gli ambienti dei capitoli in `docs/design/img/t9-ambienti-*.png` e controllo delle sovrapposizioni su tutti i capitoli 9-100.
