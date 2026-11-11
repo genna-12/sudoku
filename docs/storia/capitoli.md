@@ -681,7 +681,7 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=lanterna semina=lucciola
 @entra:
 @elemento:
-@ambiente: momento=sera meteo=sereno
+@ambiente: momento=sera meteo=sereno luce=spenta
 @comparse: lucciole
 @oggetti:
 @eco: semino: La lanterna funziona. È la lucciola che dentro non fa luce. Ho controllato.
@@ -828,7 +828,7 @@ Fonte unica dei testi della storia. Formato: docs/storia/guida-dialoghi.md §5. 
 @vestiti: semino=lanterna semina=lucciola
 @entra:
 @elemento:
-@ambiente: momento=notte meteo=nuvole
+@ambiente: momento=notte meteo=nuvole luce=spenta
 @comparse:
 @oggetti:
 @eco: semino: Stanotte il sentiero l'ha fatto un altro. Io tenevo un'ala.

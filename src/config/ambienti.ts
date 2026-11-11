@@ -9,6 +9,8 @@ export type Meteo = 'sereno' | 'nuvole' | 'vento' | 'pioggia' | 'temporale' | 'n
 export interface Ambiente {
   momento: MomentoAmbiente;
   meteo: Meteo;
+  /** 'spenta': la lanterna del vestito è spenta anche di sera e di notte (43, 52); senza, decide il momento */
+  luce?: 'spenta';
 }
 
 export const MOMENTI_AMBIENTE = dati.momenti as readonly MomentoAmbiente[];

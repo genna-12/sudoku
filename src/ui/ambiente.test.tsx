@@ -139,6 +139,15 @@ describe('Ambiente nel lettore', () => {
     expect(box.querySelector('.capitolo-lui')!.classList.contains('capitolo-lanterna-spenta')).toBe(false);
   });
 
+  it('luce=spenta: la lanterna spenta anche di sera e di notte (43, 52, dai dati)', () => {
+    for (const n of [43, 52]) {
+      expect(CAPITOLI[n].ambiente?.luce, `capitolo ${n}`).toBe('spenta');
+      monta(CAPITOLI[n]);
+      expect(box.querySelector('.capitolo-lui')!.classList.contains('capitolo-lanterna-spenta'), `capitolo ${n}`).toBe(true);
+    }
+    expect(CAPITOLI.filter((c) => c.ambiente?.luce).map((c) => c.fiore)).toEqual([43, 52]);
+  });
+
   it('dove la tavola è un oggetto, Semino non ha il vestito surf', () => {
     for (const c of CAPITOLI.filter((x) => x.oggetti?.includes('tavola'))) expect(c.vestiti.semino).not.toBe('surf');
   });

@@ -1,6 +1,6 @@
 [
  {
-  "_sorgente_sha256": "b6bd1859b14aee5ee13a29f8b4a6ff3c89d24754fa7b6488d1b182298c1b8367",
+  "_sorgente_sha256": "97293d7da593053ec14c3d93012362a6a0ec1688a4382431a23c6e1c4b5072f5",
   "_nota": "generato da controlla.py: non modificare a mano"
  },
  {
@@ -2527,7 +2527,8 @@
   ],
   "ambiente": {
    "momento": "sera",
-   "meteo": "sereno"
+   "meteo": "sereno",
+   "luce": "spenta"
   },
   "comparse": [
    "lucciole"
@@ -3063,7 +3064,8 @@
   ],
   "ambiente": {
    "momento": "notte",
-   "meteo": "nuvole"
+   "meteo": "nuvole",
+   "luce": "spenta"
   }
  },
  {

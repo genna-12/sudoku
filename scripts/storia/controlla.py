@@ -10,7 +10,7 @@ Esce con 1 se ci sono errori. Gli avvisi (lista nera) non fermano.
 Formato: vedi docs/storia/guida-dialoghi.md §5; righe d'ambiente (T9 C): docs/specs/T9-C-ambienti.md.
 
 Ambienti (solo dal capitolo 9 al 100, vietati da 0 a 8):
-  @ambiente: momento=<alba|mattina|giorno|tramonto|sera|notte> meteo=<sereno|nuvole|...>
+  @ambiente: momento=<alba|mattina|giorno|tramonto|sera|notte> meteo=<sereno|nuvole|...> [luce=spenta]
   @comparse: id, id   /   @oggetti: id, id   (al massimo 3; vuoto ammesso; id da src/config/ambienti.json)
   L'obbligo di @ambiente dal 9 al 100 vale con AMBIENTE_OBBLIGATORIO = True o con --ambiente-obbligatorio;
   spento, la riga se c'è si controlla lo stesso.
@@ -29,6 +29,7 @@ COMPARSE = set(AMBIENTI["comparse"])
 OGGETTI = set(AMBIENTI["oggetti"])
 MAX_VOC_COMPARSE, MAX_VOC_OGGETTI = 10, 30
 MAX_AMBIENTE = 3  # comparse e oggetti per capitolo
+LUCI = {"spenta"}  # @ambiente luce=: opzionale, la lanterna del vestito spenta anche di sera e di notte (43, 52)
 AMBIENTE_DA, AMBIENTE_A = 9, 100
 # acceso dalla lead quando capitoli.md ha le righe @ambiente dal 9 al 100 (o con --ambiente-obbligatorio)
 AMBIENTE_OBBLIGATORIO = True
@@ -110,7 +111,7 @@ def parse(testo):
                         errori.append(f"riga {n}: ambiente malformato '{pezzo}'")
                         continue
                     chiave, val = pezzo.split("=", 1)
-                    if chiave not in ("momento", "meteo") or chiave in amb:
+                    if chiave not in ("momento", "meteo", "luce") or chiave in amb:
                         errori.append(f"riga {n}: ambiente con chiave '{chiave}' sconosciuta o ripetuta")
                         continue
                     amb[chiave] = val
@@ -161,6 +162,8 @@ def controlla_ambiente(c, p, errori, obbligatorio):
             errori.append(f"{p}: momento '{amb.get('momento')}' non valido ({'|'.join(AMBIENTI['momenti'])})")
         if amb.get("meteo") not in METEO:
             errori.append(f"{p}: meteo '{amb.get('meteo')}' non valido ({'|'.join(AMBIENTI['meteo'])})")
+        if "luce" in amb and amb["luce"] not in LUCI:
+            errori.append(f"{p}: luce '{amb['luce']}' non valida ({'|'.join(sorted(LUCI))}, o niente)")
     for k, voc in (("comparse", COMPARSE), ("oggetti", OGGETTI)):
         ids = c.get(f"_{k}", [])
         if len(ids) > MAX_AMBIENTE:
@@ -283,6 +286,8 @@ def main():
             # campi d'ambiente solo se presenti: i capitoli senza righe (0-8, e tutti oggi) restano identici
             if c.get("_ambiente"):
                 d["ambiente"] = {"momento": c["_ambiente"]["momento"], "meteo": c["_ambiente"]["meteo"]}
+                if c["_ambiente"].get("luce"):
+                    d["ambiente"]["luce"] = c["_ambiente"]["luce"]
             for k in ("comparse", "oggetti"):
                 if c.get(f"_{k}"):
                     d[k] = c[f"_{k}"]

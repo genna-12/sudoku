@@ -224,8 +224,9 @@ export function CapitoloScena({
   // T9 C: ambiente, comparse e oggetti solo dal 9 (i capitoli 0-8 restano identici anche con dati sbagliati)
   const vivo = c.fiore >= AMBIENTE_DA;
   const ambiente = vivo ? c.ambiente : undefined;
-  // la lanterna del vestito di giorno è spenta (45, 51); le lucciole del fondale solo se il capitolo le chiama
-  const lanternaSpenta = vestito('semino') === 'lanterna' && !!ambiente && GIORNO.includes(ambiente.momento);
+  // la lanterna del vestito è spenta di giorno (45, 51) e dove il capitolo lo dice (luce=spenta: 43, 52);
+  // le lucciole del fondale solo se il capitolo le chiama
+  const lanternaSpenta = vestito('semino') === 'lanterna' && !!ambiente && (GIORNO.includes(ambiente.momento) || ambiente.luce === 'spenta');
   const lucciole = ambiente ? (c.comparse ?? []).includes('lucciole') : undefined;
   const etichettaFinale =rilettura ? 'Chiudi' : c.fiore === 0 || rivelazione ? 'Andiamo' : 'Continua';
   const aiuto = !rilettura && c.fiore <= 2 && passo < 2;

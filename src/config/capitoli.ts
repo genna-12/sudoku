@@ -65,7 +65,10 @@ function normalizza(c: CapitoloGrezzo): Capitolo {
   if (c.entra != null) out.entra = c.entra;
   if (c.elemento != null) out.elemento = c.elemento;
   if (c.fondale != null) out.fondale = c.fondale;
-  if (c.ambiente != null) out.ambiente = { momento: c.ambiente.momento, meteo: c.ambiente.meteo };
+  if (c.ambiente != null) {
+    out.ambiente = { momento: c.ambiente.momento, meteo: c.ambiente.meteo };
+    if (c.ambiente.luce === 'spenta') out.ambiente.luce = 'spenta';
+  }
   if (c.comparse?.length) out.comparse = [...c.comparse];
   if (c.oggetti?.length) out.oggetti = [...c.oggetti];
   return out;
