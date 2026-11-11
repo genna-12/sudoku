@@ -16,6 +16,8 @@ export const METEO = dati.meteo as readonly Meteo[];
 /** id → etichetta (per l'accessibilità e i test, mai sullo schermo come nome) */
 export const COMPARSE: Readonly<Record<string, string>> = dati.comparse;
 export const OGGETTI: Readonly<Record<string, string>> = dati.oggetti;
+/** il primo capitolo con ambiente (segreto per Matilde: 0-8 restano come prima); lo controlla anche lo script */
+export const AMBIENTE_DA = 9;
 /** al massimo per capitolo (lo controlla anche lo script) */
 export const MAX_PER_CAPITOLO = 3;
 

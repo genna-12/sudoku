@@ -274,7 +274,9 @@ input:focus-visible {
      50    toast (.toasts: banner in alto e frase grande del partner)
      54/55 menù ⋯ (velo e pannello): sopra i toast, così una reazione non copre le voci
      60    fogli (.foglio-velo: conferme, posta, arretrati, dettaglio del fiore, frasi)
-     70    lettore dei capitoli (capitolo.css) */
+     70    lettore dei capitoli (capitolo.css); dentro, dal basso: fondale, comparse e oggetti (0,
+           ambiente.css, T9 C), secondari (1), mascotte (2), tocco per avanzare (3), nota e fumetto (4),
+           testa e piede (5) */
 
 /* ---------- schermate ---------- */
 .schermata {

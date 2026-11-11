@@ -1,0 +1,77 @@
+/* Comparse e oggetti nel lettore dei capitoli (Ambiente.tsx, T9 C). Una striscia davanti al suolo, fra il
+   suolo del palco (--cap-suolo) e il piede: niente copre le mascotte, i secondari o il fumetto.
+   z 0 nel lettore (scala in tema.css): sopra il fondale, sotto secondari (1), mascotte (2), fumetto (4). */
+.capitolo-ambiente {
+  position: absolute;
+  z-index: 0;
+  top: calc(var(--cap-suolo) + 18px);
+  left: 50%;
+  width: var(--cap-col);
+  height: 0;
+  translate: -50% 0;
+  pointer-events: none;
+}
+.amb-pezzo {
+  position: absolute;
+  left: calc(var(--amb-x) * 100%);
+  top: 0;
+  display: grid;
+  translate: -50% 0;
+  scale: var(--cap-scala);
+  transform-origin: 50% 0;
+}
+/* le comparse un filo più in basso degli oggetti: due file sfalsate, mai una riga piena */
+.amb-pezzo--comparsa {
+  top: 14px;
+}
+.amb-pezzo > svg {
+  display: block;
+}
+.amb-pezzo--comparsa > svg {
+  animation: amb-respira 3.4s ease-in-out infinite alternate;
+  animation-delay: calc(var(--amb-k, 0) * -1.1s);
+  transform-origin: 50% 100%;
+}
+@keyframes amb-respira {
+  to {
+    transform: translateY(-2px) scaleY(1.03);
+  }
+}
+
+/* segnaposto (fase 1): palette petrolio, tratti morbidi */
+.amb-ombra {
+  fill: #000;
+  opacity: 0.28;
+}
+.amb-corpo {
+  fill: color-mix(in oklab, var(--fondo-2, #07100d), #a8b8a0 34%);
+}
+.amb-occhio {
+  fill: var(--testo, #f1ead7);
+}
+.amb-oggetto {
+  fill: color-mix(in oklab, var(--fondo-2, #07100d), #b5a88e 36%);
+}
+.amb-filo {
+  fill: none;
+  stroke: color-mix(in oklab, var(--testo, #f1ead7) 30%, transparent);
+  stroke-width: 1.2;
+}
+
+/* orizzontale: la striscia è bassa, i pezzi più piccoli e attaccati al suolo */
+@media (max-height: 500px) {
+  .capitolo-ambiente {
+    top: calc(var(--cap-suolo) + 6px);
+  }
+  .amb-pezzo--comparsa {
+    top: 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .capitolo-ambiente *,
+  .capitolo-ambiente *::before,
+  .capitolo-ambiente *::after {
+    animation: none !important;
+  }
+}
