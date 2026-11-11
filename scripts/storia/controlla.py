@@ -31,7 +31,7 @@ MAX_VOC_COMPARSE, MAX_VOC_OGGETTI = 10, 30
 MAX_AMBIENTE = 3  # comparse e oggetti per capitolo
 AMBIENTE_DA, AMBIENTE_A = 9, 100
 # acceso dalla lead quando capitoli.md ha le righe @ambiente dal 9 al 100 (o con --ambiente-obbligatorio)
-AMBIENTE_OBBLIGATORIO = False
+AMBIENTE_OBBLIGATORIO = True
 
 LUOGHI = {"aiuola", "giardino", "mare", "montagna", "bosco", "citta", "cucina", "lontano"}
 PRINCIPALI = {"semino", "semina"}

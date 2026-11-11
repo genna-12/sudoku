@@ -1,6 +1,6 @@
 [
  {
-  "_sorgente_sha256": "743250c963b16bfe5da6f675316e17dbf1f304ab50326d903267ead921fe8ad4",
+  "_sorgente_sha256": "02b393e98eb286fa47cf218690018acb03f8e5e4df1c345076100197b9b7817b",
   "_nota": "generato da controlla.py: non modificare a mano"
  },
  {
@@ -503,6 +503,13 @@
     "chi": "narra",
     "testo": "Alle quattro e dieci Semino dorme sulla tastiera. Sullo schermo, una riga di j. La sveglia aspetta le cinque."
    }
+  ],
+  "ambiente": {
+   "momento": "sera",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "pc"
   ]
  },
  {
@@ -557,7 +564,11 @@
     "chi": "narra",
     "testo": "Alle quattro in punto, dal ramo, un fischio. Uno solo, a tempo."
    }
-  ]
+  ],
+  "ambiente": {
+   "momento": "alba",
+   "meteo": "sereno"
+  }
  },
  {
   "fiore": 11,
@@ -608,6 +619,13 @@
     "chi": "narra",
     "testo": "Semina vede il dito rosso. Ci soffia sopra, due volte, e torna al piatto. Semino si guarda il dito."
    }
+  ],
+  "ambiente": {
+   "momento": "tramonto",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "piatto"
   ]
  },
  {
@@ -664,6 +682,16 @@
     "chi": "narra",
     "testo": "Prima di sera Semina apre lo sportello sei volte. La sesta cigola di più."
    }
+  ],
+  "ambiente": {
+   "momento": "giorno",
+   "meteo": "sereno"
+  },
+  "comparse": [
+   "farfalle"
+  ],
+  "oggetti": [
+   "lettera"
   ]
  },
  {
@@ -721,6 +749,16 @@
     "chi": "narra",
     "testo": "Semino scrive 40 su un sasso piatto e lo pianta a metà strada, tra le due radici."
    }
+  ],
+  "ambiente": {
+   "momento": "giorno",
+   "meteo": "nuvole"
+  },
+  "comparse": [
+   "rane"
+  ],
+  "oggetti": [
+   "sasso-misura"
   ]
  },
  {
@@ -762,6 +800,14 @@
     "umore": "neutro",
     "testo": "Ripasso il nove due volte. Se piove, resta."
    }
+  ],
+  "ambiente": {
+   "momento": "alba",
+   "meteo": "nuvole"
+  },
+  "oggetti": [
+   "sasso-misura",
+   "bastoncino"
   ]
  },
  {
@@ -818,6 +864,13 @@
     "umore": "arrabbiato",
     "testo": "È bagnato. È... bagnato."
    }
+  ],
+  "ambiente": {
+   "momento": "giorno",
+   "meteo": "sereno"
+  },
+  "comparse": [
+   "gabbiani"
   ]
  },
  {
@@ -874,6 +927,13 @@
     "chi": "narra",
     "testo": "Semina, dalla riva, tiene la tavola per la cinghia. Sulla tavola, in acqua, c'è Semino."
    }
+  ],
+  "ambiente": {
+   "momento": "giorno",
+   "meteo": "sereno"
+  },
+  "comparse": [
+   "gabbiani"
   ]
  },
  {
@@ -927,6 +987,13 @@
     "chi": "narra",
     "testo": "Pinza parte di lato e non molla l'alluce. Semino, per stargli dietro, va di lato anche lui."
    }
+  ],
+  "ambiente": {
+   "momento": "giorno",
+   "meteo": "sereno"
+  },
+  "comparse": [
+   "gabbiani"
   ]
  },
  {
@@ -981,6 +1048,13 @@
     "umore": "neutro",
     "testo": "Io giro la tavola di là. Senza remare."
    }
+  ],
+  "ambiente": {
+   "momento": "giorno",
+   "meteo": "nuvole"
+  },
+  "comparse": [
+   "gabbiani"
   ]
  },
  {
@@ -1037,6 +1111,13 @@
     "chi": "narra",
     "testo": "Semino entra in acqua con la conchiglia all'orecchio. Sente il mare due volte."
    }
+  ],
+  "ambiente": {
+   "momento": "tramonto",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "conchiglia"
   ]
  },
  {
@@ -1087,7 +1168,11 @@
     "umore": "neutro",
     "testo": "Venti. Adesso le sue. Una."
    }
-  ]
+  ],
+  "ambiente": {
+   "momento": "notte",
+   "meteo": "sereno"
+  }
  },
  {
   "fiore": 21,
@@ -1142,6 +1227,13 @@
     "chi": "narra",
     "testo": "Semino scrive Semino Due nella sabbia, in fondo, sotto Tic. Poi tira la palla contro un'onda. L'onda gliela riporta."
    }
+  ],
+  "ambiente": {
+   "momento": "mattina",
+   "meteo": "sereno"
+  },
+  "comparse": [
+   "granchi"
   ]
  },
  {
@@ -1195,7 +1287,11 @@
     "chi": "narra",
     "testo": "La palla rattoppata torna in acqua. Galleggia storta, dalla parte della toppa."
    }
-  ]
+  ],
+  "ambiente": {
+   "momento": "giorno",
+   "meteo": "sereno"
+  }
  },
  {
   "fiore": 23,
@@ -1248,6 +1344,16 @@
     "chi": "narra",
     "testo": "L'ombra dell'ombrellone tocca il muretto. Sul muretto c'è Semina, coi piedi pieni di sabbia."
    }
+  ],
+  "ambiente": {
+   "momento": "giorno",
+   "meteo": "sereno"
+  },
+  "comparse": [
+   "gabbiani"
+  ],
+  "oggetti": [
+   "ombrellone"
   ]
  },
  {
@@ -1304,6 +1410,17 @@
     "chi": "narra",
     "testo": "Semina, zuppa, si mette la conchiglia bucata all'orecchio. Scuote la testa e ci riprova."
    }
+  ],
+  "ambiente": {
+   "momento": "giorno",
+   "meteo": "sereno"
+  },
+  "comparse": [
+   "gabbiani"
+  ],
+  "oggetti": [
+   "ombrellone",
+   "conchiglia"
   ]
  },
  {
@@ -1359,7 +1476,11 @@
     "chi": "narra",
     "testo": "Pinza resta in mezzo, sulla sabbia, sveglio. Una chela verso gli scogli, una verso l'acqua."
    }
-  ]
+  ],
+  "ambiente": {
+   "momento": "sera",
+   "meteo": "vento"
+  }
  },
  {
   "fiore": 26,
@@ -1410,6 +1531,13 @@
     "umore": "neutro",
     "testo": "Undici centimetri."
    }
+  ],
+  "ambiente": {
+   "momento": "mattina",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "tavola"
   ]
  },
  {
@@ -1464,6 +1592,16 @@
     "chi": "narra",
     "testo": "Pinza scende sul muretto, accanto alla tavola. Saluta con la chela libera. L'altra tiene il muretto."
    }
+  ],
+  "ambiente": {
+   "momento": "mattina",
+   "meteo": "sereno"
+  },
+  "comparse": [
+   "gabbiani"
+  ],
+  "oggetti": [
+   "tavola"
   ]
  },
  {
@@ -1515,6 +1653,13 @@
     "chi": "narra",
     "testo": "Semina parte. Semino infila la conchiglia bucata nello zaino e le va dietro, storto, in salita."
    }
+  ],
+  "ambiente": {
+   "momento": "mattina",
+   "meteo": "sereno"
+  },
+  "comparse": [
+   "marmotta"
   ]
  },
  {
@@ -1571,6 +1716,16 @@
     "umore": "neutro",
     "testo": "Una volta. Hai messo la marmellata sul sentiero."
    }
+  ],
+  "ambiente": {
+   "momento": "giorno",
+   "meteo": "sereno"
+  },
+  "comparse": [
+   "farfalle"
+  ],
+  "oggetti": [
+   "cartina"
   ]
  },
  {
@@ -1627,6 +1782,13 @@
     "chi": "narra",
     "testo": "Nuvola gira la testa verso Semino e sbuffa. Il berretto troppo grande gli si alza e ricade."
    }
+  ],
+  "ambiente": {
+   "momento": "giorno",
+   "meteo": "sereno"
+  },
+  "comparse": [
+   "farfalle"
   ]
  },
  {
@@ -1678,6 +1840,13 @@
     "chi": "narra",
     "testo": "Nuvola gli tocca lo zaino col muso e lo raddrizza. Semino lo rimette storto con una mano."
    }
+  ],
+  "ambiente": {
+   "momento": "giorno",
+   "meteo": "sereno"
+  },
+  "comparse": [
+   "marmotta"
   ]
  },
  {
@@ -1729,6 +1898,13 @@
     "chi": "narra",
     "testo": "Nuvola parte. La nuvoletta, grande il doppio, sale col sentiero. Lo zaino di lei resta per terra."
    }
+  ],
+  "ambiente": {
+   "momento": "mattina",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "zaino"
   ]
  },
  {
@@ -1783,6 +1959,14 @@
     "umore": "felice",
     "testo": "Lo so."
    }
+  ],
+  "ambiente": {
+   "momento": "mattina",
+   "meteo": "nuvole"
+  },
+  "oggetti": [
+   "zaino",
+   "fiore-cima"
   ]
  },
  {
@@ -1832,6 +2016,14 @@
     "chi": "narra",
     "testo": "Sale un secchio con un pane. Nonna Capra mette al suo posto un formaggio e un biglietto piegato. Il secchio scende."
    }
+  ],
+  "ambiente": {
+   "momento": "giorno",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "carrucola",
+   "secchio"
   ]
  },
  {
@@ -1888,6 +2080,13 @@
     "chi": "narra",
     "testo": "Semino appende lo zaino storto alla sella di Nuvola. Tre ombre sul sentiero lungo, una con lo zaino."
    }
+  ],
+  "ambiente": {
+   "momento": "tramonto",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "zaino"
   ]
  },
  {
@@ -1939,6 +2138,13 @@
     "chi": "narra",
     "testo": "Mezzogiorno. Semino dorme nel prato col cappello di Semina sulla faccia. Nuvola gli sta di fianco, sveglia."
    }
+  ],
+  "ambiente": {
+   "momento": "alba",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "cappello"
   ]
  },
  {
@@ -1989,6 +2195,14 @@
     "chi": "narra",
     "testo": "Il vento gira. Semino gira la conchiglia col buco controvento. Fischia."
    }
+  ],
+  "ambiente": {
+   "momento": "giorno",
+   "meteo": "vento"
+  },
+  "oggetti": [
+   "sasso-quota",
+   "conchiglia"
   ]
  },
  {
@@ -2030,6 +2244,14 @@
     "chi": "narra",
     "testo": "Semina beve fino in fondo. Poi allunga una mano e gira il cappello."
    }
+  ],
+  "ambiente": {
+   "momento": "tramonto",
+   "meteo": "nuvole"
+  },
+  "oggetti": [
+   "cappello",
+   "tazze"
   ]
  },
  {
@@ -2081,6 +2303,13 @@
     "chi": "narra",
     "testo": "Nuvola sbadiglia. Dormono in tre sotto la coperta, che ne copre due e mezzo. Il mezzo è Nuvola."
    }
+  ],
+  "ambiente": {
+   "momento": "sera",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "tazze"
   ]
  },
  {
@@ -2126,7 +2355,11 @@
     "chi": "narra",
     "testo": "Semino batte il bastone su un sasso, a tempo. Da giù, la campanella. Due volte."
    }
-  ]
+  ],
+  "ambiente": {
+   "momento": "sera",
+   "meteo": "sereno"
+  }
  },
  {
   "fiore": 41,
@@ -2181,6 +2414,17 @@
     "chi": "narra",
     "testo": "Semino infila la corda nello zaino storto. Il nodo entra per ultimo."
    }
+  ],
+  "ambiente": {
+   "momento": "mattina",
+   "meteo": "sereno"
+  },
+  "comparse": [
+   "marmotta"
+  ],
+  "oggetti": [
+   "nodo",
+   "carrucola"
   ]
  },
  {
@@ -2222,7 +2466,11 @@
     "chi": "narra",
     "testo": "Nuvola fa un passo, raddrizza col muso lo zaino di Semino e torna sulla linea degli alberi. Lui non lo tocca."
    }
-  ]
+  ],
+  "ambiente": {
+   "momento": "tramonto",
+   "meteo": "sereno"
+  }
  },
  {
   "fiore": 43,
@@ -2278,6 +2526,13 @@
     "chi": "narra",
     "testo": "La lucciola torna dalle altre, sopra il tronco. Semino si siede accanto a Semina, la lanterna spenta sulle ginocchia."
    }
+  ],
+  "ambiente": {
+   "momento": "sera",
+   "meteo": "sereno"
+  },
+  "comparse": [
+   "lucciole"
   ]
  },
  {
@@ -2330,6 +2585,17 @@
     "chi": "narra",
     "testo": "Prima dell'alba Gufo posa una piuma sul ramo. Poi se ne va, senza girarsi."
    }
+  ],
+  "ambiente": {
+   "momento": "notte",
+   "meteo": "sereno"
+  },
+  "comparse": [
+   "lucciole"
+  ],
+  "oggetti": [
+   "pc",
+   "piuma"
   ]
  },
  {
@@ -2378,6 +2644,17 @@
     "chi": "narra",
     "testo": "Semina rimette la piuma sul ramo e ci posa accanto una bacca rossa. Fischio è già partito. Senza piuma."
    }
+  ],
+  "ambiente": {
+   "momento": "alba",
+   "meteo": "sereno"
+  },
+  "comparse": [
+   "scoiattolo"
+  ],
+  "oggetti": [
+   "piuma",
+   "bacca"
   ]
  },
  {
@@ -2429,7 +2706,11 @@
     "umore": "neutro",
     "testo": "Lucciole zero. Lanterna una."
    }
-  ]
+  ],
+  "ambiente": {
+   "momento": "sera",
+   "meteo": "pioggia"
+  }
  },
  {
   "fiore": 47,
@@ -2485,6 +2766,13 @@
     "chi": "narra",
     "testo": "Quando riapre il PC, sul tasto invio c'è la lucciola di Semina. Accesa."
    }
+  ],
+  "ambiente": {
+   "momento": "sera",
+   "meteo": "nuvole"
+  },
+  "oggetti": [
+   "pc"
   ]
  },
  {
@@ -2541,6 +2829,13 @@
     "chi": "gufo",
     "testo": "Sei mini."
    }
+  ],
+  "ambiente": {
+   "momento": "notte",
+   "meteo": "sereno"
+  },
+  "comparse": [
+   "lucciole"
   ]
  },
  {
@@ -2587,6 +2882,13 @@
     "umore": "neutro",
     "testo": "Stanotte era così. Giuro."
    }
+  ],
+  "ambiente": {
+   "momento": "tramonto",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "foglio"
   ]
  },
  {
@@ -2637,6 +2939,13 @@
     "chi": "narra",
     "testo": "BUM."
    }
+  ],
+  "ambiente": {
+   "momento": "sera",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "fuochi"
   ]
  },
  {
@@ -2688,6 +2997,16 @@
     "chi": "narra",
     "testo": "Fischio prende la lettera nel becco e parte verso la valle. Torna indietro. Riparte verso la montagna."
    }
+  ],
+  "ambiente": {
+   "momento": "mattina",
+   "meteo": "sereno"
+  },
+  "comparse": [
+   "scoiattolo"
+  ],
+  "oggetti": [
+   "lettera"
   ]
  },
  {
@@ -2743,7 +3062,11 @@
     "chi": "narra",
     "testo": "In fila al buio: Gufo davanti, poi Semino, poi Semina attaccata allo zaino dritto."
    }
-  ]
+  ],
+  "ambiente": {
+   "momento": "notte",
+   "meteo": "nuvole"
+  }
  },
  {
   "fiore": 53,
@@ -2792,6 +3115,16 @@
     "umore": "dorme",
     "testo": "Che bel muschio, qui."
    }
+  ],
+  "ambiente": {
+   "momento": "notte",
+   "meteo": "sereno"
+  },
+  "comparse": [
+   "lucciole"
+  ],
+  "oggetti": [
+   "pc"
   ]
  },
  {
@@ -2836,6 +3169,14 @@
     "chi": "narra",
     "testo": "Semino mette la piuma nello zaino. Sull'ultimo ramo, dietro di loro, la lanterna resta accesa."
    }
+  ],
+  "ambiente": {
+   "momento": "sera",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "piuma",
+   "zaino"
   ]
  },
  {
@@ -2892,6 +3233,14 @@
     "umore": "felice",
     "testo": "Questo si chiama Fieno."
    }
+  ],
+  "ambiente": {
+   "momento": "notte",
+   "meteo": "sereno"
+  },
+  "comparse": [
+   "tram",
+   "falene"
   ]
  },
  {
@@ -2945,6 +3294,13 @@
     "chi": "grillo",
     "testo": "Una moneta e un bottone. Piazza buona."
    }
+  ],
+  "ambiente": {
+   "momento": "sera",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "custodia"
   ]
  },
  {
@@ -2991,6 +3347,13 @@
     "chi": "narra",
     "testo": "Suona. In prima fila Semina tiene lo zaino di lui sulle ginocchia, dritto, con tutte e due le mani."
    }
+  ],
+  "ambiente": {
+   "momento": "sera",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "zaino"
   ]
  },
  {
@@ -3037,6 +3400,16 @@
     "chi": "narra",
     "testo": "Semino alza la testa alle tre e dieci. La sedia è vuota. Sulla tastiera c'è una foglia con scritto \"tram\"."
    }
+  ],
+  "ambiente": {
+   "momento": "notte",
+   "meteo": "sereno"
+  },
+  "comparse": [
+   "tram"
+  ],
+  "oggetti": [
+   "pc"
   ]
  },
  {
@@ -3083,6 +3456,16 @@
     "chi": "narra",
     "testo": "La palla scavalca il cancello. Uno che passa la rimanda dentro di collo. Rotola fino al bordo, toppa in su."
    }
+  ],
+  "ambiente": {
+   "momento": "notte",
+   "meteo": "sereno"
+  },
+  "comparse": [
+   "falene"
+  ],
+  "oggetti": [
+   "palla"
   ]
  },
  {
@@ -3129,7 +3512,11 @@
     "chi": "narra",
     "testo": "Semino attraversa a passo svelto. Dall'altro marciapiede guarda la finestra. Sul vetro, il tondo di un naso."
    }
-  ]
+  ],
+  "ambiente": {
+   "momento": "sera",
+   "meteo": "sereno"
+  }
  },
  {
   "fiore": 61,
@@ -3185,6 +3572,16 @@
     "umore": "felice",
     "testo": "Hai chiuso prima."
    }
+  ],
+  "ambiente": {
+   "momento": "notte",
+   "meteo": "sereno"
+  },
+  "comparse": [
+   "tram"
+  ],
+  "oggetti": [
+   "pc"
   ]
  },
  {
@@ -3233,6 +3630,14 @@
     "chi": "narra",
     "testo": "Grillo mette nel palmo di Semino un plettro giallo e gira l'angolo. La custodia sparisce per ultima."
    }
+  ],
+  "ambiente": {
+   "momento": "mattina",
+   "meteo": "nebbia"
+  },
+  "oggetti": [
+   "custodia",
+   "plettro"
   ]
  },
  {
@@ -3284,7 +3689,11 @@
     "chi": "narra",
     "testo": "Più tardi, dalla doccia, la canzone senza titolo a squarciagola. Parte sul due."
    }
-  ]
+  ],
+  "ambiente": {
+   "momento": "giorno",
+   "meteo": "sereno"
+  }
  },
  {
   "fiore": 64,
@@ -3340,6 +3749,16 @@
     "chi": "narra",
     "testo": "Semino Tre si sistema sulla tastiera. Sul tasto invio."
    }
+  ],
+  "ambiente": {
+   "momento": "giorno",
+   "meteo": "sereno"
+  },
+  "comparse": [
+   "piccione"
+  ],
+  "oggetti": [
+   "pc"
   ]
  },
  {
@@ -3396,6 +3815,17 @@
     "chi": "narra",
     "testo": "Semina la piega in otto, storta, con un angolo che avanza. La infila nello zaino, il suo."
    }
+  ],
+  "ambiente": {
+   "momento": "sera",
+   "meteo": "sereno"
+  },
+  "comparse": [
+   "tram"
+  ],
+  "oggetti": [
+   "locandina",
+   "zaino"
   ]
  },
  {
@@ -3447,6 +3877,13 @@
     "umore": "neutro",
     "testo": "Dodici gradi."
    }
+  ],
+  "ambiente": {
+   "momento": "sera",
+   "meteo": "sereno"
+  },
+  "comparse": [
+   "falene"
   ]
  },
  {
@@ -3498,7 +3935,11 @@
     "chi": "narra",
     "testo": "Semina gli dà due colpetti sul cappello. Sul bianco resta una mano di farina."
    }
-  ]
+  ],
+  "ambiente": {
+   "momento": "mattina",
+   "meteo": "sereno"
+  }
  },
  {
   "fiore": 68,
@@ -3554,7 +3995,11 @@
     "umore": "neutro",
     "testo": "Le mie erano già calde."
    }
-  ]
+  ],
+  "ambiente": {
+   "momento": "giorno",
+   "meteo": "sereno"
+  }
  },
  {
   "fiore": 69,
@@ -3605,6 +4050,14 @@
     "chi": "narra",
     "testo": "Semino la innaffia col tè. Il cuscino resta per terra."
    }
+  ],
+  "ambiente": {
+   "momento": "sera",
+   "meteo": "vento"
+  },
+  "oggetti": [
+   "tazze",
+   "pianta"
   ]
  },
  {
@@ -3646,6 +4099,14 @@
     "umore": "neutro",
     "testo": "Quella era della pianta."
    }
+  ],
+  "ambiente": {
+   "momento": "mattina",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "tazze",
+   "pianta"
   ]
  },
  {
@@ -3687,6 +4148,15 @@
     "chi": "narra",
     "testo": "Semino annuisce. Briciola sale sul tavolo e si struscia contro il sasso dritto."
    }
+  ],
+  "ambiente": {
+   "momento": "giorno",
+   "meteo": "nuvole"
+  },
+  "oggetti": [
+   "sasso-quota",
+   "tazze",
+   "pianta"
   ]
  },
  {
@@ -3733,6 +4203,13 @@
     "chi": "narra",
     "testo": "Nessuno si alza. Sull'orologio della cucina le due lancette stanno una sopra l'altra."
    }
+  ],
+  "ambiente": {
+   "momento": "giorno",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "pianta"
   ]
  },
  {
@@ -3779,6 +4256,15 @@
     "chi": "narra",
     "testo": "Semina la mangia tutta, fino all'ultima foglia di basilico. Lascia la forchetta di traverso sul piatto vuoto."
    }
+  ],
+  "ambiente": {
+   "momento": "alba",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "piatto",
+   "foglio",
+   "pianta"
   ]
  },
  {
@@ -3826,6 +4312,13 @@
     "chi": "narra",
     "testo": "Semino scrive sul frigo, grande: 9 (MIE). Briciola si siede lì davanti e lo fissa, la coda attorno alle zampe."
    }
+  ],
+  "ambiente": {
+   "momento": "giorno",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "pianta"
   ]
  },
  {
@@ -3867,6 +4360,15 @@
     "chi": "narra",
     "testo": "Chiude il cassetto col fianco ed esce con la palla sotto il braccio."
    }
+  ],
+  "ambiente": {
+   "momento": "mattina",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "fiore-cima",
+   "palla",
+   "pianta"
   ]
  },
  {
@@ -3908,6 +4410,13 @@
     "umore": "neutro",
     "testo": "La coda no."
    }
+  ],
+  "ambiente": {
+   "momento": "sera",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "pianta"
   ]
  },
  {
@@ -3958,6 +4467,15 @@
     "chi": "narra",
     "testo": "Briciola salta sul tavolo e si siede sull'angolo della lettera."
    }
+  ],
+  "ambiente": {
+   "momento": "mattina",
+   "meteo": "nuvole"
+  },
+  "oggetti": [
+   "lettera",
+   "piatto",
+   "pianta"
   ]
  },
  {
@@ -4014,6 +4532,15 @@
     "chi": "narra",
     "testo": "Semina prende il biglietto senza ritorno. Lo gira e guarda il retro. È bianco."
    }
+  ],
+  "ambiente": {
+   "momento": "giorno",
+   "meteo": "nuvole"
+  },
+  "oggetti": [
+   "lettera",
+   "piatto",
+   "pianta"
   ]
  },
  {
@@ -4070,7 +4597,11 @@
     "chi": "narra",
     "testo": "Il vetro si asciuga e i puntini spariscono. Semino li ripassa col dito, uno per uno."
    }
-  ]
+  ],
+  "ambiente": {
+   "momento": "mattina",
+   "meteo": "sereno"
+  }
  },
  {
   "fiore": 80,
@@ -4123,6 +4654,13 @@
     "chi": "narra",
     "testo": "Grillo riattacca dal ritornello. Semina tiene una mano in tasca e non la tira fuori."
    }
+  ],
+  "ambiente": {
+   "momento": "giorno",
+   "meteo": "sereno"
+  },
+  "comparse": [
+   "piccione"
   ]
  },
  {
@@ -4169,6 +4707,14 @@
     "umore": "felice",
     "testo": "La foglia la lasci attaccata. Deve viaggiare."
    }
+  ],
+  "ambiente": {
+   "momento": "giorno",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "plettro",
+   "mela"
   ]
  },
  {
@@ -4216,6 +4762,15 @@
     "chi": "narra",
     "testo": "Semino appoggia i due mezzi vetrini sul foglio, sopra il 408."
    }
+  ],
+  "ambiente": {
+   "momento": "tramonto",
+   "meteo": "nuvole"
+  },
+  "oggetti": [
+   "vetrino",
+   "foglio",
+   "pianta"
   ]
  },
  {
@@ -4263,6 +4818,14 @@
     "chi": "narra",
     "testo": "Semino cala il secchio e conta i palmi. A quaranta la corda si allenta."
    }
+  ],
+  "ambiente": {
+   "momento": "sera",
+   "meteo": "neve"
+  },
+  "oggetti": [
+   "carrucola",
+   "secchio"
   ]
  },
  {
@@ -4305,6 +4868,15 @@
     "chi": "narra",
     "testo": "Semino tira fuori dallo zaino il pezzo di corda col nodo e lo lega alla cinghia."
    }
+  ],
+  "ambiente": {
+   "momento": "mattina",
+   "meteo": "nuvole"
+  },
+  "oggetti": [
+   "lettera",
+   "nodo",
+   "zaino"
   ]
  },
  {
@@ -4340,6 +4912,15 @@
     "chi": "narra",
     "testo": "Briciola entra dalla porta, attraversa il tavolo e si ferma con una zampa sulla riga a metà."
    }
+  ],
+  "ambiente": {
+   "momento": "notte",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "pianta",
+   "piatto",
+   "lettera"
   ]
  },
  {
@@ -4391,6 +4972,14 @@
     "chi": "narra",
     "testo": "Una mela. Semino tira fuori dalla tasca la sua, con la foglia, un po' raggrinzita. Le mette vicine."
    }
+  ],
+  "ambiente": {
+   "momento": "tramonto",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "mela",
+   "pianta"
   ]
  },
  {
@@ -4447,6 +5036,15 @@
     "chi": "narra",
     "testo": "Sotto il piatto c'è ancora la lettera. Briciola ci dorme sopra."
    }
+  ],
+  "ambiente": {
+   "momento": "sera",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "lettera",
+   "piatto",
+   "pianta"
   ]
  },
  {
@@ -4503,6 +5101,15 @@
     "chi": "narra",
     "testo": "La cartina va sopra la griglia, con una puntina. La matita resta sul tavolo, dalla parte di lui."
    }
+  ],
+  "ambiente": {
+   "momento": "giorno",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "cartina",
+   "matita",
+   "pianta"
   ]
  },
  {
@@ -4560,6 +5167,15 @@
     "chi": "narra",
     "testo": "Sulla cartina nessuno scrive niente. La matita è rotolata dalla parte di lei."
    }
+  ],
+  "ambiente": {
+   "momento": "sera",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "cartina",
+   "matita",
+   "pianta"
   ]
  },
  {
@@ -4606,6 +5222,13 @@
     "chi": "narra",
     "testo": "Il treno parte. Semino si mette le cuffie. Sul tetto dell'ultimo vagone c'è Fischio, girato dalla parte sbagliata."
    }
+  ],
+  "ambiente": {
+   "momento": "mattina",
+   "meteo": "nebbia"
+  },
+  "comparse": [
+   "piccione"
   ]
  },
  {
@@ -4651,6 +5274,17 @@
     "umore": "neutro",
     "testo": "Te lo appoggio qui al sasso, Gianfranca. Quando è asciutto è di nuovo tuo."
    }
+  ],
+  "ambiente": {
+   "momento": "giorno",
+   "meteo": "sereno"
+  },
+  "comparse": [
+   "rane"
+  ],
+  "oggetti": [
+   "bastoncino",
+   "sasso-misura"
   ]
  },
  {
@@ -4698,6 +5332,13 @@
     "chi": "narra",
     "testo": "Pinza sale di lato sul muretto, accanto alla tavola. Saluta con la chela libera."
    }
+  ],
+  "ambiente": {
+   "momento": "giorno",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "secchio"
   ]
  },
  {
@@ -4750,6 +5391,14 @@
     "chi": "narra",
     "testo": "Rimette dentro le lettere e sopra un foglio con scritto solo 39. Lo sportello non chiude. Fischio ci si siede sopra."
    }
+  ],
+  "ambiente": {
+   "momento": "mattina",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "lettera",
+   "foglio"
   ]
  },
  {
@@ -4792,6 +5441,14 @@
     "chi": "nuvola",
     "testo": "Fff."
    }
+  ],
+  "ambiente": {
+   "momento": "giorno",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "tazze",
+   "zaino"
   ]
  },
  {
@@ -4848,6 +5505,14 @@
     "chi": "narra",
     "testo": "Semino cancella il 39 dal sasso e scrive 38. La porta della casetta è socchiusa."
    }
+  ],
+  "ambiente": {
+   "momento": "giorno",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "bastoncino",
+   "sasso-misura"
   ]
  },
  {
@@ -4900,6 +5565,14 @@
     "chi": "narra",
     "testo": "Gufo lascia una piuma, Fischio una bacca. Volano via da due parti. Sul ramo restano la piuma e la bacca."
    }
+  ],
+  "ambiente": {
+   "momento": "tramonto",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "piuma",
+   "bacca"
   ]
  },
  {
@@ -4949,6 +5622,13 @@
     "chi": "narra",
     "testo": "Nella custodia, sopra le monete, Briciola dorme arrotolata."
    }
+  ],
+  "ambiente": {
+   "momento": "giorno",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "custodia"
   ]
  },
  {
@@ -5000,7 +5680,11 @@
     "chi": "narra",
     "testo": "Rientrano. La matita rossa è sul tavolo, in mezzo."
    }
-  ]
+  ],
+  "ambiente": {
+   "momento": "giorno",
+   "meteo": "nuvole"
+  }
  },
  {
   "fiore": 99,
@@ -5052,6 +5736,14 @@
     "chi": "narra",
     "testo": "La palla rattoppata rotola giù dal muretto. Pinza la riporta di lato, con una chela sola, e la lascia tra i due."
    }
+  ],
+  "ambiente": {
+   "momento": "tramonto",
+   "meteo": "nuvole"
+  },
+  "oggetti": [
+   "palla",
+   "piatto"
   ]
  },
  {
@@ -5108,6 +5800,15 @@
     "chi": "narra",
     "testo": "Appoggia il bastoncino alla cassetta della posta. Al bordo dell'aiuola, due biscotti."
    }
+  ],
+  "ambiente": {
+   "momento": "tramonto",
+   "meteo": "sereno"
+  },
+  "oggetti": [
+   "bastoncino",
+   "biscotti",
+   "sasso-misura"
   ]
  }
 ]
