@@ -242,6 +242,7 @@ export function CapitoloScena({
     sulRamo.length > 0 && 'capitolo--ramo',
     solo && 'capitolo--solo',
     cambiato && 'capitolo--cambio',
+    ambiente && 'capitolo--ambiente',
     fine && 'capitolo--fine',
     esce && 'capitolo--esce',
   ]

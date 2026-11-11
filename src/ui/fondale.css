@@ -685,8 +685,8 @@
   --fd-c1: color-mix(in oklab, var(--fd-fondo), #e6dcc0 42%);
 }
 .fd[data-momento='giorno'] {
-  --fd-c0: color-mix(in oklab, var(--fd-fondo), #5e9cb2 52%);
-  --fd-c1: color-mix(in oklab, var(--fd-fondo), #cfe2da 46%);
+  --fd-c0: color-mix(in oklab, var(--fd-fondo), #66a8be 62%);
+  --fd-c1: color-mix(in oklab, var(--fd-fondo), #d6e8e0 54%);
 }
 .fd[data-momento='tramonto'] {
   --fd-c0: color-mix(in oklab, var(--fd-fondo), #6a5888 42%);
@@ -705,6 +705,48 @@
   --fd-mare-1: color-mix(in oklab, var(--fd-terra), #2f5a6a 30%);
   --fd-sabbia: color-mix(in oklab, var(--fd-terra), var(--fd-oro) 17%);
   --fd-luce: var(--fd-oro);
+}
+/* lati (orizzontale e desktop): col momento il cielo dei lati segue lo stesso gradiente del disegno, ancorato
+   alla cima del disegno e al suo orizzonte (--fd-cielo-o, in unità del disegno), così il cielo chiaro arriva
+   a tutta larghezza senza la colonna centrale coi bordi scuri. Senza momento (0-8) i lati restano come prima. */
+.fd-giardino {
+  --fd-cielo-o: 422;
+}
+.fd-mare {
+  --fd-cielo-o: 301;
+}
+.fd-montagna,
+.fd-piazza {
+  --fd-cielo-o: 320;
+}
+.fd-bosco,
+.fd-stazione {
+  --fd-cielo-o: 384;
+}
+.fd-citta {
+  --fd-cielo-o: 397;
+}
+.fd-lontano {
+  --fd-cielo-o: 358;
+}
+.fd[data-momento]:is(.fd-giardino, .fd-mare, .fd-montagna, .fd-bosco, .fd-citta, .fd-lontano, .fd-piazza, .fd-stazione)::before {
+  background: linear-gradient(
+    to bottom,
+    var(--fd-lato-0) calc(var(--fd-suolo-y) - var(--fd-w) * 1.24444),
+    var(--fd-lato-1) calc(var(--fd-suolo-y) - var(--fd-w) * (448 - var(--fd-cielo-o)) / 360),
+    var(--fd-lato-1) var(--fd-oriz),
+    var(--fd-lato-banda-0) var(--fd-oriz),
+    var(--fd-lato-banda-1) calc(var(--fd-suolo-y) - 14px),
+    var(--fd-lato-terra) calc(var(--fd-suolo-y) - 10px),
+    var(--fd-lato-terra) 100%
+  );
+}
+/* cucina in orizzontale (dal 9, col momento): il tavolo in primo piano (y 548) cadrebbe sotto il bordo dello
+   schermo; sale di 56 unità con le sue tazze, e con lui le cose posate sopra (ambiente.css, --amb-alza) */
+@media (max-height: 500px) {
+  .fd-cucina[data-momento] :is(.fd-tavolo, .fd-tavolo-luce, .fd-tazza) {
+    transform: translateY(-56px);
+  }
 }
 /* negli interni il momento si vede solo dai vetri */
 .fd[data-momento='alba'] .fd-vetro-cielo {
