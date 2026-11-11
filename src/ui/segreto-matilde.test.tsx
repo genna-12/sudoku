@@ -2,10 +2,12 @@
 // Segreto per Matilde (T9 C): i capitoli 0-8, letti la prima volta o riletti dal diario, devono restare
 // identici a com'erano prima della storia viva dal 9. Snapshot preso PRIMA di ogni modifica di T9 C:
 // se cambia, qualcosa di nuovo è arrivato nei primi capitoli. Non aggiornarlo senza la lead.
-//   - ogni battuta di ogni capitolo 0-8 (lettura dopo la vittoria, con lo sfondo della Scena come in App)
+//   - ogni battuta di ogni capitolo 0-8 (lettura dopo la vittoria, con lo sfondo della Scena come in App):
+//     render completo della prima e della fine (con "Continua"), sha256 del render completo per quelle in mezzo
 //   - la rilettura dal diario (prima e ultima battuta) e il diario del Giardino con 0-8 letti
 //   - ora e data fisse (timer finti, Date, performance, rAF), Math.random fisso; gli id di useId
 //     (contatore globale di React) rinumerati per ordine di comparsa dentro ogni snapshot
+import { createHash } from 'node:crypto';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -50,7 +52,9 @@ function html(): string {
   });
 }
 
-const vestitoDisegnato = (id: string) => !!accessorioValido(id);
+const sha = (s: string) => createHash('sha256').update(s).digest('hex');
+
+const vestitoDisegnato =(id: string) => !!accessorioValido(id);
 
 /** come App.sfondoDi: la Scena della Home dietro i capitoli di aiuola e giardino */
 function sfondoDi(c: Capitolo) {
@@ -103,7 +107,10 @@ describe('Segreto per Matilde: i capitoli 0-8 non cambiano', () => {
     act(() => vi.advanceTimersByTime(GUARDIA_MS + ATTESA_CONTINUA_MS + 10));
     viste.push(html());
     expect(box.querySelector('[data-testid="capitolo-continua"]')).not.toBeNull();
-    viste.forEach((v, i) => expect(v).toMatchSnapshot(i < c.battute.length ? `battuta ${i}` : 'fine con Continua'));
+    // render completo della prima battuta e della fine; in mezzo lo sha256 del render completo (stessa esattezza)
+    expect(viste[0]).toMatchSnapshot('battuta 0');
+    expect(viste[viste.length - 1]).toMatchSnapshot('fine con Continua');
+    expect(viste.slice(1, -1).map(sha)).toMatchSnapshot('sha256 delle battute in mezzo');
   });
 
   it.each(PRIMI.map((c) => [c.fiore, c] as const))('capitolo %i, rilettura dal diario: prima e ultima battuta', (_, c) => {
