@@ -13,6 +13,7 @@ import {
   PING_MS,
   PRESA_SILENZIOSA_MS,
   PROVA_PRIMO_PIANO_MS,
+  PROVA_SQUILLO_MS,
   REGISTRAZIONE_MS,
   RICOLLEGO_MS,
   RINFRESCO_A_MS,
@@ -420,6 +421,23 @@ describe('posto fisso per profilo', () => {
     expect(t.s.stato).toBe('connesso');
   });
 
+  it('b connesso: uno squillo da a fa un ping di prova; canale muto → perdita e richiamata, canale vivo → resta', async () => {
+    const t = prepara('b');
+    const { pb, c } = await bFissoConnesso(t);
+    pb.g.connessione(new ConnFinta(A)); // squillo incrociato con la chiamata appena riuscita
+    expect(c.tipiInviati().at(-1)).toBe('ping');
+    c.ricevi({ t: 'pong' });
+    await avanza(PROVA_SQUILLO_MS);
+    expect(c.chiusa).toBe(false);
+    pb.g.connessione(new ConnFinta(A)); // pagina di a riaperta: il canale vecchio è morto
+    await avanza(PROVA_SQUILLO_MS);
+    expect(c.chiusa).toBe(true);
+    expect(t.righe.some((r) => /squillo da a: il canale vecchio non risponde/.test(r))).toBe(true);
+    await avanza(PAUSA_RINNOVO_MS);
+    pb.g.aperto();
+    expect(pb.chiamate()).toHaveLength(2);
+  });
+
   it('b rifiuta connessioni da altri', async () => {
     const t = prepara('b');
     await avvio();
@@ -577,6 +595,25 @@ describe('riconnessione', () => {
     expect(p2.riconnessioni).toBe(1);
     p2.g.aperto();
     expect(t.s.ruolo).toBe('a');
+  });
+
+  it('server giù con il canale vivo: solo rinnovi sullo stesso peer, mai distrutto (chiuderebbe il canale)', async () => {
+    const t = prepara('b');
+    const { pb, c } = await bFissoConnesso(t);
+    for (let k = 0; k < 4; k++) {
+      pb.disconnesso = true;
+      pb.g.disconnesso();
+      // il partner intanto parla (il canale è vivo)
+      for (let ms = 0; ms < BACKOFF_RINNOVO[k] + PAUSA_RINNOVO_MS; ms += 500) {
+        await avanza(500);
+        c.ricevi({ t: 'pong' });
+      }
+    }
+    expect(t.peers).toHaveLength(1);
+    expect(pb.distrutto).toBe(false);
+    expect(pb.riconnessioni).toBe(4);
+    expect(c.chiusa).toBe(false);
+    expect(t.s.stato).toBe('connesso');
   });
 
   it('registrazione senza esito entro 8 s → nuovo tentativo', async () => {

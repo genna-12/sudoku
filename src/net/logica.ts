@@ -47,6 +47,8 @@ export const PRESA_PRESUNTA_MS = 4000;
 export const PAUSA_RINNOVO_MS = 300;
 /** `a` in attesa: ogni tanto si rinnova la segnalazione (un WebSocket zombie non dà segni). */
 export const RINFRESCO_A_MS = 30000;
+/** `b` connesso riceve uno squillo: tempo concesso al canale per rispondere al ping di prova. */
+export const PROVA_SQUILLO_MS = 1500;
 /** Durata dello squillo di `a` verso `b`. */
 export const SQUILLO_MS = 3000;
 /** Dopo una perdita si dice "mi ricollego…" al massimo per questo tempo, poi "aspetto". */
@@ -410,7 +412,10 @@ export function creaStanza(o: OpzioniStanza): StanzaInterna {
     rinnova();
   }
 
-  /** Rinnovo dopo un fallimento, con backoff; i tentativi dispari ricreano il Peer. */
+  /**
+   * Rinnovo dopo un fallimento, con backoff; i tentativi dispari ricreano il Peer, ma solo senza un
+   * canale dati vivo: distruggere il Peer chiude anche le sue connessioni.
+   */
   function programmaRinnovo(motivo: string) {
     if (chiuso || base === null || tSegnale !== undefined || tPausa !== undefined) return;
     const n = nRinnovi++;
@@ -418,7 +423,7 @@ export function creaStanza(o: OpzioniStanza): StanzaInterna {
     log(`segnalazione da rifare fra ${(ms / 1000).toFixed(1)} s (${motivo})`);
     tSegnale = setTimeout(() => {
       tSegnale = undefined;
-      if (n % 2 === 1 || !peerRiusabile()) registra(ruolo ?? tentato);
+      if (!peerRiusabile() || (n % 2 === 1 && !conn && !pendente)) registra(ruolo ?? tentato);
       else rinnova();
     }, ms);
   }
@@ -621,7 +626,14 @@ export function creaStanza(o: OpzioniStanza): StanzaInterna {
   }
 
   function suSquillo() {
-    if (chiuso || conn) return;
+    if (chiuso) return;
+    if (conn) {
+      // `a` squilla solo quando non ha un canale: il mio è forse di una sua pagina vecchia (chiusa di
+      // colpo, ricaricata), morto anche se non lo so ancora; o lo squillo si è incrociato con la mia
+      // chiamata appena riuscita. Lo dice un ping.
+      if (tProva === undefined) prova(PROVA_SQUILLO_MS, 'squillo da a: il canale vecchio non risponde');
+      return;
+    }
     if (inRegistrazione) {
       // lo squillo è arrivato: la segnalazione funziona (anche se il server non ha mandato `open`)
       registrazioneRiuscita('squillo ricevuto');
@@ -643,7 +655,8 @@ export function creaStanza(o: OpzioniStanza): StanzaInterna {
       // l'offerta è arrivata: la registrazione funziona anche se `open` non è venuto
       if (inRegistrazione) registrazioneRiuscita('chiamata in arrivo');
       log('connessione in arrivo dal partner');
-      chiudiSquillo();
+      // lo squillo resta: l'offerta può essere vecchia (in coda sul server da una chiamata che b ha già
+      // lasciato perdere); se il canale si apre, attiva() lo chiude
       rispostaArrivata = true;
       prepara(c);
       return;
@@ -812,6 +825,19 @@ export function creaStanza(o: OpzioniStanza): StanzaInterna {
     }
   }
 
+  /** Ping di prova: se entro `ms` non arriva nulla, il canale è morto. */
+  function prova(ms: number, motivo: string) {
+    if (!conn) return;
+    const prima = datiRicevuti;
+    const c = conn;
+    inviaGrezzo({ t: 'ping' });
+    clearTimeout(tProva);
+    tProva = setTimeout(() => {
+      tProva = undefined;
+      if (conn === c && datiRicevuti === prima) perdita(motivo);
+    }, ms);
+  }
+
   function verifica(motivo: string) {
     if (chiuso || base === null) return;
     nascosta = false;
@@ -828,14 +854,7 @@ export function creaStanza(o: OpzioniStanza): StanzaInterna {
         perdita(`ritorno dopo ${Math.round((t - ultimoDato) / 1000)} s senza dati`);
         return;
       }
-      const prima = datiRicevuti;
-      const c = conn;
-      inviaGrezzo({ t: 'ping' });
-      clearTimeout(tProva);
-      tProva = setTimeout(() => {
-        tProva = undefined;
-        if (conn === c && datiRicevuti === prima) perdita('nessuna risposta dopo il ritorno');
-      }, PROVA_PRIMO_PIANO_MS);
+      prova(PROVA_PRIMO_PIANO_MS, 'nessuna risposta dopo il ritorno');
     }
     // la segnalazione può essere un WebSocket zombie: si rinnova comunque
     rinnovaOra(`ritorno: ${motivo}`);
