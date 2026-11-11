@@ -86,7 +86,8 @@ function Cielo({ id, o, notte, luna }: { id: string; o: number; notte: boolean; 
   );
 }
 
-type P = { id: string; notte: boolean; meteo?: Meteo };
+/** `lucciole` false spegne le lucciole del bosco e del prato (T9 C: dal 9 solo se il capitolo le chiama) */
+type P = { id: string; notte: boolean; meteo?: Meteo; lucciole?: boolean };
 
 /* ------------------------------------------------------------ meteo (T9 C) */
 
@@ -224,7 +225,7 @@ const CIUFFI_PRATO: Array<[number, number, number]> = [
  * giardino: niente panorama (sopra va la Scena, intera, col prato al 70%): cielo di notte con stelle e
  * luna, chiarore all'orizzonte, prato con le tinte della Scena, ciuffi e lucciole in primo piano
  */
-function Giardino({ id, notte }: P) {
+function Giardino({ id, notte, lucciole }: P) {
   return (
     <>
       <Cielo id={id} o={0.66} notte={notte} luna={[268, 176]} />
@@ -243,7 +244,7 @@ function Giardino({ id, notte }: P) {
           />
         ))}
       </g>
-      {notte && (
+      {notte && lucciole !== false && (
         <g className="fd-lucciole">
           {LUCCIOLE_PRATO.map(([x, y, d], i) => (
             <g key={i} className="fd-lucciola" style={{ animationDelay: `-${d}s` }}>
@@ -322,7 +323,7 @@ function Montagna({ id, notte }: P) {
   );
 }
 
-function Bosco({ id, notte }: P) {
+function Bosco({ id, notte, lucciole: conLucciole }: P) {
   const lucciole: Array<[number, number, number]> = [
     [70, 330, 0], [128, 268, 1.3], [176, 372, 2.4], [236, 300, 0.7], [292, 360, 1.9], [104, 400, 3], [258, 232, 2.8], [196, 210, 1.6],
   ];
@@ -356,14 +357,16 @@ function Bosco({ id, notte }: P) {
         <path d="M-10 590C60 580 150 576 226 582L230 612C150 608 60 612 -10 618Z" />
         <ellipse cx="228" cy="597" rx="9" ry="15" className="fd-tronco-taglio" />
       </g>
-      <g className="fd-lucciole">
-        {lucciole.map(([x, y, d], i) => (
-          <g key={i} className="fd-lucciola" style={{ animationDelay: `-${d}s` }}>
-            <circle cx={x} cy={y} r="5" className="fd-lucciola-alone" />
-            <circle cx={x} cy={y} r="1.6" className="fd-lucciola-punto" />
-          </g>
-        ))}
-      </g>
+      {conLucciole !== false && (
+        <g className="fd-lucciole">
+          {lucciole.map(([x, y, d], i) => (
+            <g key={i} className="fd-lucciola" style={{ animationDelay: `-${d}s` }}>
+              <circle cx={x} cy={y} r="5" className="fd-lucciola-alone" />
+              <circle cx={x} cy={y} r="1.6" className="fd-lucciola-punto" />
+            </g>
+          ))}
+        </g>
+      )}
     </>
   );
 }
@@ -658,9 +661,11 @@ export interface FondaleProps {
   momento?: MomentoAmbiente;
   /** T9 C: uno strato leggero davanti al disegno (negli interni niente) */
   meteo?: Meteo;
+  /** T9 C: false spegne le lucciole del bosco e del prato; senza, ci sono come sempre */
+  lucciole?: boolean;
 }
 
-export function Fondale({ luogo, fondale, notte: notteProp = true, momento, meteo }: FondaleProps) {
+export function Fondale({ luogo, fondale, notte: notteProp = true, momento, meteo, lucciole }: FondaleProps) {
   const v = scegliFondale(luogo, fondale);
   const id = useId();
   const interno = INTERNI.includes(v);
@@ -672,7 +677,7 @@ export function Fondale({ luogo, fondale, notte: notteProp = true, momento, mete
   else if (v === 'laboratorio') disegno = <Laboratorio id={id} />;
   else {
     const D = DISEGNI[v];
-    disegno = <D id={id} notte={notte} meteo={v === 'treno' ? meteo : undefined} />;
+    disegno = <D id={id} notte={notte} meteo={v === 'treno' ? meteo : undefined} lucciole={lucciole} />;
   }
   return (
     <div

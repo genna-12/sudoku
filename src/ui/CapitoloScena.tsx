@@ -27,6 +27,8 @@ export const ATTESA_CONTINUA_MS = 400;
 const CAPITOLO_DI_TUTTI = 99;
 /** la nota del capitolo 5 su cui si accendono i colori */
 const NOTA_COLORI = 'Il verde è Semino';
+/** i momenti di luce piena: la lanterna del vestito resta spenta */
+const GIORNO: readonly string[] = ['alba', 'mattina', 'giorno'];
 
 const LUOGHI: Record<Luogo, string> = {
   aiuola: "nell'aiuola",
@@ -222,6 +224,9 @@ export function CapitoloScena({
   // T9 C: ambiente, comparse e oggetti solo dal 9 (i capitoli 0-8 restano identici anche con dati sbagliati)
   const vivo = c.fiore >= AMBIENTE_DA;
   const ambiente = vivo ? c.ambiente : undefined;
+  // la lanterna del vestito di giorno è spenta (45, 51); le lucciole del fondale solo se il capitolo le chiama
+  const lanternaSpenta = vestito('semino') === 'lanterna' && !!ambiente && GIORNO.includes(ambiente.momento);
+  const lucciole = ambiente ? (c.comparse ?? []).includes('lucciole') : undefined;
   const etichettaFinale =rilettura ? 'Chiudi' : c.fiore === 0 || rivelazione ? 'Andiamo' : 'Continua';
   const aiuto = !rilettura && c.fiore <= 2 && passo < 2;
 
@@ -310,7 +315,7 @@ export function CapitoloScena({
       aria-label={`Capitolo ${c.fiore}: ${c.titolo}`}
     >
       <div className="capitolo-fondale" key={`fondale-${c.fiore}`}>
-        <Fondale luogo={c.luogo} fondale={c.fondale} momento={ambiente?.momento} meteo={ambiente?.meteo} />
+        <Fondale luogo={c.luogo} fondale={c.fondale} momento={ambiente?.momento} meteo={ambiente?.meteo} lucciole={lucciole} />
         {sfondo}
         <div className="capitolo-velo" aria-hidden="true" />
       </div>
@@ -323,10 +328,10 @@ export function CapitoloScena({
             ))}
           </div>
         )}
-        {vivo && <Ambiente comparse={c.comparse} oggetti={c.oggetti} />}
+        {vivo && <Ambiente comparse={c.comparse} oggetti={c.oggetti} fondale={scegliFondale(c.luogo, c.fondale)} fiore={c.fiore} />}
         <div className="capitolo-suolo">
           {conLui && (
-            <span className={`capitolo-attore capitolo-lui${chi === 'semino' ? ' parla' : ''}`} data-chi="semino">
+            <span className={`capitolo-attore capitolo-lui${chi === 'semino' ? ' parla' : ''}${lanternaSpenta ? ' capitolo-lanterna-spenta' : ''}`} data-chi="semino">
               <Semino
                 chi="semino"
                 stadio={stadio}

@@ -1086,6 +1086,14 @@
   stroke: var(--semino-tratto);
   stroke-width: 1.6;
 }
+/* lanterna spenta (lettore, capitoli di giorno: T9 C): niente fiamma né alone, vetro freddo */
+.capitolo-lanterna-spenta .semino .s-alone,
+.capitolo-lanterna-spenta .semino .s-fiamma {
+  display: none;
+}
+.capitolo-lanterna-spenta .semino .s-vetro {
+  fill: #d9dccf;
+}
 .semino .s-fiamma {
   fill: #ff9a3c;
   stroke: #e0682a;
