@@ -304,7 +304,7 @@ export function CapitoloScena({
       aria-label={`Capitolo ${c.fiore}: ${c.titolo}`}
     >
       <div className="capitolo-fondale" key={`fondale-${c.fiore}`}>
-        <Fondale luogo={c.luogo} fondale={c.fondale} />
+        <Fondale luogo={c.luogo} fondale={c.fondale} momento={c.ambiente?.momento} meteo={c.ambiente?.meteo} />
         {sfondo}
         <div className="capitolo-velo" aria-hidden="true" />
       </div>

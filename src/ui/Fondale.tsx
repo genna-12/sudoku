@@ -8,8 +8,12 @@
 //   - il palco: suolo a y 448 (70%); sotto y 416 niente sagome alte, solo terra e cose basse a contrasto debole
 //   - giardino: cielo, prato, ciuffi e lucciole (sopra si monta la Scena della Home, intera)
 //   - notte (default true) cambia il cielo; cucina e laboratorio sono interni e la ignorano
+//   - momento e meteo (T9 C, solo capitoli 9-100): `momento` vince su `notte` (stelle e luna solo di notte)
+//     e tinge il cielo (data-momento); `meteo` aggiunge uno strato leggero davanti al disegno (data-meteo;
+//     nel treno solo dentro il finestrino, negli interni niente). Senza i due il render è quello di prima.
 // Tinte in fondale.css (--fd-*, ricavate dal tema con color-mix); verde e blu solo in fili e punti.
 import { useId } from 'react';
+import type { Meteo, MomentoAmbiente } from '../config/ambienti';
 import './fondale.css';
 
 export type Fondale =
@@ -82,7 +86,128 @@ function Cielo({ id, o, notte, luna }: { id: string; o: number; notte: boolean; 
   );
 }
 
-type P = { id: string; notte: boolean };
+type P = { id: string; notte: boolean; meteo?: Meteo };
+
+/* ------------------------------------------------------------ meteo (T9 C) */
+
+/** numeri pseudo-casuali fissi (stesso disegno a ogni render, niente Math.random) */
+function sequenza(seme: number, n: number): number[] {
+  let s = seme;
+  return Array.from({ length: n }, () => {
+    s = (s * 1103515245 + 12345) % 2147483648;
+    return s / 2147483648;
+  });
+}
+/** gocce e fiocchi: una piastrella alta `h` ripetuta in verticale; il gruppo scende di `h` e ricomincia */
+function piastrella(seme: number, n: number, h: number): Array<[number, number, number]> {
+  const r = sequenza(seme, n * 3);
+  return Array.from({ length: n }, (_, i) => [Math.round(-10 + r[3 * i] * 380), Math.round(r[3 * i + 1] * h), r[3 * i + 2]]);
+}
+const GOCCE = piastrella(7, 24, 160);
+const GOCCE_FITTE = piastrella(11, 38, 160);
+const FIOCCHI = piastrella(23, 20, 200);
+const RIPETI = (h: number) => Array.from({ length: Math.ceil(640 / h) + 1 }, (_, k) => (k - 1) * h);
+/** nuvole: [x, y, scala] */
+const NUVOLE: Array<[number, number, number]> = [[64, 96, 1], [238, 62, 1.3], [300, 168, 0.8]];
+/** foglie nel vento: [x, y, ritardo in s, scala]; ferme (reduced-motion) restano lì, sparse */
+const FOGLIE: Array<[number, number, number, number]> = [[70, 180, 0, 1], [250, 262, 2.6, 0.8], [140, 330, 5.1, 1.1], [300, 210, 7.4, 0.7], [40, 380, 3.8, 0.9]];
+
+function Nuvola({ x, y, k }: { x: number; y: number; k: number }) {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${k})`}>
+      <ellipse cx="0" cy="0" rx="34" ry="11" />
+      <ellipse cx="-12" cy="-8" rx="15" ry="11" />
+      <ellipse cx="10" cy="-11" rx="18" ry="14" />
+    </g>
+  );
+}
+
+function Pioggia({ fitta }: { fitta?: boolean }) {
+  const gocce = fitta ? GOCCE_FITTE : GOCCE;
+  return (
+    <g className={`fd-pioggia${fitta ? ' fd-pioggia-fitta' : ''}`}>
+      {RIPETI(160).map((dy) => (
+        <g key={dy} transform={`translate(0 ${dy})`}>
+          {gocce.map(([x, y, k], i) => (
+            <path key={i} d={`M${x} ${y}l-3 ${10 + Math.round(k * 6)}`} />
+          ))}
+        </g>
+      ))}
+    </g>
+  );
+}
+
+/**
+ * Lo strato del meteo, davanti al disegno e dietro al palco: leggero, mai a coprire il cielo intero.
+ * sereno niente · nuvole tre nuvole lente · vento foglie e righe d'aria · pioggia righe che scendono ·
+ * temporale pioggia fitta, cielo più scuro e un lampo raro · nebbia bande velate · neve fiocchi lenti
+ */
+function StratoMeteo({ id, meteo }: { id: string; meteo: Meteo }) {
+  if (meteo === 'sereno') return null;
+  const coperto = meteo === 'pioggia' || meteo === 'temporale' || meteo === 'neve' || meteo === 'nebbia';
+  return (
+    <g className={`fd-meteo fd-meteo-${meteo}`}>
+      {coperto && <rect width="360" height="640" className="fd-coperto" />}
+      {(meteo === 'nuvole' || meteo === 'pioggia' || meteo === 'temporale' || meteo === 'neve') && (
+        <g className="fd-nuvole">
+          {NUVOLE.map(([x, y, k], i) => (
+            <Nuvola key={i} x={x} y={y} k={k} />
+          ))}
+        </g>
+      )}
+      {meteo === 'pioggia' && <Pioggia />}
+      {meteo === 'temporale' && (
+        <>
+          <Pioggia fitta />
+          <rect width="360" height="640" className="fd-lampo" />
+        </>
+      )}
+      {meteo === 'neve' && (
+        <g className="fd-neve-cade">
+          {RIPETI(200).map((dy) => (
+            <g key={dy} transform={`translate(0 ${dy})`}>
+              {FIOCCHI.map(([x, y, k], i) => (
+                <circle key={i} cx={x} cy={y} r={1 + k * 1.4} />
+              ))}
+            </g>
+          ))}
+        </g>
+      )}
+      {meteo === 'nebbia' && (
+        <>
+          <linearGradient id={`fd-nebbia-${id}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" className="fd-nebbia-0" />
+            <stop offset="0.5" className="fd-nebbia-1" />
+            <stop offset="1" className="fd-nebbia-0" />
+          </linearGradient>
+          <g className="fd-nebbia">
+            <rect x="-60" y="300" width="480" height="90" fill={`url(#fd-nebbia-${id})`} />
+            <rect x="-60" y="392" width="480" height="96" fill={`url(#fd-nebbia-${id})`} className="fd-nebbia-bassa" />
+            <rect x="-60" y="500" width="480" height="110" fill={`url(#fd-nebbia-${id})`} />
+          </g>
+        </>
+      )}
+      {meteo === 'vento' && (
+        <>
+          <g className="fd-aria">
+            <path d="M-10 150C60 140 110 160 170 150S270 136 330 146" />
+            <path d="M30 236C90 228 150 244 210 236S300 226 370 232" />
+            <path d="M-20 318C40 312 90 326 150 318" />
+          </g>
+          <g className="fd-foglie">
+            {FOGLIE.map(([x, y, d, k], i) => (
+              <g key={i} transform={`translate(${x} ${y})`}>
+                <g className="fd-foglia" style={{ animationDelay: `-${d}s` }}>
+                  <path d="M0 0q6 -7 13 0q-6 7 -13 0z" transform={`scale(${k})`} />
+                </g>
+              </g>
+            ))}
+          </g>
+        </>
+      )}
+    </g>
+  );
+}
 
 /* ------------------------------------------------------------ i luoghi */
 
@@ -360,7 +485,7 @@ function Lontano({ id, notte }: P) {
 }
 
 /** treno: un finestrino grande; dentro il paesaggio scorre piano (due strati) */
-function Treno({ id, notte }: P) {
+function Treno({ id, notte, meteo }: P) {
   const colline = 'M0 300C40 262 80 268 120 286S200 250 240 270S300 290 320 280V330H0Z';
   const monti = 'M0 250L60 200L100 226L160 182L220 232L270 206L320 250V330H0Z';
   const pali = [20, 100, 180, 260];
@@ -388,6 +513,7 @@ function Treno({ id, notte }: P) {
             </g>
           ))}
         </g>
+        {meteo && <StratoMeteo id={id} meteo={meteo} />}
       </g>
       <rect x="34" y="120" width="292" height="214" rx="26" className="fd-cornice" />
       <path d="M48 128H312" className="fd-riflesso-vetro" />
@@ -523,21 +649,43 @@ const DISEGNI: Record<Exclude<Fondale, 'cucina' | 'laboratorio'>, (p: P) => Reac
   stazione: Stazione,
 };
 
-export function Fondale({ luogo, fondale, notte = true }: { luogo: string; fondale?: string; notte?: boolean }) {
+export interface FondaleProps {
+  luogo: string;
+  fondale?: string;
+  /** senza `momento`: notte (default) o giorno */
+  notte?: boolean;
+  /** T9 C: tinge il cielo; vince su `notte` (stelle e luna solo con 'notte'). Gli interni lo mostrano solo nei vetri. */
+  momento?: MomentoAmbiente;
+  /** T9 C: uno strato leggero davanti al disegno (negli interni niente) */
+  meteo?: Meteo;
+}
+
+export function Fondale({ luogo, fondale, notte: notteProp = true, momento, meteo }: FondaleProps) {
   const v = scegliFondale(luogo, fondale);
   const id = useId();
   const interno = INTERNI.includes(v);
+  const notte = momento ? momento === 'notte' : notteProp;
+  // il treno ha il meteo dentro il finestrino; gli interni non lo hanno
+  const strato = meteo && !interno && v !== 'treno' ? meteo : undefined;
   let disegno: React.JSX.Element;
   if (v === 'cucina') disegno = <Cucina id={id} />;
   else if (v === 'laboratorio') disegno = <Laboratorio id={id} />;
   else {
     const D = DISEGNI[v];
-    disegno = <D id={id} notte={notte} />;
+    disegno = <D id={id} notte={notte} meteo={v === 'treno' ? meteo : undefined} />;
   }
   return (
-    <div className={`fd fd-${v}`} data-notte={interno ? undefined : notte ? '1' : '0'} data-fondale={v} aria-hidden="true">
+    <div
+      className={`fd fd-${v}`}
+      data-notte={interno ? undefined : notte ? '1' : '0'}
+      data-fondale={v}
+      data-momento={momento}
+      data-meteo={meteo && !interno ? meteo : undefined}
+      aria-hidden="true"
+    >
       <svg viewBox="0 0 360 640" preserveAspectRatio="xMidYMax meet" focusable="false">
         {disegno}
+        {strato && <StratoMeteo id={id} meteo={strato} />}
       </svg>
     </div>
   );
