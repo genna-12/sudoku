@@ -45,3 +45,8 @@ Verifiche: 10 E2E con due browser veri. I 5 nuovi simulano il background di iOS,
 ## Limiti noti
 - Alcuni oggetti sullo sfondo restano in parte sotto il fumetto: falene al 55, 59 e 66, locandina al 65, lettera nel treno all'84, fuochi al 50. A 360×640, nel bosco, quasi tutto lo sfondo sta dietro i fumetti.
 - Tavola e cartina al 92 e al 98 le disegna già la scena del giardino, quindi non sono ripetute.
+
+## Aggiornamento della notte del 12/11
+- **Colori della griglia (B), pubblicati.** È la tua scelta, B a fasce personali: ognuno vede solo le proprie fasce (velo verde per te, blu per Mati). La casella dell'altro è solo un anello tratteggiato. Chi ha scritto un numero si capisce dal colore del numero, non più dal fondo. L'errore resta visibile anche dentro la fascia. Screenshot dei due schermi, chiaro e scuro: `docs/design/studio-colori-griglia.md`, sezione 8.
+- **Stanza di revisione, pubblicata.** Apri il sito in una **scheda privata di Safari** e scrivi la frase che ti ho dato in chat nel campo della frase segreta. Si apre l'elenco dei capitoli 0-100. Ogni capitolo si legge nel lettore vero, identico a quello che vedrà Mati, e c'è un'anteprima di eco, vestiti, giardino e diario "dopo il capitolo N". Non scrive niente e non si collega a niente. Per uscire, Esci, oppure ricarica la pagina.
+- Nel repo pubblico la frase non c'è, c'è solo un codice ricavato da lei che non si può decifrare.

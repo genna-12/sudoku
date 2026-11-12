@@ -39,6 +39,7 @@ GitHub Pages dal repo `genna-12/sudoku`, workflow `.github/workflows/deploy.yml`
 - 06/11 Revisione UI (docs/revisione/): scala z-index unica in tema.css; veli dei fogli chiusi con `chiudiToccandoFuori` (velo.ts), mai su pointerdown; `.schermata` con fill `backwards`; lettore degli arretrati dalla Home chiudibile ("Dopo" segna letto, Esc/indietro no); Annulla solo sulla propria ultima mossa valida.
 - 11/11 Riconnessione automatica senza cambiare `src/net/types.ts` (ADR 006). Storia dal capitolo 9 con `@ambiente/@comparse/@oggetti` (spec T9-C-ambienti); capitoli 0-8 congelati da `segreto-matilde.test.tsx`.
 - 12/11 Griglia: ognuno vede solo le proprie fasce (velo del proprio colore); il partner solo come anello tratteggiato; chi ha scritto si capisce dal colore del numero, mai dal fondo (ADR 007, spec T9-B-colori).
+- 12/11 Stanza di revisione: una frase (solo hash in `src/config/revisione.ts`) apre tutti i capitoli nel lettore vero, senza scritture né rete (`Radice.tsx`, `Revisione.tsx`). La frase non va mai scritta nel repo.
 
 ## Strumenti
 Nessun connettore: Cloudflare si gestisce con wrangler dal PC di Genna (il connettore Cloudflare del Project è di un cliente, non usarlo); GitHub via git dalla sessione. Il browser integrato della chat occupa un posto nella stanza P2P: chiuderlo prima delle prove.

@@ -1,33 +1,31 @@
-# Handoff (11/11/2026, mattina presto)
+# Handoff (12/11/2026, notte)
 
 ## Stato
-T9 A (connessione) e T9 C (storia viva dal capitolo 9) sono su `main` e deployati: https://genna-12.github.io/sudoku/. Il report per Genna è in `docs/REPORT-11-11-notte.md`. Test: 611 unitari; E2E 10 (5 storici + 5 della riconnessione) verdi su main dopo il merge. B (colori della griglia): studio fatto, `docs/design/studio-colori-griglia.md`, in attesa della scelta di Genna.
+T9 chiuso: A (connessione), C (storia viva dal 9), B (fasce personali nella griglia, ADR 007) e la stanza di revisione dei capitoli sono su `main` e deployati: https://genna-12.github.io/sudoku/. Report per Genna: `docs/REPORT-11-11-notte.md`, con un aggiornamento in fondo per il 12/11. Test: 629 unitari; E2E 11 (5 storici, 5 della riconnessione, revisione).
 
 ## Prossimo passo
-1. **B, colori della griglia.** Quando Genna sceglie la proposta (A, B o C dello studio; consigliata A, "anelli vivi"), implementarla. Le variabili CSS esatte di ogni proposta sono nello studio. A tocca solo `tema.css`; B aggiunge la classe `vicina-suo` in `Griglia.tsx`. B e C cambiano la regola "verde e blu mai a blocchi": serve l'ok di Genna, da scrivere in `docs/design/studio-ui.md` e in CLAUDE.md. Rifare gli screenshot con `scripts/qa/colori-griglia-proposte.mjs`.
-2. Esiti della prova reale di A (vedi "Da Genna"). Se non si ricollegano, partire da Diagnostica rete e dalla ricerca `docs/storico/ricerca/2026-11-11-connessione-ios.md` §9.
+Raccogliere il feedback di Genna dalla prova reale: connessione su iPhone, capitoli rivisti nella stanza di revisione, colori. Tradurlo in un traguardo T10 con una spec breve in docs/specs/. Se il feedback sui capitoli tocca i testi: si cambia solo capitoli.md, mai i capitoli 0-8 già letti da Matilde (`segreto-matilde.test.tsx`).
 
 ## In sospeso
 - Le 7 scelte di `docs/REPORT-06-11-mattina.md`: Genna non ha ancora risposto.
 - T7.12 `leggendo` nella presenza P2P: rimandato.
-- C: oggetti sullo sfondo in parte sotto il fumetto (falene 55/59/66, locandina 65, lettera 84, fuochi 50). Lo script `scripts/qa/ambienti-coperti.mjs` li elenca.
+- C: alcuni oggetti dello sfondo finiscono sotto il fumetto (`scripts/qa/ambienti-coperti.mjs`).
+- B: di giorno l'errore dentro la fascia verde tende al beige (leggibile, annotato nello studio §8). Le note scendono a 3,9:1 sulla selezione.
 
 ## Da Genna
-1. Scegliere la proposta di colori B.
-2. Prova reale con Matilde: background 1-5 minuti; cambio da Wi-Fi a dati; chiusura brusca e riapertura; una partita con un telefono aggiornato e uno no.
-3. Dire i numeri dei capitoli dal 9 in poi in cui cielo, meteo o oggetti stonano.
-4. Rispondere alle 7 scelte del report del 06/11 mattina.
-5. Sul PC: `git pull` in C:\dev\sudoku; committare `worker/package-lock.json`; cancellare su GitHub i branch `t7-resto`, `correzioni-ui`, `t9-a-connessione`, `t9-c-testi`, `t9-c-ambienti`, ormai uniti a main.
+1. Feedback su connessione (background, cambio da Wi-Fi a dati, chiusura brusca), sui capitoli e sui colori.
+2. Revisione dei capitoli: scheda privata di Safari, poi la frase della revisione (gliel'ho data in chat; non è in nessun file) nel campo della frase segreta.
+3. Le 7 scelte del report del 06/11 mattina.
+4. Sul PC: `git pull` in C:\dev\sudoku; committare `worker/package-lock.json`; cancellare su GitHub i branch uniti (`t7-resto`, `correzioni-ui`, `t9-*`).
 
 ## Attenzione
-- **Segreto per Matilde**: i capitoli 0-8 sono protetti da `src/ui/segreto-matilde.test.tsx`. Non aggiornarne mai lo snapshot. Tutto ciò che cambia la storia vale dal 9 (`AMBIENTE_DA` in `CapitoloScena.tsx`).
-- **Ambienti**: righe `@ambiente/@comparse/@oggetti` in capitoli.md, vocabolario chiuso in `src/config/ambienti.json`, regole in `docs/specs/T9-C-ambienti.md` e `docs/storia/ambienti.md`.
-- **Rete** (ADR 006): `src/net/types.ts` non è cambiato. Un client vecchio deve capire tutto (`src/net/compat.test.ts`, con una copia della logica di main). Gli E2E della riconnessione avviano da soli un proxy su 9000 e peer su 9001: niente `npx peerjs` per quelli (README).
-- **Repo PUBBLICO**: niente parole personali nei file (ADR 005).
-- **Agenti**: in worktree, push del branch di lavoro dopo ogni commit (il container si è riavviato una volta stanotte). Porte diverse per agenti paralleli (9000/5173 e 9100/5273).
-- E2E `arrivo-semina` instabile: una volta su più giri.
+- **Frase della revisione**: nel codice c'è solo lo sha256 (`src/config/revisione.ts`). La frase non va scritta in file, test, commit o log: l'E2E la legge da `REVISIONE_FRASE`. Se va cambiata, si ricalcola l'hash con `normalizzaFrase`.
+- **Segreto per Matilde**: i capitoli 0-8 sono congelati dallo snapshot; non aggiornarlo mai. Ambiente, comparse e oggetti valgono solo dal 9.
+- **Griglia** (ADR 007): variabili `--g-*` in tema.css, blocco "Stati della griglia"; `.app[data-ruolo='b']` corregge le tinte per Mati. Le soglie si verificano con `node scripts/qa/colori-griglia-t9b.mjs --rapido` (esce con 1 se una soglia salta).
+- **Rete** (ADR 006): `types.ts` invariato; compatibilità con i client vecchi in `src/net/compat.test.ts`. Gli E2E della riconnessione avviano da soli 9000/9001.
+- Gli E2E storici scrivono sul Worker vero (vedi Riserva). Agenti in parallelo: porte diverse, push del branch dopo ogni commit.
+- Repo PUBBLICO: niente parole personali (ADR 005).
 
 ## Chat
 - Questa: LEAD · Sudoku · T9 connessione e storia · 11/11, chiusa.
-- Da aprire: LEAD · Sudoku · T9 B colori · gg/mm, con "riprendi", dopo la scelta di Genna.
-- Altre attive: nessuna.
+- Prossima: LEAD · Sudoku · T10 feedback · gg/mm, da aprire con "riprendi".

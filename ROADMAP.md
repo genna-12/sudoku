@@ -20,7 +20,8 @@ Genna e Mati giocano dal telefono: connessione 4G, mosse e reazioni identiche, i
 ## T9 — Correzioni dal collaudo: spec docs/specs/T9-collaudo.md
 - A connessione — chiuso 11/11, deployato (ADR 006, ricerca 2026-11-11-connessione-ios); report docs/REPORT-11-11-notte.md
 - C storia viva dal capitolo 9 — chiuso 11/11, deployato (spec T9-C-ambienti.md, docs/storia/ambienti.md)
-- B colori della griglia — studio pronto (docs/design/studio-colori-griglia.md), in attesa della scelta di Genna, poi implementazione (prossimo)
+- B colori della griglia — chiuso 12/11, deployato (fasce personali, ADR 007, spec T9-B-colori.md)
+- Stanza di revisione dei capitoli (frase solo come hash in src/config/revisione.ts) — chiusa 12/11, deployata
 
 ## Dopo (solo se serve)
 - T7.12 `leggendo` nella presenza P2P ("Mati sta leggendo…"), dopo T8: tocca `src/net/types.ts`.
@@ -29,6 +30,7 @@ Genna e Mati giocano dal telefono: connessione 4G, mosse e reazioni identiche, i
 - Splash iOS; suoni opzionali; storico partite esportabile in immagine.
 
 ## Riserva
+- E2E che scrivono sul Worker vero: farli puntare a un Worker finto o a chiavi di test.
 - Instabilità dell'E2E arrivo-semina ("niente eco del capitolo 5 in Home", 1 volta su più giri) prima di metterlo in CI.
 - Oggetti dell'ambiente coperti dal fumetto (scripts/qa/ambienti-coperti.mjs).
 - E2E nel workflow CI (peer in devDependencies, playwright da installare in CI).
