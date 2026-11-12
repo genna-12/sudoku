@@ -7,5 +7,6 @@
 | 004 | [Fonte unica della storia: capitoli.md → JSON con script di controllo](004-fonte-unica-della-storia.md) | 2026-11-04 | accettato |
 | 005 | [Materiale personale fuori dal repo pubblico](005-materiale-riservato-fuori-dal-repo.md) | 2026-11-04 | accettato |
 | 006 | [Riconnessione automatica senza cambiare il contratto di rete](006-riconnessione-automatica.md) | 2026-11-11 | accettato |
+| 007 | [Fasce personali colorate nella griglia](007-fasce-personali-griglia.md) | 2026-11-12 | accettato |
 
 Le decisioni del 03/11 (P2P, Pages, Worker+KV, ruoli dal profilo, palette) stanno in CLAUDE.md, sezione Decisioni, e non sono state convertite in ADR.
