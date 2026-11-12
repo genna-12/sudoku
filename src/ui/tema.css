@@ -1053,7 +1053,6 @@ input:focus-visible {
 }
 
 .cella {
-  --bg: var(--carta);
   position: relative;
   background: var(--bg);
   cursor: pointer;
@@ -1069,36 +1068,109 @@ input:focus-visible {
   outline-offset: -3px;
   z-index: 2;
 }
-.cella.mia {
-  --bg: color-mix(in srgb, var(--mio) 9%, var(--carta));
+/* Stati della griglia (T9 B, ADR 007, spec T9-B-colori). "Mio" è il colore di chi guarda (--mio/--suo li mette
+   App dal profilo): verde sul telefono di Genna, blu su quello di Mati.
+   - Il fondo si compone in due strati: --fondo (carta, mia fascia, numero uguale, mia selezione, faro: l'ultimo
+     vince, in quest'ordine) e sopra, se c'è, il rosso dell'errore. Così la fascia non cancella mai errore,
+     numero uguale e faro, e l'errore resta sotto ogni stato.
+   - Caselle mia/sua senza fondo: chi ha scritto lo dice solo il colore del numero.
+   - Del partner solo la casella: anello tratteggiato del suo colore (::before) e l'alone che respira (::after).
+   Contrasti misurati con scripts/qa/colori-griglia-t9b.mjs (soglie nella spec). */
+.app {
+  --g-mio: color-mix(in srgb, var(--mio) 70%, #fff);
+  --g-suo: color-mix(in srgb, var(--suo) 55%, #fff);
+  --g-velo-mio: color-mix(in srgb, var(--mio) 15%, var(--carta));
+  --g-sel: color-mix(in srgb, var(--mio) 23%, var(--carta));
+  --g-uguale: color-mix(in srgb, var(--evid) 17%, var(--carta-2));
+  --g-filo-uguale: color-mix(in srgb, var(--evid) 60%, transparent);
+  --g-faro: color-mix(in srgb, var(--oro) 20%, var(--carta));
+  --g-errore-quota: 22%;
+  --g-testo-mio: color-mix(in srgb, var(--mio) 46%, #fff);
+  --g-testo-suo: color-mix(in srgb, var(--suo) 46%, #fff);
+  --g-testo-errore: color-mix(in srgb, var(--errore) 40%, #fff);
 }
-.cella.sua {
-  --bg: color-mix(in srgb, var(--suo) 11%, var(--carta));
+/* al buio il blu di Mati è scuro: con la stessa quota la selezione si distingue appena dalla fascia (ΔE 2,9);
+   il verde di Genna sta a 23% (ΔE 7,1): più su toglie contrasto ai numeri blu. Quote diverse per ruolo, stesse regole */
+.app[data-ruolo='b'] {
+  --g-sel: color-mix(in srgb, var(--mio) 29%, var(--carta));
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-tema='scuro']) .app {
+    --g-mio: color-mix(in srgb, var(--mio) 50%, #0c1a12);
+    --g-suo: color-mix(in srgb, var(--suo) 34%, #0c1a12);
+    --g-velo-mio: color-mix(in srgb, var(--mio) 18%, var(--carta));
+    --g-sel: color-mix(in srgb, var(--mio) 33%, var(--carta));
+    --g-uguale: color-mix(in srgb, var(--evid) 17%, var(--carta-2));
+    --g-faro: color-mix(in srgb, var(--oro) 30%, var(--carta));
+    --g-errore-quota: 20%;
+    --g-testo-mio: color-mix(in srgb, var(--mio) 30%, #0c1a12);
+    --g-testo-suo: color-mix(in srgb, var(--suo) 30%, #0c1a12);
+    --g-testo-errore: color-mix(in srgb, var(--errore) 66%, #000);
+  }
+}
+:root[data-tema='chiaro'] .app {
+  --g-mio: color-mix(in srgb, var(--mio) 50%, #0c1a12);
+  --g-suo: color-mix(in srgb, var(--suo) 34%, #0c1a12);
+  --g-velo-mio: color-mix(in srgb, var(--mio) 18%, var(--carta));
+  --g-sel: color-mix(in srgb, var(--mio) 33%, var(--carta));
+  --g-uguale: color-mix(in srgb, var(--evid) 17%, var(--carta-2));
+  --g-faro: color-mix(in srgb, var(--oro) 30%, var(--carta));
+  --g-errore-quota: 20%;
+  --g-testo-mio: color-mix(in srgb, var(--mio) 30%, #0c1a12);
+  --g-testo-suo: color-mix(in srgb, var(--suo) 30%, #0c1a12);
+  --g-testo-errore: color-mix(in srgb, var(--errore) 66%, #000);
+}
+.cella {
+  --fondo: var(--carta);
+  --bg: var(--fondo);
 }
 .cella.vicina {
-  --bg: color-mix(in srgb, var(--inchiostro) 6%, var(--carta));
-}
-.cella.errore {
-  --bg: color-mix(in srgb, var(--errore) 18%, var(--carta));
+  --fondo: var(--g-velo-mio);
 }
 .cella.stessa {
-  --bg: color-mix(in srgb, var(--evid) 16%, var(--carta-2));
+  --fondo: var(--g-uguale);
+  box-shadow: inset 0 0 0 1.5px var(--g-filo-uguale);
 }
 .cella.selezionata {
-  --bg: color-mix(in srgb, var(--inchiostro) 13%, var(--carta));
-  box-shadow: inset 0 0 0 2.5px var(--evid);
+  --fondo: var(--g-sel);
+  box-shadow: inset 0 0 0 3.5px var(--g-mio);
 }
-.cella.partner {
-  box-shadow: inset 0 0 0 2.5px var(--suo);
+/* doppio tocco: tutte le celle con quella cifra (vince sugli altri fondi; la selezione resta nell'anello) */
+.cella.faro {
+  --fondo: var(--g-faro);
 }
-/* l'alone del cursore del partner respira sull'opacità di uno strato (compositore), non sul box-shadow */
-.cella.partner::after {
+.cella.errore {
+  --bg: color-mix(in srgb, var(--errore) var(--g-errore-quota), var(--fondo));
+  /* triangolino in basso a destra (la somma del killer sta in alto a sinistra) */
+  background-image: linear-gradient(to top left, var(--errore) 50%, transparent 50%);
+  background-size: 10px 10px;
+  background-position: right bottom;
+  background-repeat: no-repeat;
+}
+/* il suo cursore: tratteggio vivo del suo colore sul bordo della casella */
+.cella.partner::before {
   content: '';
   position: absolute;
   inset: 0;
   z-index: 1;
+  border: 3px dashed var(--g-suo);
+  pointer-events: none;
+}
+/* stessa casella: il mio anello pieno rientra (dentro), il suo tratteggio resta sul bordo (fuori) */
+.cella.partner.selezionata {
+  box-shadow:
+    inset 0 0 0 4px var(--bg),
+    inset 0 0 0 7.5px var(--g-mio);
+}
+/* l'alone del cursore del partner respira sull'opacità di uno strato (compositore), non sul box-shadow;
+   sta dentro il tratteggio, così non lo sbiadisce */
+.cella.partner::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  z-index: 1;
   border-radius: inherit;
-  box-shadow: inset 0 0 14px color-mix(in srgb, var(--suo) 55%, transparent);
+  box-shadow: inset 0 0 12px color-mix(in srgb, var(--suo) 35%, transparent);
   pointer-events: none;
   animation: cerca 1.8s ease-in-out infinite;
 }
@@ -1124,13 +1196,13 @@ input:focus-visible {
   color: var(--inchiostro);
 }
 .cella.mia .valore {
-  color: var(--mio-testo);
+  color: var(--g-testo-mio);
 }
 .cella.sua .valore {
-  color: var(--suo-testo);
+  color: var(--g-testo-suo);
 }
 .cella.errore .valore {
-  color: var(--errore);
+  color: var(--g-testo-errore);
   text-decoration: underline wavy color-mix(in srgb, var(--errore) 70%, transparent);
   text-decoration-thickness: 1.5px;
   text-underline-offset: 0.8cqi;
@@ -2511,9 +2583,6 @@ input:focus-visible {
     0 0 0 3px color-mix(in srgb, var(--oro) 45%, transparent);
 }
 /* doppio tocco: tutte le celle con quella cifra */
-.cella.faro {
-  --bg: color-mix(in srgb, var(--oro) 22%, var(--carta));
-}
 .cella.faro .valore {
   font-weight: 850;
 }

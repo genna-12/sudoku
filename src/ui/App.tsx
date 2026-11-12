@@ -1164,7 +1164,7 @@ export function App() {
   }, [conCarta]);
 
   return (
-    <div className="app" style={stile}>
+    <div className="app" style={stile} data-ruolo={mioRuolo}>
       <BannerAggiornamento />
       {/* sotto il lettore (o la rilettura) tutto è inert; la carta "Vai" invece si tocca */}
       {/* inert anche durante l'uscita: tastiera e tocchi non agiscono sulla schermata che se ne va (T10) */}

@@ -357,3 +357,67 @@ Dopo la scelta si aggiorna `docs/design/studio-ui.md` (la regola cambia solo se 
 - Soglie: ΔE sotto 3 = indistinguibili, 3-6 = deboli, oltre 10 = netti; WCAG 3:1 per anelli e contorni, 4,5:1 per i numeri.
 - Limite: ho misurato lo stato fermo. Il lampo blu delle mosse del partner (1 s) e l'onda di riga completata non sono nell'analisi.
 - Nel killer non ho misurato: ho solo guardato gli scatti (`t9-colori-killer-*`).
+
+## 8. Realizzata (12/11)
+
+Scelta di Genna: B con le modifiche della spec `docs/specs/T9-B-colori.md` (ADR 007). Solo CSS (`src/ui/tema.css`, blocco "Stati della griglia"); `Griglia.tsx` non cambia.
+Scatti: partita vera a due client, 390×844, `scripts/qa/colori-griglia-t9b.mjs` (poi `python3 -I scripts/qa/colori-griglia-immagini.py t9b`). Genna è su un numero che ha scritto (i numeri uguali si accendono), Mati su una casella lontana; numeri di tutti e due, un errore di Genna nella sua fascia, note.
+
+### Sudoku
+
+| | Schermo di Genna | Schermo di Mati |
+|---|---|---|
+| Scuro | ![](img/t9-b-sudoku-genna-scuro.png) | ![](img/t9-b-sudoku-mati-scuro.png) |
+| Chiaro | ![](img/t9-b-sudoku-genna-chiaro.png) | ![](img/t9-b-sudoku-mati-chiaro.png) |
+
+Sul telefono di Mati "mio" è il blu: la fascia è blu, i suoi numeri sono blu, quelli di Genna verdi, e Genna è il tratteggio verde.
+
+### Sulla stessa casella
+
+Mati va sulla casella di Genna: anello pieno di chi guarda dentro, tratteggio dell'altro fuori.
+
+| | Genna | Mati |
+|---|---|---|
+| Scuro | ![](img/t9-b-insieme-genna-scuro.png) | ![](img/t9-b-insieme-mati-scuro.png) |
+| Chiaro | ![](img/t9-b-insieme-genna-chiaro.png) | ![](img/t9-b-insieme-mati-chiaro.png) |
+
+### Killer
+
+| | Genna | Mati |
+|---|---|---|
+| Scuro | ![](img/t9-b-killer-genna-scuro.png) | ![](img/t9-b-killer-mati-scuro.png) |
+| Chiaro | ![](img/t9-b-killer-genna-chiaro.png) | ![](img/t9-b-killer-mati-chiaro.png) |
+
+### Contrasti misurati (minimo su tutte le combinazioni, sudoku e killer, Genna e Mati)
+
+Misure nel browser sul CSS vero, `--blu-presenza` 1 (con 0 le soglie restano rispettate: fascia ΔE 14,0 / 14,0, numeri 4,70 / 4,63). Combinazioni: 8 fondi (vuota, fascia, selezione, uguale, faro e faro sopra gli altri tre) × numero dato, mio, suo, errore mio, errore suo; più il partner su ognuno.
+
+| Soglia della spec | Scuro | Chiaro | Dove è il minimo |
+|---|---|---|---|
+| Numeri ≥ 4,5:1 su ogni fondo | **4,63** | **4,53** | scuro: numero blu di Genna su "selezione"; chiaro: errore su "selezione"+errore (Mati) |
+| Tratteggio del partner ≥ 3:1 su carta | **7,64** | **6,39** | chiaro: tratteggio verde (schermo di Mati) |
+| Tratteggio del partner ≥ 3:1 sulla mia fascia | **5,17** | **5,05** | scuro: blu su fascia verde; chiaro: verde su fascia blu |
+| Fascia vs casella vuota ΔE ≥ 10 | **11,98** | **13,34** | fascia blu di Mati (la verde: 18,6 / 14,9) |
+| Numero mio vs suo ΔE ≥ 20 | **47,8** | **41,7** | luminosità diverse: 1,65:1 / 1,70:1 |
+
+Altre misure (nessuna soglia nella spec):
+- numero uguale e faro rispetto alla fascia: ΔE 13,7 e 11,9 (scuro) / 14,5 e 14,8 (chiaro) o più;
+- **selezione rispetto alla fascia**: ΔE 7,1 / 7,0 (Genna), 6,1 / 7,9 (Mati), scuro / chiaro (obiettivo del validatore: ≥ 6 per entrambi i ruoli);
+- errore rispetto allo stesso fondo senza errore: ΔE 12,2 (scuro, sulla selezione) / 10,8 (chiaro, sulla selezione) o più; il triangolino c'è su tutti i fondi;
+- mio anello sulla mia selezione: 7,2 / 3,6 (Genna), 4,3 / 5,9 (Mati);
+- stessa casella, tratteggio del partner sul mio fondo di selezione: 4,1 / 9,4 (Genna), 11,2 / 4,1 (Mati);
+- killer: somma della gabbia ≥ 4,65 / 5,41 su ogni fondo, anche con l'errore; linea della gabbia ≥ 5,37 / 5,47;
+- note nella fascia: 4,9 / 4,8 o più (sulla selezione e sul numero uguale scendono a 3,9: nessuna soglia nella spec).
+
+Il tratteggio del partner resta ≥ 3:1 su ogni fondo, anche sopra errore+uguale/selezione (minimo 3,16 al buio, 3,17 di giorno). Correzione del validatore (12/11): prima di giorno scendeva a 2,54 sul telefono di Mati (tratteggio chiaro 42% → 34% di `--suo` + #0c1a12) e al buio la selezione blu di Mati distava dalla fascia blu solo ΔE 2,9 (ora 6,1: quota della selezione 29% per il ruolo b, `.app[data-ruolo='b']`; Genna 23%, era 21%). Caso aperto: di giorno l'errore dentro la fascia verde tende al beige (ΔE 10,8 dal fondo senza errore, triangolino sempre presente).
+
+### Differenze rispetto alla proposta B
+- **Niente fascia del partner** (`vicina-suo`) né velo misto: del partner solo il tratteggio da 3 px (B: velo blu forte e anello pieno). Nessuna riga in `Griglia.tsx`.
+- **Il fondo si compone**: `--fondo` (carta < fascia < uguale < selezione < faro) e sopra il rosso dell'errore (22% scuro, 20% chiaro). In B la fascia e il numero uguale sostituivano ancora il fondo.
+- **Caselle `mia`/`sua` senza fondo** anche fuori dalla fascia; chi ha scritto lo dice solo il numero.
+- **Le tinte sono le stesse per i due ruoli** (`color-mix` su `--mio`/`--suo`), tarate sul colore più difficile: velo 15% / 18% (B 13% / 30%: col blu di Mati il 30% di giorno è un blocco blu), selezione al buio 23% (Genna) e 29% (Mati, `data-ruolo` su `.app`) e di giorno 33% (B 22% / 50%), numeri 46% + bianco / 30% + #0c1a12 (B li tarava diversi per verde e blu).
+- **Mio anello** schiarito al buio (`--mio` 70% + bianco): il blu puro di Mati sul suo velo era sotto 3:1.
+- **Tratteggio**: scuro 55% + bianco, chiaro 34% + #0c1a12; basta la tinta, senza filo sotto.
+- **Respiro**: l'alone resta e respira, ma sta dentro il tratteggio (3 px) e più tenue (35%, era 55%), così non lo sbiadisce. Il tratteggio non respira: resta sempre sopra 3:1.
+- **Triangolino dell'errore** come immagine di sfondo (B usava `::before`, che ora è il tratteggio).
+- Variabili nuove della griglia (`--g-*`); `--mio-testo`/`--suo-testo` restano per il resto dell'app.
