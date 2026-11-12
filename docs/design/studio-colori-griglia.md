@@ -408,7 +408,7 @@ Altre misure (nessuna soglia nella spec):
 - killer: somma della gabbia ≥ 4,65 / 5,41 su ogni fondo, anche con l'errore; linea della gabbia ≥ 5,37 / 5,47;
 - note nella fascia: 4,9 / 4,8 o più.
 
-Sotto 3:1 restano solo casi fuori dalla spec: il tratteggio del partner sopra un numero uguale **con errore** (3,16 scuro, Genna; 2,54 chiaro, Mati) e, nello scuro di Mati, la selezione blu rispetto alla fascia blu (ΔE 2,9: si distingue per l'anello, 4,7:1).
+Sotto 3:1 restano solo casi fuori dalla spec: di giorno, sul telefono di Mati, il tratteggio verde di Genna sopra una casella con errore che è anche uguale o selezionata (2,54 e 2,59; al buio il minimo è 3,16) e, nello scuro di Mati, la selezione blu rispetto alla fascia blu (ΔE 2,9: si distingue per l'anello, 4,7:1).
 
 ### Differenze rispetto alla proposta B
 - **Niente fascia del partner** (`vicina-suo`) né velo misto: del partner solo il tratteggio da 3 px (B: velo blu forte e anello pieno). Nessuna riga in `Griglia.tsx`.
