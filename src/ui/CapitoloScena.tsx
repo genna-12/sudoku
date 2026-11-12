@@ -30,7 +30,8 @@ const NOTA_COLORI = 'Il verde è Semino';
 /** i momenti di luce piena: la lanterna del vestito resta spenta */
 const GIORNO: readonly string[] = ['alba', 'mattina', 'giorno'];
 
-const LUOGHI: Record<Luogo, string> = {
+/** "nell'aiuola", "al mare"…: l'etichetta del luogo nella testa del capitolo (anche nella revisione) */
+export const LUOGHI: Record<Luogo, string> = {
   aiuola: "nell'aiuola",
   giardino: 'in giardino',
   mare: 'al mare',

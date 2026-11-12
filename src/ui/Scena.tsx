@@ -403,6 +403,8 @@ interface Props {
   nuovi?: readonly string[];
   /** nessun elemento entra con l'animazione (fondali del lettore) */
   senzaEntrate?: boolean;
+  /** niente lettura né scrittura degli elementi visti su questo dispositivo (revisione: nessuna traccia) */
+  senzaMemoria?: boolean;
   /** in alto a sinistra c'è il titolo (Home): sul telefono la tavola e i razzi stanno alla sua destra */
   titolo?: boolean;
   /** momento del giorno (dall'ora locale, se il tema non è forzato): tinge il cielo; senza, solo il tema */
@@ -425,6 +427,7 @@ export function Scena({
   intera = false,
   nuovi: nuoviForzati,
   senzaEntrate = false,
+  senzaMemoria = false,
   titolo = false,
   momento,
   figli,
@@ -453,10 +456,11 @@ export function Scena({
 
   // elementi nuovi: mai visti su questo dispositivo, o comparsi mentre la scena è montata
   const visti = useRef<Set<string> | null>(null);
-  if (visti.current === null) visti.current = leggiVisti() ?? new Set(elementi);
+  if (visti.current === null) visti.current = (senzaMemoria ? null : leggiVisti()) ?? new Set(elementi);
   const nuovi = new Set(senzaEntrate ? [] : [...(nuoviForzati ?? []), ...elementi.filter((e) => !visti.current!.has(e))]);
   const chiave = elementi.join(',');
   useEffect(() => {
+    if (senzaMemoria) return;
     const v = visti.current!;
     let cambiato = false;
     for (const e of elementi) {
