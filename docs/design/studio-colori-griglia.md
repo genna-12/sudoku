@@ -394,29 +394,30 @@ Misure nel browser sul CSS vero, `--blu-presenza` 1 (con 0 le soglie restano ris
 
 | Soglia della spec | Scuro | Chiaro | Dove è il minimo |
 |---|---|---|---|
-| Numeri ≥ 4,5:1 su ogni fondo | **4,78** | **4,62** | scuro: numero blu su "uguale"; chiaro: errore su "uguale"+errore |
-| Tratteggio del partner ≥ 3:1 su carta | **7,64** | **5,02** | chiaro: tratteggio verde (schermo di Mati) |
-| Tratteggio del partner ≥ 3:1 sulla mia fascia | **5,17** | **3,96** | scuro: blu su fascia verde; chiaro: verde su fascia blu |
+| Numeri ≥ 4,5:1 su ogni fondo | **4,63** | **4,53** | scuro: numero blu di Genna su "selezione"; chiaro: errore su "selezione"+errore (Mati) |
+| Tratteggio del partner ≥ 3:1 su carta | **7,64** | **6,39** | chiaro: tratteggio verde (schermo di Mati) |
+| Tratteggio del partner ≥ 3:1 sulla mia fascia | **5,17** | **5,05** | scuro: blu su fascia verde; chiaro: verde su fascia blu |
 | Fascia vs casella vuota ΔE ≥ 10 | **11,98** | **13,34** | fascia blu di Mati (la verde: 18,6 / 14,9) |
 | Numero mio vs suo ΔE ≥ 20 | **47,8** | **41,7** | luminosità diverse: 1,65:1 / 1,70:1 |
 
 Altre misure (nessuna soglia nella spec):
 - numero uguale e faro rispetto alla fascia: ΔE 13,7 e 11,9 (scuro) / 14,5 e 14,8 (chiaro) o più;
-- errore rispetto allo stesso fondo senza errore: ΔE 13,1 (scuro, sulla selezione) / 10,9 (chiaro, sul faro) o più; il triangolino c'è su tutti i fondi;
-- mio anello sulla mia selezione: 7,6 / 3,65 (Genna), 4,7 / 6,2 (Mati);
-- stessa casella, tratteggio del partner sul mio fondo di selezione: 4,3 / 9,4 (Genna), 11,2 / 3,4 (Mati);
+- **selezione rispetto alla fascia**: ΔE 7,1 / 7,0 (Genna), 6,1 / 7,9 (Mati), scuro / chiaro (obiettivo del validatore: ≥ 6 per entrambi i ruoli);
+- errore rispetto allo stesso fondo senza errore: ΔE 12,2 (scuro, sulla selezione) / 10,8 (chiaro, sulla selezione) o più; il triangolino c'è su tutti i fondi;
+- mio anello sulla mia selezione: 7,2 / 3,6 (Genna), 4,3 / 5,9 (Mati);
+- stessa casella, tratteggio del partner sul mio fondo di selezione: 4,1 / 9,4 (Genna), 11,2 / 4,1 (Mati);
 - killer: somma della gabbia ≥ 4,65 / 5,41 su ogni fondo, anche con l'errore; linea della gabbia ≥ 5,37 / 5,47;
-- note nella fascia: 4,9 / 4,8 o più.
+- note nella fascia: 4,9 / 4,8 o più (sulla selezione e sul numero uguale scendono a 3,9: nessuna soglia nella spec).
 
-Sotto 3:1 restano solo casi fuori dalla spec: di giorno, sul telefono di Mati, il tratteggio verde di Genna sopra una casella con errore che è anche uguale o selezionata (2,54 e 2,59; al buio il minimo è 3,16) e, nello scuro di Mati, la selezione blu rispetto alla fascia blu (ΔE 2,9: si distingue per l'anello, 4,7:1).
+Il tratteggio del partner resta ≥ 3:1 su ogni fondo, anche sopra errore+uguale/selezione (minimo 3,16 al buio, 3,17 di giorno). Correzione del validatore (12/11): prima di giorno scendeva a 2,54 sul telefono di Mati (tratteggio chiaro 42% → 34% di `--suo` + #0c1a12) e al buio la selezione blu di Mati distava dalla fascia blu solo ΔE 2,9 (ora 6,1: quota della selezione 29% per il ruolo b, `.app[data-ruolo='b']`; Genna 23%, era 21%). Caso aperto: di giorno l'errore dentro la fascia verde tende al beige (ΔE 10,8 dal fondo senza errore, triangolino sempre presente).
 
 ### Differenze rispetto alla proposta B
 - **Niente fascia del partner** (`vicina-suo`) né velo misto: del partner solo il tratteggio da 3 px (B: velo blu forte e anello pieno). Nessuna riga in `Griglia.tsx`.
 - **Il fondo si compone**: `--fondo` (carta < fascia < uguale < selezione < faro) e sopra il rosso dell'errore (22% scuro, 20% chiaro). In B la fascia e il numero uguale sostituivano ancora il fondo.
 - **Caselle `mia`/`sua` senza fondo** anche fuori dalla fascia; chi ha scritto lo dice solo il numero.
-- **Le tinte sono le stesse per i due ruoli** (`color-mix` su `--mio`/`--suo`), quindi tarate sul colore più difficile: velo 15% / 18% (B 13% / 30%: col blu di Mati il 30% di giorno è un blocco blu), selezione 21% / 30% (B 22% / 50%), numeri 46% + bianco / 30% + #0c1a12 (B li tarava diversi per verde e blu).
+- **Le tinte sono le stesse per i due ruoli** (`color-mix` su `--mio`/`--suo`), tarate sul colore più difficile: velo 15% / 18% (B 13% / 30%: col blu di Mati il 30% di giorno è un blocco blu), selezione al buio 23% (Genna) e 29% (Mati, `data-ruolo` su `.app`) e di giorno 33% (B 22% / 50%), numeri 46% + bianco / 30% + #0c1a12 (B li tarava diversi per verde e blu).
 - **Mio anello** schiarito al buio (`--mio` 70% + bianco): il blu puro di Mati sul suo velo era sotto 3:1.
-- **Tratteggio**: scuro 55% + bianco, chiaro 42% + #0c1a12; basta la tinta, senza filo sotto.
+- **Tratteggio**: scuro 55% + bianco, chiaro 34% + #0c1a12; basta la tinta, senza filo sotto.
 - **Respiro**: l'alone resta e respira, ma sta dentro il tratteggio (3 px) e più tenue (35%, era 55%), così non lo sbiadisce. Il tratteggio non respira: resta sempre sopra 3:1.
 - **Triangolino dell'errore** come immagine di sfondo (B usava `::before`, che ora è il tratteggio).
 - Variabili nuove della griglia (`--g-*`); `--mio-testo`/`--suo-testo` restano per il resto dell'app.

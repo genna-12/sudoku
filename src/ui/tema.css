@@ -1080,7 +1080,7 @@ input:focus-visible {
   --g-mio: color-mix(in srgb, var(--mio) 70%, #fff);
   --g-suo: color-mix(in srgb, var(--suo) 55%, #fff);
   --g-velo-mio: color-mix(in srgb, var(--mio) 15%, var(--carta));
-  --g-sel: color-mix(in srgb, var(--mio) 21%, var(--carta));
+  --g-sel: color-mix(in srgb, var(--mio) 23%, var(--carta));
   --g-uguale: color-mix(in srgb, var(--evid) 17%, var(--carta-2));
   --g-filo-uguale: color-mix(in srgb, var(--evid) 60%, transparent);
   --g-faro: color-mix(in srgb, var(--oro) 20%, var(--carta));
@@ -1089,12 +1089,17 @@ input:focus-visible {
   --g-testo-suo: color-mix(in srgb, var(--suo) 46%, #fff);
   --g-testo-errore: color-mix(in srgb, var(--errore) 40%, #fff);
 }
+/* al buio il blu di Mati è scuro: con la stessa quota la selezione si distingue appena dalla fascia (ΔE 2,9);
+   il verde di Genna sta a 23% (ΔE 7,1): più su toglie contrasto ai numeri blu. Quote diverse per ruolo, stesse regole */
+.app[data-ruolo='b'] {
+  --g-sel: color-mix(in srgb, var(--mio) 29%, var(--carta));
+}
 @media (prefers-color-scheme: light) {
   :root:not([data-tema='scuro']) .app {
     --g-mio: color-mix(in srgb, var(--mio) 50%, #0c1a12);
-    --g-suo: color-mix(in srgb, var(--suo) 42%, #0c1a12);
+    --g-suo: color-mix(in srgb, var(--suo) 34%, #0c1a12);
     --g-velo-mio: color-mix(in srgb, var(--mio) 18%, var(--carta));
-    --g-sel: color-mix(in srgb, var(--mio) 30%, var(--carta));
+    --g-sel: color-mix(in srgb, var(--mio) 33%, var(--carta));
     --g-uguale: color-mix(in srgb, var(--evid) 17%, var(--carta-2));
     --g-faro: color-mix(in srgb, var(--oro) 30%, var(--carta));
     --g-errore-quota: 20%;
@@ -1105,9 +1110,9 @@ input:focus-visible {
 }
 :root[data-tema='chiaro'] .app {
   --g-mio: color-mix(in srgb, var(--mio) 50%, #0c1a12);
-  --g-suo: color-mix(in srgb, var(--suo) 42%, #0c1a12);
+  --g-suo: color-mix(in srgb, var(--suo) 34%, #0c1a12);
   --g-velo-mio: color-mix(in srgb, var(--mio) 18%, var(--carta));
-  --g-sel: color-mix(in srgb, var(--mio) 30%, var(--carta));
+  --g-sel: color-mix(in srgb, var(--mio) 33%, var(--carta));
   --g-uguale: color-mix(in srgb, var(--evid) 17%, var(--carta-2));
   --g-faro: color-mix(in srgb, var(--oro) 30%, var(--carta));
   --g-errore-quota: 20%;
