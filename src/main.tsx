@@ -1,6 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { App } from './ui/App';
+import { Radice } from './ui/Radice';
 import './ui/tema.css';
 import { chiediPersistenza, ripristinaDaIndexedDB } from './stato/persistenza';
 
@@ -9,7 +9,7 @@ ripristinaDaIndexedDB().finally(() => {
   void chiediPersistenza();
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
-      <App />
+      <Radice />
     </StrictMode>,
   );
 });

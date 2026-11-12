@@ -1,0 +1,187 @@
+/* Stanza di revisione (Revisione.tsx): elenco dei capitoli, lettore con la barra dei capitoli, anteprima.
+   Stessa palette dell'app; verde e blu solo nei dettagli (il numero del capitolo). */
+.revisione {
+  max-width: 520px;
+  margin: 0 auto;
+}
+.revisione-testa {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s3);
+  margin-bottom: 18px;
+}
+.revisione-titoli {
+  flex: 1;
+  min-width: 0;
+}
+.revisione-etichetta {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tenue);
+}
+.revisione-titolo {
+  margin: 2px 0 0;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+.revisione-nota {
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: var(--tenue);
+}
+.revisione-esci {
+  flex: none;
+  width: auto;
+  min-height: 44px;
+  padding: 0 16px;
+  font-size: 15px;
+  background: var(--carta-2);
+  color: var(--inchiostro);
+}
+
+.revisione-atto {
+  margin: 0 0 18px;
+}
+.revisione-atto-nome {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 0;
+  padding: 8px 2px 6px;
+  font-size: 15px;
+  font-weight: 700;
+  background: var(--fondo);
+}
+.revisione-intervallo {
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--tenue);
+}
+.revisione-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.revisione-riga {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 52px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--carta);
+  color: var(--inchiostro);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.15s var(--curva);
+}
+.revisione-riga:active {
+  transform: scale(0.99);
+}
+.revisione-numero {
+  flex: none;
+  width: 34px;
+  font-size: 17px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--verde-inchiostro);
+}
+.revisione-riga-testo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.revisione-riga-titolo {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+.revisione-luogo {
+  font-size: 12px;
+  color: var(--tenue);
+}
+
+/* ---------- lettore: il capitolo vero, più corto di una barra in fondo ---------- */
+.revisione-lettore {
+  --rev-barra: calc(52px + env(safe-area-inset-bottom));
+}
+.revisione-lettore .capitolo {
+  bottom: var(--rev-barra);
+  height: auto;
+}
+.revisione-barra {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 71;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.3fr 1fr;
+  gap: 6px;
+  height: var(--rev-barra);
+  padding: 6px max(10px, env(safe-area-inset-left)) env(safe-area-inset-bottom) max(10px, env(safe-area-inset-right));
+  background: #0a1613;
+  border-top: 1px solid #24362f;
+  color-scheme: dark;
+}
+.revisione-barra button {
+  min-height: 40px;
+  border: 0;
+  border-radius: 10px;
+  background: #13221e;
+  color: #f1ead7;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+.revisione-barra button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* ---------- anteprima "dopo il capitolo N" ---------- */
+.revisione-anteprima {
+  position: fixed;
+  inset: 0;
+  z-index: 72;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--fondo);
+}
+.revisione-anteprima-dentro {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 460px;
+  margin: 0 auto;
+  padding: max(16px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
+}
+.revisione-anteprima .revisione-testa {
+  margin-bottom: 0;
+}
+.revisione-scena {
+  margin: 0 -16px;
+}
+.revisione-vestiti {
+  margin: 0;
+  font-size: 13px;
+  color: var(--tenue);
+}

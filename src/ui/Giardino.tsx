@@ -229,7 +229,7 @@ const DIARIO_APERTO_FINO = 15;
  * Il diario: i capitoli già letti, per atto; un tocco li rilegge. Oltre 15 capitoli gli atti prima
  * dell'ultimo sono chiusi (una riga con nome e capitoli): così i fiori sotto restano vicini anche con 100.
  */
-function Diario({ atti, onRileggi }: { atti: AttoDiario[]; onRileggi: (fiore: number) => void }) {
+export function Diario({ atti, onRileggi }: { atti: AttoDiario[]; onRileggi: (fiore: number) => void }) {
   const lungo = atti.reduce((n, a) => n + a.capitoli.length, 0) > DIARIO_APERTO_FINO;
   return (
     <section className="diario" data-testid="diario" aria-labelledby="diario-titolo">

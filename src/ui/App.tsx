@@ -133,7 +133,7 @@ function leggiTema(): Tema {
   return t === 'scuro' || t === 'chiaro' ? t : 'auto';
 }
 
-export function App() {
+export function App({ onRevisione, inizio }: { onRevisione?: () => void; inizio?: 'ingresso' } = {}) {
   const { archivio, ref, modifica } = useArchivio();
   const io = useMemo(() => ioDaArchivio(archivio), [archivio]);
   const profilo = profiloDiNome(io?.nome ?? '');
@@ -160,7 +160,8 @@ export function App() {
   // già preselezionato da profiloDiNome; un nome non riconosciuto diventerebbe Blu in silenzio.
   const [schermata, setSchermata] = useState<Schermata>(() =>
     // Al (ri)avvio si parte sempre dalla Home: la partita in corso è lì, su "Continua" (richiesta di Genna).
-    !io || !profiloConfermato(archivio) ? 'ingresso' : 'home',
+    // (di ritorno dalla revisione: all'Ingresso, da dove si era partiti)
+    inizio === 'ingresso' || !io || !profiloConfermato(archivio) ? 'ingresso' : 'home',
   );
   // cambio di schermata con uscita breve: la vecchia si dissolve (150 ms), all'animationend entra la nuova
   const [verso, setVerso] = useState<Schermata | null>(null);
@@ -1180,7 +1181,7 @@ export function App() {
         }}
       >
       {schermata === 'ingresso' && (
-        <Ingresso key="ingresso" iniziale={io} sbloccata={sbloccata} vestiti={vestitiGrandi(mioRuolo, { visti: vistiMiei, sbloccata, giorno })} onEntra={entra} />
+        <Ingresso key="ingresso" iniziale={io} sbloccata={sbloccata} vestiti={vestitiGrandi(mioRuolo, { visti: vistiMiei, sbloccata, giorno })} onEntra={entra} onRevisione={onRevisione} />
       )}
       {schermata === 'home' && io && (
         <Home

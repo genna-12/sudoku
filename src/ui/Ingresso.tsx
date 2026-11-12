@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { PROFILI, nomeVisibile, profiloDiNome } from '../config/giocatori';
 import type { ProfiloId } from '../config/giocatori';
@@ -9,6 +9,7 @@ import type { Io } from './useStanza';
 import { useChiudiConIndietro } from './indietro';
 import { useDialogo } from './dialogo';
 import { chiudiToccandoFuori } from './velo';
+import { apreRevisione } from './revisione';
 
 /**
  * Ingresso: si sceglie il proprio colore (verde o blu) e si scrive la frase della stanza.
@@ -19,12 +20,15 @@ export function Ingresso({
   sbloccata,
   vestiti,
   onEntra,
+  onRevisione,
 }: {
   iniziale: Io | null;
   sbloccata: boolean;
   /** i vestiti degli ultimi passati in Home (`vestitiGrandi`), solo dopo l'arrivo di Semina */
   vestiti?: Indossati;
   onEntra: (io: Io) => void;
+  /** l'altra frase (solo l'hash è nel codice, config/revisione.ts) apre la revisione: nessun segno a schermo */
+  onRevisione?: () => void;
 }) {
   const [scelto, setScelto] = useState<ProfiloId | null>(() => (iniziale ? profiloDiNome(iniziale.nome).id : null));
   const [frase, setFrase] = useState(iniziale?.frase ?? '');
@@ -43,8 +47,34 @@ export function Ingresso({
   const foglioAvviso = useRef<HTMLDivElement>(null);
   useDialogo(foglioAvviso, avvisoAperto);
 
+  // l'hash della frase scritta, calcolato mentre la si scrive: all'invio di solito è già pronto
+  const controllata = useRef<{ frase: string; apre: boolean } | null>(null);
+  useEffect(() => {
+    if (!onRevisione) return;
+    let vivo = true;
+    void apreRevisione(frase).then((apre) => {
+      if (vivo) controllata.current = { frase, apre };
+    });
+    return () => {
+      vivo = false;
+    };
+  }, [frase, onRevisione]);
+
+  /** Prima di tutto: la frase della revisione? Se no `altrimenti` (il percorso di sempre, sincrono se l'hash è già pronto). */
+  function primaRevisione(altrimenti: () => void) {
+    if (!onRevisione || frase.trim().length < 4) return altrimenti();
+    const f = frase;
+    const c = controllata.current;
+    if (c && c.frase === f) return c.apre ? onRevisione() : altrimenti();
+    void apreRevisione(f).then((apre) => (apre ? onRevisione() : altrimenti()));
+  }
+
   function invia(e: FormEvent) {
     e.preventDefault();
+    primaRevisione(entraNellaStanza);
+  }
+
+  function entraNellaStanza() {
     if (pronto && profilo && ricordato && ricordato.id !== profilo.id) setAvviso(true);
     else if (pronto && profilo) onEntra({ nome: profilo.nome, frase: frase.trim() });
     else if (profilo) {
@@ -117,7 +147,7 @@ export function Ingresso({
               // con il bottone disabilitato l'Invio non manda il modulo: senza colore lo si chiede qui
               if (e.key === 'Enter' && !profilo) {
                 e.preventDefault();
-                chiediColore();
+                primaRevisione(chiediColore);
               }
             }}
             autoComplete="off"
