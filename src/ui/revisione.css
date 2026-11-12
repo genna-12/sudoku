@@ -1,4 +1,5 @@
 /* Stanza di revisione (Revisione.tsx): elenco dei capitoli, lettore con la barra dei capitoli, anteprima.
+   tema.css si carica dopo questo file (main.tsx): dove una classe sua si somma, qui serve un selettore più forte.
    Stessa palette dell'app; verde e blu solo nei dettagli (il numero del capitolo). */
 .revisione {
   max-width: 520px;
@@ -34,7 +35,7 @@
   font-size: 14px;
   color: var(--tenue);
 }
-.revisione-esci {
+.revisione-testa .revisione-esci {
   flex: none;
   width: auto;
   min-height: 44px;
